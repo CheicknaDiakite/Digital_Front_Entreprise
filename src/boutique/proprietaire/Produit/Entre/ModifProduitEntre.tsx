@@ -7,6 +7,7 @@ import { BASE } from '../../../../_services/caller.service';
 import { connect } from '../../../../_services/account.service';
 import PdfViewer from '../../../../usePerso/PdfFile';
 import Nav from '../../../../_components/Button/Nav';
+import { useFetchUser } from '../../../../usePerso/fonction.user';
 
 
 export default function ModifProduitEntre() {
@@ -14,6 +15,8 @@ export default function ModifProduitEntre() {
   const {unFacEntre, setUnFacEntre} = useFacEntre(uuid!)
   const {deleteFacEntre} = useDeleteFacEntre()
   const {updateFacEntre} = useUpdateFacEntre()
+
+  const {unUser} = useFetchUser(connect)
 
   const handleDelete = () => {
     const confirmation = window.confirm("Vous êtes sûr de vouloir supprimer ?");
@@ -55,9 +58,11 @@ export default function ModifProduitEntre() {
   };
   return (<>
     <Nav>
+    {unUser.role === 1 &&     
       <Button size="small" className='rounded-full shadow-md shadow-red-800/50' onClick={handleDelete}>
         <DeleteIcon fontSize='small' />
       </Button>
+    }
     </Nav>
 
     <Card sx={{ minWidth: 275 }}>
@@ -123,8 +128,9 @@ export default function ModifProduitEntre() {
                 <PdfViewer fileUrl={url} />
               </div>
             }
-
-            <Button type="submit" color="success" variant="outlined">Envoyer</Button>
+            {(unUser.role === 1 || unUser.role === 2) &&             
+              <Button type="submit" color="success" variant="outlined">Envoyer</Button>
+            }
           </Stack>
         </form>
         </DialogContent>

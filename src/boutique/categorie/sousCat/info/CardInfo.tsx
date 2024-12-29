@@ -4,8 +4,8 @@ import { format } from 'date-fns';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 
 export default function CardInfo({row}: any) {
-  console.log("info", row);
   const validDate = row.date ?? new Date();
+  // console.log("rr ..", row.date)
   const price = priceRow(row.qte, row.pu);
     return (
         <TableRow>

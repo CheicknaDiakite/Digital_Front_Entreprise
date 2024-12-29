@@ -29,12 +29,14 @@ import { ChangeEvent, FormEvent, Fragment, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { FormValueType } from "../../../typescript/FormType";
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { useCreateAdminUser, useFetchAllUsers } from "../../../usePerso/fonction.user";
+import { useCreateAdminUser, useFetchAllUsers, useFetchEntreprise } from "../../../usePerso/fonction.user";
 import { connect } from "../../../_services/account.service";
 import Nav from "../../../_components/Button/Nav";
 import MyTextField from "../../../_components/Input/MyTextField";
 import { useStoreUuid } from "../../../usePerso/store";
 import { format } from "date-fns";
+import M_Abonnement from "../../../_components/Card/M_Abonnement";
+import { isLicenceExpired } from "../../../usePerso/fonctionPerso";
 
 const TABS = [
   {
@@ -54,6 +56,8 @@ const TABS = [
 
 export default function Personnel() {
   const uuid = useStoreUuid((state) => state.selectedId)
+  const {unEntreprise} = useFetchEntreprise(uuid!)
+  
   const [open, openchange] = useState(false);
   const functionopen = () => {
     openchange(true);
@@ -225,6 +229,12 @@ export default function Personnel() {
               <CloseIcon color="primary"></CloseIcon>
             </IconButton>            
           </DialogTitle>
+          
+          {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
+          <M_Abonnement />  
+          )
+            :        
+          
           <DialogContent>
             <form onSubmit={onSubmit}>
               <Stack spacing={2}  margin={2}>
@@ -276,6 +286,8 @@ export default function Personnel() {
               </Stack>
             </form>
           </DialogContent>
+          }
+          
         </Dialog>
       </Card>
     </>

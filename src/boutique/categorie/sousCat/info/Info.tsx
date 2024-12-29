@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
-import { RouteParams } from "../../../../typescript/DataType";
-import { Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
+import { RecupType, RouteParams } from "../../../../typescript/DataType";
+import { Grid, Pagination, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material";
 import AnalyticEcommerce from "../../../../components/cards/statistics/AnalyticEcommerce";
 import CardInfo from "./CardInfo";
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
@@ -8,6 +8,7 @@ import Nav from "../../../../_components/Button/Nav";
 import { useCateSousCate, useInfoSousCate } from "../../../../usePerso/fonction.categorie";
 import { connect } from "../../../../_services/account.service";
 import { formatNumberWithSpaces } from "../../../../usePerso/fonctionPerso";
+import { useState } from "react";
 
 export default function Info() {
 
@@ -24,6 +25,76 @@ export default function Info() {
     
     // const {infos} = useSousCategorie(top)
     const {infos} = useInfoSousCate(top)
+
+    const itemsPerPage = 25; // Nombre d'éléments par page
+
+    // État pour la page courante et les éléments par page
+    const [currentPage, setCurrentPage] = useState(1);
+
+    // États pour les dates de recherche
+    const [selectedStartDate, setSelectedStartDate] = useState<string>('');
+    const [selectedEndDate, setSelectedEndDate] = useState<string>('');
+
+    // Filtrage entre les deux dates sélectionnées
+  const filteredInfoss = infos?.filter((item) => {
+    if (!item.date) {
+      return false; // Ignore les éléments sans date valide
+    }
+
+    const itemDate = new Date(item.date).getTime();
+    const startDate = selectedStartDate ? new Date(selectedStartDate).getTime() : null;
+    const endDate = selectedEndDate ? new Date(selectedEndDate).getTime() : null;
+  
+    return (
+      (startDate === null || itemDate >= startDate) &&
+      (endDate === null || itemDate <= endDate)
+    );
+  });
+
+  // Inverser les boutiques pour que les plus récentes apparaissent en premier
+  const reversedInfos = filteredInfoss?.slice().sort((a: RecupType, b: RecupType) => {
+    if (a.id === undefined) return 1;
+    if (b.id === undefined) return -1;
+    return Number(b.id) - Number(a.id);
+  });
+
+  const totalPages = Math.ceil(reversedInfos?.length / itemsPerPage);
+
+  // Calculer la somme des "price" pour la date sélectionnée
+  const totalPrice = reversedInfos?.reduce((acc, row: RecupType) => {
+    const price = (row.qte !== undefined && row.pu !== undefined) ? row.qte * row.pu : 0;
+    return acc + price;
+  }, 0);
+
+  const totalQte = reversedInfos?.reduce((acc, row: RecupType) => {
+    const price = (row.qte !== undefined ) ? row.qte : 0;
+    return acc + price;
+  }, 0);
+
+  console.log("test ", totalQte)
+
+  // Récupération des éléments à afficher sur la page courante
+  const displayedInfos = reversedInfos?.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Gestion du changement de page
+  const handlePageChange = (_: React.ChangeEvent<unknown>, page: number) => {
+    setCurrentPage(page);
+    // setUserInteracted(true); // Indiquer que l'utilisateur a interagi avec la pagination
+  };
+
+  // Gestion du changement des dates
+  const handleStartDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedStartDate(event.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleEndDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedEndDate(event.target.value);
+    setCurrentPage(1);
+  };
     
     // const ent = infos.filter(info => info.stock !== undefined && info.stock !== null).map(info => ({stock:info.stock}));
     const ent = infos
@@ -32,7 +103,7 @@ export default function Info() {
     
     const filteredInfos = infos
     .filter(info => info.libelle !== undefined) // Filtrer les objets qui ont un name
-    .map(info => ({ pu: info.pu, qte: info.qte, libelle: info.libelle, prix_total: info.prix_total, client: info.client })); // Extraire uniquement les id et name
+    .map(info => ({ pu: info.pu, qte: info.qte, libelle: info.libelle, prix_total: info.prix_total, client: info.client, date: info.date })); // Extraire uniquement les id et name
 
     const totalPrix = filteredInfos.reduce((sum, sor) => sum + sor.prix_total, 0);
 
@@ -54,7 +125,7 @@ export default function Info() {
       <Grid container rowSpacing={4.5} columnSpacing={2.75}>
 
         <Grid item xs={12} sm={6} md={4} lg={3}>
-          <AnalyticEcommerce title="Total des sommes de ces produits" count={sumQteStock} percentage={formatNumberWithSpaces(totalPrix)} className="bg-green-100" />
+          <AnalyticEcommerce title="Total des sommes de quantites et le chiffre d'affaire de ce produit" count={sumQteStock} percentage={formatNumberWithSpaces(totalPrix)} className="bg-green-100" />
         </Grid>
 
         {ent.map((p, index) => {
@@ -71,9 +142,36 @@ export default function Info() {
       <Table sx={{ minWidth: 700 }} aria-label="spanning table">
         <TableHead>
           <TableRow>
-            <TableCell align="center" colSpan={3}>
-              Details
-            </TableCell>
+          <div className="flex justify-center mt-4">
+            <Pagination
+              count={totalPages}
+              page={currentPage}
+              onChange={handlePageChange}
+              color="primary"
+              
+            />
+
+            <Grid item className='mx-2'>
+              <TextField
+                className='bg-sky-300'
+                label="Date de début"
+                type="date"
+                value={selectedStartDate}
+                onChange={handleStartDateChange}
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+            <Grid item>
+              <TextField
+                className='bg-sky-300'
+                label="Date de fin"
+                type="date"
+                value={selectedEndDate}
+                onChange={handleEndDateChange}
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+          </div>
             {/* <TableCell align="right">Prix</TableCell> */}
           </TableRow>
           <TableRow>
@@ -86,17 +184,18 @@ export default function Info() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {filteredInfos?.length > 0 ? 
+          {displayedInfos?.length > 0 ? 
           
-            filteredInfos?.map((row, index) => {            
+            displayedInfos?.map((row, index) => {            
               return <CardInfo key={index} row={row} />
             })
             : "Pas d'infos"
           }
           <TableRow>
-            <TableCell rowSpan={3} />
-            <TableCell colSpan={2}>Total :</TableCell>
-            <TableCell align="right">{formatNumberWithSpaces(totalPrix)} <LocalAtmIcon color="primary" fontSize='small' /></TableCell>
+            <TableCell rowSpan={4} />
+            <TableCell colSpan={3}>Total :</TableCell>
+            <TableCell colSpan={0}>{totalQte}</TableCell>
+            <TableCell align="right">{formatNumberWithSpaces(totalPrice)} <LocalAtmIcon color="primary" fontSize='small' /></TableCell>
           </TableRow>
           
         </TableBody>

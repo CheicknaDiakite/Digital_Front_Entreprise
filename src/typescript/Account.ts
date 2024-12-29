@@ -29,6 +29,7 @@ export type EntrepriseType = {
     numero: number,
     adresse: string,
     user_id?: string,
+    pays?: string,
     libelle?: string,
     historique?: HistoriqueType[]
 }

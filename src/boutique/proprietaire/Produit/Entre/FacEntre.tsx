@@ -1,4 +1,4 @@
-import { Box, Button, Dialog, DialogContent, DialogTitle, Grid, IconButton, Pagination, Paper, Skeleton, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material'
+import { Box, Button, Dialog, DialogContent, DialogTitle, Grid, IconButton, Pagination, Paper, Skeleton, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material'
 import CloseIcon from "@mui/icons-material/Close"
 import { ChangeEvent, FormEvent, useState } from 'react';
 import { connect } from '../../../../_services/account.service';
@@ -9,9 +9,13 @@ import { FacSorType } from '../../../../typescript/fac';
 import Nav from '../../../../_components/Button/Nav';
 import { useStoreUuid } from '../../../../usePerso/store';
 import { RecupType } from '../../../../typescript/DataType';
+import M_Abonnement from '../../../../_components/Card/M_Abonnement';
+import { useFetchEntreprise } from '../../../../usePerso/fonction.user';
+import { isLicenceExpired } from '../../../../usePerso/fonctionPerso';
 
 export default function FacEntre() {
   const uuid = useStoreUuid((state) => state.selectedId)
+  const {unEntreprise} = useFetchEntreprise(uuid!)
 
   const {ajoutFacEntre} = useCreateFacEntre()
   const {facEntresUtilisateur, isLoading, isError}= useGetAllFacEntre(connect, uuid!)
@@ -19,14 +23,35 @@ export default function FacEntre() {
   const [currentPage, setCurrentPage] = useState(1);
    const itemsPerPage = 25; // Nombre d'éléments par page
 
-   const reversedFacEntrer = facEntresUtilisateur?.slice().sort((a: RecupType, b: RecupType) => {
+   // États pour les dates de recherche
+     const [selectedStartDate, setSelectedStartDate] = useState<string>('');
+     const [selectedEndDate, setSelectedEndDate] = useState<string>('');
+   
+     // Filtrage entre les deux dates sélectionnées
+     const filteredBoutiques = facEntresUtilisateur?.filter((item) => {
+       if (!item.date) {
+         return false; // Ignore les éléments sans date valide
+       }
+     
+       const itemDate = new Date(item.date).getTime();
+       const startDate = selectedStartDate ? new Date(selectedStartDate).getTime() : null;
+       const endDate = selectedEndDate ? new Date(selectedEndDate).getTime() : null;
+     
+       return (
+         (startDate === null || itemDate >= startDate) &&
+         (endDate === null || itemDate <= endDate)
+       );
+     });
+   
+
+   const reversedFacEntrer = filteredBoutiques?.slice().sort((a: RecupType, b: RecupType) => {
     if (a.id === undefined) return 1;
     if (b.id === undefined) return -1;
     return Number(b.id) - Number(a.id);
   });
  
    // Calcul du nombre total de pages
-   const totalPages = Math.ceil(facEntresUtilisateur.length / itemsPerPage);
+   const totalPages = Math.ceil(filteredBoutiques.length / itemsPerPage);
  
    // Récupération des éléments à afficher sur la page courante
    const facEntrerBoutic = reversedFacEntrer.slice(
@@ -38,6 +63,17 @@ export default function FacEntre() {
    const handlePageChange = (_: ChangeEvent<unknown>, page: number) => {
      setCurrentPage(page);
    };
+
+    // Gestion du changement des dates
+     const handleStartDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+       setSelectedStartDate(event.target.value);
+       setCurrentPage(1);
+     };
+   
+     const handleEndDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+       setSelectedEndDate(event.target.value);
+       setCurrentPage(1);
+     };
   
   const [open, openchange]= useState(false);
   const functionopen = () => {
@@ -122,48 +158,74 @@ export default function FacEntre() {
             onChange={handlePageChange}
             color="primary"
           />
+                    <Grid item className='mx-2'>
+                      <TextField
+                        className='bg-sky-300'
+                        label="Date de début"
+                        type="date"
+                        value={selectedStartDate}
+                        onChange={handleStartDateChange}
+                        InputLabelProps={{ shrink: true }}
+                      />
+                    </Grid>
+                    <Grid item>
+                      <TextField
+                        className='bg-sky-300'
+                        label="Date de fin"
+                        type="date"
+                        value={selectedEndDate}
+                        onChange={handleEndDateChange}
+                        InputLabelProps={{ shrink: true }}
+                      />
+                    </Grid>
         </div>
         {/* Modal */}
         <Dialog open={open} onClose={closeopen} fullWidth maxWidth="xs">
           <DialogTitle>Ajout des Factures d'entrer<IconButton onClick={closeopen} style={{float: "right"}}><CloseIcon color="primary"></CloseIcon></IconButton> </DialogTitle>
-          <DialogContent>
-            
-            <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmit}>
-              <Stack spacing={2} margin={2}>
+          
+          {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
+          <M_Abonnement />  
+          )
+            :        
+            <DialogContent>
+              
+              <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmit}>
+                <Stack spacing={2} margin={2}>
 
-                <MyTextField 
-                  label={"libelle"}
-                  name={"libelle"}
-                  onChange={onChange}
-                />
-                <MyTextField 
-                  label={"Reference"}
-                  name={"ref"}
-                  onChange={onChange}
-                />
-                <MyTextField 
-                  label={"Date"}
-                  name={"date"}
-                  type="date"
-                  onChange={onChange}
-                  InputLabelProps={{
-                    shrink: true, // Force le label à rester au-dessus du champ
-                  }}
-                />
-                <MyTextField 
-                  label={"facture"}
-                  name={"facture"}
-                  type='file'
-                  onChange={handleImageChange}
-                  InputLabelProps={{
-                    shrink: true, // Force le label à rester au-dessus du champ
-                  }}
-                />
-                
-                <Button type="submit" color="success" variant="outlined">Yes</Button>
-              </Stack>
-            </form>
-          </DialogContent>
+                  <MyTextField 
+                    label={"libelle"}
+                    name={"libelle"}
+                    onChange={onChange}
+                  />
+                  <MyTextField 
+                    label={"Reference"}
+                    name={"ref"}
+                    onChange={onChange}
+                  />
+                  <MyTextField 
+                    label={"Date"}
+                    name={"date"}
+                    type="date"
+                    onChange={onChange}
+                    InputLabelProps={{
+                      shrink: true, // Force le label à rester au-dessus du champ
+                    }}
+                  />
+                  <MyTextField 
+                    label={"facture"}
+                    name={"facture"}
+                    type='file'
+                    onChange={handleImageChange}
+                    InputLabelProps={{
+                      shrink: true, // Force le label à rester au-dessus du champ
+                    }}
+                  />
+                  
+                  <Button type="submit" color="success" variant="outlined">Envoyer</Button>
+                </Stack>
+              </form>
+            </DialogContent>        
+          }
         </Dialog>
     
         <TableContainer component={Paper}>

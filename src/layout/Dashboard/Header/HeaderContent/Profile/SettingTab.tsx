@@ -20,24 +20,28 @@ export default function SettingTab() {
 
   return (
     <List component="nav" sx={{ p: 0, '& .MuiListItemIcon-root': { minWidth: 32 } }}>
-      <Link to={`/entreprise/produit/sortie`}>      
-        <ListItemButton >
-          <ListItemIcon>
-            <FileCopyIcon color="secondary" />
-          </ListItemIcon>
-          <ListItemText primary="Produit sortie" />
-        </ListItemButton>
-      </Link>
-      
-      <Link to={`/entreprise/produit/entre`}>      
-        <ListItemButton >
-          <ListItemIcon>
-            <FileOpenIcon color="secondary" />
-          </ListItemIcon>
-          <ListItemText primary="Produit entre" />
-        </ListItemButton>
-      </Link>
-      {(unUser.role === 1 || unUser.role === 2) && 
+      {(unUser.role === 1 || unUser.role === 2 || unUser.role === 3) &&       
+        <Link to={`/entreprise/produit/sortie`}>      
+          <ListItemButton >
+            <ListItemIcon>
+              <FileCopyIcon color="secondary" />
+            </ListItemIcon>
+            <ListItemText primary="Produit sortie" />
+          </ListItemButton>
+        </Link>
+      }
+      {(unUser.role === 1 || unUser.role === 2) &&       
+        <Link to={`/entreprise/produit/entre`}>      
+          <ListItemButton >
+            <ListItemIcon>
+              <FileOpenIcon color="secondary" />
+            </ListItemIcon>
+            <ListItemText primary="Produit entre" />
+          </ListItemButton>
+        </Link>
+      }
+
+      {(unUser.role === 1 || unUser.role === 2 || unUser.role === 3) && 
         <Link to={"/entreprise/depense"}>        
           <ListItemButton >
             <ListItemIcon>

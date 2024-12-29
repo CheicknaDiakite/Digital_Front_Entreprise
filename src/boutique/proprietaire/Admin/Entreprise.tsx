@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, FormEvent, ReactNode, useState } from 'react';
+import { ChangeEvent, FC, FormEvent, ReactNode, SyntheticEvent, useState } from 'react';
 import CloseIcon from "@mui/icons-material/Close"
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
@@ -10,9 +10,12 @@ import { Link } from 'react-router-dom';
 import { useCreateEntreprise, useFetchUser, useGetUserEntreprises } from '../../../usePerso/fonction.user';
 import { isLicenceExpired } from '../../../usePerso/fonctionPerso';
 import { BASE } from '../../../_services/caller.service';
+import backgroundImage from '../../../../public/assets/img/img.jpg'
 import MyTextField from '../../../_components/Input/MyTextField';
-import countryList from 'react-select-country-list';
+// import countryList from 'react-select-country-list';
 import { useStoreUuid } from '../../../usePerso/store';
+import CountrySelect from '../../../_components/Liste_Pays/CountrySelect';
+import { RecupType } from '../../../typescript/DataType';
 
 // const CARD = ({post}) => (
   
@@ -65,9 +68,15 @@ export default function Entreprise() {
     const {userEntreprises, isLoading, isError} = useGetUserEntreprises(connect)
     const {unUser} = useFetchUser(connect)
     const {ajoutEntreprise} = useCreateEntreprise()
-    const options = countryList().getData();
+    // const options = countryList().getData();
 
     const addId = useStoreUuid(state => state.addId)
+
+    const [age, setAge] = useState('');
+
+    const handleChange = (event: SelectChangeEvent) => {
+      setAge(event.target.value as string);
+    };
     
     const [open, openchange]= useState(false);
     const functionopen = () => {
@@ -93,11 +102,30 @@ export default function Entreprise() {
         });
       };
 
-      const onSelectChange = (e: SelectChangeEvent<string>) => {
-        setFormValues({
-          ...formValues,
-          [e.target.name]: e.target.value,
-        });
+      // const onSelectChange = (e: SelectChangeEvent<string>) => {
+      //   setFormValues({
+      //     ...formValues,
+      //     [e.target.name]: e.target.value,
+      //   });
+      // };
+
+      const handleAutoFourChange = (_: SyntheticEvent<Element, Event>,
+        value: string | RecupType,
+        // reason: AutocompleteChangeReason
+        ) => {
+        if (typeof value === 'object' && value !== null) {
+          
+          setFormValues({
+            ...formValues,
+            pays: value.label ?? '',
+            // phone: value.phone ?? '',
+          });
+        } else {
+          setFormValues({
+            ...formValues,
+            pays: '',
+          });
+        }
       };
     
       const onSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -105,7 +133,8 @@ export default function Entreprise() {
 
         formValues["user_id"]= connect
         // formValues["user_id"]= connect
-        // formValues["user_id"]= connect
+        formValues["libelle"]= age
+
         ajoutEntreprise(formValues)
 
         setFormValues({
@@ -141,16 +170,32 @@ export default function Entreprise() {
   justifyContent="center"
   alignItems="center"
   className='py-5'
+  style={{
+    background: `linear-gradient(rgba(128, 128, 128, 0.7), rgba(128, 128, 128, 0.7)), url(${backgroundImage}) center center`, 
+    backgroundSize: 'cover', // Peut être 'cover' ou 'contain' selon votre besoin
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+  }}
   
 >
-{unUser.role === 1 && 
+{unUser.role === 1 ? 
   <Grid item xs={12} sx={{ textAlign: 'center', mb: 3 }}>
     <Typography variant="h5">
-      <Button variant="outlined" onClick={functionopen}>
+      <Button variant="contained" onClick={functionopen}>
         Ajout de l'Entreprise
       </Button>
     </Typography>
   </Grid>
+  :
+  (unUser.role === 2 || unUser.role === 3 || unUser.role === null)  ?
+  ""
+  :
+  <Typography variant="h5" color="primary" sx={{ mt: 1 }}>
+    Nous vous remercions pour votre inscription sur Gest Stock.<br/>
+    Veuillez-vous patienter avant l'activation de votre compte !<br/>
+    Pour plus d'information contacter (91 15 48 34 // 63 83 51 14)
+  </Typography>
+  
 }
 
   {userEntreprises?.map((post: any, index) => {
@@ -240,16 +285,41 @@ export default function Entreprise() {
               
             />
 
-            <MyTextField
+            {/* <MyTextField
               type='text'
               variant="outlined" 
               label="Type d'entreprise" 
               name='libelle' 
               onChange={onChange}
               
+            /> */}
+
+            <FormControl fullWidth>
+              <InputLabel id="demo-simple-select-label">Type d'entreprise</InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={age}
+                label="Type d'entreprise"
+                onChange={handleChange}
+              >
+                <MenuItem value={"Boutique"}>Boutique</MenuItem>
+                <MenuItem value={"Quincaillerie"}>Quincaillerie</MenuItem>
+                <MenuItem value={"Super marché"}>Super marché</MenuItem>
+                <MenuItem value={"Boulangerie"}>Boulangerie</MenuItem>
+                <MenuItem value={"Pharmacie"}>Pharmacie</MenuItem>
+                <MenuItem value={"Pâtisserie"}>Pâtisserie</MenuItem>
+                <MenuItem value={"Autre"}>Autre</MenuItem>
+              </Select>
+              
+            </FormControl>
+
+            <CountrySelect
+            onSelectChange={handleAutoFourChange}
+            label={"Choisisez le pays ou se trouve l'entreprise !"}             
             />
             
-            <FormControl fullWidth className='mb-4'>
+            {/* <FormControl fullWidth className='mb-4'>
               <InputLabel id="select-pays-label">Choisisez le pays ou se trouve l'entreprise</InputLabel>
               <Select
                 labelId="select-pays-label"
@@ -264,7 +334,7 @@ export default function Entreprise() {
                   </MenuItem>
                 ))}
               </Select>
-            </FormControl>
+            </FormControl> */}
             <Button type="submit" color="success" variant="outlined" >Envoyer</Button>
           </Stack>
         </form>

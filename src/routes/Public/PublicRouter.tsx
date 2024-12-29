@@ -29,12 +29,12 @@ import Entreprise from '../../boutique/proprietaire/Admin/Entreprise'
 import EntrepriseDetail from '../../boutique/proprietaire/Admin/EntrepriseDetail'
 import Personnel from '../../boutique/proprietaire/Personnel/Personnel'
 import { PersonnelModif } from '../../boutique/proprietaire/Personnel/PersonnelModif'
-import { notClick } from '../../usePerso/fonctionPerso'
+// import { notClick } from '../../usePerso/fonctionPerso'
 import SortieInventaire from '../../boutique/proprietaire/historique/inventaire/SortieInventaire'
 import EntrerInventaire from '../../boutique/proprietaire/historique/inventaire/EntrerInventaire'
 
 export default function PublicRouter() {
-  notClick()
+  // notClick()
   return (<div className='bg-zinc-200'>
 
     <Routes>
@@ -42,15 +42,17 @@ export default function PublicRouter() {
       <Route index element={ <Entreprise />} />
         {/* <Route index element={ <DashboardDefault />} /> */}
         
-
         <Route path='entreprise'>
           <Route index element={<DashboardDefault />} />
-          <Route path='detail' element={<EntrepriseDetail />} />
           <Route path='PreFacture' element={<Facture />} />
-          <Route path='historique' element={<TableHistory />} />
-          <Route path='inventaire/sortie' element={<SortieInventaire />} />
-          <Route path='inventaire/entrer' element={<EntrerInventaire />} />
-          <Route path='historique/sppression' element={<HistoriqueSupp />} />
+          
+          <Route element={<ProtectedRoute requiredRole={[1]} redirectPath="/" />}>          
+            <Route path='detail' element={<EntrepriseDetail />} />
+            <Route path='historique' element={<TableHistory />} />
+            <Route path='inventaire/sortie' element={<SortieInventaire />} />
+            <Route path='inventaire/entrer' element={<EntrerInventaire />} />
+            <Route path='historique/sppression' element={<HistoriqueSupp />} />
+          </Route>
 
           <Route path='depense'>
             <Route index element={<Depense />} />
@@ -102,19 +104,21 @@ export default function PublicRouter() {
             <Route path='modif/:uuid' element={<Admin />} />
           </Route>
         </Route>
+        
+        <Route element={<ProtectedRoute requiredRole={[1, 2]} redirectPath="/" />}>        
+          <Route path='categorie' >
+            <Route index element={<ComponentShadow />} />
+            <Route path=':slug' element={<Sortie />} />
+            <Route path='modif/:slug' element={<ModifCate />} /> 
 
-        <Route path='categorie' >
-          <Route index element={<ComponentShadow />} />
-          <Route path=':slug' element={<Sortie />} />
-          <Route path='modif/:slug' element={<ModifCate />} /> 
+            <Route path='sous'>
+              <Route path=':uuid'  element={<SousCat />} />
+              <Route path='modif/:slug'  element={<ModifSousCate />} />
+            </Route>
 
-          <Route path='sous'>
-            <Route path=':uuid'  element={<SousCat />} />
-            <Route path='modif/:slug'  element={<ModifSousCate />} />
+            <Route path='info/:uuid'  element={<Info />} />
+                    
           </Route>
-
-          <Route path='info/:uuid'  element={<Info />} />
-                   
         </Route>
 
         <Route path='entre'>

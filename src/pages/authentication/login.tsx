@@ -8,6 +8,7 @@ import Typography from '@mui/material/Typography';
 // project import
 import AuthWrapper from './AuthWrapper';
 import AuthLogin from './auth-forms/AuthLogin';
+import Bienvenue from '../../_components/Card/Bienvenue';
 
 
 // ================================|| LOGIN ||================================ //
@@ -17,6 +18,7 @@ export default function Login() {
       <AuthWrapper>
       <Grid container spacing={3}>
         <Grid item xs={12}>
+          <Bienvenue />
           <Stack direction="row" justifyContent="space-between" alignItems="baseline" sx={{ mb: { xs: -0.5, sm: 0.5 } }}>
             <Typography variant="h3">Connexion</Typography>
             <Typography component={Link} to="/auth/register" variant="body1" sx={{ textDecoration: 'none' }} color="primary">

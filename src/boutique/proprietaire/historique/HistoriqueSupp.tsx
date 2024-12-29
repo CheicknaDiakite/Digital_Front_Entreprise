@@ -9,6 +9,7 @@ import { connect } from '../../../_services/account.service';
 import Nav from '../../../_components/Button/Nav';
 import { format } from 'date-fns';
 import { useStoreUuid } from '../../../usePerso/store';
+import { formatNumberWithSpaces } from '../../../usePerso/fonctionPerso';
 
 
 export default function HistoriqueSupp() {
@@ -53,7 +54,7 @@ export default function HistoriqueSupp() {
                     </TableCell>
                     <TableCell>{row.type}</TableCell>
                     <TableCell align="right">{row.qte}</TableCell>
-                    <TableCell align="right">{row.pu}</TableCell>
+                    <TableCell align="right">{formatNumberWithSpaces(row.pu)}</TableCell>
                     <TableCell align="right">{row.libelle}</TableCell>
                     <TableCell align="right">{row.categorie}</TableCell>
                     <TableCell align="right">{row.action}</TableCell>

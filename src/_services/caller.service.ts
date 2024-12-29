@@ -3,9 +3,10 @@ import axios, { AxiosInstance } from "axios";
 // URL de base pour l'API
 // http://127.0.0.1:8000
 // https://back.diakitedigital.com
+// https://ok.diakitedigital.com
 
 const BaseDomaine = {
-    URL: 'https://back.diakitedigital.com'
+    URL: 'http://127.0.0.1:8000'
 }
 
 export const Base = {

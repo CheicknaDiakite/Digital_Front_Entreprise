@@ -28,6 +28,30 @@ export default function AuthLogin() {
     });
   };
 
+  let toastId: string | undefined;
+
+  const handle = () => {
+    // Affiche le toast et stocke son ID
+    toastId = toast.loading("Chargement ...");
+
+    // Ferme automatiquement le toast après 1 minute
+    setTimeout(() => {
+      if (toastId) {
+        toast.dismiss(toastId); // Supprime le toast
+      }
+    }, 6500); // 1 minute en millisecondes
+  };
+
+  useEffect(() => {
+    // Nettoie le toast lorsque le composant est démonté
+    return () => {
+      if (toastId) {
+        toast.dismiss(toastId); // Supprime le toast
+      }
+    };
+  }, []);
+
+
   useEffect(() => {
     // Vérifie si l'inscription a réussi
     if (localStorage.getItem("inscriptionSuccess") === "true") {
@@ -59,7 +83,7 @@ export default function AuthLogin() {
           <Stack spacing={2} margin={2}>          
             <TextField variant="outlined" label="Nom d'utilisateur ou Numero" value={formVal.username} name='username' onChange={onChange}></TextField>
             <TextField variant="outlined" label="Mot de passe" type='password' value={formVal.password} name='password' onChange={onChange}></TextField>
-            <Button type="submit" color="success" variant="outlined" >connecter</Button>
+            <Button type="submit" color="success" variant="outlined" onClick={handle} >connecter</Button>
           </Stack>
         </form>
       </Card>

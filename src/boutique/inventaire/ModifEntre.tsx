@@ -1,7 +1,7 @@
-import { ChangeEvent, FormEvent } from 'react'
+import { ChangeEvent, FormEvent, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { RouteParams } from '../../typescript/DataType'
-import { Button, Card, CardContent, DialogContent, DialogTitle, Stack, TextField } from '@mui/material'
+import { Button, Card, CardContent, Checkbox, DialogContent, DialogTitle, FormControlLabel, Stack, TextField } from '@mui/material'
 import { connect } from '../../_services/account.service'
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
 import { useDeleteEntre, useFetchEntre, useUpdateEntre } from '../../usePerso/fonction.entre'
@@ -17,6 +17,12 @@ export default function ModifEntre() {
   const {unUser} = useFetchUser(connect)
   const {updateEntre} = useUpdateEntre()
   const {deleteEntre} = useDeleteEntre()
+
+  const [ajout_terminer, setTerminer] = useState(true);
+  
+  const Ajout_Terminer = () => {
+    ajout_terminer ? setTerminer(false) : setTerminer(true);
+  };
   
   const handleDelete = () => {
     const confirmation = window.confirm("Vous êtes sûr de vouloir supprimer ?");
@@ -35,14 +41,16 @@ export default function ModifEntre() {
     });
   };
 
-  
   unEntre["user_id"] = connect
   unEntre["entreprise_id"] = entreprise_id!
   console.log(unEntre);
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    unEntre["is_sortie"] = ajout_terminer
+
     updateEntre(unEntre)
+    
   };
 
   return (<>
@@ -66,10 +74,20 @@ export default function ModifEntre() {
             <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmit}>
             <Stack spacing={2} margin={2}>
 
-              <TextField variant="outlined" disabled value={unEntre.libelle} label="Designation" name='libelle' onChange={onChange}></TextField>
+              <TextField variant="outlined" disabled value={unEntre.categorie_slug} label="Designation" name='libelle' onChange={onChange}></TextField>
+              <TextField variant="outlined" value={unEntre.libelle} label="libelle" name='libelle' onChange={onChange}></TextField>
               <TextField variant="outlined" value={unEntre.pu} label="PU" name='pu' onChange={onChange}></TextField>
               <TextField variant="outlined" value={unEntre.qte} label="QTE" name='qte' onChange={onChange}></TextField>
-              
+              <FormControlLabel
+                control={<Checkbox 
+                  onChange={Ajout_Terminer} // Appelle la fonction Ajout_Terminer lors du changement
+                />
+                }
+                label="Vous ne voulez pas sortir ce produit ?"
+                labelPlacement="end"
+                onClick={Ajout_Terminer}
+                
+              />
               <Button type="submit" color="success" variant="outlined">Envoyer</Button>
             </Stack>
           </form>

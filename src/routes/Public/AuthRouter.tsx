@@ -3,10 +3,10 @@ import MinimalLayout from '../../layout/MinimalLayout'
 import AuthLogin from '../../pages/authentication/login'
 import AuthRegister from '../../pages/authentication/register'
 import Mdp from '../../pages/authentication/Mdp'
-import { notClick } from '../../usePerso/fonctionPerso'
+// import { notClick } from '../../usePerso/fonctionPerso'
 
 export default function AuthRouter() {
-  notClick()
+  // notClick()
   return (
     <Routes>
       <Route element= {<MinimalLayout />}>

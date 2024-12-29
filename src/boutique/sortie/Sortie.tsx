@@ -12,6 +12,8 @@ import Nav from "../../_components/Button/Nav";
 import MyTextField from "../../_components/Input/MyTextField";
 import { useStoreUuid } from "../../usePerso/store";
 import { formatNumberWithSpaces } from "../../usePerso/fonctionPerso";
+import { SingleValue } from 'react-select';
+
  
 type TypeText = {
   clientName: string,
@@ -123,6 +125,7 @@ export default function Sortie() {
       qte: 0,
       pu: 0,
       entre_id: '',
+      client_id: '',
       });
     
       const onChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -195,11 +198,28 @@ export default function Sortie() {
           });
         }
       };
+
+      const [selectedOption, setSelectedOption] = useState<RecupType | null >(null);
+      const [selectedClient, setSelectedClient] = useState<RecupType | null >(null);
+
+      const handleChange = (selected: SingleValue<RecupType>) => {
+        // console.log('Selected option:', selected?.uuid);
+        formValues["entre_id"]= selected?.uuid
+        setSelectedOption(selected);
+      };
+
+      const handleClient = (selected: SingleValue<RecupType>) => {
+        // console.log('Selected option:', selected?.uuid);
+        formValues["client_id"]= selected?.uuid
+        setSelectedClient(selected);
+      };
     
       const onSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         formValues["user_id"]= connect
+
+        // console.log("uu ..", formValues)
        
         ajoutSortie(formValues)
 
@@ -207,8 +227,12 @@ export default function Sortie() {
           user_id: '',
           qte: 0,
           pu: 0,
-          entre_id: '',
+          entre_id: '',          
         })
+
+        setSelectedOption(null);
+        setSelectedClient(null);
+        // window.location.reload();
       };
 
       if (isLoading) {
@@ -393,6 +417,10 @@ export default function Sortie() {
                 handleAutoCompleteChange={handleAutoCompleteChange}
                 handleAutoClientChange={handleAutoClientChange}
                 handleSaveSorties={handleSaveSorties}
+                handleChange={handleChange}
+                handleClient={handleClient}
+                selectedOption={selectedOption}
+                selectedClient={selectedClient}
                 list={sortiesBoutic}
                 
                 />

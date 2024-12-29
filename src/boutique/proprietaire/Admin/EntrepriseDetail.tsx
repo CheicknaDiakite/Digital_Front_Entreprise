@@ -57,7 +57,7 @@ export default function EntrepriseDetail() {
                     
             <Tab label="Les utilisateurs" {...a11yProps(1)} />
           
-            <Tab label="Modif entreprise" {...a11yProps(2)} />
+            <Tab label="Modification de l'entreprise" {...a11yProps(2)} />
           
           </Tabs>
         </Box>

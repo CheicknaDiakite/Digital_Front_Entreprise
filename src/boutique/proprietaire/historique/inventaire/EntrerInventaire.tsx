@@ -19,7 +19,7 @@ export default function EntrerInventaire() {
       <Grid container rowSpacing={4.5} columnSpacing={2.75}>
         {/* Titre */}
         <Grid item xs={12} sx={{ mb: -2.25 }}>
-          <Typography variant="h5">Le nombre de ventes effectuées par mois</Typography>
+          <Typography variant="h5">Le nombre d'achats effectuées par mois</Typography>
         </Grid>
   
         {/* Vérification des données */}
@@ -49,13 +49,13 @@ export default function EntrerInventaire() {
 
         {(!stockEntreprise.count_entrer_par_mois || stockEntreprise.count_entrer_par_mois.length === 0) ? (
             <Grid item xs={12} sx={{ mb: -2.25 }}>
-            <Typography variant="h5">Il n'y a pas eu de vente !</Typography>
+            <Typography variant="h5">Il n'y a pas eu d'achat !</Typography>
             </Grid>
             ) : (
             stockEntreprise.count_entrer_par_mois.map((post, index) => {
             // const validDate = post.week ? new Date(post.month) : new Date(); // Vérifie si `post.week` est valide
             const validD = new Date(post.month) // Vérifie si `post.week` est valide
-            console.log("re re", format(validD, 'MMMM yyyy'))
+            
             return (
                 <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
                 {/* <Link to="/sortie"> */}

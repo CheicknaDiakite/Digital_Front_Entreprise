@@ -25,14 +25,16 @@ export type SousCategorieFormType = {
 
 export type EntreFormType = {
   cumuler_quantite?: boolean;
+  is_sortie?: boolean;
   date: string;
   categorie_slug: string;
 } & TypeForn & TypeNumForn;
 
 export type FormValueType = {
   email?: string;
+  libelle?: string;
   numero?: number;
-  pays?: number;
+  pays?: string;
   email_user?: string;
   entreprise_id?: string;
   user_id?: string;

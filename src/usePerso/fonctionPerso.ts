@@ -57,9 +57,31 @@ export function notClick() {
   }, []);
 }
 
-export function formatNumberWithSpaces(number: number): string {
-  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+// export function formatNumberWithSpaces(number: number): string {
+//   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+// }
+
+// export function formatNumberWithSpaces(number: number | null | undefined): string {
+//   if (number == null || isNaN(number)) return '0,00';
+
+//   const formattedNumber = number.toFixed(2).replace('.', ',');
+//   return formattedNumber.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+// }
+export function formatNumberWithSpaces(number: string | number | null | undefined): string {
+  if (number == null || isNaN(Number(number))) return '0,00';
+
+  // Convertir en nombre si c'est une chaîne
+  const num = typeof number === 'string' ? parseFloat(number) : number;
+
+  // Formater en deux décimales et remplacer le point par une virgule
+  const formattedNumber = num.toFixed(2).replace('.', ',');
+
+  // Ajouter les espaces comme séparateurs de milliers
+  return formattedNumber.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 }
+
+
+
 
 
 export function foncError(error: any)  {

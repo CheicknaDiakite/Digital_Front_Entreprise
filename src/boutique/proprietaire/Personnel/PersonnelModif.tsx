@@ -164,7 +164,7 @@ export function PersonnelModif() {
             fullWidth
           />
           <MyTextField
-            label="RePasswodk"
+            label="Confirmer le mot de passe"
             name="repassword"
             onChange={onChange}
             className="mb-4"

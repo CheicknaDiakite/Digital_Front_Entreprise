@@ -73,6 +73,17 @@ import {
           <form className="mt-8" onSubmit={onSubmit}>
             <div className="mb-1 flex flex-col gap-6">
               <Typography variant="h6" color="textPrimary">
+                Nom d'utilisateur
+              </Typography>
+              <MyTextField 
+              fullWidth
+              disabled
+              variant="outlined"
+              name="last_name"
+              onChange={onChange}
+              value={unUser.username}
+              />
+              <Typography variant="h6" color="textPrimary">
                 Nom de famille
               </Typography>
               <MyTextField 
@@ -83,13 +94,7 @@ import {
               onChange={onChange}
               value={unUser.last_name}
               />
-              {/* <TextField
-                fullWidth
-                variant="outlined"
-                name="last_name"
-                onChange={onChange}
-                value={unUser.last_name}
-              /> */}
+              
               <Typography variant="h6" color="textPrimary">
                 Prenom
               </Typography>

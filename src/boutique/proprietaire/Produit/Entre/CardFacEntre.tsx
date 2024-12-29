@@ -1,14 +1,18 @@
 import { Stack, TableCell, TableRow } from '@mui/material'
 import { Link } from 'react-router-dom'
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import { format } from 'date-fns';
 
 export default function CardFacEntre({row}: any) {
   // let url = BASE(row.facture)
+  const validDate = row.date ?? new Date();
+
   return (
     <TableRow>            
       
       <TableCell>
-        {row.date}
+        {/* {row.date} */}
+        {format(new Date(validDate), 'dd/MM/yyyy')}
       </TableCell>
       
       <TableCell>

@@ -13,13 +13,14 @@ type EntreProps = {
 
 export default function CardDepense({ row }: EntreProps) {
   
-
+  const validDate = row.date ?? new Date();
   return (
     <TableRow>
             
         
         <TableCell>
-          {format(new Date(row.date), 'dd/MM/yyyy')}
+          {/* {format(new Date(row.date), 'dd/MM/yyyy')} */}
+          {format(new Date(validDate), 'dd/MM/yyyy')}
         </TableCell>
        
         <TableCell>

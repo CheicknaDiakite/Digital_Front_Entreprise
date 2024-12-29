@@ -46,15 +46,15 @@ export default function CardInvent({ row }: EntreProps) {
           </span>           
         </TableCell>
         <TableCell align="right">{row.qte}</TableCell>
-        <TableCell align="right">{row.pu}</TableCell>
+        <TableCell align="right">{formatNumberWithSpaces(row.pu)}</TableCell>
         <TableCell align="right">{formatNumberWithSpaces(price)} <LocalAtmIcon color="primary" fontSize='small' /></TableCell>
 
         {(unUser.role === 1 || unUser.role === 2) &&     
-          <TableCell>
+          <TableCell className={row.is_sortie ? 'bg-white' : 'bg-white'} >
             <Link to={`/entre/modif/${row.uuid}`}>
               <Stack direction="row" spacing={2}>
                 {/* <Item>Modifier</Item> */}
-                <VisibilityIcon color="info" fontSize="medium" />
+                <VisibilityIcon color={row.is_sortie ? 'info' : 'error'} fontSize="medium" />
               </Stack>
             </Link>
           </TableCell>        

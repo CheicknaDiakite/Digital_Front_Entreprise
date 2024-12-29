@@ -15,22 +15,46 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { useHistoriqueEntreprise } from '../../../usePerso/fonction.user';
 import { connect } from '../../../_services/account.service';
 import { useState } from 'react';
-import { Button } from '@mui/material';
+import { Button, Pagination, TextField } from '@mui/material';
 import { format } from 'date-fns';
 import { EntrepriseType } from '../../../typescript/Account';
 import Nav from '../../../_components/Button/Nav';
+import { formatNumberWithSpaces } from '../../../usePerso/fonctionPerso';
 
 function Row(props: { row: EntrepriseType }) {
   const { row } = props;
   const [open, setOpen] = useState(false);
 
-  const [filter, setFilter] = React.useState<'all' | 'entrer' | 'sortie'>('all'); // État pour gérer le filtre
+  const [filter, setFilter] = useState<'all' | 'entrer' | 'sortie'>('all');
+  const [startDate, setStartDate] = useState<string>(''); // Date de début
+  const [endDate, setEndDate] = useState<string>(''); // Date de fin
+  const [currentPage, setCurrentPage] = useState<number>(1); // Page actuelle
+  const rowsPerPage = 50; // Nombre de lignes par page
 
-  // Fonction pour filtrer l'historique en fonction du type
+  // Fonction pour filtrer par type et par date
   const filteredHistorique = row.historique?.filter((historyRow) => {
-    if (filter === 'all') return true; // Pas de filtre
-    return historyRow.type === filter; // Filtrer par type (entrer ou sortie)
+    // Filtrage par type
+    const typeFilter = filter === 'all' || historyRow.type === filter;
+
+    // Filtrage par date
+    const rowDate = new Date(historyRow.date ?? new Date());
+    const isAfterStartDate = startDate ? rowDate >= new Date(startDate) : true;
+    const isBeforeEndDate = endDate ? rowDate <= new Date(endDate) : true;
+
+    return typeFilter && isAfterStartDate && isBeforeEndDate;
   });
+
+  // Pagination : calcul des données à afficher sur la page courante
+  const totalPages = Math.ceil((filteredHistorique?.length ?? 0) / rowsPerPage);
+  const paginatedHistorique = filteredHistorique?.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
+
+  // Gestion du changement de page
+  const handlePageChange = (_event: React.ChangeEvent<unknown>, page: number) => {
+    setCurrentPage(page);
+  };
 
   return (
     <React.Fragment>
@@ -41,7 +65,11 @@ function Row(props: { row: EntrepriseType }) {
             size="small"
             onClick={() => setOpen(!open)}
           >
-            {open ? <KeyboardArrowUpIcon color='primary' /> : <KeyboardArrowDownIcon color='primary' />}
+            {open ? (
+              <KeyboardArrowUpIcon color="primary" />
+            ) : (
+              <KeyboardArrowDownIcon color="primary" />
+            )}
           </IconButton>
         </TableCell>
         <TableCell component="th" scope="row">
@@ -60,8 +88,8 @@ function Row(props: { row: EntrepriseType }) {
                 History
               </Typography>
 
-              {/* Boutons pour filtrer */}
-              <Box sx={{ marginBottom: 2 }}>
+              {/* Recherche par type et date */}
+              <Box sx={{ marginBottom: 2, display: 'flex', alignItems: 'center' }}>
                 <Button
                   variant={filter === 'entrer' ? 'contained' : 'outlined'}
                   onClick={() => setFilter('entrer')}
@@ -82,39 +110,66 @@ function Row(props: { row: EntrepriseType }) {
                 >
                   Tous
                 </Button>
+
+                {/* Recherche par date */}
+                <Box sx={{ marginLeft: 2, display: 'flex', gap: 2 }}>
+                  <TextField
+                    label="Date début"
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                  />
+                  <TextField
+                    label="Date fin"
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                  />
+                </Box>
               </Box>
-              
+
               <Table size="small" aria-label="purchases">
                 <TableHead>
                   <TableRow>
                     <TableCell>Date</TableCell>
                     <TableCell>Type</TableCell>
-                    <TableCell align="right">QTE</TableCell>
-                    <TableCell align="right">pu ($)</TableCell>
-                    <TableCell align="right">libelle</TableCell>
-                    <TableCell align="right">categorie</TableCell>
+                    <TableCell align="right">Quantite</TableCell>
+                    <TableCell align="right">Prix unitaire ($)</TableCell>
+                    <TableCell align="right">Libelle</TableCell>
+                    <TableCell align="right">Categorie</TableCell>
                     <TableCell align="right">Action</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {filteredHistorique?.map((historyRow, index: number) => {
+                  {paginatedHistorique?.map((historyRow, index) => {
                     const validDate = historyRow.date ?? new Date();
-                    return <TableRow key={index}>
-                    <TableCell component="th" scope="row">
-                      {/* {historyRow.date} */}
-                      {format(new Date(validDate), 'dd/MM/yyyy HH:mm:ss')}
-                    </TableCell>
-                    <TableCell>{historyRow.type}</TableCell>
-                    <TableCell align="right">{historyRow.qte}</TableCell>
-                    <TableCell align="right">{historyRow.pu}</TableCell>
-                    <TableCell align="right">{historyRow.libelle}</TableCell>
-                    <TableCell align="right">{historyRow.categorie}</TableCell>
-                    <TableCell align="right">{historyRow.action}</TableCell>
-                    
-                  </TableRow>
+                    return (
+                      <TableRow key={index}>
+                        <TableCell component="th" scope="row">
+                          {format(new Date(validDate), 'dd/MM/yyyy HH:mm:ss')}
+                        </TableCell>
+                        <TableCell>{historyRow.type}</TableCell>
+                        <TableCell align="right">{historyRow.qte}</TableCell>
+                        <TableCell align="right">{formatNumberWithSpaces(historyRow.pu)}</TableCell>
+                        <TableCell align="right">{historyRow.libelle}</TableCell>
+                        <TableCell align="right">{historyRow.categorie}</TableCell>
+                        <TableCell align="right">{historyRow.action}</TableCell>
+                      </TableRow>
+                    );
                   })}
                 </TableBody>
               </Table>
+
+              {/* Pagination */}
+              <Pagination
+                count={totalPages}
+                page={currentPage}
+                onChange={handlePageChange}
+                color="primary"
+                sx={{ marginTop: 2 }}
+              />
             </Box>
           </Collapse>
         </TableCell>
@@ -122,6 +177,8 @@ function Row(props: { row: EntrepriseType }) {
     </React.Fragment>
   );
 }
+
+
 
 export default function TableHistory() {
   const {historique} = useHistoriqueEntreprise(connect)
@@ -137,7 +194,7 @@ export default function TableHistory() {
             <TableCell align="right">Adresse</TableCell>
             <TableCell align="right">Telephone&nbsp;(TEL)</TableCell>
             <TableCell align="right">Email</TableCell>
-            <TableCell align="right">Protein&nbsp;(g)</TableCell>
+            <TableCell align="right">####&nbsp;(g)</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>

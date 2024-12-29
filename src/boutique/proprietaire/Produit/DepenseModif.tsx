@@ -7,6 +7,7 @@ import { useDeleteDepense, useFetchDepense, useUpdateDepense } from '../../../us
 import { connect } from '../../../_services/account.service'
 import { ChangeEvent, FormEvent, useState } from 'react'
 import { BASE } from '../../../_services/caller.service'
+import { useFetchUser } from '../../../usePerso/fonction.user';
 
 export default function DepenseModif() {
   const {uuid} = useParams()
@@ -20,6 +21,8 @@ export default function DepenseModif() {
       deleteDepense(unDepense);
     }
   };
+
+  const {unUser} = useFetchUser(connect)
 
   unDepense["user_id"] = connect
 
@@ -47,14 +50,15 @@ export default function DepenseModif() {
 
     unDepense["user_id"] = connect
     unDepense["facture"] = image
-    console.log("depense  ..",unDepense)
     updateDepense(unDepense)
   };
   return <>
   <Nav>
+  {unUser.role === 1 &&   
     <Button size="small" className='rounded-full shadow-md shadow-red-800/50' onClick={handleDelete}>
       <DeleteIcon fontSize='small' />
     </Button>
+  }
   </Nav>
 
   <Card sx={{ minWidth: 275 }}>
@@ -121,7 +125,10 @@ export default function DepenseModif() {
           </div>
           }
 
-          <Button type="submit" color="success" variant="outlined">Modifier</Button>
+          {(unUser.role === 1 || unUser.role === 2) &&           
+            <Button type="submit" color="success" variant="outlined">Modifier</Button>
+          }
+
         </Stack>
       </form>
       </DialogContent>

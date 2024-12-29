@@ -1,6 +1,6 @@
 import { ChangeEvent, FormEvent, useState } from 'react';
 import MainCard from '../../../../../components/MainCard'
-import { Button, Dialog, DialogTitle, FormControl, Grid, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, TextField } from '@mui/material'
+import { Button, Dialog, DialogTitle, FormControl, Grid, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, TextField, Typography } from '@mui/material'
 import { connect } from '../../../../../_services/account.service';
 import { useDeleteEntreprise, useFetchEntreprise, useUpdateEntreprise } from '../../../../../usePerso/fonction.user';
 import countryList from 'react-select-country-list';
@@ -10,6 +10,7 @@ import { useStoreUuid } from '../../../../../usePerso/store';
 export default function ModifEntreprise() {
     const uuid = useStoreUuid((state) => state.selectedId)
     const {unEntreprise, setUnEntreprise} = useFetchEntreprise(uuid!)
+    
     unEntreprise["user_id"] = connect
     const {deleteEntreprise} = useDeleteEntreprise()
 
@@ -64,7 +65,7 @@ export default function ModifEntreprise() {
       unEntreprise["image"]= image
       // formValues["user_id"]= connect
       // formValues["user_id"]= connect
-      
+  
       updateEntreprise(unEntreprise)
     };
     const onSubmitAbon = (e: FormEvent<HTMLFormElement>) => {
@@ -76,6 +77,7 @@ export default function ModifEntreprise() {
       // formValues["user_id"]= connect
       
       updateEntreprise(unEntreprise)
+      
     };
     
   return <>
@@ -86,7 +88,9 @@ export default function ModifEntreprise() {
   <Grid container rowSpacing={4.5} columnSpacing={2.75}>
     <Grid item xs={12} md={5} lg={6}>        
         <MainCard sx={{ mt: 2 }} content={false} title="Modification de l'entreprise">
-            
+            <Typography variant="h5" color="primary" className='mx-5'>
+              L'identifiant de l'entreprise = {unEntreprise.ref}
+            </Typography>
             <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmit}>
             <Stack spacing={2} margin={2}>
 
@@ -136,6 +140,16 @@ export default function ModifEntreprise() {
                 label='Adresse'
                 name='adresse' 
                 value={unEntreprise.adresse}
+                onChange={onChange}
+                InputLabelProps={{
+                shrink: true, // Force le label à rester au-dessus du champ
+                }}
+            ></TextField>
+            <TextField 
+                variant="outlined"
+                label="Type d'entreprise"
+                name='libelle' 
+                value={unEntreprise.libelle}
                 onChange={onChange}
                 InputLabelProps={{
                 shrink: true, // Force le label à rester au-dessus du champ

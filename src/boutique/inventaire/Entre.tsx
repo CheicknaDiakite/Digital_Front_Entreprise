@@ -19,6 +19,7 @@ import { AjoutEntreForm, useFormValues } from '../../usePerso/useEntreprise';
 import { formatNumberWithSpaces, isLicenceExpired } from '../../usePerso/fonctionPerso';
 import { useStoreUuid } from '../../usePerso/store';
 import { useFetchEntreprise } from '../../usePerso/fonction.user';
+import M_Abonnement from '../../_components/Card/M_Abonnement';
 
 
 export default function Entre() {
@@ -36,6 +37,12 @@ export default function Entre() {
 
   const Ajout_Terminer = () => {
     ajout_terminer ? setTerminer(false) : setTerminer(true);
+  };
+
+  const [is_sortie, setSortie] = useState(true);
+
+  const Is_Sortie = () => {
+    is_sortie ? setSortie(false) : setSortie(true);
   };
   
   const {entresEntreprise, isLoading, isError} = useGetAllEntre(connect, uuid!)
@@ -165,14 +172,17 @@ export default function Entre() {
     e.preventDefault();
 
     formValues["cumuler_quantite"] = ajout_terminer
+    formValues["is_sortie"] = is_sortie
     formValues["user_id"] = connect
     // formValues["categorie_slug"] = validSlug
-    // console.log("tt ....",formValues)
+    
     ajoutEntre(formValues)
     setTerminer(false);
+    setSortie(true);
     setFormValues({
       libelle: '',
       cumuler_quantite: false,
+      is_sortie: true,
       categorie_slug: '',
       user_id: '',
       date: '',
@@ -241,9 +251,8 @@ export default function Entre() {
       <Dialog open={open} onClose={closeopen} fullWidth maxWidth="xs">
         <DialogTitle>Ajout des entrer<IconButton onClick={closeopen} style={{float: "right"}}><CloseIcon color="primary"></CloseIcon></IconButton> </DialogTitle>
         {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
-          <Typography variant="h5" color="error" sx={{ mt: 1 }}>
-            L'abonnement de cet Entreprise a expiré !
-          </Typography>)
+        <M_Abonnement />  
+        )
           :
         <DialogContent>
 
@@ -254,6 +263,7 @@ export default function Entre() {
             handleAutoCompleteChange={handleAutoCompleteChange}
             handleAutoFourChange={handleAutoFourChange}
             Ajout_Terminer={Ajout_Terminer}
+            Is_Sortie={Is_Sortie}
 
           />          
          
@@ -279,7 +289,7 @@ export default function Entre() {
             {displayedBoutiques?.length > 0 ? 
             
             displayedBoutiques?.map((row, index) => {
-                       
+                  
                 return <CardInvent key={index} row={row} />
               })
               : "Pas d'entrer"

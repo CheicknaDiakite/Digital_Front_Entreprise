@@ -24,11 +24,11 @@ export default function EtatProduit() {
     </Grid>
 
     <Grid item xs={12} sm={6} md={4} lg={3}>
-      <AnalyticEcommerce title="La somme des quantiter sorties et le chiffre d'affaire" count={stockEntreprise.somme_sortie_qte} percentage={formatNumberWithSpaces(stockEntreprise.somme_sortie_pu)} className="bg-green-100" />
+      <AnalyticEcommerce title="La somme des quantités sorties et le chiffre d'affaire" count={stockEntreprise.somme_sortie_qte} percentage={formatNumberWithSpaces(stockEntreprise.somme_sortie_pu)} className="bg-green-100" />
     </Grid>
     
     <Grid item xs={12} sm={6} md={4} lg={3}>
-      <AnalyticEcommerce title="La somme des quantiter restants" count={stockEntreprise.somme_entrer_qte} className="bg-green-100" />
+      <AnalyticEcommerce title="La somme des quantités restants" count={stockEntreprise.somme_entrer_qte} className="bg-green-100" />
     </Grid>
 
     <Grid item xs={12} sm={6} md={4} lg={3}>

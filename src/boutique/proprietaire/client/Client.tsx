@@ -33,13 +33,15 @@ import { Link } from "react-router-dom";
 import { ChangeEvent, FormEvent, Fragment, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { useAllClients, useCreateClient } from "../../../usePerso/fonction.user";
+import { useAllClients, useCreateClient, useFetchEntreprise } from "../../../usePerso/fonction.user";
 import { connect } from "../../../_services/account.service";
 import Nav from "../../../_components/Button/Nav";
 import MyTextField from "../../../_components/Input/MyTextField";
 import { format } from "date-fns";
 import { useStoreUuid } from "../../../usePerso/store";
 import { ClienType } from "../../../typescript/UserType";
+import M_Abonnement from "../../../_components/Card/M_Abonnement";
+import { isLicenceExpired } from "../../../usePerso/fonctionPerso";
 
 const TABS = [
   {
@@ -60,6 +62,8 @@ const TABS = [
 export default function Client() {
 
   const uuid = useStoreUuid((state) => state.selectedId)
+  const {unEntreprise} = useFetchEntreprise(uuid!)
+  
   const [open, openchange] = useState(false);
   const functionopen = () => {
     openchange(true);
@@ -248,6 +252,12 @@ export default function Client() {
               <CloseIcon color="primary"></CloseIcon>
             </IconButton>            
           </DialogTitle>
+          
+          {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
+          <M_Abonnement />  
+          )
+            :        
+               
           <DialogContent>
             <form onSubmit={onSubmit}>
               <Stack spacing={2}  margin={2}>
@@ -313,6 +323,9 @@ export default function Client() {
               </Stack>
             </form>
           </DialogContent>
+        
+          }
+          
         </Dialog>
       </Card>
     </>

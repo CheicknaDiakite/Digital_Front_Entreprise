@@ -21,6 +21,7 @@ export type InfoSortieType = {
 export type InfoSousType = {
     libelle: string;
     client?: string;
+    date?: string;
     pu: number;
     qte: number;
     prix_total: number;
@@ -43,7 +44,7 @@ export type SortieType = {
     categorie_libelle?: string;
     qte: number;
     pu: number;
-    entre_id: string;
+    entre_id?: string;
 }
 
 export type SousType = {
@@ -57,6 +58,7 @@ export type EntreType = {
     date?: string;
     ref?: string;
     entreprise_id?: string;
+    is_sortie?: boolean;
     entre_id?: number;
 } & SousType
 
@@ -94,6 +96,8 @@ export type CateBouType = {
 
 export type TypeEntreprise = {
     adresse: string;
+    ref?: string;
+    libelle?: string;
     coordonne:string;
     email:string;
     uuid?:string;
@@ -143,11 +147,13 @@ export type RecupType = {
     all?: string;
     uuid?: string;
     client?: string;
+    label?: string;
     id?: string;
     user_id?: number;
     slug?: string;
     libelle?: string;
     categorie_libelle?: string;
+    is_sortie?: boolean;
     prix_total?: number;
     pu?: number;
     qte?: number;

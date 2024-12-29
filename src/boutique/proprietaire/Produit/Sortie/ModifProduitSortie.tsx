@@ -8,6 +8,7 @@ import { BASE } from '../../../../_services/caller.service';
 import { connect } from '../../../../_services/account.service';
 import PdfViewer from '../../../../usePerso/PdfFile';
 import Nav from '../../../../_components/Button/Nav';
+import { useFetchUser } from '../../../../usePerso/fonction.user';
 
 
 export default function ModifProduitSortie() {
@@ -16,6 +17,8 @@ export default function ModifProduitSortie() {
   const {unFacSortie, setUnFacSortie} = useFacSortie(uuid!)
   const {deleteFacSortie} = useDeleteFacSortie()
   const {updateFacSortie} = useUpdateFacSortie()
+
+  const {unUser} = useFetchUser(connect)
 
   const handleDelete = () => {
     const confirmation = window.confirm("Vous êtes sûr de vouloir supprimer ?");
@@ -28,8 +31,6 @@ export default function ModifProduitSortie() {
   unFacSortie["user_id"] = connect
 
   let url = BASE(unFacSortie.facture ?? "defaultFacture"); // valeur par défaut
-
-  console.log(url)
 
   const [image, setImage] = useState<File | null>(null);
 
@@ -61,9 +62,11 @@ export default function ModifProduitSortie() {
   return (<>
   
     <Nav>
+    {unUser.role === 1 &&     
       <Button size="small" className='rounded-full shadow-md shadow-red-800/50' onClick={handleDelete}>
         <DeleteIcon fontSize='small' />
       </Button>
+    }
     </Nav>
 
     <Card sx={{ minWidth: 275 }}>
@@ -130,8 +133,9 @@ export default function ModifProduitSortie() {
                 <PdfViewer fileUrl={url} />
               </div>
             }
-
-            <Button type="submit" color="success" variant="outlined">Envoyer</Button>
+            {(unUser.role === 1 || unUser.role === 2) &&             
+              <Button type="submit" color="success" variant="outlined">Envoyer</Button>
+            }
           </Stack>
         </form>
         </DialogContent>

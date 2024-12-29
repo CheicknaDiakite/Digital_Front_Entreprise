@@ -36,7 +36,7 @@ export default function AuthFooter() {
         textAlign={{ xs: 'center', sm: 'inherit' }}
       >
         <Typography variant="subtitle2" color="secondary">
-          Diakite Digital{' '}
+          Gestion de Stock{' '}
           <Typography component={Link} variant="subtitle2" onClick={handleClickOpen} target="_blank" underline="hover">
             help ?
           </Typography>
@@ -45,13 +45,11 @@ export default function AuthFooter() {
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 1, sm: 3 }} textAlign={{ xs: 'center', sm: 'inherit' }}>
           <Typography
             variant="subtitle2"
-            color="secondary"
-            component={Link}
-            href="https://diakitedigital.com"
-            target="_blank"
-            underline="hover"
+            color="primary"
+            
           >
-            +223 
+            +223 91 15 48 34 //
+            +223 63 83 51 14
           </Typography>
           
           <Typography
@@ -62,7 +60,7 @@ export default function AuthFooter() {
             target="_blank"
             underline="hover"
           >
-            Diakite Digital
+            Gestion de Stock
           </Typography>
         </Stack>
       </Stack>

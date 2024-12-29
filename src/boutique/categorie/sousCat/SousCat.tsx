@@ -19,10 +19,11 @@ import MyTextField from '../../../_components/Input/MyTextField';
 import Nav from '../../../_components/Button/Nav';
 import { SousCategorieFormType } from '../../../typescript/FormType';
 import { useStoreUuid } from '../../../usePerso/store';
-import { useFetchEntreprise } from '../../../usePerso/fonction.user';
+import { useFetchEntreprise, useFetchUser } from '../../../usePerso/fonction.user';
 import { isLicenceExpired } from '../../../usePerso/fonctionPerso';
 import { BASE } from '../../../_services/caller.service';
 import MainCard from '../../../components/MainCard';
+import M_Abonnement from '../../../_components/Card/M_Abonnement';
 
 // ==============================|| DASHBOARD - DEFAULT ||============================== //
 export interface SousCategorie {
@@ -42,9 +43,12 @@ interface ShadowBoxProps {
 function ShadowBox({ shadow }: ShadowBoxProps) {
  
   const url = shadow.image ? BASE(shadow.image) : img;
+  const {unUser} = useFetchUser(connect)
   // let url = BASE(unEntreprise.image);
   return (
     <div className="relative flex flex-col items-center space-y-2">
+      {unUser.role === 1 ? 
+      
       <Link to={`/categorie/info/${shadow.uuid}`} className="w-full">
         <MainCard border={false} shadow={shadow.id} boxShadow>
           <Stack spacing={1} justifyContent="center" alignItems="center">
@@ -54,6 +58,15 @@ function ShadowBox({ shadow }: ShadowBoxProps) {
           </Stack>
         </MainCard>
       </Link>
+      :
+      <MainCard border={false} shadow={shadow.id} boxShadow className="w-full">
+        <Stack spacing={1} justifyContent="center" alignItems="center">
+          <img src={url} alt="img" className="h-16 w-16" />
+          <Typography variant="h6">{shadow.libelle}</Typography>
+          {/* <Typography variant="subtitle1">{shadow.libelle}</Typography> */}
+        </Stack>
+      </MainCard>
+      }
       
       <Link to={`/categorie/sous/modif/${shadow.uuid}`}>
         <Button 
@@ -175,9 +188,8 @@ export default function SousCat() {
         <Dialog open={open} onClose={closeopen} fullWidth maxWidth="xs">
           <DialogTitle>Nom du produit<IconButton onClick={closeopen} style={{float: "right"}}><CloseIcon color="primary"></CloseIcon></IconButton> </DialogTitle>
           {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
-          <Typography variant="h5" color="error" sx={{ mt: 1 }}>
-            L'abonnement de cet Entreprise a expiré !
-          </Typography>)
+          <M_Abonnement />
+          )
           :
           <DialogContent>
             {/* <DialogContentText>Categorie</DialogContentText> */}

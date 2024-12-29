@@ -31,7 +31,7 @@ import { useFetchEntreprise, useFetchUser } from "../../../../../usePerso/foncti
 import { logout } from "../../../../../usePerso/fonctionPerso";
 import { useStoreUuid } from "../../../../../usePerso/store";
 import pdf from "../../../../../../public/assets/file/dd.pdf";
-import url from "../../../../../../public/icon-192x192.png"
+import backgroundImage from "../../../../../../public/icon-192x192.png"
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import PdfViewer from "../../../../../usePerso/PdfFile";
@@ -42,6 +42,7 @@ const NavSide: React.FC = () => {
   const {unUser} = useFetchUser(connect)
   const uuid = useStoreUuid((state) => state.selectedId)
   const {unEntreprise} = useFetchEntreprise(uuid!)
+  const url = unEntreprise.image ? BASE(unEntreprise.image) : backgroundImage;
   const urlEntre = unEntreprise.image ? BASE(unEntreprise.image) : url;
   const navigate = useNavigate();
 
@@ -107,6 +108,8 @@ const NavSide: React.FC = () => {
         
         <Collapse in={open === 1} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
+          {(unUser.role === 1 || unUser.role === 2) && 
+          
             <Link to="/categorie">
               <ListItem button>
                 <ListItemIcon>
@@ -119,6 +122,7 @@ const NavSide: React.FC = () => {
                 </Typography>
               </ListItem>
             </Link>
+          }
             {(unUser.role === 1 || unUser.role === 2) &&             
             <Link to="/entre">
               <ListItem>
@@ -299,6 +303,10 @@ const NavSide: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Typography variant="h5" className="text-white bg-gray-600 bg-opacity-100 px-2 py-1 rounded">
+        Tel = 91 15 48 34
+      </Typography>
     </Card>
   );
 };

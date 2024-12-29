@@ -5,7 +5,6 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import CloseIcon from "@mui/icons-material/Close"
 import EditIcon from '@mui/icons-material/BorderColor';
-import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
 // project import
 import MainCard from '../../components/MainCard';
 import ComponentWrapper from './ComponentWrapper';
@@ -24,6 +23,7 @@ import { useFetchEntreprise } from '../../usePerso/fonction.user';
 import { isLicenceExpired } from '../../usePerso/fonctionPerso';
 import { BASE } from '../../_services/caller.service';
 import img from '../../../public/icon-192x192.png'
+import M_Abonnement from '../../_components/Card/M_Abonnement';
 
 // ===============================|| SHADOW BOX ||=============================== //
 interface ShadowBoxProps {
@@ -104,7 +104,7 @@ export default function ComponentShadow() {
     formValues["user_id"] = connect
     formValues["image"] = image
     formValues["entreprise_id"] = uuid!
-    console.log("oiu ..", formValues)
+    
     ajoutCategorie(formValues)
     setFormValues({
       libelle: '',
@@ -166,13 +166,8 @@ export default function ComponentShadow() {
                         {/* <DialogContentText>Categorie</DialogContentText> */}                        
                       
                       {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
-                        <Typography variant="h5" color="error" sx={{ mt: 1 }}>
-                          L'abonnement de cet Entreprise a expiré !
-                          <Link to={'https://wa.me/70781242'}>
-                            contacter sur whatsapp
-                            <LocalPhoneIcon fontSize='medium' color='primary' />
-                          </Link>
-                        </Typography>)
+                        <M_Abonnement />
+                        )
                         :
                         <DialogContent>
                           <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmit}>

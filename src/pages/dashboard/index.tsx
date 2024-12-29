@@ -47,7 +47,6 @@ export default function DashboardDefault() {
   const {unEntreprise} = useFetchEntreprise(uuid!)
   const url = unEntreprise.image ? BASE(unEntreprise.image) : backgroundImage;
   const {stockEntreprise} = useStockEntreprise(unEntreprise.uuid!, connect)
-  console.log("oi io",stockEntreprise)
   
   return (
     <Grid container 
@@ -187,7 +186,7 @@ export default function DashboardDefault() {
       </Grid> 
 
       <Grid item xs={12} sx={{ mb: -2.25 }}>
-        <Typography variant="h5" >Pour les factures et depenses (en version numerique si necessaire en PDF)</Typography>
+        <Typography variant="h5" >Archiges = Pour les factures et depenses (en version numerique si necessaire en PDF)</Typography>
       </Grid>
       
       {(unUser.role === 1 || unUser.role === 2 || unUser.role === 3) &&       

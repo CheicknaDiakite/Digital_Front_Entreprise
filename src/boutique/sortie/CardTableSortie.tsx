@@ -11,7 +11,7 @@ import { formatNumberWithSpaces } from '../../usePerso/fonctionPerso';
 import { BASE } from '../../_services/caller.service';
 import img from '../../../public/icon-192x192.png'
 export default function CardTableSortie({row}: any) {
-  console.log("test ...", row);
+  
   const url = row.image ? BASE(row.image) : img;
   const [checked, setChecked] = useState(false);
   const {unUser} = useFetchUser(connect)
@@ -46,7 +46,7 @@ export default function CardTableSortie({row}: any) {
       {row.categorie_libelle}
     </TableCell>
     <TableCell >{row.qte}</TableCell>
-    <TableCell >{row.pu}</TableCell>        
+    <TableCell >{formatNumberWithSpaces(row.pu)}</TableCell>        
     <TableCell >{formatNumberWithSpaces(row.prix_total)} <LocalAtmIcon color="primary" fontSize='small' /></TableCell>
     {/* {ccyFormat(price)} */}
     {(unUser.role === 1 || unUser.role === 2) &&     

@@ -94,18 +94,18 @@ export default function Admin() {
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
           >
-            <Box sx={style}>
+            <Box sx={style} className="m-2">
               <Typography id="modal-modal-title" variant="h6" component="h2">
                 Changement de mot de passe
               </Typography>
               <form className="grid grid-cols-1 lg:grid-cols-2 gap-4" onSubmit={onSubmitPass}>
               
               <TextField
-                label="Password"
+                label="Change le mot de passe"
                 name="password"
                 onChange={onChange}
                 variant="outlined"
-                className="mb-4"
+                className="my-4"
                 InputLabelProps={{
                   shrink: true, // Force le label à rester au-dessus du champ
                 }}
@@ -113,10 +113,10 @@ export default function Admin() {
                 fullWidth
               />
               <TextField
-                label="RePasswodk"
+                label="Confirmer le mot de passe"
                 name="repassword"
                 onChange={onChange}
-                className="mb-4"
+                className="my-4"
                 InputLabelProps={{
                   shrink: true, // Force le label à rester au-dessus du champ
                 }}
@@ -153,12 +153,12 @@ export default function Admin() {
           </div>
           <hr className="my-5" />
           <div>
-            <h4 className="text-lg font-semibold mb-2">Personal Details</h4>
+            <h4 className="text-lg font-semibold mb-2">Detail de l'utilisateur</h4>
             <p className="text-gray-600 mb-4">Les details de votre profile.</p>
             {/* Form */}
             <form className="grid grid-cols-1 lg:grid-cols-2 gap-4" onSubmit={onSubmit}>
               <TextField
-                label="Username"
+                label="Nom d'utilisateur"
                 name="username"
                 value={unUser.username}
                 variant="outlined"
@@ -172,7 +172,7 @@ export default function Admin() {
                 fullWidth
               />
               <TextField
-                label="Last Name"
+                label="Nom"
                 name="last_name"
                 value={unUser.last_name}
                 variant="outlined"
@@ -185,7 +185,7 @@ export default function Admin() {
                 fullWidth
               />
               <TextField
-                label="First Name"
+                label="Prenom"
                 name="first_name"
                 value={unUser.first_name}
                 onChange={onChange}
@@ -197,7 +197,7 @@ export default function Admin() {
                 fullWidth
               />
               <TextField
-                label="Phone"
+                label="Numero"
                 name="numero"
                 value={unUser.numero}
                 onChange={onChange}

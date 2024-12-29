@@ -32,6 +32,11 @@ export default function AuthWrapper({ children }: ChildrenProps) {
             alignItems="center"
             sx={{ minHeight: { xs: 'calc(100vh - 210px)', sm: 'calc(100vh - 134px)', md: 'calc(100vh - 112px)' } }}
           >
+            <div className=" flex justify-center mx-5 text-2xl font-extrabold">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-green-500">
+                En cas d'icompréhension contacter : +223 91 15 48 34 sur whatsapp 
+              </span>
+            </div>
             <Grid item>
               <AuthCard>{children}</AuthCard>
             </Grid>

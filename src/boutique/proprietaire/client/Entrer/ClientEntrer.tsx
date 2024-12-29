@@ -170,6 +170,7 @@ export default function ClientEntrer(uuid: UuType) {
   
           <TextField
             label="Recherche par date"
+            className='bg-sky-300'
             type="date"
             value={selectedDate}
             onChange={handleDateChange}

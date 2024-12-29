@@ -36,6 +36,7 @@ export function AjoutEntreForm({
     handleAutoCompleteChange,
     handleAutoFourChange,
     Ajout_Terminer,
+    Is_Sortie
   }: any) {
     const uuid = useStoreUuid((state) => state.selectedId)
     const {souscategories} = useFetchAllSousCate(connect, uuid!)
@@ -120,7 +121,7 @@ export function AjoutEntreForm({
           <Typography variant="h6" className='mx-2'>
             Prix Unitaire <LocalAtmIcon color="error" fontSize='small' />
           </Typography>
-          <MyTextField required
+          {/* <MyTextField required
             variant="outlined" 
             type='number'
             name='pu' 
@@ -129,6 +130,25 @@ export function AjoutEntreForm({
             sx={{
               "& .MuiFormLabel-asterisk": {
                 color: "red", // Personnalise la couleur de l'étoile en rouge
+              },
+            }}
+          /> */}
+          <MyTextField
+            required
+            variant="outlined"
+            type="number"
+            inputProps={{
+              step: "0.01", // Décimales à deux chiffres
+              min: "0", // Pas de valeurs négatives
+              max: "9999999999.99", // Correspond à max_digits=10 dans Django
+            }}
+            // label="Somme"
+            name="pu"
+            onChange={onChange}
+            value={formValues.pu}
+            sx={{
+              "& .MuiFormLabel-asterisk": {
+                color: "red",
               },
             }}
           />
@@ -140,8 +160,16 @@ export function AjoutEntreForm({
             }
             label="Ajouter aux derniers stocks ?"
             labelPlacement="end"
-            onClick={Ajout_Terminer}
-            
+            onClick={Ajout_Terminer}       
+          />
+          <FormControlLabel
+            control={<Checkbox 
+              onChange={Is_Sortie} // Appelle la fonction Ajout_Terminer lors du changement
+            />
+            }
+            label="Vous ne voulez pas sortir ce produit ?"
+            labelPlacement="end"
+            onClick={Is_Sortie}       
           />
           <Button type="submit" color="success" variant="outlined">Envoyer</Button>
         </Stack>

@@ -38,6 +38,7 @@ export type UtilisateurType = {
     username: string;
     is_admin?: string;
     is_superuser?: string;
+    is_sortie?: boolean;
     repassword?: string,
     password?: string,
   };

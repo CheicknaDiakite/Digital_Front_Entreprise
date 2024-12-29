@@ -50,7 +50,7 @@ export default function ProfileTab() {
             <ListItemIcon>
               <EditIcon color="secondary" fontSize="small"/>
             </ListItemIcon>
-            <ListItemText primary="Edit Profile" />
+            <ListItemText primary="modifier votre profile" />
           </ListItemButton>
         </Link>
         {unUser.role === 1 && 
@@ -63,15 +63,17 @@ export default function ProfileTab() {
             </ListItemButton>
           </Link>
         }
-
+        {(unUser.role === 1 || unUser.role === 2 || unUser.role === 3) && 
+        
         <Link to={"/entreprise/client"}>
           <ListItemButton >
             <ListItemIcon>
               <PeopleOutlineRoundedIcon color="secondary" />
             </ListItemIcon>
-              <ListItemText primary="Voir les clients" />            
+              <ListItemText primary="Voir les clients ou fournisseurs" />            
           </ListItemButton>
         </Link>
+        }
         
         {unUser.role === 1 && <>        
         <Link to={"/entreprise/detail"}>
