@@ -187,7 +187,7 @@ export default function Entreprise() {
     </Typography>
   </Grid>
   :
-  (unUser.role === 2 || unUser.role === 3 || unUser.role === null)  ?
+  (unUser.role === 2 || unUser.role === 3)  ?
   ""
   :
   <Typography variant="h5" color="primary" sx={{ mt: 1 }}>

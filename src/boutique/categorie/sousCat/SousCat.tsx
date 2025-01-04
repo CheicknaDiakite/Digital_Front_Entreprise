@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography';
 
 // project import
 
-import { Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Skeleton, Stack } from '@mui/material';
+import { Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Skeleton, Stack, TextField } from '@mui/material';
 import { ChangeEvent, FormEvent, useState } from 'react';
 import { RecupType, RouteParams } from '../../../typescript/DataType';
 import { connect } from '../../../_services/account.service';
@@ -103,10 +103,16 @@ export default function SousCat() {
   const {ajoutSousCate} = useCreateSousCate()
 
   const [image, setImage] = useState<File | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>(''); 
+
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setImage(e.target.files[0]);
     }
+  };
+
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
   };
   
   const [formValues, setFormValues] = useState<SousCategorieFormType>({
@@ -159,65 +165,80 @@ export default function SousCat() {
   }
 
   if (getSousCates) {
+    const filteredCategories = getSousCates.filter((post) =>
+      post.libelle?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
     return <>
       <Nav />
       <Grid container rowSpacing={4.5} columnSpacing={2.75}>
-        {/* row 1 */}
-        
-        {categories?.map((post, index) => (
-          <Grid item key={index} xs={12} sx={{ mb: -2.25 }}>
-            <Typography variant="h2" color="blue">{post.libelle}</Typography>
+        <Grid item xs={12}>
+          {/* row 1 */}
+          
+          {categories?.map((post, index) => (
+            <Grid item key={index} xs={12} sx={{ mb: -2.25 }} className="py-2">
+              <Typography variant="h2" color="blue">{post.libelle}</Typography>
+            </Grid>
+          ))}
+    
+          <Grid item className="py-3">
+            <Typography variant="h5">
+              <Button variant="outlined" onClick={functionopen} >Ajout du Produit</Button>
+            </Typography>
           </Grid>
-        ))}
-  
-        <Grid item xs={12} sx={{ mb: -2.25 }}>
-          <Typography variant="h5">
-            <Button variant="outlined" onClick={functionopen} >Ajout du Produit</Button>
-          </Typography>
-        </Grid>
-  
-        {getSousCates?.map((post, index) => {
-          // return <CardSousCate key={index} post={post} />
-          return <Grid key={index} item xs={6} sm={4} md={3} lg={2}>
-          <ShadowBox shadow={post} />
-        </Grid>
-        })}
-        
-        <Grid item md={8} sx={{ display: { sm: 'none', md: 'block', lg: 'none' } }} />
-        {/* Modal */}
-        <Dialog open={open} onClose={closeopen} fullWidth maxWidth="xs">
-          <DialogTitle>Nom du produit<IconButton onClick={closeopen} style={{float: "right"}}><CloseIcon color="primary"></CloseIcon></IconButton> </DialogTitle>
-          {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
-          <M_Abonnement />
-          )
-          :
-          <DialogContent>
-            {/* <DialogContentText>Categorie</DialogContentText> */}
-            <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmit}>
-              <Stack spacing={2} margin={2}>
-                {/* <TextField variant="outlined" label="libelle" name='libelle' onChange={onChange}></TextField> */}
-                <MyTextField 
-                  label={"libelle"}
-                  name={"libelle"}
-                  onChange={onChange}
-                />
+          <Grid item xs={12} sm={6} className="py-2">
+            <TextField
+              label="Rechercher un produit"
+              variant="outlined"
+              fullWidth
+              value={searchTerm}
+              onChange={handleSearchChange}
+            />
+          </Grid>
+          <Grid container spacing={2}>
+            {filteredCategories?.map((post, index) => {
+              // return <CardSousCate key={index} post={post} />
+              return <Grid key={index} item xs={6} sm={4} md={3} lg={2}>
+              <ShadowBox shadow={post} />
+            </Grid>
+            })}
+          </Grid>  
+          
+          <Grid item md={8} sx={{ display: { sm: 'none', md: 'block', lg: 'none' } }} />
+          {/* Modal */}
+          <Dialog open={open} onClose={closeopen} fullWidth maxWidth="xs">
+            <DialogTitle>Nom du produit<IconButton onClick={closeopen} style={{float: "right"}}><CloseIcon color="primary"></CloseIcon></IconButton> </DialogTitle>
+            {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
+            <M_Abonnement />
+            )
+            :
+            <DialogContent>
+              {/* <DialogContentText>Categorie</DialogContentText> */}
+              <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmit}>
+                <Stack spacing={2} margin={2}>
+                  {/* <TextField variant="outlined" label="libelle" name='libelle' onChange={onChange}></TextField> */}
+                  <MyTextField 
+                    label={"libelle"}
+                    name={"libelle"}
+                    onChange={onChange}
+                  />
 
-                <MyTextField 
-                  label={"Image"}
-                  name={"image"}
-                  type='file'
-                  onChange={handleImageChange}
-                  InputLabelProps={{
-                    shrink: true, // Force le label à rester au-dessus du champ
-                  }}
-                />
+                  <MyTextField 
+                    label={"Image"}
+                    name={"image"}
+                    type='file'
+                    onChange={handleImageChange}
+                    InputLabelProps={{
+                      shrink: true, // Force le label à rester au-dessus du champ
+                    }}
+                  />
 
-                <Button type="submit" color="success" variant="outlined">Envoyer</Button>
-              </Stack>
-            </form>
-          </DialogContent>
-          }
-        </Dialog>
+                  <Button type="submit" color="success" variant="outlined">Envoyer</Button>
+                </Stack>
+              </form>
+            </DialogContent>
+            }
+          </Dialog>
+        </Grid>
       </Grid>
     </>
     ;

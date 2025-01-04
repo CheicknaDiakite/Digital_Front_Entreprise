@@ -80,10 +80,6 @@ export function formatNumberWithSpaces(number: string | number | null | undefine
   return formattedNumber.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 }
 
-
-
-
-
 export function foncError(error: any)  {
 
   const message = error?.response?.data?.message || error.message || "Une erreur est survenue";

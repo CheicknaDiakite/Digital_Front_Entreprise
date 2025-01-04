@@ -12,6 +12,91 @@ import { entrepriseService } from "../_services/entreprise.service";
 import { EntrepriseType, HistoriqueType } from "../typescript/Account";
 import { FormClienType } from "../typescript/ClienType";
 
+// Avis
+
+export function useCreateAvis() {
+    
+  const useQ = useQueryClient();
+
+  const ajoutAvis = useMutation({
+      mutationFn: (post: FormValueType) => {
+        return userService.avisCreate(post)
+        .then((res) => {
+          if (res.data.etat===false) {
+            if(res.data.message !== "requette invalide"){
+              toast.error(res.data.message);
+            }
+          } else {
+            useQ.invalidateQueries({ queryKey: ["AvisGet"] });
+            toast.success("Inscription réussie");
+          }
+      })
+      },
+    });
+
+    const createAvis = (post: FormValueType) => {
+      ajoutAvis.mutate(post);
+    };
+
+  return { createAvis }
+}
+
+export function useAvisGet() {
+    
+  const useQ = useQueryClient();
+
+  const avisGet = useMutation({
+      mutationFn: (post: string) => {
+        return userService.avisGet(post)
+        .then((res) => {
+          if (res.data.etat===false) {
+            if(res.data.message !== "requette invalide"){
+              toast.error(res.data.message);
+            }
+          } else {
+            useQ.invalidateQueries({ queryKey: ["AvisGet"] });
+            toast.success("Inscription réussie");
+          }
+      })
+      },
+    });
+
+    const getAvis = (post: string) => {
+      avisGet.mutate(post);
+    };
+
+  return { getAvis }
+}
+
+export function useDeleteAvis() {
+  // const navigate = useNavigate();
+  const useQ = useQueryClient();
+  
+  const del = useMutation({
+    mutationFn: (post: FormClienType) => {
+      return userService.avisDelete(post).then((res) => {
+        if (res.data.etat !== true) {
+          toast.error(res.data.message);
+        } else {
+          useQ.invalidateQueries({ queryKey: ["AvisGet"] });
+          // navigate(-1);
+          toast.success("Supprimée avec succès");
+        }
+      });
+    },
+    onError: (error) => {
+      foncError(error);
+    },
+  });
+
+  const deleteAvis = (post: FormClienType) => {
+    del.mutate(post);
+    // console.log("delete ..",post)
+  };
+
+  return {deleteAvis}
+}
+
 // Pour l'utilisateur
 export function useFetchUser(slug: string) {
   
@@ -422,6 +507,7 @@ export function useDeleteClient() {
 
   return {deleteClient}
 }
+
 
 export function useAllClients(slug: string) {
   const [getClients, setClients] = useState<ClienType[]>([]);

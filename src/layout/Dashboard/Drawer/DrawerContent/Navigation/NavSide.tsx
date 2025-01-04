@@ -8,11 +8,6 @@ import {
   ListItemIcon,
   Collapse,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
 } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import {
@@ -30,11 +25,7 @@ import {connect} from "../../../../../_services/account.service";
 import { useFetchEntreprise, useFetchUser } from "../../../../../usePerso/fonction.user";
 import { logout } from "../../../../../usePerso/fonctionPerso";
 import { useStoreUuid } from "../../../../../usePerso/store";
-import pdf from "../../../../../../public/assets/file/dd.pdf";
-import backgroundImage from "../../../../../../public/icon-192x192.png"
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { useTheme } from '@mui/material/styles';
-import PdfViewer from "../../../../../usePerso/PdfFile";
+import backgroundImage from "../../../../../../public/icon-192x192.png";
 import { BASE } from "../../../../../_services/caller.service";
 
 const NavSide: React.FC = () => {
@@ -46,21 +37,6 @@ const NavSide: React.FC = () => {
   const urlEntre = unEntreprise.image ? BASE(unEntreprise.image) : url;
   const navigate = useNavigate();
 
-  // Modal 
-  const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('lg'));
-
-  const [openM, setOpenM] = useState(false);
-
-  const handleClickOpen = () => {
-    setOpenM(true);
-  };
-
-  const handleClose = () => {
-    setOpenM(false);
-  };
-  // Fin modal
-  
   const handleOpen = (value: number): void => {
     setOpen(open === value ? 0 : value);
   };
@@ -268,41 +244,21 @@ const NavSide: React.FC = () => {
             Déconnexion
           </Typography>
         </ListItem>
-
-        <ListItem button >
-          <ListItemIcon>
-            <DescriptionIcon color="primary" fontSize="small" />
-          </ListItemIcon>
-          <Button 
-          className="text-white bg-sky-900 bg-opacity-100 px-2 py-1 rounded"
-          onClick={handleClickOpen}>
-            Documentation
-          </Button>
-        </ListItem>
+        
+        <Link to="https://documentation.gest-stocks.com">
+          <ListItem >
+            <ListItemIcon>
+              <DescriptionIcon color="primary" fontSize="small" />
+            </ListItemIcon>
+            <Typography 
+            className="text-white bg-sky-900 bg-opacity-100 px-2 py-1 rounded"
+            >
+              Documentation
+            </Typography>
+          </ListItem>
+        </Link>
 
       </List>
-
-      <Dialog
-        fullScreen={fullScreen}
-        open={openM}
-        onClose={handleClose}
-        aria-labelledby="responsive-dialog-title"
-      >
-        <DialogTitle id="alert-dialog-title">
-          Documentation du Logiciel de Gestion de Stock de Diakite Digital qui contient les informations pour mieux s'en sortir
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText >
-            {/* Documentation du Logiciel de Gestion de Stock de Diakite Digital */}
-            <PdfViewer fileUrl={pdf} />
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} autoFocus>
-            Fermer
-          </Button>
-        </DialogActions>
-      </Dialog>
 
       <Typography variant="h5" className="text-white bg-gray-600 bg-opacity-100 px-2 py-1 rounded">
         Tel = 91 15 48 34

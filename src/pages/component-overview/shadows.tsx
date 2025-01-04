@@ -9,7 +9,7 @@ import EditIcon from '@mui/icons-material/BorderColor';
 import MainCard from '../../components/MainCard';
 import ComponentWrapper from './ComponentWrapper';
 import ComponentSkeleton from './ComponentSkeleton';
-import { Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Skeleton } from '@mui/material';
+import { Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Skeleton, TextField } from '@mui/material';
 import { ChangeEvent, FormEvent, useState } from 'react';
 import { connect } from '../../_services/account.service';
 import { Link } from 'react-router-dom';
@@ -59,23 +59,18 @@ function ShadowBox({ shadow }: ShadowBoxProps) {
 }
 
 export default function ComponentShadow() {
-  const uuid = useStoreUuid((state) => state.selectedId)
+  const uuid = useStoreUuid((state) => state.selectedId);
 
-  const {unEntreprise} = useFetchEntreprise(uuid!)
+  const { unEntreprise } = useFetchEntreprise(uuid!);
 
-  const [open, openchange]= useState(false);
-  const functionopen = () => {
-      openchange(true)
-  }
-  const closeopen = () => {
-      openchange(false)
-  }
-  
-  // const {categories, ajoutCategorie} = useCategorie(top)
-  const {cateEntreprises, isLoading, isError} = useCategoriesEntreprise(connect, uuid!)
-  
-  const {ajoutCategorie} = useCreateCategorie()
-  
+  const [open, openchange] = useState(false);
+  const functionopen = () => openchange(true);
+  const closeopen = () => openchange(false);
+
+  const { cateEntreprises, isLoading, isError } = useCategoriesEntreprise(connect, uuid!);
+
+  const { ajoutCategorie } = useCreateCategorie();
+
   const [formValues, setFormValues] = useState<CategorieFormType>({
     libelle: '',
     user_id: '',
@@ -83,124 +78,141 @@ export default function ComponentShadow() {
   });
 
   const [image, setImage] = useState<File | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>(''); // Nouvel état pour le champ de recherche
+
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setImage(e.target.files[0]);
     }
   };
 
-  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
 
-  const { name, value } = e.target;
+  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
     setFormValues({
       ...formValues,
       [name]: value,
     });
   };
-  
+
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    formValues["user_id"] = connect
-    formValues["image"] = image
-    formValues["entreprise_id"] = uuid!
-    
-    ajoutCategorie(formValues)
+    formValues['user_id'] = connect;
+    formValues['image'] = image;
+    formValues['entreprise_id'] = uuid!;
+
+    ajoutCategorie(formValues);
     setFormValues({
       libelle: '',
       user_id: '',
       entreprise_id: '',
-    })
-    closeopen()
+    });
+    closeopen();
   };
 
   if (isLoading) {
-    return <Box sx={{ width: 300 }}>
-    <Skeleton />
-    <Skeleton animation="wave" />
-    <Skeleton animation={false} />
-  </Box>
+    return (
+      <Box sx={{ width: 300 }}>
+        <Skeleton />
+        <Skeleton animation="wave" />
+        <Skeleton animation={false} />
+      </Box>
+    );
   }
 
   if (isError) {
     window.location.reload();
-    return <div>Erroeur ...</div>
+    return <div>Erreur...</div>;
   }
 
   if (cateEntreprises) {
+    const filteredCategories = cateEntreprises.filter((post) =>
+      post.libelle.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     return (
       <ComponentSkeleton>
         <ComponentWrapper>
           <Nav />
           <Grid container spacing={3}>
             <Grid item xs={12}>
-                {/* <Typography variant="body1" className="text-center w-full"> */}
-                
-                {/* </Typography> */}
-                <Grid item className='py-3'>
-                  <Typography variant="h5">
-                    <Button variant="outlined" onClick={functionopen} >Ajout Categorie</Button>
-                    
-                  </Typography>
-                </Grid>
-              
-              {/* <MainCard className='bg-zinc-100' title={<Button variant="outlined" onClick={functionopen} >Ajout Categorie</Button>}> */}
-                <Grid container spacing={2}>                  
-                {cateEntreprises && cateEntreprises.length > 0 ? (
-                  cateEntreprises?.map((post, index) => (
+              <Grid item className="py-3">
+                <Typography variant="h5">
+                  <Button variant="outlined" onClick={functionopen}>
+                    Ajout Categorie
+                  </Button>
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6} className="py-2">
+                <TextField
+                  label="Rechercher une catégorie"
+                  variant="outlined"
+                  fullWidth
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                />
+              </Grid>
+              <Grid container spacing={2}>
+                {filteredCategories && filteredCategories.length > 0 ? (
+                  filteredCategories.map((post, index) => (
                     <Grid key={index} item xs={6} sm={4} md={3} lg={2}>
                       <ShadowBox shadow={post} />
                     </Grid>
                   ))
                 ) : (
                   <Typography variant="body1" className="text-center w-full">
-                    Pas de Categorie
+                    Aucune catégorie trouvée
                   </Typography>
                 )}
-                  <Dialog open={open} onClose={closeopen} fullWidth maxWidth="xs">
-                      <DialogTitle>
-                        Categorie<IconButton onClick={closeopen} style={{float: "right"}}>
-                          <CloseIcon color="primary"></CloseIcon></IconButton> 
-                      </DialogTitle>
-                      
-                        {/* <DialogContentText>Categorie</DialogContentText> */}                        
-                      
-                      {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
-                        <M_Abonnement />
-                        )
-                        :
-                        <DialogContent>
-                          <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmit}>
-                            <Stack spacing={2} margin={2}>
-                              
-                              <MyTextField 
-                              label={"libelle"}
-                              name={"libelle"}
-                              value={formValues.libelle}
-                              onChange={onChange}
-                              />
-
-                              <MyTextField 
-                                label={"Image"}
-                                name={"image"}
-                                type='file'
-                                onChange={handleImageChange}
-                                InputLabelProps={{
-                                  shrink: true, // Force le label à rester au-dessus du champ
-                                }}
-                              />
-                              
-                              <Button type="submit" color="success" variant="outlined" >Envoyer</Button>
-                            </Stack>
-                          </form>
-                        </DialogContent>
-                      }
-                  </Dialog>
-                  
-                </Grid>
-              {/* </MainCard> */}
+                <Dialog open={open} onClose={closeopen} fullWidth maxWidth="xs">
+                  <DialogTitle>
+                    Categorie
+                    <IconButton onClick={closeopen} style={{ float: 'right' }}>
+                      <CloseIcon color="primary" />
+                    </IconButton>
+                  </DialogTitle>
+                  {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
+                    <M_Abonnement />
+                  ) : (
+                    <DialogContent>
+                      <form
+                        className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96"
+                        onSubmit={onSubmit}
+                      >
+                        <Stack spacing={2} margin={2}>
+                          <MyTextField
+                            label="Libellé"
+                            name="libelle"
+                            value={formValues.libelle}
+                            onChange={onChange}
+                          />
+                          <MyTextField
+                            label="Image"
+                            name="image"
+                            type="file"
+                            onChange={handleImageChange}
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                          />
+                          <Button
+                            type="submit"
+                            color="success"
+                            variant="outlined"
+                          >
+                            Envoyer
+                          </Button>
+                        </Stack>
+                      </form>
+                    </DialogContent>
+                  )}
+                </Dialog>
+              </Grid>
             </Grid>
-  
           </Grid>
         </ComponentWrapper>
       </ComponentSkeleton>

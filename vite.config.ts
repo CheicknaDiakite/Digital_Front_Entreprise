@@ -8,8 +8,8 @@ export default defineConfig({
         registerType: "prompt",
         includeAssets: ['favicon.svg', 'icon-192x192.png', 'icon-512x512.png'],
         manifest: {
-            name: 'Gest Stock',
-            short_name: 'Gest Stock',
+            name: 'Gest Stocks',
+            short_name: 'Gest Stocks',
             description: 'Meilleur logiciel pour votre gestion de stock',
             theme_color: '#ffffff',
             start_url: '/',

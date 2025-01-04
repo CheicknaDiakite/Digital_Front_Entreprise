@@ -33,6 +33,15 @@ const userAdminRegister = (data: FormValueType) => {
             withCredentials: true
         });
 }
+const avisCreate = (data: FormValueType) => {
+    return Axios.post('utilisateur/avis/add',
+        data,{                         
+            headers: {
+                'Authorization': `${token_1}`
+            },
+            withCredentials: true
+        });
+}
 
 const userLogin = async (post: LoginType): Promise<RegisterResponse> => {
     try {
@@ -81,6 +90,23 @@ const userUnClient = async (id: string) => {
 const userGet = async (post: string) => {
     try {
         const response = await Axios.post(`utilisateur/profile/get`,
+            post,{                         
+                headers: {
+                    'Authorization': `${token_1}`
+                },
+                withCredentials: true
+            });
+        return response;
+    } catch (error) {
+        console.error("Error fetching user profile:", error);
+        throw error;
+    }
+    
+}
+
+const avisGet = async (post: string) => {
+    try {
+        const response = await Axios.post(`utilisateur/avis/get`,
             post,{                         
                 headers: {
                     'Authorization': `${token_1}`
@@ -214,6 +240,23 @@ const clientDelete = async (post: FormClienType): Promise<ReponseUser> => {
     
 }
 
+const avisDelete = async (post: FormClienType): Promise<ReponseUser> => {
+    try{
+        const response = await Axios.post('entreprise/avis/del',
+            post,{                         
+                headers: {
+                    'Authorization': `${token_1}`
+                },
+                withCredentials: true
+            });
+        return response;
+    } catch (error) {
+        console.error("Error fetching user profile:", error);
+        throw error;
+    }
+    
+}
+
 const userForgot = (post: FormType) => {
     return Axios.post('utilisateur/forgot-password',
         post,{                         
@@ -249,8 +292,8 @@ const userLogout = () => {
 export const userService = {
     userRegister, userLogin, userGet, userUpdate, userDelete,
     userAll, userLogout, userUnGet, userAdminRegister, allUsers,
-    userForgot,
-     allClients, userClient, userUnClient, clientUpdate, clientDelete
+    userForgot, avisDelete, avisGet, avisCreate,
+    allClients, userClient, userUnClient, clientUpdate, clientDelete
 }
 
 const saveToken = (token: string, tok?: string) => {

@@ -29,12 +29,12 @@ import Entreprise from '../../boutique/proprietaire/Admin/Entreprise'
 import EntrepriseDetail from '../../boutique/proprietaire/Admin/EntrepriseDetail'
 import Personnel from '../../boutique/proprietaire/Personnel/Personnel'
 import { PersonnelModif } from '../../boutique/proprietaire/Personnel/PersonnelModif'
-// import { notClick } from '../../usePerso/fonctionPerso'
+import { notClick } from '../../usePerso/fonctionPerso'
 import SortieInventaire from '../../boutique/proprietaire/historique/inventaire/SortieInventaire'
 import EntrerInventaire from '../../boutique/proprietaire/historique/inventaire/EntrerInventaire'
 
 export default function PublicRouter() {
-  // notClick()
+  notClick()
   return (<div className='bg-zinc-200'>
 
     <Routes>
