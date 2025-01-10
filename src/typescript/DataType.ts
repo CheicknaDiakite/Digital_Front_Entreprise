@@ -149,6 +149,7 @@ export type RecupType = {
     client?: string;
     label?: string;
     id?: string;
+    ref?: string;
     user_id?: number;
     slug?: string;
     libelle?: string;

@@ -22,7 +22,13 @@ export default function Fact({clientName, clientAddress, clientCoordonne, invoic
   const reset = useStoreCart(state => state.reset)
   const sorties = useStoreCart(state => state.sorties);
   const selectSorties = sorties.filter((sor) => sor.id !== undefined && selectedIds.has(sor.id as number));
-  const totalPrix = selectSorties.reduce((sum, sor) => sum + sor.prix_total, 0);
+  // const totalPrix = selectSorties.reduce((sum, sor) => sum + sor.prix_total, 0);
+
+  const totalPrix = selectSorties?.reduce((acc, sortie) => {
+    // Convertir prix_total en nombre ou utiliser 0 si invalide
+    const prixTotal = sortie.prix_total ? parseFloat(String(sortie.prix_total)) : 0;
+    return acc + prixTotal;
+  }, 0);
     
   const [bankName] = useState<string>("");
   const [bankAccount] = useState<string>("");

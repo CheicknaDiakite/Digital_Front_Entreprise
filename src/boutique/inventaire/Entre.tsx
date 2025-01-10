@@ -192,7 +192,7 @@ export default function Entre() {
     closeopen();
     // window.location.reload();
   };
-
+  console.log("dd",displayedBoutiques)
   if (isLoading) {
     return <Box sx={{ width: 300 }}>
     <Skeleton />
@@ -277,6 +277,7 @@ export default function Entre() {
   
             <TableRow>
               <TableCell>Image</TableCell>
+              <TableCell>Reference</TableCell>
               <TableCell>Date</TableCell>
               <TableCell>Fournisseurs</TableCell>
               <TableCell>Designations</TableCell>

@@ -21,6 +21,7 @@ import AnalyticEcommerce from '../../components/cards/statistics/AnalyticEcommer
 import { useStoreUuid } from '../../usePerso/store';
 import { format } from 'date-fns';
 import { BASE } from '../../_services/caller.service';
+// import SimpleCharts from '../../_components/Chart/Chart_1';
 
 // ==============================|| DASHBOARD - DEFAULT ||============================== //
 interface IconsGridProps {
@@ -79,6 +80,7 @@ export default function DashboardDefault() {
           return (
             <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
               {/* <Link to="/sortie"> */}
+              
                 <AnalyticEcommerce
                   title=" "
                   count={post.count || 0} // Définit 0 par défaut si `post.count` est absent
@@ -104,7 +106,8 @@ export default function DashboardDefault() {
         </button> */}
       </Grid>
 
-      {unUser.role === 1 &&       
+      {unUser.role === 1 && <>
+        {/* <SimpleCharts /> */}
       <Grid item xs={12} md={4}>
         <Link to="/entreprise/detail" className="m-1 block">
           <IconsGrid 
@@ -114,6 +117,7 @@ export default function DashboardDefault() {
           />
         </Link>
       </Grid>
+      </>      
       }
 
       {(unUser.role === 1 || unUser.role === 2) &&       

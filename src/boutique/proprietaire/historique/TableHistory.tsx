@@ -115,6 +115,7 @@ function Row(props: { row: EntrepriseType }) {
                 <Box sx={{ marginLeft: 2, display: 'flex', gap: 2 }}>
                   <TextField
                     label="Date début"
+                    className='bg-blue-200'
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
@@ -123,6 +124,7 @@ function Row(props: { row: EntrepriseType }) {
                   <TextField
                     label="Date fin"
                     type="date"
+                    className='bg-blue-200'
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
                     InputLabelProps={{ shrink: true }}

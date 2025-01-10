@@ -151,6 +151,7 @@ export default function ComponentShadow() {
                 <TextField
                   label="Rechercher une catégorie"
                   variant="outlined"
+                  className='bg-blue-200'
                   fullWidth
                   value={searchTerm}
                   onChange={handleSearchChange}
@@ -164,7 +165,7 @@ export default function ComponentShadow() {
                     </Grid>
                   ))
                 ) : (
-                  <Typography variant="body1" className="text-center w-full">
+                  <Typography variant="body1" className="text-center w-full p-5 m-5">
                     Aucune catégorie trouvée
                   </Typography>
                 )}

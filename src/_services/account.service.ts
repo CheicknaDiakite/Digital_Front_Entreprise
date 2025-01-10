@@ -1,7 +1,7 @@
 import { FormClienType, ReponseClient } from "../typescript/ClienType"
 import { TypeSlug } from "../typescript/DataType"
 import { FormType, FormValueType } from "../typescript/FormType"
-import { ClienType, LoginType, RegisterResponse, ReponseUser, UserType, UtilisateurType } from "../typescript/UserType"
+import { AvisType, ClienType, LoginType, RegisterResponse, ReponseUser, UserType, UtilisateurType } from "../typescript/UserType"
 import Axios from "./caller.service"
 
 const userRegister = async (post: FormValueType): Promise<RegisterResponse> => {
@@ -33,8 +33,9 @@ const userAdminRegister = (data: FormValueType) => {
             withCredentials: true
         });
 }
-const avisCreate = (data: FormValueType) => {
-    return Axios.post('utilisateur/avis/add',
+const avisCreate = (data: AvisType) => {
+    
+    return Axios.post('entreprise/avis/add',
         data,{                         
             headers: {
                 'Authorization': `${token_1}`
@@ -106,7 +107,7 @@ const userGet = async (post: string) => {
 
 const avisGet = async (post: string) => {
     try {
-        const response = await Axios.post(`utilisateur/avis/get`,
+        const response = await Axios.post(`entreprise/avis/get`,
             post,{                         
                 headers: {
                     'Authorization': `${token_1}`

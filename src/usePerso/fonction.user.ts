@@ -7,19 +7,19 @@ import { useNavigate } from "react-router-dom";
 
 import { DataType, RecupType, StockType, TypeEntreprise, TypeSlug } from "../typescript/DataType";
 import { foncError } from "./fonctionPerso";
-import { ClienType, UnUserType, UserType, UtilisateurType } from "../typescript/UserType";
+import { AvisType, ClienType, UnUserType, UserType, UtilisateurType } from "../typescript/UserType";
 import { entrepriseService } from "../_services/entreprise.service";
 import { EntrepriseType, HistoriqueType } from "../typescript/Account";
 import { FormClienType } from "../typescript/ClienType";
 
 // Avis
 
-export function useCreateAvis() {
+export function useAddAvis() {
     
   const useQ = useQueryClient();
 
   const ajoutAvis = useMutation({
-      mutationFn: (post: FormValueType) => {
+      mutationFn: (post: AvisType) => {
         return userService.avisCreate(post)
         .then((res) => {
           if (res.data.etat===false) {
@@ -28,13 +28,14 @@ export function useCreateAvis() {
             }
           } else {
             useQ.invalidateQueries({ queryKey: ["AvisGet"] });
-            toast.success("Inscription réussie");
+            toast.success("Votre avis a ete envoyer.");
           }
       })
       },
     });
 
-    const createAvis = (post: FormValueType) => {
+    const createAvis = (post: AvisType) => {
+
       ajoutAvis.mutate(post);
     };
 

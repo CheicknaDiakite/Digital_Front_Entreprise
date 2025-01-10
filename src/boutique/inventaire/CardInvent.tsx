@@ -30,6 +30,10 @@ export default function CardInvent({ row }: EntreProps) {
        
         <TableCell>
           {/* {row.date} */}
+          {row.ref}
+        </TableCell>
+        <TableCell>
+          {/* {row.date} */}
           {format(new Date(validDate), 'dd/MM/yyyy')}
         </TableCell>
         <TableCell>

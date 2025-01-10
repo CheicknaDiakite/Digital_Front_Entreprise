@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { ChangeEvent, FormEvent, useState } from "react";
 import {
   Card,
   CardContent,
@@ -8,6 +8,11 @@ import {
   ListItemIcon,
   Collapse,
   Button,
+  Dialog,
+  DialogTitle,
+  IconButton,
+  DialogContent,
+  Stack,
 } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import {
@@ -22,11 +27,14 @@ import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import DescriptionIcon from '@mui/icons-material/Description';
 import { Link, useNavigate } from "react-router-dom";
 import {connect} from "../../../../../_services/account.service";
-import { useFetchEntreprise, useFetchUser } from "../../../../../usePerso/fonction.user";
+import { useAddAvis, useFetchEntreprise, useFetchUser } from "../../../../../usePerso/fonction.user";
 import { logout } from "../../../../../usePerso/fonctionPerso";
 import { useStoreUuid } from "../../../../../usePerso/store";
 import backgroundImage from "../../../../../../public/icon-192x192.png";
 import { BASE } from "../../../../../_services/caller.service";
+import MyTextField from "../../../../../_components/Input/MyTextField";
+import CloseIcon from "@mui/icons-material/Close";
+import { AvisType } from "../../../../../typescript/UserType";
 
 const NavSide: React.FC = () => {
   const [open, setOpen] = useState<number>(0); // Typing `open` as number
@@ -45,6 +53,46 @@ const NavSide: React.FC = () => {
     navigate('/');
     localStorage.removeItem('entreprise-uuid')
     window.location.reload();
+  };
+
+  // Pour avis
+
+  const [openA, openchange] = useState(false);
+  const functionopen = () => {
+    openchange(true);
+  };
+  const closeopen = () => {
+    openchange(false);
+  };
+
+  const {createAvis} = useAddAvis()
+  const [avisValues, setAvisValues] = useState<AvisType>({
+    libelle: "",
+    description: "",
+    user_id: "",
+  });
+
+  const onChangeAvis = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setAvisValues({
+      ...avisValues,
+      [name]: value,
+    });
+  };
+
+  const onSubmitAvis = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    avisValues["user_id"]= connect,
+    
+    createAvis(avisValues);
+
+    setAvisValues({
+      libelle: "",
+      description: "",
+      user_id: "",
+    })
+    closeopen();
+    
   };
 
   return (
@@ -219,7 +267,8 @@ const NavSide: React.FC = () => {
         </>
         }
 
-        {(unUser.role === 1 && unUser.is_superuser ) && 
+        {(unUser.role === 1 && unUser.is_superuser ) && <>
+        
         <Link to="/user/admin">
           <ListItem button>
             <ListItemIcon>
@@ -232,18 +281,21 @@ const NavSide: React.FC = () => {
             </Typography>
           </ListItem>
         </Link>
+        
+        <Link to="/user/admin">        
+          <ListItem button>
+            <ListItemIcon>
+              <UserCircleIcon color="primary" fontSize="small" />
+            </ListItemIcon>
+            <Typography 
+            className="text-white bg-blue-900 bg-opacity-100 px-2 py-1 rounded"
+            >
+              Les Avis
+            </Typography>
+          </ListItem>
+        </Link>
+        </>
         }
-
-        <ListItem button onClick={logout}>
-          <ListItemIcon>
-            <PowerIcon color="error" fontSize="small" />
-          </ListItemIcon>
-          <Typography 
-          className="text-white bg-red-600 bg-opacity-100 px-2 py-1 rounded"
-          >
-            Déconnexion
-          </Typography>
-        </ListItem>
         
         <Link to="https://documentation.gest-stocks.com">
           <ListItem >
@@ -258,7 +310,69 @@ const NavSide: React.FC = () => {
           </ListItem>
         </Link>
 
+        <ListItem button onClick={functionopen}>
+          <ListItemIcon>
+            <DescriptionIcon color="primary" fontSize="small" />
+          </ListItemIcon>
+          <Typography 
+          className="text-white bg-sky-900 bg-opacity-100 px-2 py-1 rounded"
+          >
+            Que pensez-vous ?
+          </Typography>
+        </ListItem>
+
+        <ListItem button onClick={logout}>
+          <ListItemIcon>
+            <PowerIcon color="error" fontSize="small" />
+          </ListItemIcon>
+          <Typography 
+          className="text-white bg-red-600 bg-opacity-100 px-2 py-1 rounded"
+          >
+            Déconnexion
+          </Typography>
+        </ListItem>
+        
       </List>
+
+      <Dialog open={openA} onClose={closeopen} fullWidth maxWidth="xs">
+          <DialogTitle>
+            Que pensez-vous de Gest-Stocks ?
+            <IconButton onClick={closeopen} style={{float: "right"}}>
+              <CloseIcon color="primary"></CloseIcon>
+            </IconButton>            
+          </DialogTitle>
+                 
+               
+          <DialogContent>
+            <form onSubmit={onSubmitAvis}>
+              <Stack spacing={2}  margin={2}>
+                
+                <MyTextField 
+                label="Titre"
+                name="libelle"
+                onChange={onChangeAvis}
+                value={avisValues.libelle}
+                fullWidth
+                />
+                <MyTextField 
+                variant="outlined"
+                label="Description"
+                name="description"
+                multiline
+                rows={4} // Nombre de lignes visibles
+                onChange={onChangeAvis}
+                value={avisValues.description}
+                fullWidth
+                />
+                
+                <Button type="submit" variant="contained" color="primary" >
+                  Envoyer
+                </Button>
+              </Stack>
+            </form>
+          </DialogContent>
+        
+      </Dialog>
 
       <Typography variant="h5" className="text-white bg-gray-600 bg-opacity-100 px-2 py-1 rounded">
         Tel = 91 15 48 34

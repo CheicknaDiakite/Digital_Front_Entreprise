@@ -187,10 +187,10 @@ export default function Entreprise() {
     </Typography>
   </Grid>
   :
-  (unUser.role === 2 || unUser.role === 3)  ?
+  (unUser.role === 2 || unUser.role === 3 || unUser.role === 4)  ?
   ""
   :
-  <Typography variant="h5" color="primary" sx={{ mt: 1 }}>
+  <Typography variant="h5" className='m-5 p-5' color="primary" sx={{ mt: 1 }}>
     Nous vous remercions pour votre inscription sur Gest Stock.<br/>
     Veuillez-vous patienter avant l'activation de votre compte !<br/>
     Pour plus d'information contacter (91 15 48 34 // 63 83 51 14)
@@ -218,7 +218,7 @@ export default function Entreprise() {
             description={
               post.licence_active && (
                 <p>
-                  Cet entreprise est activé et possède une licence
+                  Cette entreprise est activé et possède une licence
                   <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-700/10">
                     {post.licence_type}
                   </span>{' '}
@@ -233,7 +233,7 @@ export default function Entreprise() {
         </Link>
         {isLicenceExpired(post.licence_date_expiration) && (
           <Typography variant="h5" color="error" sx={{ mt: 1 }}>
-            L'abonnement de cet Entreprise a expiré !
+            L'abonnement de cette entreprise a expiré !
           </Typography>
         )}
       </Grid>
@@ -346,7 +346,7 @@ export default function Entreprise() {
   return <>
   <Grid className='py-2'>
     <Typography variant="h5">
-      <Button variant="outlined" onClick={functionopen} >Ajout de la Entreprise</Button>
+      <Button variant="outlined" onClick={functionopen} >Ajout de l'entreprise</Button>
     </Typography>
   </Grid>
   </>

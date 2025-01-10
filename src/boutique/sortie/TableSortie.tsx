@@ -28,7 +28,7 @@ export default function TableSortie({onSubmit, amount, list, onChange, formValue
     return b.id - a.id;
   });
 
-  
+  console.log("dd",sortedList)
   return (
     <>
       <ToastContainer position="top-right" theme="colored" />

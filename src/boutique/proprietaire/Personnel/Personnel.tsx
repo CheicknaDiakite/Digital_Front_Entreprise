@@ -147,7 +147,7 @@ export default function Personnel() {
           title={
             <>
               <Typography variant="h5" color="textPrimary">
-                Listes des membres de cet entreprise
+                Listes des membres de cette entreprise
               </Typography>
               <Typography color="textSecondary">
                 information sur les membres de l'entreprise

@@ -5,7 +5,7 @@ export default function M_Abonnement() {
   return (
     <Box sx={{ mt: 2 }} className="m-5">
         <Typography variant="h5" color="error">
-            L'abonnement de cet Entreprise a expiré !
+            L'abonnement de cette entreprise a expiré !
         </Typography>
         <Typography variant="h6" component="div">
             <a

@@ -19,7 +19,7 @@ export default function AuthFooter() {
         <Typography variant="subtitle2" color="secondary">
           Gestion de Stock{' '}
           <Typography component={Link} variant="subtitle2" href="https://documentation.gest-stocks.com" target="_blank" underline="hover">
-            help ?
+            Avez-vous besoin d'aide ?
           </Typography>
         </Typography>
 

@@ -90,7 +90,7 @@ export function AjoutEntreForm({
           <MyTextField required
             variant="outlined" 
             type='date' 
-            label="Date" 
+            label="Date de livraison" 
             name='date'
             value={formValues.date}
             onChange={onChange}

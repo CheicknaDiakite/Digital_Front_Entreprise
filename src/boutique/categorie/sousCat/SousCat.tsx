@@ -188,6 +188,7 @@ export default function SousCat() {
           <Grid item xs={12} sm={6} className="py-2">
             <TextField
               label="Rechercher un produit"
+              className='bg-blue-200'
               variant="outlined"
               fullWidth
               value={searchTerm}

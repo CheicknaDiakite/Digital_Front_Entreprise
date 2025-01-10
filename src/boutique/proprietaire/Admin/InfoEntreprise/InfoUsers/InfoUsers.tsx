@@ -11,6 +11,8 @@ export default function InfoUsers() {
     const uuid = useStoreUuid((state) => state.selectedId)
     const {entrepriseUsers} = useGetEntrepriseUsers(uuid!)
 
+    console.log(entrepriseUsers)
+
     const {removeEntreprise} = useRemoveUserEntreprise()
 
     const handleDelete = (post: any) => {
@@ -28,7 +30,7 @@ export default function InfoUsers() {
     <Grid item xs={12} md={5} lg={4}>
         <Grid container alignItems="center" justifyContent="space-between">
         <Grid item>
-            <Typography variant="h5">Les utilisateurs de cet entreprise</Typography>
+            <Typography variant="h5">Les utilisateurs de cette entreprise</Typography>
         </Grid>
         <Grid item />
         </Grid>

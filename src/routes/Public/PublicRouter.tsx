@@ -44,6 +44,7 @@ export default function PublicRouter() {
         
         <Route path='entreprise'>
           <Route index element={<DashboardDefault />} />
+          <Route path='Avis' element={<Facture />} />
           <Route path='PreFacture' element={<Facture />} />
           
           <Route element={<ProtectedRoute requiredRole={[1]} redirectPath="/" />}>          

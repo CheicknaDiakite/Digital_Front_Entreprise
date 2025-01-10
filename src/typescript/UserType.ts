@@ -58,6 +58,11 @@ export type UtilisateurType = {
     numero: number;
     
   };
+  export type AvisType = {
+    libelle: string;
+    description: string;
+    user_id: string
+  }
 
 export type UnUserType = UtilisateurType; // ou réutilisez le même type directement
 

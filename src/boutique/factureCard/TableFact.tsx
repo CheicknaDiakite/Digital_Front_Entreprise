@@ -1,7 +1,9 @@
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
 import { Fragment } from 'react'
+import { formatNumberWithSpaces } from '../../usePerso/fonctionPerso'
 
 export default function TableFact({list, total}: any) {
+  
   return (
     <>
       <TableContainer component={Paper}>
@@ -21,8 +23,8 @@ export default function TableFact({list, total}: any) {
               <TableRow>
                   <TableCell>{post.categorie_libelle}</TableCell>                  
                   <TableCell>{post.qte}</TableCell>
-                  <TableCell >{post.pu}</TableCell>
-                  <TableCell >{post.prix_total}</TableCell>        
+                  <TableCell >{formatNumberWithSpaces(post.pu)}</TableCell>
+                  <TableCell >{formatNumberWithSpaces(post.prix_total)}</TableCell>        
               </TableRow>
             </Fragment>
             )
@@ -34,7 +36,7 @@ export default function TableFact({list, total}: any) {
 
       <div>
         <h2 className="flex items-end justify-end text-gray-800 text-4xl font-bold">
-          Total hors taxe: {total}
+          Total hors taxe: {formatNumberWithSpaces(total)}
         </h2>
       </div>
     </>
