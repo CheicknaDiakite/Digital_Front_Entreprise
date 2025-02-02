@@ -6,6 +6,7 @@ export type FormType = {
 
 type TypeForn = {
   user_id: string;
+  pu_achat?: number;
   uuid?: string;
   client_id?: string;
   libelle: string;
@@ -27,13 +28,13 @@ export type EntreFormType = {
   cumuler_quantite?: boolean;
   is_sortie?: boolean;
   date: string;
-  categorie_slug: string;
+  categorie_slug?: string;
 } & TypeForn & TypeNumForn;
 
 export type FormValueType = {
   email?: string;
   libelle?: string;
-  numero?: number;
+  numero?: string;
   pays?: string;
   email_user?: string;
   entreprise_id?: string;

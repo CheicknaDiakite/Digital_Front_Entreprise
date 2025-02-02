@@ -15,12 +15,15 @@ import AddBusinessIcon from '@mui/icons-material/AddBusiness';
 import { Link } from 'react-router-dom';
 import { FC, ReactNode } from 'react';
 import backgroundImage from '../../../public/assets/img/img.jpg'
-import { useFetchEntreprise, useFetchUser, useStockEntreprise } from '../../usePerso/fonction.user';
+import { useFetchEntreprise, useFetchUser, useStockSemaine } from '../../usePerso/fonction.user';
 import { connect } from '../../_services/account.service';
-import AnalyticEcommerce from '../../components/cards/statistics/AnalyticEcommerce';
 import { useStoreUuid } from '../../usePerso/store';
 import { format } from 'date-fns';
 import { BASE } from '../../_services/caller.service';
+import SimpleCharts from '../../_components/Chart/Chart_1';
+import MainCard from '../../components/MainCard';
+import { Alert, Box, CircularProgress, Stack } from '@mui/material';
+import Chart_2 from '../../_components/Chart/Chart_2';
 // import SimpleCharts from '../../_components/Chart/Chart_1';
 
 // ==============================|| DASHBOARD - DEFAULT ||============================== //
@@ -28,10 +31,11 @@ interface IconsGridProps {
   icon: ReactNode;
   title: string;
   description: string;
+  className?: string; // Ajouter cette ligne
 }
 
-const IconsGrid: FC<IconsGridProps> = ({ icon, title, description }) => (
-  <div className="icon-box bg-white p-4 shadow-md rounded-lg text-center">
+const IconsGrid: FC<IconsGridProps> = ({ icon, title, description, className }) => (
+  <div className={`icon-box p-4 shadow-md rounded-lg text-center ${className}`}>
     <div className="icon text-4xl mb-4">{icon}</div>
     <h4 className="text-xl font-semibold mb-2">
       <a href="#" className="text-blue-500 hover:underline">
@@ -47,8 +51,24 @@ export default function DashboardDefault() {
   const uuid = useStoreUuid((state) => state.selectedId)
   const {unEntreprise} = useFetchEntreprise(uuid!)
   const url = unEntreprise.image ? BASE(unEntreprise.image) : backgroundImage;
-  const {stockEntreprise} = useStockEntreprise(unEntreprise.uuid!, connect)
-  
+  const {stockSemaine, isLoading, isError} = useStockSemaine(unEntreprise.uuid!)
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Stack sx={{ width: '100%' }} spacing={2}>        
+        <Alert severity="error">Probleme de connexion !</Alert>
+      </Stack>
+    );
+  }
+
   return (
     <Grid container 
     rowSpacing={4.5} 
@@ -60,39 +80,6 @@ export default function DashboardDefault() {
       backgroundRepeat: 'no-repeat',
     }}
     >
-      {/* row 1 */}
-      <Grid item xs={12} sx={{ mb: -2.25 }} className='bg-blue-50'>
-        <Typography 
-          // variant="h5" 
-          className='text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-900'
-        >
-          Le nombre de vente ou sortie par les 3 derniers mois
-        </Typography>
-      </Grid>
-
-      {(!stockEntreprise.count_sortie_par_mois || stockEntreprise.count_sortie_par_mois.length === 0) ? (
-        <Grid item xs={12} sx={{ mb: -2.25 }}>
-          <Typography variant="h5">Il n'y a pas eu de vente !</Typography>
-        </Grid>
-      ) : (
-        stockEntreprise.count_sortie_par_mois.slice(0, 3).map((post, index) => {
-          const validDate = post.month ? new Date(post.month) : new Date(); // Vérifie si `post.week` est valide
-          return (
-            <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
-              {/* <Link to="/sortie"> */}
-              
-                <AnalyticEcommerce
-                  title=" "
-                  count={post.count || 0} // Définit 0 par défaut si `post.count` est absent
-                  pied="Le nombre de vente ou sortie effectué par le mois du"
-                  extra={format(validDate, 'MMMM yyyy')} // Format de la date
-                  className="bg-blue-100"
-                />
-              {/* </Link> */}
-            </Grid>
-          );
-        })
-      )}
 
       <Grid item xs={12} sx={{ mb: -2.25 }}>
         <Typography 
@@ -101,22 +88,89 @@ export default function DashboardDefault() {
         >
           Page d'accueil
         </Typography>
-        {/* <button type="button" className="bg-gradient-to-r from-teal-400 to-blue-500 hover:from-pink-500 hover:to-orange-500 ...">
-        Page d'accueil
-        </button> */}
+        
+      </Grid>
+
+      
+      {/* <Grid item xs={12} sx={{ mb: -2.25 }}>
+        <SimpleCharts />
+      </Grid> */}
+      <Grid item xs={12} md={7} lg={10}>
+        <Grid container alignItems="center" justifyContent="space-between">
+          <Grid item>
+            <Typography 
+            variant="h5"
+            >
+              Le nombre de vente ou sortie effectuer
+            </Typography>
+          </Grid>
+          <Grid item />
+        </Grid>
+        <MainCard sx={{ mt: 2 }} content={false}>
+          <Box sx={{ p: 3, pb: 0 }}>
+            <Stack spacing={2}>
+              <Typography variant="h6" color="text.secondary">
+                  Eta de vente des 6 derniers mois
+              </Typography>
+              {/* <Typography variant="h3">$7,650</Typography> */}
+            </Stack>
+          </Box>
+          {/* <MonthlyBarChart /> */}
+            <SimpleCharts />
+        </MainCard>
+      </Grid>
+
+      <Grid item xs={12} md={7} lg={12}>
+        <Grid container alignItems="center" justifyContent="space-between">
+          <Grid item>
+            <Typography 
+            variant="h5"
+            >
+              Les produits les plus vendes du mois en cours
+            </Typography>
+          </Grid>
+          <Grid item />
+        </Grid>
+        
+        {(!stockSemaine.sorties_par_mois || stockSemaine.sorties_par_mois.length === 0) ? (
+          <Grid item xs={12} sx={{ mb: -2.25 }}>
+          <Typography variant="h5">Il n'y a pas eu de vente !</Typography>
+          </Grid>
+          ) : (
+          stockSemaine.sorties_par_mois.slice(0, 1).map((post, index) => {
+          // const validDate = post.week ? new Date(post.month) : new Date(); // Vérifie si `post.week` est valide
+          const validD = new Date(post.month) // Vérifie si `post.week` est valide
+          
+          return (
+            <MainCard key={index} sx={{ mt: 2 }} content={false}>
+              <Box sx={{ p: 3, pb: 0 }}>
+                <Stack spacing={2}>
+                  <Typography variant="h6" color="text.secondary">
+                    {format(validD, 'MMMM yyyy')}
+                  </Typography>
+                  {/* <Typography variant="h3">$7,650</Typography> */}
+                </Stack>
+              </Box>
+              {/* <MonthlyBarChart /> */}
+                <Chart_2 details={post.details} />
+            </MainCard>
+          );
+          })
+        )}
+        
       </Grid>
 
       {unUser.role === 1 && <>
-        {/* <SimpleCharts /> */}
-      <Grid item xs={12} md={4}>
-        <Link to="/entreprise/detail" className="m-1 block">
-          <IconsGrid 
-            icon={<AddBusinessIcon color="primary" />} 
-            title="Entreprise" 
-            description="Entreprise" 
-          />
-        </Link>
-      </Grid>
+        <Grid item xs={12} md={4}>
+          <Link to="/entreprise/detail" className="m-1 block">
+            <IconsGrid 
+              icon={<AddBusinessIcon color="primary" />} 
+              title="Entreprise" 
+              description="Entreprise"
+              className="bg-blue-200"
+            />
+          </Link>
+        </Grid>
       </>      
       }
 
@@ -127,6 +181,7 @@ export default function DashboardDefault() {
               icon={<CategoryIcon className="text-blue-500" />} 
               title="Catégorie" 
               description="Description de la catégorie des produits" 
+              className='bg-white'
             />
           </Link>
         </Grid>
@@ -138,7 +193,8 @@ export default function DashboardDefault() {
             <IconsGrid 
               icon={<AddCircleIcon className="text-blue-500" />} 
               title="Entrer/Achat" 
-              description="Entre des produits de la boutique" 
+              description="Entre des produits de la boutique"
+              className="bg-green-200" 
             />
           </Link>
         </Grid>
@@ -151,6 +207,7 @@ export default function DashboardDefault() {
               icon={<ExitToAppIcon className="text-blue-500" />} 
               title="Sortie/Vente" 
               description="Pour la sortie des prduits dans la boutique" 
+              className="bg-red-200"
             />
           </Link>
         </Grid>
@@ -163,6 +220,7 @@ export default function DashboardDefault() {
               icon={<PeopleOutlineRoundedIcon className="text-blue-500" />} 
               title="Clients/Fournisseurs" 
               description="Pour ajouter des clients ou fournisseurs" 
+              className="bg-lime-200"
             />
           </Link>
         </Grid>
@@ -174,6 +232,7 @@ export default function DashboardDefault() {
               icon={<PersonAddAltIcon className="text-blue-500" />} 
               title="Personnels" 
               description="Pour ajouter des personnes qui ont acces au plate-forme" 
+              className="bg-cyan-200"
             />
           </Link>
         </Grid>
@@ -184,7 +243,8 @@ export default function DashboardDefault() {
           <IconsGrid 
             icon={<ReceiptIcon className="text-blue-500" />} 
             title="Facture Proforma" 
-            description="Ce facture ne sera pas enregistrer" 
+            description="Ce facture ne sera pas enregistrer"
+            className="bg-neutral-200" 
           />
         </Link>
       </Grid> 
@@ -200,6 +260,7 @@ export default function DashboardDefault() {
               icon={<FileCopyIcon color="primary" />} 
               title="Factures des produits sorties" 
               description="Factures des produits de la boutique" 
+              className="bg-amber-200"
             />
           </Link>
         </Grid>
@@ -212,6 +273,7 @@ export default function DashboardDefault() {
             icon={<FileOpenIcon color="primary"/>} 
             title="Factures des produits entrer" 
             description="Factures des produits de la boutique" 
+            className="bg-slate-200"
           />
         </Link>
       </Grid>
@@ -224,6 +286,7 @@ export default function DashboardDefault() {
               icon={<MonetizationOnIcon color="primary" />} 
               title="Depense(s)" 
               description="Ajout des depenses de la boutique" 
+              className="bg-orange-200"
             />
           </Link>
         </Grid>

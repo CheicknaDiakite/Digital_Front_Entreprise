@@ -158,26 +158,26 @@ export default function FacEntre() {
             onChange={handlePageChange}
             color="primary"
           />
-                    <Grid item className='mx-2'>
-                      <TextField
-                        className='bg-sky-300'
-                        label="Date de début"
-                        type="date"
-                        value={selectedStartDate}
-                        onChange={handleStartDateChange}
-                        InputLabelProps={{ shrink: true }}
-                      />
-                    </Grid>
-                    <Grid item>
-                      <TextField
-                        className='bg-sky-300'
-                        label="Date de fin"
-                        type="date"
-                        value={selectedEndDate}
-                        onChange={handleEndDateChange}
-                        InputLabelProps={{ shrink: true }}
-                      />
-                    </Grid>
+          <Grid item className='mx-2'>
+            <TextField
+              className='bg-sky-300'
+              label="Date de début"
+              type="date"
+              value={selectedStartDate}
+              onChange={handleStartDateChange}
+              InputLabelProps={{ shrink: true }}
+            />
+          </Grid>
+          <Grid item>
+            <TextField
+              className='bg-sky-300'
+              label="Date de fin"
+              type="date"
+              value={selectedEndDate}
+              onChange={handleEndDateChange}
+              InputLabelProps={{ shrink: true }}
+            />
+          </Grid>
         </div>
         {/* Modal */}
         <Dialog open={open} onClose={closeopen} fullWidth maxWidth="xs">
@@ -192,23 +192,38 @@ export default function FacEntre() {
               <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmit}>
                 <Stack spacing={2} margin={2}>
 
-                  <MyTextField 
+                  <MyTextField required
                     label={"libelle"}
                     name={"libelle"}
                     onChange={onChange}
+                    sx={{
+                      "& .MuiFormLabel-asterisk": {
+                        color: "red", // Personnalise la couleur de l'étoile en rouge
+                      },
+                    }}
                   />
-                  <MyTextField 
+                  <MyTextField required
                     label={"Reference"}
                     name={"ref"}
                     onChange={onChange}
+                    sx={{
+                      "& .MuiFormLabel-asterisk": {
+                        color: "red", // Personnalise la couleur de l'étoile en rouge
+                      },
+                    }}
                   />
-                  <MyTextField 
+                  <MyTextField required
                     label={"Date"}
                     name={"date"}
                     type="date"
                     onChange={onChange}
                     InputLabelProps={{
                       shrink: true, // Force le label à rester au-dessus du champ
+                    }}
+                    sx={{
+                      "& .MuiFormLabel-asterisk": {
+                        color: "red", // Personnalise la couleur de l'étoile en rouge
+                      },
                     }}
                   />
                   <MyTextField 

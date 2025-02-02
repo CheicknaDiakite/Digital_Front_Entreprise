@@ -191,6 +191,7 @@ export function useFetchEntre(slug: string) {
       libelle: '',
       user_id: '',
       pu: 0,
+      pu_achat: 0,
       qte: 0,
       categorie_slug: '',
     });
@@ -246,7 +247,7 @@ export function useFetchAllEntre(slug: TypeSlug) {
 export function useGetAllEntre(slug: string, uuid: string) {
   const [entresEntreprise, setEntre] = useState<RecupType[]>([]);
 
-  const {data: us, isLoading, isError} = useQuery({
+  const {data: us, isLoading, isError, refetch} = useQuery({
     queryKey: ["entre", slug],
     queryFn: () =>
       entrerService.getAllEntre(slug, uuid).then((res) => {
@@ -265,7 +266,7 @@ export function useGetAllEntre(slug: string, uuid: string) {
       }
     }, [us]);
 
-  return { entresEntreprise, setEntre, isLoading, isError };
+  return { entresEntreprise, setEntre, isLoading, isError, refetch };
 }
 
 export function useCreateEntre() {

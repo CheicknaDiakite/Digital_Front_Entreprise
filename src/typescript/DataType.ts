@@ -23,6 +23,7 @@ export type InfoSousType = {
     client?: string;
     date?: string;
     pu: number;
+    pu_achat?: number;
     qte: number;
     prix_total: number;
     sortie: InfoSousType;
@@ -54,6 +55,7 @@ export type SousType = {
 export type EntreType = {
     qte: number;
     pu: number;
+    pu_achat?: number;
     facture?: File | undefined | null ;
     date?: string;
     ref?: string;
@@ -112,9 +114,15 @@ export type TypeEntreprise = {
     user_id?: string;
     pays?: string;
 }
+
+type StockMonth = {
+    libelle: string;
+    count: number;
+}
 type StokcWeekType = {
     month: string;
     count: number;
+    details: StockMonth[]
 }
 type Detail = {
     id: number;
@@ -138,6 +146,7 @@ export type StockType = {
     nombre_sortie: number;
     count_sortie_par_mois?: StokcWeekType[]
     count_entrer_par_mois?: StokcWeekType[]
+    sorties_par_mois?: StokcWeekType[]
     details_sortie_par_mois?: DetailsParMois
     details_entrer_par_mois?: DetailsParMois
 }
@@ -145,6 +154,10 @@ export type StockType = {
 
 export type RecupType = {
     all?: string;
+    nom?: string;
+    adresse?: string;
+    coordonne?: string;
+    numero?: number;
     uuid?: string;
     client?: string;
     label?: string;
@@ -157,6 +170,7 @@ export type RecupType = {
     is_sortie?: boolean;
     prix_total?: number;
     pu?: number;
+    pu_achat?: number;
     qte?: number;
     categorie_slug?: string;
     clientName?: string,

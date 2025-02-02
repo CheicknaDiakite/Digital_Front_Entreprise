@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography';
 
 // project import
 
-import { Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Skeleton, Stack, TextField } from '@mui/material';
+import { Alert, Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Skeleton, Stack, TextField } from '@mui/material';
 import { ChangeEvent, FormEvent, useState } from 'react';
 import { RecupType, RouteParams } from '../../../typescript/DataType';
 import { connect } from '../../../_services/account.service';
@@ -47,7 +47,7 @@ function ShadowBox({ shadow }: ShadowBoxProps) {
   // let url = BASE(unEntreprise.image);
   return (
     <div className="relative flex flex-col items-center space-y-2">
-      {unUser.role === 1 ? 
+      {(unUser.role === 1 || unUser.role === 2) ? 
       
       <Link to={`/categorie/info/${shadow.uuid}`} className="w-full">
         <MainCard border={false} shadow={shadow.id} boxShadow>
@@ -140,8 +140,6 @@ export default function SousCat() {
     
     ajoutSousCate(formValues)
 
-    console.log("dd ..", formValues)
-
     setFormValues({
       libelle: '',
       categorie_slug: '',
@@ -160,8 +158,12 @@ export default function SousCat() {
   }
 
   if (isError) {
-    window.location.reload();
-    return <div>Erroeur ...</div>
+    // window.location.reload();
+    return (
+      <Stack sx={{ width: '100%' }} spacing={2}>        
+        <Alert severity="error">Probleme de connexion !</Alert>
+      </Stack>
+    );
   }
 
   if (getSousCates) {
@@ -217,10 +219,16 @@ export default function SousCat() {
               <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmit}>
                 <Stack spacing={2} margin={2}>
                   {/* <TextField variant="outlined" label="libelle" name='libelle' onChange={onChange}></TextField> */}
-                  <MyTextField 
-                    label={"libelle"}
+                  <MyTextField
+                    required
+                    label={"Nom du produit"}
                     name={"libelle"}
                     onChange={onChange}
+                    sx={{
+                      "& .MuiFormLabel-asterisk": {
+                        color: "red", // Personnalise la couleur de l'étoile en rouge
+                      },
+                    }}
                   />
 
                   <MyTextField 

@@ -118,7 +118,7 @@ export default function Personnel() {
       first_name: "",
       last_name: "",
       email_user: "",
-      numero: 0,
+      numero: "",
       password: "",
     });
     closeopen();
@@ -258,12 +258,17 @@ export default function Personnel() {
                   onChange={onChange}
                   fullWidth
                 />
-                <MyTextField 
-                  label="Numero"
+                <MyTextField
+                  required
+                  type="text"
+                  variant="outlined"
+                  label="Numéro"
                   name="numero"
                   onChange={onChange}
-                  type="number"
-                  fullWidth
+                  inputProps={{
+                    pattern: "^[+]?\\d*$", // Permet uniquement les chiffres et éventuellement un "+" au début
+                    maxLength: 15, // Limite la longueur à un nombre raisonnable pour un numéro international
+                  }}
                 />
                 <MyTextField 
                   label="Email"

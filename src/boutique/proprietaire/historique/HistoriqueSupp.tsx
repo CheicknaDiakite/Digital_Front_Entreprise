@@ -10,17 +10,36 @@ import Nav from '../../../_components/Button/Nav';
 import { format } from 'date-fns';
 import { useStoreUuid } from '../../../usePerso/store';
 import { formatNumberWithSpaces } from '../../../usePerso/fonctionPerso';
+import { Alert, Box, CircularProgress, Stack } from '@mui/material';
 
 
 export default function HistoriqueSupp() {
   const uuid = useStoreUuid((state) => state.selectedId)
 
   // const {entres} = useFetchAllEntre(top)
-  const {suppH} = useHistorySuppEntreprise(connect, uuid!)
-  
+  const {suppH, isLoading, isError} = useHistorySuppEntreprise(connect, uuid!)
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Stack sx={{ width: '100%' }} spacing={2}>        
+        <Alert severity="error">Probleme de connexion !</Alert>
+      </Stack>
+    );
+  }
+
+  if (suppH) {
+
     return (
       <>    
-
+  
       <Nav />
   
       <TableContainer component={Paper}>
@@ -69,5 +88,7 @@ export default function HistoriqueSupp() {
       </TableContainer>
       </>
     );
+  }
+  
   }
 

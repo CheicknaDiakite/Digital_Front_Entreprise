@@ -15,7 +15,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { useHistoriqueEntreprise } from '../../../usePerso/fonction.user';
 import { connect } from '../../../_services/account.service';
 import { useState } from 'react';
-import { Button, Pagination, TextField } from '@mui/material';
+import { Alert, Button, CircularProgress, Pagination, Stack, TextField } from '@mui/material';
 import { format } from 'date-fns';
 import { EntrepriseType } from '../../../typescript/Account';
 import Nav from '../../../_components/Button/Nav';
@@ -183,29 +183,49 @@ function Row(props: { row: EntrepriseType }) {
 
 
 export default function TableHistory() {
-  const {historique} = useHistoriqueEntreprise(connect)
+  const {historique, isLoading, isError} = useHistoriqueEntreprise(connect)
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Stack sx={{ width: '100%' }} spacing={2}>        
+        <Alert severity="error">Probleme de connexion !</Alert>
+      </Stack>
+    );
+  }
+
+  if (historique) {
+
+    return (<>
+      <Nav />
+      <TableContainer component={Paper}>
+        <Table aria-label="collapsible table">
+          <TableHead>
+            <TableRow>
+              <TableCell />
+              <TableCell>Nom de l'entreprise</TableCell>
+              <TableCell align="right">Adresse</TableCell>
+              <TableCell align="right">Telephone&nbsp;(TEL)</TableCell>
+              <TableCell align="right">Email</TableCell>
+              <TableCell align="right">####&nbsp;(g)</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {historique.map((row, index) => (
+              <Row key={index} row={row} />
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </>
+    );
+  }
   
-  return (<>
-    <Nav />
-    <TableContainer component={Paper}>
-      <Table aria-label="collapsible table">
-        <TableHead>
-          <TableRow>
-            <TableCell />
-            <TableCell>Nom de l'entreprise</TableCell>
-            <TableCell align="right">Adresse</TableCell>
-            <TableCell align="right">Telephone&nbsp;(TEL)</TableCell>
-            <TableCell align="right">Email</TableCell>
-            <TableCell align="right">####&nbsp;(g)</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {historique.map((row, index) => (
-            <Row key={index} row={row} />
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  </>
-  );
 }

@@ -5,7 +5,7 @@ import { connect } from "../_services/account.service";
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import QuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
 import { useState } from "react";
-import { useAllClients } from "./fonction.user";
+import { useAllClients, useFetchUser } from "./fonction.user";
 import { useStoreUuid } from "./store";
 
 interface TabPanelProps {
@@ -40,6 +40,7 @@ export function AjoutEntreForm({
   }: any) {
     const uuid = useStoreUuid((state) => state.selectedId)
     const {souscategories} = useFetchAllSousCate(connect, uuid!)
+    const {unUser} = useFetchUser(connect)
     const { getClients } = useAllClients(uuid!);
     const fournisseurs = getClients.filter(info => info.role == 2 || info.role == 3);
    
@@ -53,8 +54,7 @@ export function AjoutEntreForm({
             getOptionLabel={(option) => (typeof option === 'string' ? option : option.nom || '')}
             onChange={handleAutoFourChange}
             renderInput={(params) => <TextField {...params}
-                            name='client_id' 
-                            value={formValues.client_id}
+                            name='client_id'
                             onChange={onChange} 
                             label="Fournisseur"
                             
@@ -71,7 +71,7 @@ export function AjoutEntreForm({
               <TextField
                 {...params}
                 required
-                label="Categorie"
+                label="Nom du produit"
 
                 sx={{
                   "& .MuiFormLabel-asterisk": { color: "red" },
@@ -81,7 +81,7 @@ export function AjoutEntreForm({
           />
 
           <MyTextField 
-            label={"libelle"}
+            label={"libelle / ref"}
             value={formValues.libelle}
             name={"libelle"}
             onChange={onChange}
@@ -119,20 +119,9 @@ export function AjoutEntreForm({
             }}
           />
           <Typography variant="h6" className='mx-2'>
-            Prix Unitaire <LocalAtmIcon color="error" fontSize='small' />
+            Prix Unitaire (prix de vente) <LocalAtmIcon color="error" fontSize='small' />
           </Typography>
-          {/* <MyTextField required
-            variant="outlined" 
-            type='number'
-            name='pu' 
-            value={formValues.pu}
-            onChange={onChange}
-            sx={{
-              "& .MuiFormLabel-asterisk": {
-                color: "red", // Personnalise la couleur de l'étoile en rouge
-              },
-            }}
-          /> */}
+          
           <MyTextField
             required
             variant="outlined"
@@ -152,6 +141,22 @@ export function AjoutEntreForm({
               },
             }}
           />
+          {unUser.role === 1 &&           
+          <MyTextField
+            variant="outlined"
+            type="number"
+            inputProps={{
+              step: "0.01", // Décimales à deux chiffres
+              min: "0", // Pas de valeurs négatives
+              max: "9999999999.99", // Correspond à max_digits=10 dans Django
+            }}
+            label="Prix Unitaire (prix d'achat)"
+            name="pu_achat"
+            onChange={onChange}
+            value={formValues.pu_achat}            
+          />
+          }
+
           {/* Autres champs ici */}
           <FormControlLabel
             control={<Checkbox 

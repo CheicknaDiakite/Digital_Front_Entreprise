@@ -11,7 +11,6 @@ const BaseDomaine = {
 
 export const Base = {
     baseURL: `${BaseDomaine.URL}/api`
-    // baseURL: 'http://127.0.0.1:8000/api'
 }
 
 // Créer une instance d'Axios

@@ -81,8 +81,32 @@ export default function AuthLogin() {
       <Card variant="outlined" sx={{ boxShadow: 0, bgcolor: 'transparent' }}>
         <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmit}>
           <Stack spacing={2} margin={2}>          
-            <TextField variant="outlined" label="Nom d'utilisateur ou Numero" value={formVal.username} name='username' onChange={onChange}></TextField>
-            <TextField variant="outlined" label="Mot de passe" type='password' value={formVal.password} name='password' onChange={onChange}></TextField>
+            <TextField required 
+            variant="outlined" 
+            label="Nom d'utilisateur ou Numero" 
+            value={formVal.username} 
+            name='username' 
+            onChange={onChange}
+            sx={{
+              "& .MuiFormLabel-asterisk": {
+                color: "red", // Personnalise la couleur de l'étoile en rouge
+              },
+            }}
+            ></TextField>
+
+            <TextField required 
+            variant="outlined" 
+            label="Mot de passe" type='password' 
+            value={formVal.password} 
+            name='password' 
+            onChange={onChange}
+            sx={{
+              "& .MuiFormLabel-asterisk": {
+                color: "red", // Personnalise la couleur de l'étoile en rouge
+              },
+            }}
+            ></TextField>
+
             <Button type="submit" color="success" variant="outlined" onClick={handle} >connecter</Button>
           </Stack>
         </form>

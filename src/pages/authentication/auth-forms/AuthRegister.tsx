@@ -24,7 +24,7 @@ export default function AuthRegister() {
     first_name: '',
     last_name: '',
     email: '',
-    numero: 0,
+    numero: '',
     password: '',
   });
 
@@ -70,7 +70,9 @@ export default function AuthRegister() {
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (formValues.password.length < 6) {
+    if (!formValues.numero || formValues.numero.length < 5) {
+      toast.error("Le numero n'est pas bien correct !");
+    } else if (formValues.password.length < 6) {
       toast.error("Le mot de passe doit contenir au moins 6 caractères");
     } else if (formValues.password !== formValues.passwordConfirm) {
       toast.error("Les mots de passe ne correspondent pas");
@@ -79,6 +81,7 @@ export default function AuthRegister() {
       // handle(); // Appelle le toast de chargement
       // Simule une opération asynchrone
         create(formValues);
+        // console.log("test ",formValues);
         
         setFormValues({
           username: "",
@@ -87,7 +90,7 @@ export default function AuthRegister() {
           email: "",
           password: "",
           passwordConfirm: "",
-          numero: 0,
+          numero: "",
         });
        // Remplacez cette valeur pour le temps d'exécution de votre opération réelle
     }
@@ -99,12 +102,77 @@ export default function AuthRegister() {
         <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmit}>
           <Stack spacing={2} margin={2}>
             {/* <TextField variant="outlined" label="Nom d'utilisateur" name='username' onChange={onChange}></TextField> */}
-            <TextField variant="outlined" label="Nom" name='last_name' value={formValues.last_name} onChange={onChange}></TextField>
-            <TextField variant="outlined" label="Prenom" name='first_name' value={formValues.first_name} onChange={onChange}></TextField>
-            <TextField type='email' variant="outlined" label="Email" name='email' value={formValues.email} onChange={onChange}></TextField>
-            <TextField type='number' variant="outlined" label="Numero" name='numero' value={formValues.numero} onChange={onChange}></TextField>
+            <TextField 
+            required
+            variant="outlined" 
+            label="Nom" 
+            name='last_name' 
+            value={formValues.last_name} 
+            onChange={onChange}
+            sx={{
+              "& .MuiFormLabel-asterisk": {
+                color: "red", // Personnalise la couleur de l'étoile en rouge
+              },
+            }}
+            ></TextField>
+
+            <TextField 
+            required
+            variant="outlined" 
+            label="Prenom" 
+            name='first_name' 
+            value={formValues.first_name} 
+            onChange={onChange}
+            sx={{
+              "& .MuiFormLabel-asterisk": {
+                color: "red", // Personnalise la couleur de l'étoile en rouge
+              },
+            }}
+            ></TextField>
+
+            <TextField
+            required
+            type='email' 
+            variant="outlined" 
+            label="Email" 
+            name='email' 
+            value={formValues.email} 
+            onChange={onChange}
+            sx={{
+              "& .MuiFormLabel-asterisk": {
+                color: "red", // Personnalise la couleur de l'étoile en rouge
+              },
+            }}
+            ></TextField>
+            
+            <TextField
+              required
+              type="text"
+              variant="outlined"
+              label="Numéro"
+              name="numero"
+              value={formValues.numero || ""}
+              onChange={onChange}
+              inputProps={{
+                pattern: "^[+]?\\d*$", // Permet uniquement les chiffres et éventuellement un "+" au début
+                maxLength: 15, // Limite la longueur à un nombre raisonnable pour un numéro international
+              }}
+              sx={{
+                "& .MuiFormLabel-asterisk": {
+                  color: "red", // Personnalise la couleur de l'étoile en rouge
+                },
+              }}
+            />
+
             <FormControl fullWidth className='mb-4'>
-              <InputLabel id="select-pays-label">Votre pays</InputLabel>
+              <InputLabel id="select-pays-label" 
+              required
+              sx={{
+                "& .MuiFormLabel-asterisk": {
+                  color: "red", // Personnalise la couleur de l'étoile en rouge
+                },
+              }}
+              >Votre pays</InputLabel>
               <Select
                 labelId="select-pays-label"
                 // value={selectedCountry}
@@ -119,8 +187,34 @@ export default function AuthRegister() {
                 ))}
               </Select>
             </FormControl>
-            <TextField type='password' value={formValues.password} variant="outlined" label="Mot de passe" name='password' onChange={onChange}></TextField>
-            <TextField type='password' value={formValues.passwordConfirm} variant="outlined" label="Mot de passe de confirmation" name='passwordConfirm' onChange={onChange}></TextField>
+
+            <TextField required
+            type='password' 
+            value={formValues.password} 
+            variant="outlined" 
+            label="Mot de passe" 
+            name='password' 
+            onChange={onChange}
+            sx={{
+              "& .MuiFormLabel-asterisk": {
+                color: "red", // Personnalise la couleur de l'étoile en rouge
+              },
+            }}
+            ></TextField>
+
+            <TextField required
+            type='password' 
+            value={formValues.passwordConfirm} 
+            variant="outlined" 
+            label="Mot de passe de confirmation" 
+            name='passwordConfirm' 
+            onChange={onChange}
+            sx={{
+              "& .MuiFormLabel-asterisk": {
+                color: "red", // Personnalise la couleur de l'étoile en rouge
+              },
+            }}
+            ></TextField>
 
             <Button type="submit" color="success" variant="outlined" onClick={handle} >Inscription</Button>
           </Stack>

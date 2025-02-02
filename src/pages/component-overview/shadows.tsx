@@ -9,7 +9,7 @@ import EditIcon from '@mui/icons-material/BorderColor';
 import MainCard from '../../components/MainCard';
 import ComponentWrapper from './ComponentWrapper';
 import ComponentSkeleton from './ComponentSkeleton';
-import { Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Skeleton, TextField } from '@mui/material';
+import { Alert, Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Skeleton, TextField } from '@mui/material';
 import { ChangeEvent, FormEvent, useState } from 'react';
 import { connect } from '../../_services/account.service';
 import { Link } from 'react-router-dom';
@@ -125,8 +125,11 @@ export default function ComponentShadow() {
   }
 
   if (isError) {
-    window.location.reload();
-    return <div>Erreur...</div>;
+    return (
+    <Stack sx={{ width: '100%' }} spacing={2}>        
+      <Alert severity="error">Probleme de connexion !</Alert>
+    </Stack>
+  );
   }
 
   if (cateEntreprises) {
@@ -155,6 +158,7 @@ export default function ComponentShadow() {
                   fullWidth
                   value={searchTerm}
                   onChange={handleSearchChange}
+                  
                 />
               </Grid>
               <Grid container spacing={2}>
@@ -186,10 +190,16 @@ export default function ComponentShadow() {
                       >
                         <Stack spacing={2} margin={2}>
                           <MyTextField
-                            label="Libellé"
+                            required
+                            label="Nom de la categorie"
                             name="libelle"
                             value={formValues.libelle}
                             onChange={onChange}
+                            sx={{
+                              "& .MuiFormLabel-asterisk": {
+                                color: "red", // Personnalise la couleur de l'étoile en rouge
+                              },
+                            }}
                           />
                           <MyTextField
                             label="Image"

@@ -1,9 +1,9 @@
-import { Box, Button, Grid, Pagination, Skeleton, TextField, Typography } from "@mui/material";
+import { Box, Button, Grid, Modal, Pagination, Skeleton, TextField, Typography } from "@mui/material";
 import { ChangeEvent, FormEvent, SyntheticEvent, useEffect, useState } from "react";
 import { RecupType, SortieType } from "../../typescript/DataType";
 import { connect } from "../../_services/account.service";
 import { useStoreCart } from "../../usePerso/cart_store";
-import { useCreateSortie, useFetchAllSortie, useGetAllSortie } from "../../usePerso/fonction.entre";
+import { useCreateSortie, useFetchAllSortie, useGetAllEntre, useGetAllSortie } from "../../usePerso/fonction.entre";
 import Fact from "../factureCard/Fact";
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import TableSortie from "./TableSortie";
@@ -44,20 +44,20 @@ export default function Sortie() {
   
   const setSorties = useStoreCart(state => state.setSorties)
 
-    const top = {
-      all: "all",
-      user_id: connect
-    }
-    // const {entres} = useEntrer(top)
-    // const {entresEntreprise: entres} = useGetAllEntre(connect)
-    const {sorties} = useFetchAllSortie(top)
-    const {sortiesEntreprise, isLoading, isError} = useGetAllSortie(entreprise_uuid!)
+  const top = {
+    all: "all",
+    user_id: connect
+  }
+  // const {entres} = useEntrer(top)
+  // const {entresEntreprise: entres} = useGetAllEntre(connect)
+  const {sorties} = useFetchAllSortie(top)
+  const {sortiesEntreprise, isLoading, isError} = useGetAllSortie(entreprise_uuid!)
 
-    
-    const {ajoutSortie} = useCreateSortie()
-    const itemsPerPage = 25; // Nombre d'éléments par page
+  
+  const {ajoutSortie} = useCreateSortie()
+  const itemsPerPage = 25; // Nombre d'éléments par page
 
-    // État pour la page courante et les éléments par page
+  // État pour la page courante et les éléments par page
   const [currentPage, setCurrentPage] = useState(1);
 
   // États pour les dates de recherche
@@ -202,25 +202,56 @@ export default function Sortie() {
       const [selectedOption, setSelectedOption] = useState<RecupType | null >(null);
       const [selectedClient, setSelectedClient] = useState<RecupType | null >(null);
 
+      const [clientInfo, setClientInfo] = useState({
+        clientName: '',
+        clientAddress: '',
+        clientCoordonne: '',
+        clientNumero: 0,
+      });
+
       const handleChange = (selected: SingleValue<RecupType>) => {
-        // console.log('Selected option:', selected?.uuid);
-        formValues["entre_id"]= selected?.uuid
-        setSelectedOption(selected);
+        // Assurez-vous que "selected" contient la clé du prix unitaire, par exemple "pu"
+        if (selected) {
+            formValues["entre_id"] = selected.uuid; // Attribue l'ID sélectionné
+            formValues["pu"] = selected.pu || 0;  // Met à jour le prix unitaire si disponible
+        } else {
+            formValues["entre_id"] = ""; // Réinitialise si aucune option n'est sélectionnée
+            formValues["pu"] = 0;       // Réinitialise également le prix unitaire
+        }
+        setSelectedOption(selected); // Met à jour l'état de l'option sélectionnée
       };
 
       const handleClient = (selected: SingleValue<RecupType>) => {
-        // console.log('Selected option:', selected?.uuid);
-        formValues["client_id"]= selected?.uuid
+        formValues['client_id'] = selected?.uuid;
         setSelectedClient(selected);
+    
+        if (selected) {
+          setClientInfo({
+            clientName: selected.nom || '', // Remplacez par la clé appropriée pour le nom
+            clientAddress: selected.adresse || '', // Remplacez par la clé appropriée pour l'adresse
+            clientCoordonne: selected.adresse || '', // Remplacez par la clé appropriée pour l'adresse
+            clientNumero: selected.numero || 0, // Remplacez par la clé appropriée pour l'adresse
+          });
+        } else {
+          setClientInfo({ clientName: '', clientAddress: '', clientCoordonne: '', clientNumero: 0 });
+        }
       };
     
-      const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+
+      // const handleClient = (selected: SingleValue<RecupType>) => {
+      //   // console.log('Selected option:', selected?.uuid);
+      //   formValues["client_id"]= selected?.uuid
+      //   setSelectedClient(selected);
+      // };
+
+      const {entresEntreprise: entres, refetch} = useGetAllEntre(connect, entreprise_uuid!)
+      const ent = entres.filter(info => info.qte !== 0 && info.is_sortie);
+      
+      const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         formValues["user_id"]= connect
 
-        // console.log("uu ..", formValues)
-       
         ajoutSortie(formValues)
 
         setFormValues({
@@ -232,9 +263,55 @@ export default function Sortie() {
 
         setSelectedOption(null);
         setSelectedClient(null);
-        // window.location.reload();
+
+        await refetch();
       };
 
+
+      // Pour la remise
+      const selectedIds = useStoreCart(state => state.selectedIds)
+        const sortiess = useStoreCart(state => state.sorties);
+        const selectSorties = sortiess.filter((sor) => sor.id !== undefined && selectedIds.has(sor.id as number));
+        // const totalPrix = selectSorties.reduce((sum, sor) => sum + sor.prix_total, 0);
+      
+        const total = selectSorties?.reduce((acc, sortie) => {
+          // Convertir prix_total en nombre ou utiliser 0 si invalide
+          const prixTotal = sortie.prix_total ? parseFloat(String(sortie.prix_total)) : 0;
+          return acc + prixTotal;
+        }, 0);
+
+      const [isModalOpen, setIsModalOpen] = useState(false);
+        const [fixedDiscount, setFixedDiscount] = useState<number | string>(""); // Remise fixe
+        const [percentageDiscount, setPercentageDiscount] = useState<number | string>(""); // Remise en %
+        const [discountedTotal, setDiscountedTotal] = useState(total); // Total avec remise
+      
+        // Normaliser la saisie (remplace ',' par '.')
+        const normalizeInput = (value: string) => value.replace(",", ".");
+      
+        // Calculer le nouveau total
+        const calculateDiscountedTotal = () => {
+          let newTotal = total;
+          const fixed = parseFloat(normalizeInput(fixedDiscount as string)) || 0;
+          const percentage = parseFloat(normalizeInput(percentageDiscount as string)) || 0;
+      
+          if (fixed) {
+            newTotal -= fixed;
+          }
+          if (percentage) {
+            newTotal -= (percentage / 100) * total;
+          }
+          setDiscountedTotal(Math.max(0, newTotal)); // Empêche un total négatif
+        };
+      
+        // Ouvrir/fermer le modal
+        const toggleModal = () => setIsModalOpen(!isModalOpen);
+      
+        // Appliquer la remise
+        const handleApplyDiscount = () => {
+          calculateDiscountedTotal();
+          toggleModal();
+        };
+      // fin
       if (isLoading) {
         return <Box sx={{ width: 300 }}>
         <Skeleton />
@@ -372,42 +449,95 @@ export default function Sortie() {
                   <Button variant="outlined" onClick={handleOpenClick} className="bg-red-500 mx-3 text-white font-bold mt-5 py-2 px-8 rounded hover:bg-red-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-red-400">
                     Off.
                   </Button>
+                  
+                  <Button variant="contained" color="primary" onClick={toggleModal} className="bg-indigo-500 mx-3 text-white font-bold mt-5 py-2 px-8 rounded hover:bg-indigo-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-indigo-400">
+                    Remise
+                  </Button>                  
+
+                  {/* Modal */}
+                  <Modal open={isModalOpen} onClose={toggleModal}>
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        bgcolor: "background.paper",
+                        boxShadow: 24,
+                        p: 4,
+                        borderRadius: 2,
+                        minWidth: 300,
+                      }}
+                    >
+                      <h2>Ajouter une remise</h2>
+                      <TextField
+                        label="Montant fixe (ex: 1500 ou 85.45)"
+                        variant="outlined"
+                        fullWidth
+                        margin="normal"
+                        value={fixedDiscount}
+                        onChange={(e) => setFixedDiscount(normalizeInput(e.target.value))}
+                      />
+                      <TextField
+                        label="Pourcentage (ex: 2% ou 5%)"
+                        variant="outlined"
+                        fullWidth
+                        margin="normal"
+                        value={percentageDiscount}
+                        onChange={(e) => setPercentageDiscount(normalizeInput(e.target.value))}
+                      />
+                      <div className="flex justify-end mt-4">
+                        <Button variant="outlined" onClick={toggleModal} sx={{ mr: 2 }}>
+                          Annuler
+                        </Button>
+                        <Button variant="contained" color="primary" onClick={handleApplyDiscount}>
+                          Appliquer
+                        </Button>
+                      </div>
+                    </Box>
+                  </Modal>
 
 
                 </div>
-                {unUser.role === 1 && 
+                
                 
                 <div className="flex justify-center mt-4">
-                  <Grid item className='mx-2'>
-                    <TextField
-                      className='bg-sky-300'
-                      label="Date de début"
-                      type="date"
-                      value={selectedStartDate}
-                      onChange={handleStartDateChange}
-                      InputLabelProps={{ shrink: true }}
-                    />
-                  </Grid>
 
-                  <Grid item>
-                    <TextField
-                      className='bg-sky-300'
-                      label="Date de fin"
-                      type="date"
-                      value={selectedEndDate}
-                      onChange={handleEndDateChange}
-                      InputLabelProps={{ shrink: true }}
-                    />
-                  </Grid>
+                {(unUser.role === 1 || unUser.role === 2) && 
+                  <>                
+                    <Grid item className='mx-2'>
+                      <TextField
+                        className='bg-sky-300'
+                        label="Date de début"
+                        type="date"
+                        value={selectedStartDate}
+                        onChange={handleStartDateChange}
+                        InputLabelProps={{ shrink: true }}
+                      />
+                    </Grid>
 
+                    <Grid item>
+                      <TextField
+                        className='bg-sky-300'
+                        label="Date de fin"
+                        type="date"
+                        value={selectedEndDate}
+                        onChange={handleEndDateChange}
+                        InputLabelProps={{ shrink: true }}
+                      />
+                    </Grid>
+                  </>
+                }
+
+                {unUser.role === 1 &&                 
                   <Grid item>
                     <Typography variant="h5" className='mx-2'>
                       Chiffre d'affaire = {formatNumberWithSpaces(totalPrice)} <LocalAtmIcon fontSize='medium' color="primary" />
                     </Typography>
                   </Grid>
-
+                }               
+                  
                 </div>
-                }
                 
                 <TableSortie 
                 onSubmit={onSubmit}
@@ -422,6 +552,7 @@ export default function Sortie() {
                 selectedOption={selectedOption}
                 selectedClient={selectedClient}
                 list={sortiesBoutic}
+                ent={ent}
                 
                 />
 
@@ -437,7 +568,7 @@ export default function Sortie() {
               </article>
 
               <Grid item>
-                <Typography variant="h5">Ajouter une notes</Typography>
+                <Typography variant="h5">Ajouter une note</Typography>
               </Grid>
               <textarea
                 name="notes"
@@ -459,15 +590,16 @@ export default function Sortie() {
             {/* <FactureCard /> */}
             {(showInvoice && entreprise) && (
               <Fact               
-              clientName={texte.clientName}
-              clientAddress={texte.clientAddress}
-              clientCoordonne={texte.clientCoordonne}
-              invoiceNumber={texte.invoiceNumber}
+              clientName={clientInfo.clientName || texte.clientName}
+              clientAddress={clientInfo.clientAddress || texte.clientAddress}
+              clientCoordonne={clientInfo.clientCoordonne || texte.clientCoordonne}
+              invoiceNumber={clientInfo.clientNumero || texte.invoiceNumber}
               invoiceDate={texte.invoiceDate}
               numeroFac={texte.numeroFac}
               dueDate={texte.dueDate}
               notes={texte.notes}
               post={entreprise}
+              discountedTotal={discountedTotal}
               />
             )
             

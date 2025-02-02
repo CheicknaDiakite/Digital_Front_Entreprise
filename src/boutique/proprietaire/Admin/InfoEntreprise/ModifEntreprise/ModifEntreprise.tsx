@@ -1,6 +1,6 @@
 import { ChangeEvent, FormEvent, useState } from 'react';
 import MainCard from '../../../../../components/MainCard'
-import { Button, Dialog, DialogTitle, FormControl, Grid, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, TextField, Typography } from '@mui/material'
+import { Alert, Box, Button, CircularProgress, Dialog, DialogTitle, FormControl, Grid, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, TextField, Typography } from '@mui/material'
 import { connect } from '../../../../../_services/account.service';
 import { useDeleteEntreprise, useFetchEntreprise, useUpdateEntreprise } from '../../../../../usePerso/fonction.user';
 import countryList from 'react-select-country-list';
@@ -9,7 +9,7 @@ import { useStoreUuid } from '../../../../../usePerso/store';
 
 export default function ModifEntreprise() {
     const uuid = useStoreUuid((state) => state.selectedId)
-    const {unEntreprise, setUnEntreprise} = useFetchEntreprise(uuid!)
+    const {unEntreprise, setUnEntreprise, isLoading, isError} = useFetchEntreprise(uuid!)
     
     unEntreprise["user_id"] = connect
     const {deleteEntreprise} = useDeleteEntreprise()
@@ -79,147 +79,167 @@ export default function ModifEntreprise() {
       updateEntreprise(unEntreprise)
       
     };
+
+    if (isLoading) {
+      return (
+        <Box sx={{ display: 'flex' }}>
+          <CircularProgress />
+        </Box>
+      );
+    }
+
+    if (isError) {
+      return (
+        <Stack sx={{ width: '100%' }} spacing={2}>        
+          <Alert severity="error">Probleme de connexion !</Alert>
+        </Stack>
+      );
+    }
+
+    if (unEntreprise) {
+      return <>
+
+      <Button size="small" className='rounded-full shadow-md shadow-red-800/50' onClick={handleDelete}>
+        <DeleteIcon fontSize='small' />
+      </Button>
+      <Grid container rowSpacing={4.5} columnSpacing={2.75}>
+        <Grid item xs={12} md={5} lg={6}>        
+            <MainCard sx={{ mt: 2 }} content={false} title="Modification de l'entreprise">
+                <Typography variant="h5" color="primary" className='mx-5'>
+                  L'identifiant de l'entreprise = {unEntreprise.ref}
+                </Typography>
+                <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmit}>
+                <Stack spacing={2} margin={2}>
+  
+                <TextField 
+                    variant="outlined" 
+                    type='file'
+                    label='image' 
+                    // name='image' 
+                    // value={unEntreprise.nom} 
+                    onChange={handleImageChange}
+                    InputLabelProps={{
+                    shrink: true, // Force le label à rester au-dessus du champ
+                    }}
+                ></TextField>
+                <TextField 
+                    variant="outlined" 
+                    label='Nom' 
+                    name='nom' 
+                    value={unEntreprise.nom} 
+                    onChange={onChange}
+                    InputLabelProps={{
+                    shrink: true, // Force le label à rester au-dessus du champ
+                    }}
+                ></TextField>
+                <TextField 
+                    variant="outlined" 
+                    label='coordonne' 
+                    name='coordonne' 
+                    value={unEntreprise.coordonne} 
+                    onChange={onChange}
+                    InputLabelProps={{
+                    shrink: true, // Force le label à rester au-dessus du champ
+                    }}
+                ></TextField>
+                <TextField
+                    variant="outlined"
+                    label='Email'
+                    name='email'
+                    value={unEntreprise.email} 
+                    onChange={onChange}
+                    InputLabelProps={{
+                    shrink: true, // Force le label à rester au-dessus du champ
+                    }}
+                ></TextField>
+                <TextField 
+                    variant="outlined"
+                    label='Adresse'
+                    name='adresse' 
+                    value={unEntreprise.adresse}
+                    onChange={onChange}
+                    InputLabelProps={{
+                    shrink: true, // Force le label à rester au-dessus du champ
+                    }}
+                ></TextField>
+                <TextField 
+                    variant="outlined"
+                    label="Type d'entreprise"
+                    name='libelle' 
+                    value={unEntreprise.libelle}
+                    onChange={onChange}
+                    InputLabelProps={{
+                    shrink: true, // Force le label à rester au-dessus du champ
+                    }}
+                ></TextField>
+                <TextField 
+                    variant="outlined"
+                    label='Numéro'
+                    name='numero' 
+                    value={unEntreprise.numero} 
+                    onChange={onChange}
+                    InputLabelProps={{
+                    shrink: true, // Force le label à rester au-dessus du champ
+                    }}
+                ></TextField>
+                <FormControl fullWidth className='mb-4'>
+                    <InputLabel id="select-pays-label">Pays = {unEntreprise.pays}</InputLabel>
+                    <Select
+                    labelId="select-pays-label"
+                    value={unEntreprise.pays}
+                    onChange={onSelectChange}
+                    name='pays'
+                    placeholder="Choisir un pays"
+                    >
+                    {options.map((option) => (
+                        <MenuItem key={option.value} value={option.label}>
+                        {option.label}
+                        </MenuItem>
+                    ))}
+                    </Select>
+                </FormControl>
+                
+                <Button type="submit" color="success" variant="outlined" >Envoyer</Button>
+                <Button variant="outlined" onClick={handleClickOpen}>
+                  Code d'abonnement
+                </Button>
+  
+                </Stack>
+                </form>
+  
+                <Dialog
+                open={open}
+                onClose={handleClose}
+                
+          >
+            <DialogTitle>Code d'abonnement</DialogTitle>
+              <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmitAbon}>
+                <Stack spacing={2} margin={2}>
+                      
+                <TextField 
+                  variant="outlined"
+                  label="Code d'abonnement"
+                  name='code' 
+                  // value={unEntreprise.code} 
+                  onChange={onChange}
+                  InputLabelProps={{
+                  shrink: true, // Force le label à rester au-dessus du champ
+                  }}
+                ></TextField>
+                
+                {/* <Button onClick={handleClose}>Cancel</Button> */}
+                <Button type="submit">Envoyer</Button>
+                
+                </Stack>
+              </form>
+          </Dialog>
+                
+            </MainCard>
+            
+        </Grid>    
+      </Grid>
+    </>
+    }
     
-  return <>
-
-    <Button size="small" className='rounded-full shadow-md shadow-red-800/50' onClick={handleDelete}>
-      <DeleteIcon fontSize='small' />
-    </Button>
-  <Grid container rowSpacing={4.5} columnSpacing={2.75}>
-    <Grid item xs={12} md={5} lg={6}>        
-        <MainCard sx={{ mt: 2 }} content={false} title="Modification de l'entreprise">
-            <Typography variant="h5" color="primary" className='mx-5'>
-              L'identifiant de l'entreprise = {unEntreprise.ref}
-            </Typography>
-            <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmit}>
-            <Stack spacing={2} margin={2}>
-
-            <TextField 
-                variant="outlined" 
-                type='file'
-                label='image' 
-                // name='image' 
-                // value={unEntreprise.nom} 
-                onChange={handleImageChange}
-                InputLabelProps={{
-                shrink: true, // Force le label à rester au-dessus du champ
-                }}
-            ></TextField>
-            <TextField 
-                variant="outlined" 
-                label='Nom' 
-                name='nom' 
-                value={unEntreprise.nom} 
-                onChange={onChange}
-                InputLabelProps={{
-                shrink: true, // Force le label à rester au-dessus du champ
-                }}
-            ></TextField>
-            <TextField 
-                variant="outlined" 
-                label='coordonne' 
-                name='coordonne' 
-                value={unEntreprise.coordonne} 
-                onChange={onChange}
-                InputLabelProps={{
-                shrink: true, // Force le label à rester au-dessus du champ
-                }}
-            ></TextField>
-            <TextField
-                variant="outlined"
-                label='Email'
-                name='email'
-                value={unEntreprise.email} 
-                onChange={onChange}
-                InputLabelProps={{
-                shrink: true, // Force le label à rester au-dessus du champ
-                }}
-            ></TextField>
-            <TextField 
-                variant="outlined"
-                label='Adresse'
-                name='adresse' 
-                value={unEntreprise.adresse}
-                onChange={onChange}
-                InputLabelProps={{
-                shrink: true, // Force le label à rester au-dessus du champ
-                }}
-            ></TextField>
-            <TextField 
-                variant="outlined"
-                label="Type d'entreprise"
-                name='libelle' 
-                value={unEntreprise.libelle}
-                onChange={onChange}
-                InputLabelProps={{
-                shrink: true, // Force le label à rester au-dessus du champ
-                }}
-            ></TextField>
-            <TextField 
-                variant="outlined"
-                label='Numéro'
-                name='numero' 
-                value={unEntreprise.numero} 
-                onChange={onChange}
-                InputLabelProps={{
-                shrink: true, // Force le label à rester au-dessus du champ
-                }}
-            ></TextField>
-            <FormControl fullWidth className='mb-4'>
-                <InputLabel id="select-pays-label">Pays = {unEntreprise.pays}</InputLabel>
-                <Select
-                labelId="select-pays-label"
-                value={unEntreprise.pays}
-                onChange={onSelectChange}
-                name='pays'
-                placeholder="Choisir un pays"
-                >
-                {options.map((option) => (
-                    <MenuItem key={option.value} value={option.label}>
-                    {option.label}
-                    </MenuItem>
-                ))}
-                </Select>
-            </FormControl>
-            
-            <Button type="submit" color="success" variant="outlined" >Envoyer</Button>
-            <Button variant="outlined" onClick={handleClickOpen}>
-              Code d'abonnement
-            </Button>
-
-            </Stack>
-            </form>
-
-            <Dialog
-            open={open}
-            onClose={handleClose}
-            
-      >
-        <DialogTitle>Code d'abonnement</DialogTitle>
-          <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmitAbon}>
-            <Stack spacing={2} margin={2}>
-                  
-            <TextField 
-              variant="outlined"
-              label="Code d'abonnement"
-              name='code' 
-              // value={unEntreprise.code} 
-              onChange={onChange}
-              InputLabelProps={{
-              shrink: true, // Force le label à rester au-dessus du champ
-              }}
-            ></TextField>
-            
-            {/* <Button onClick={handleClose}>Cancel</Button> */}
-            <Button type="submit">Envoyer</Button>
-            
-            </Stack>
-          </form>
-      </Dialog>
-            
-        </MainCard>
-        
-    </Grid>    
-  </Grid>
-  </>
+  
 }

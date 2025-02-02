@@ -657,6 +657,40 @@ export function useStockEntreprise(entreprise_id: string, user_id: string) {
   return { stockEntreprise, setStockEntreprise, isLoading, isError };
 }
 
+export function useStockSemaine(entreprise_id: string) {
+  
+  const [stockSemaine, setStockSemaine] = useState<StockType>({
+    somme_entrer_pu: 0,
+    somme_entrer_qte: 0,
+    somme_sortie_pu: 0,
+    somme_sortie_qte: 0,
+    nombre_entrer: 0,
+    nombre_sortie: 0,
+    });
+
+  const { data: us, isLoading, isError } = useQuery({
+    queryKey: ["StockSemaine", entreprise_id],
+    queryFn: () =>
+      entrepriseService.stockCateSemaine(entreprise_id).then((res) => {
+        
+        if (res.data.etat === true) {
+          return res.data.donnee;
+        } else {
+          // throw new Error("Les identifiants sont incorrects");
+          // toast.error(res.data.message);
+        }
+      }),
+  });
+
+  useEffect(() => {
+    if (us) {
+      setStockSemaine(us);
+    }
+  }, [us]);
+
+  return { stockSemaine, setStockSemaine, isLoading, isError };
+}
+
 export function useFetchAllEntreprise(slug: string) {
   const [entreprises, setEntreprise] = useState<RecupType[]>([]);
 

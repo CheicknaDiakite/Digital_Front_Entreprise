@@ -1,44 +1,107 @@
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material'
-import { Fragment } from 'react'
+import React from 'react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from '@mui/material';
 import { formatNumberWithSpaces } from '../../usePerso/fonctionPerso'
 
-export default function TableFact({list, total}: any) {
+interface TableFactProps {
+  list: { 
+    categorie_libelle: string;
+     qte: number;
+     pu: number;
+     prix_total: number;
+     date: string;
+     ref: string;
+    }[];
+  total: number;
+  discountedTotal: number;
+}
+
+const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal }) => {
+  // Exemple de fonction pour formater les nombres avec des espaces
+  // const formatNumberWithSpaces = (num: number): string =>
+  //   num.toLocaleString('fr-FR', { minimumFractionDigits: 2 });
   
   return (
-    <>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 700 }} aria-label="spanning table">
-          <TableHead>
-            <TableRow>
-              <TableCell>Designation</TableCell>
-              <TableCell>Quantite</TableCell>
-              <TableCell>Prix unitaire</TableCell>
-              <TableCell>Somme</TableCell>
+    <TableContainer
+      component={Paper}
+      sx={{
+        width: '100%',
+        maxWidth: '100%',
+        margin: '0 auto',
+        padding: '1rem',
+        boxSizing: 'border-box',
+      }}
+    >
+      <Table
+        sx={{
+          minWidth: 700,
+          '@media (max-width: 768px)': {
+            minWidth: '100%', // S'ajuste pour les petits écrans
+            fontSize: '0.8rem',
+          },
+        }}
+        aria-label="spanning table"
+      >
+        <TableHead>
+          <TableRow>
+            {/* <TableCell>Date</TableCell> */}
+            <TableCell>Designation</TableCell>
+            <TableCell align="right">Quantite</TableCell>
+            <TableCell align="right">Prix unitaire</TableCell>
+            <TableCell align="right">Somme</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {list.map((post, index) => (
+            <TableRow key={index}>
+              {/* <TableCell>
+                {format(new Date(post.date), 'dd/MM/yyyy')}
+              </TableCell> */}
+              <TableCell>
+                {post.ref} {" - "}
+                {post.categorie_libelle}
+              </TableCell>
+              <TableCell align="right">{post.qte}</TableCell>
+              <TableCell align="right">{formatNumberWithSpaces(post.pu)}</TableCell>
+              <TableCell align="right">{formatNumberWithSpaces(post.prix_total)}</TableCell>
             </TableRow>
-          </TableHead>
-          <TableBody>
-            
-            {list.map((post: any, index: number) => (
-              <Fragment key={index} >
-              <TableRow>
-                  <TableCell>{post.categorie_libelle}</TableCell>                  
-                  <TableCell>{post.qte}</TableCell>
-                  <TableCell >{formatNumberWithSpaces(post.pu)}</TableCell>
-                  <TableCell >{formatNumberWithSpaces(post.prix_total)}</TableCell>        
-              </TableRow>
-            </Fragment>
-            )
-            
-            )} 
-          </TableBody>
-        </Table>
-      </TableContainer>
+          ))}
+          <TableRow>
+            <TableCell rowSpan={3} />
+            <TableCell colSpan={2} align="right" sx={{ fontWeight: 'bold' }}>
+              Prix
+            </TableCell>
+            <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+              {formatNumberWithSpaces(total)}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell colSpan={2} align="right" sx={{ fontWeight: 'bold' }}>
+              Remise
+            </TableCell>
+            <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+              {formatNumberWithSpaces(total - discountedTotal)}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell colSpan={2} align="right" sx={{ fontWeight: 'bold' }}>
+              Total
+            </TableCell>
+            <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+              {formatNumberWithSpaces(discountedTotal)}
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+};
 
-      <div>
-        <h2 className="flex items-end justify-end text-gray-800 text-4xl font-bold">
-          Total hors taxe: {formatNumberWithSpaces(total)}
-        </h2>
-      </div>
-    </>
-  )
-}
+export default TableFact;

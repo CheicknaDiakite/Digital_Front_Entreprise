@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { RecupType, RouteParams } from "../../../../typescript/DataType";
-import { Grid, Pagination, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material";
+import { Box, CircularProgress, Grid, Pagination, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material";
 import AnalyticEcommerce from "../../../../components/cards/statistics/AnalyticEcommerce";
 import CardInfo from "./CardInfo";
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
@@ -24,7 +24,7 @@ export default function Info() {
     const {sousCate} = useCateSousCate(trop)
     
     // const {infos} = useSousCategorie(top)
-    const {infos} = useInfoSousCate(top)
+    const {infos, isLoading} = useInfoSousCate(top)
 
     const itemsPerPage = 25; // Nombre d'éléments par page
 
@@ -71,8 +71,6 @@ export default function Info() {
     return acc + price;
   }, 0);
 
-  console.log("test ", totalQte)
-
   // Récupération des éléments à afficher sur la page courante
   const displayedInfos = reversedInfos?.slice(
     (currentPage - 1) * itemsPerPage,
@@ -105,12 +103,21 @@ export default function Info() {
     .filter(info => info.libelle !== undefined) // Filtrer les objets qui ont un name
     .map(info => ({ pu: info.pu, qte: info.qte, libelle: info.libelle, prix_total: info.prix_total, client: info.client, date: info.date })); // Extraire uniquement les id et name
 
-    const totalPrix = filteredInfos.reduce((sum, sor) => sum + sor.prix_total, 0);
+    // const totalPrix = filteredInfos.reduce((sum, sor) => sum + sor.prix_total, 0);
 
     const sumQteStock = filteredInfos.reduce((sum, sor) => sum + sor.qte, 0);
     // const sumQteEntre = stocksOnly.reduce((sum, sor) => sum + sor.qte, 0);
- 
-  return (<>
+    if (isLoading) {
+      return (
+        <Box sx={{ display: 'flex' }}>
+          <CircularProgress />
+        </Box>
+      );
+    }
+
+    if (infos) {
+
+    return (<>
     <Nav />
 
     {sousCate?.map((post, index) => (
@@ -125,13 +132,13 @@ export default function Info() {
       <Grid container rowSpacing={4.5} columnSpacing={2.75}>
 
         <Grid item xs={12} sm={6} md={4} lg={3}>
-          <AnalyticEcommerce title="Total des sommes de quantites et le chiffre d'affaire de ce produit" count={sumQteStock} percentage={formatNumberWithSpaces(totalPrix)} className="bg-green-100" />
+          <AnalyticEcommerce title="Total des sommes de quantites et le chiffre d'affaire de ce produit" count={sumQteStock} percentage={formatNumberWithSpaces(totalPrice)} className="bg-green-100" />
         </Grid>
 
         {ent.map((p, index) => {
           if (p.qte != 0) {
             return <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
-              <AnalyticEcommerce title={`${p.libelle}: quantite restant`} client={p.client} count={p.qte} extra={p.pu} pied={"Prix Achat"} />
+              <AnalyticEcommerce title={`${p.libelle}: quantite restant`} client={p.client} count={p.qte} extra={p.pu_achat} pied={"Prix Achat"} />
             </Grid>
           }
         })}
@@ -172,7 +179,11 @@ export default function Info() {
               />
             </Grid>
           </div>
-            {/* <TableCell align="right">Prix</TableCell> */}
+            <TableCell align="right">Nombre de vente: 
+              <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-700/10">
+                {infos.length}
+              </span>
+            </TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Date</TableCell>
@@ -202,5 +213,8 @@ export default function Info() {
       </Table>
     </TableContainer>
 
-    </>)
+    </>
+    )
+    }
+
 }

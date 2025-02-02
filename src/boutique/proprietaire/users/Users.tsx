@@ -62,7 +62,7 @@ export default function Users() {
   });
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const itemsPerPage = 25;
 
   const reversedUser = getUsers?.slice().sort((a: any, b: any) => {
       if (a.id === undefined) return 1;
@@ -78,14 +78,11 @@ export default function Users() {
 
   const totalPages = Math.ceil(getUsers.length / itemsPerPage);
 
-  const getUs = getUsers.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  // const getUs = getUsers.slice(
+  //   (currentPage - 1) * itemsPerPage,
+  //   currentPage * itemsPerPage
+  // );
   
-
-  console.log("user . ", getUs)
-
   const handlePageChange = (_: ChangeEvent<unknown>, page: number) => {
     setCurrentPage(page);
   };
@@ -139,7 +136,7 @@ export default function Users() {
           
           <Stack spacing={3} direction="row">
                 
-            <Badge color="secondary" overlap="circular" badgeContent={getUs.length}>
+            <Badge color="secondary" overlap="circular" badgeContent={getUsers.length}>
               <PersonAddAltIcon fontSize="large" color="primary" />
             </Badge>
             
@@ -157,6 +154,7 @@ export default function Users() {
                   
                   <TableCell>Nom</TableCell>
                   <TableCell>Numero</TableCell>
+                  <TableCell>Email</TableCell>
                   <TableCell>Type de compte</TableCell>
                   <TableCell>
                     
@@ -172,6 +170,7 @@ export default function Users() {
                       {post.last_name} {post.first_name}                        
                     </TableCell>
                     <TableCell >{post.numero}</TableCell>
+                    <TableCell >{post.email}</TableCell>
                     <TableCell className={post.role===1 ? "" : "bg-red-300 text-white"} >{post.role===1 ? "Activer" :
                                  "Visiteur"
                                 }

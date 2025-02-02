@@ -1,21 +1,21 @@
 
-export default function MainDetails({name, address, numero, coordonne}: any) {
+import { Box, Typography, Divider } from "@mui/material";
+
+export default function MainDetails({ name, address, numero, coordonne }: any) {
   return (
-    <>
-        {/* <div className="icon flex justify-center items-center text-4xl mb-4">
-          <img src={url} alt="brand" className="h-16 w-16" />
-        </div> */}
-      <section className="flex flex-col items-end justify-end">
-        <h2 className="font-bold text-3xl uppercase mb-1">{name}</h2>
-        <p>{address}</p>
-        <p>{coordonne}</p>
-    
-         
-        <div className="p-1">
-          <span className="font-bold">Tel: </span> {numero}
-        </div>
-            
-      </section>
-    </>
-  )
+    <Box component="section" sx={{ display: "flex", flexDirection: "column", alignItems: "flex-end", textAlign: "right" }}>
+      <Typography variant="h4" fontWeight="bold" textTransform="uppercase" gutterBottom>
+        {name}
+      </Typography>
+      <Typography variant="body1">{address}</Typography>
+      <Typography variant="body1">{coordonne}</Typography>
+      
+      <Divider sx={{ my: 1, width: "100%" }} />
+
+      <Typography variant="body1">
+        <strong>Tel:</strong> {numero}
+      </Typography>
+    </Box>
+  );
 }
+

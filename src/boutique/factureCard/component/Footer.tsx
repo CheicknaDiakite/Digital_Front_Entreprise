@@ -1,47 +1,89 @@
-
-export default function Footer({name, email, website, phone, bankAccount, bankName}: any) {
+import { Box, Typography, Divider } from "@mui/material";
+export default function Footer({ name, email, phone }: any) {
   return (
-    <>
-      <footer className="footer border-t-2 border-gray-300 pt-5">
-        <ul className="flex flex-wrap items-center justify-center">
-          <li>
-            <span className="font-bold">Nom de l'entreprise:</span> {name}
-          </li>
-          <li>
-            <span className="font-bold">Email de l'entreprise:</span> {email}
-          </li>
-          <li>
-            <span className="font-bold">Numero de l'entreprise:</span> {phone}
-          </li>
-          <li>
-            <span className="font-bold">Bank:</span> {bankName}
-          </li>
-          {/* <li>
-            <span className="font-bold">Account holder:</span> {name}
-          </li> */}
-          <li>
-            <span className="font-bold">Numero de Bank:</span> {bankAccount}
-          </li>
-          <li>
-            <span className="font-bold">Website:</span>{" "}
-            <a href={website} target="_blank" rel="noopenner noreferrer">
-              {website}
-            </a>
-          </li>
-        </ul>
-      </footer>
+    <Box 
+  component="footer"
+  sx={{
+    borderTop: 2,
+    borderColor: "gray.300",
+    py: 2,
+    width: "100%", // Prend toute la largeur disponible
+    maxWidth: "100vw", // Limite à la largeur de la vue
+    boxSizing: "border-box",
+    fontSize: "clamp(0.75rem, 1vw + 0.5rem, 1.25rem)" // Taille de police responsive
+  }}
+>
+  {/* Container principal adaptable */}
+  <Box 
+    sx={{ 
+      display: "flex",
+      flexWrap: "wrap",
+      justifyContent: "space-around",
+      alignItems: "center",
+      gap: "1rem",
+      px: 2,
+      overflow: "hidden"
+    }}
+  >
+    {/* Éléments avec largeur flexible */}
+    <Box sx={{ 
+      flex: "1 1 auto", 
+      minWidth: "20px", 
+      textAlign: "center",
+      whiteSpace: "nowrap"
+    }}>
+      <Typography variant="inherit">
+        <strong>Nom:</strong> {name}
+      </Typography>
+    </Box>
 
-      <p className="text-center px-5 mt-8 text-xs ">
-        Pre_Facture chez D_D{" "}
-        <a
-          href="https://tsbsankara.com"
-          target="_blank"
-          rel="noreferrer"
-          className="underline"
-        >
-          Diakite Digital
-        </a>
-      </p>
-    </>
-  )
+    <Divider orientation="vertical" flexItem sx={{ height: "1.5em" }} />
+
+    <Box sx={{ 
+      flex: "1 1 auto", 
+      minWidth: "20px", 
+      textAlign: "center" 
+    }}>
+      <Typography variant="inherit">
+        <strong>Email:</strong> {email}
+      </Typography>
+    </Box>
+
+    <Divider orientation="vertical" flexItem sx={{ height: "1.5em" }} />
+
+    <Box sx={{ 
+      flex: "1 1 auto", 
+      minWidth: "20px", 
+      textAlign: "center" 
+    }}>
+      <Typography variant="inherit">
+        <strong>Tél:</strong> {phone}
+      </Typography>
+    </Box>
+  </Box>
+
+  <Divider sx={{ my: 2 }} />
+
+  {/* Section basse scalable */}
+  <Box sx={{ 
+    textAlign: "center", 
+    fontSize: "0.8em",
+    padding: "0.5rem"
+  }}>
+    {/* <Typography variant="inherit">
+      Pre_Facture chez D_D • 
+      <a 
+        href="https://tsbsankara.com" 
+        style={{ 
+          textDecoration: "underline",
+          marginLeft: "0.3rem"
+        }}
+      >
+        Diakite Digital
+      </a>
+    </Typography> */}
+  </Box>
+</Box>
+  );
 }
+

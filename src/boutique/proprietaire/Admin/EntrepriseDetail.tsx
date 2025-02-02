@@ -1,4 +1,4 @@
-import { Box, Tab, Tabs } from '@mui/material'
+import { Alert, Box, CircularProgress, Stack, Tab, Tabs } from '@mui/material'
 import React from 'react'
 import { useFetchEntreprise } from '../../../usePerso/fonction.user';
 import Nav from '../../../_components/Button/Nav';
@@ -23,11 +23,17 @@ export default function EntrepriseDetail() {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return (
+      <Box sx={{ display: 'flex' }}>
+        <CircularProgress />
+      </Box>
+    )
   }
 
   if (isError) {
-    return <div>Error ...</div>
+    return <Stack sx={{ width: '100%' }} spacing={2}>        
+    <Alert severity="error">Probleme de connexion !</Alert>
+  </Stack>
   }
 
   if (unEntreprise) {

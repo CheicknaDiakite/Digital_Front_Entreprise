@@ -43,7 +43,6 @@ export default function ModifEntre() {
 
   unEntre["user_id"] = connect
   unEntre["entreprise_id"] = entreprise_id!
-  console.log(unEntre);
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -68,7 +67,7 @@ export default function ModifEntre() {
           </Typography> */}
           <div className='flex justify-center items-center flex-col'>
 
-          <DialogTitle>Entre Modification</DialogTitle>
+          <DialogTitle>Entrer Modification</DialogTitle>
           <DialogContent>
             {/* <DialogContentText>Categorie</DialogContentText> */}
             <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmit}>
@@ -76,7 +75,12 @@ export default function ModifEntre() {
 
               <TextField variant="outlined" disabled value={unEntre.categorie_slug} label="Designation" name='libelle' onChange={onChange}></TextField>
               <TextField variant="outlined" value={unEntre.libelle} label="libelle" name='libelle' onChange={onChange}></TextField>
-              <TextField variant="outlined" value={unEntre.pu} label="PU" name='pu' onChange={onChange}></TextField>
+              
+              {unUser.role === 1 &&               
+              <TextField variant="outlined" value={unEntre.pu_achat} label="Prix d'achat" name='pu_achat' onChange={onChange}></TextField>
+              }
+              
+              <TextField variant="outlined" value={unEntre.pu} label="Prix de vente" name='pu' onChange={onChange}></TextField>
               <TextField variant="outlined" value={unEntre.qte} label="QTE" name='qte' onChange={onChange}></TextField>
               <FormControlLabel
                 control={<Checkbox 

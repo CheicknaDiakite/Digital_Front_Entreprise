@@ -32,6 +32,8 @@ import { PersonnelModif } from '../../boutique/proprietaire/Personnel/PersonnelM
 import { notClick } from '../../usePerso/fonctionPerso'
 import SortieInventaire from '../../boutique/proprietaire/historique/inventaire/SortieInventaire'
 import EntrerInventaire from '../../boutique/proprietaire/historique/inventaire/EntrerInventaire'
+import EtaVente from '../../boutique/categorie/eta/EtaVente'
+import Avis from '../../boutique/proprietaire/users/Avis'
 
 export default function PublicRouter() {
   notClick()
@@ -46,6 +48,7 @@ export default function PublicRouter() {
           <Route index element={<DashboardDefault />} />
           <Route path='Avis' element={<Facture />} />
           <Route path='PreFacture' element={<Facture />} />
+          <Route path='EtaDeVente' element={<EtaVente />} />
           
           <Route element={<ProtectedRoute requiredRole={[1]} redirectPath="/" />}>          
             <Route path='detail' element={<EntrepriseDetail />} />
@@ -139,6 +142,7 @@ export default function PublicRouter() {
 
           <Route element={<ProtectedRoute requiredRole={1} redirectPath="/" />}>
             <Route path="admin" element={<Users />} />
+            <Route path="avis" element={<Avis />} />
             <Route path='admin/modif/:uuid' element={<UserModif />} />
           </Route>
 

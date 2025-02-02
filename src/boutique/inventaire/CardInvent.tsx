@@ -20,8 +20,8 @@ export default function CardInvent({ row }: EntreProps) {
   
   const url = row.image ? BASE(row.image) : img;
   const validDate = row.date ?? new Date();
-  if (row.qte !== undefined && row.pu !== undefined) {
-    const price = priceRow(row.qte, row.pu);
+  if (row.qte !== undefined && row.pu_achat !== undefined) {
+    const price = priceRow(row.qte, row.pu_achat);
 
   return (
     <TableRow className={getBgClass(row.qte)}>
@@ -51,7 +51,12 @@ export default function CardInvent({ row }: EntreProps) {
         </TableCell>
         <TableCell align="right">{row.qte}</TableCell>
         <TableCell align="right">{formatNumberWithSpaces(row.pu)}</TableCell>
-        <TableCell align="right">{formatNumberWithSpaces(price)} <LocalAtmIcon color="primary" fontSize='small' /></TableCell>
+        {unUser.role === 1 &&  
+        <>        
+          <TableCell align="right">{formatNumberWithSpaces(row.pu_achat)}</TableCell>
+          <TableCell align="right">{formatNumberWithSpaces(price)} <LocalAtmIcon color="primary" fontSize='small' /></TableCell>
+        </>
+        }
 
         {(unUser.role === 1 || unUser.role === 2) &&     
           <TableCell className={row.is_sortie ? 'bg-white' : 'bg-white'} >

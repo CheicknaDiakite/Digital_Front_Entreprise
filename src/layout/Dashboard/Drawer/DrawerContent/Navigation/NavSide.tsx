@@ -35,6 +35,7 @@ import { BASE } from "../../../../../_services/caller.service";
 import MyTextField from "../../../../../_components/Input/MyTextField";
 import CloseIcon from "@mui/icons-material/Close";
 import { AvisType } from "../../../../../typescript/UserType";
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
 const NavSide: React.FC = () => {
   const [open, setOpen] = useState<number>(0); // Typing `open` as number
@@ -104,14 +105,17 @@ const NavSide: React.FC = () => {
       backgroundRepeat: 'no-repeat',
     }}
     >
-      <Button onClick={handleGoHome}>
-        <CardContent sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+      <Link to={"#"} onClick={handleGoHome}>
+      
+      {/* <Button onClick={handleGoHome}> */}
+        <CardContent onClick={handleGoHome} sx={{ display: "flex", alignItems: "center", gap: 2 }} className="border border-indigo-600">
           <img src={urlEntre} alt="brand" style={{ height: "2rem", width: "2rem" }} />
           <Typography variant="h5" color="textPrimary">
             Accueil principal
           </Typography>
         </CardContent>
-      </Button>
+      {/* </Button> */}
+      </Link>
       <List>
         {uuid && <>
         
@@ -282,7 +286,7 @@ const NavSide: React.FC = () => {
           </ListItem>
         </Link>
         
-        <Link to="/user/admin">        
+        <Link to="/user/avis">        
           <ListItem button>
             <ListItemIcon>
               <UserCircleIcon color="primary" fontSize="small" />
@@ -312,7 +316,7 @@ const NavSide: React.FC = () => {
 
         <ListItem button onClick={functionopen}>
           <ListItemIcon>
-            <DescriptionIcon color="primary" fontSize="small" />
+            <HelpOutlineIcon color="primary" fontSize="small" />
           </ListItemIcon>
           <Typography 
           className="text-white bg-sky-900 bg-opacity-100 px-2 py-1 rounded"
@@ -375,7 +379,15 @@ const NavSide: React.FC = () => {
       </Dialog>
 
       <Typography variant="h5" className="text-white bg-gray-600 bg-opacity-100 px-2 py-1 rounded">
-        Tel = 91 15 48 34
+        <a
+          href="https://wa.me/91154834"
+          style={{ textDecoration: 'none', color: 'inherit' }}
+          target="_blank"
+          rel="noopener noreferrer"
+          >
+          Tel = {" "}+223 91 15 48 34 {" "}
+        </a>
+         
       </Typography>
     </Card>
   );

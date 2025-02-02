@@ -9,12 +9,13 @@ import Footer from './component/Footer';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { useStoreCart } from '../../usePerso/cart_store';
 import TableFact from './TableFact';
+import "./print.css";
 // import { generateOrderNumber } from '../../usePerso/fonctionPerso';
 import { BASE } from '../../_services/caller.service';
 import { RecupType } from '../../typescript/DataType';
 
 
-export default function Fact({clientName, clientAddress, clientCoordonne, invoiceNumber, invoiceDate, dueDate, notes, numeroFac,  post}: RecupType | any) {
+export default function Fact({clientName, clientAddress, clientCoordonne, invoiceNumber, invoiceDate, dueDate, notes, numeroFac,  post, discountedTotal}: RecupType | any) {
   let url = BASE(post.image);
   
   
@@ -81,7 +82,7 @@ export default function Fact({clientName, clientAddress, clientCoordonne, invoic
           {/* <button onClick={handleClick} className="bg-sky-500 ml-5 text-white font-bold py-2 px-8 rounded hover:bg-sky-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-sky-400">
             Numero de la facture (Auto)
           </button> */}
-          <div ref={componentRef} className="p-8 m-8">
+          <div ref={componentRef} className="p-8 m-8 print-container">
             <Header
             // orderNumber={orderNumber}
             nom={post.nom}
@@ -112,6 +113,7 @@ export default function Fact({clientName, clientAddress, clientCoordonne, invoic
             <TableFact
             list={selectSorties}
             total={totalPrix}
+            discountedTotal={discountedTotal}
             />
 
             <Notes 

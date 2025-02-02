@@ -193,23 +193,38 @@ export default function FacSortie() {
               <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmit}>
                 <Stack spacing={2} margin={2}>
 
-                  <MyTextField 
+                  <MyTextField required
                     label={"libelle"}
                     name={"libelle"}
                     onChange={onChange}
+                    sx={{
+                      "& .MuiFormLabel-asterisk": {
+                        color: "red", // Personnalise la couleur de l'étoile en rouge
+                      },
+                    }}
                   />
-                  <MyTextField 
+                  <MyTextField required
                     label={"Reference"}
                     name={"ref"}
                     onChange={onChange}
+                    sx={{
+                      "& .MuiFormLabel-asterisk": {
+                        color: "red", // Personnalise la couleur de l'étoile en rouge
+                      },
+                    }}
                   />
-                  <MyTextField 
+                  <MyTextField required
                     label={"Date"}
                     name={"date"}
                     type="date"
                     onChange={onChange}
                     InputLabelProps={{
                       shrink: true, // Force le label à rester au-dessus du champ
+                    }}
+                    sx={{
+                      "& .MuiFormLabel-asterisk": {
+                        color: "red", // Personnalise la couleur de l'étoile en rouge
+                      },
                     }}
                   />
                   <MyTextField 

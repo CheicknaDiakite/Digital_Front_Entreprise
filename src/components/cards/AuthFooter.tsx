@@ -29,8 +29,16 @@ export default function AuthFooter() {
             color="primary"
             
           >
-            +223 91 15 48 34 //
-            +223 63 83 51 14
+            <a
+              href="https://wa.me/91154834"
+              style={{ textDecoration: 'none', color: 'inherit' }}
+              target="_blank"
+              rel="noopener noreferrer"
+              >
+              {" "}+223 91 15 48 34 //
+              +223 63 83 51 14 {" "}
+            </a>                  
+              
           </Typography>
           
           <Typography

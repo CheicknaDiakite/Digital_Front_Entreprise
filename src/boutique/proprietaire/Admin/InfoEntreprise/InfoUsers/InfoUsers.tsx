@@ -1,4 +1,4 @@
-import { Avatar, Chip, Grid, ListItem, ListItemAvatar, ListItemText, Typography } from '@mui/material';
+import { Alert, Avatar, Box, Chip, CircularProgress, Grid, ListItem, ListItemAvatar, ListItemText, Stack, Typography } from '@mui/material';
 import MainCard from '../../../../../components/MainCard';
 import { stringAvatar } from '../../../../../usePerso/fonctionPerso';
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
@@ -9,21 +9,35 @@ import { useStoreUuid } from '../../../../../usePerso/store';
 
 export default function InfoUsers() {
     const uuid = useStoreUuid((state) => state.selectedId)
-    const {entrepriseUsers} = useGetEntrepriseUsers(uuid!)
-
-    console.log(entrepriseUsers)
+    const {entrepriseUsers, isLoading, isError} = useGetEntrepriseUsers(uuid!)
 
     const {removeEntreprise} = useRemoveUserEntreprise()
 
     const handleDelete = (post: any) => {
         const top = {
-          entreprise_id: uuid,
-          user_id: post,
-          admin_id: connect,
+            entreprise_id: uuid,
+            user_id: post,
+            admin_id: connect,
         }
         removeEntreprise(top);
         console.info('delete.', top);
-      };
+        };
+
+   if (isLoading) {
+    return (
+        <Box sx={{ display: 'flex' }}>
+          <CircularProgress />
+        </Box>
+      );
+   }
+   
+   if (isError) {
+    return (
+        <Stack sx={{ width: '100%' }} spacing={2}>        
+          <Alert severity="error">Probleme de connexion !</Alert>
+        </Stack>
+      );
+   }
     
   return <>
   <Grid container rowSpacing={4.5} columnSpacing={2.75}>

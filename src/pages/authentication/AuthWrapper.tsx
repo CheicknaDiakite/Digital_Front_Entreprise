@@ -34,7 +34,16 @@ export default function AuthWrapper({ children }: ChildrenProps) {
           >
             <div className=" flex justify-center mx-5 text-2xl font-extrabold">
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-green-500">
-                En cas d'icompréhension contacter : +223 91 15 48 34 sur whatsapp 
+                En cas d'incompréhension contacter :
+                <a
+                href="https://wa.me/91154834"
+                style={{ textDecoration: 'none', color: 'inherit' }}
+                target="_blank"
+                rel="noopener noreferrer"
+                >
+                {" "}+223 91 15 48 34 {" "}
+                </a>                  
+                sur whatsapp 
               </span>
             </div>
             <Grid item>

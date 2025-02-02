@@ -149,6 +149,25 @@ const stockEntreprise = async (entreprise_id: string, user_id: string) => {
     
     
 }
+
+const stockCateSemaine = async (entreprise_id: string) => {
+    
+    try {
+        const response = await Axios.get(`entreprise/sous-categories-sorties/${entreprise_id}`,
+            {                         
+                headers: {
+                    'Authorization': `${token_1}`
+                },
+                withCredentials: true
+            });
+        return response;
+    } catch (error) {
+        console.error("Error fetching user profile:", error);
+        throw error;
+    }
+    
+    
+}
 /**
  * Ajout d'un utilisateur
  */
@@ -231,5 +250,5 @@ export const entrepriseService = {
     allEntreprise, getEntreprise, addEntreprise,
     updateEntreprise, deleteEntreprise, allUserEntreprise, 
     getEntrepriseUsers, getUserEntreprises, removeUserEntreprise,
-    stockEntreprise, historiqueEntreprise, historySuppEntreprise
+    stockEntreprise, stockCateSemaine, historiqueEntreprise, historySuppEntreprise
 }

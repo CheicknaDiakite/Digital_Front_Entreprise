@@ -28,7 +28,7 @@ import LogoutOutlined from '@ant-design/icons/LogoutOutlined';
 import SettingOutlined from '@ant-design/icons/SettingOutlined';
 import UserOutlined from '@ant-design/icons/UserOutlined';
 import { connect } from '../../../../../_services/account.service';
-import { Avatar, Skeleton } from '@mui/material';
+import { Alert, Avatar, CircularProgress } from '@mui/material';
 import { useFetchEntreprise, useFetchUser } from '../../../../../usePerso/fonction.user';
 import { logout, stringAvatar } from '../../../../../usePerso/fonctionPerso';
 import { useStoreUuid } from '../../../../../usePerso/store';
@@ -114,10 +114,7 @@ export default function Profile() {
     
       return (
         <Box sx={{ width: 300 }}>
-          <Skeleton className='bg-blue-100' animation="wave" variant="circular" width={50} height={50} />
-          {/* <Skeleton animation="wave" variant="circular" width={40} height={40} /> */}
-          {/* <Skeleton animation="wave" /> */}
-          {/* <Skeleton animation={false} /> */}
+          <CircularProgress />
         </Box>
       );
 
@@ -127,7 +124,7 @@ export default function Profile() {
     if (errorCount < 2) {
       window.location.reload();
     }
-    return <div>Une erreur s'est produite</div>;
+    return <Alert severity="error">Probleme de connexion !</Alert>
   }
 
   if (unUser) {

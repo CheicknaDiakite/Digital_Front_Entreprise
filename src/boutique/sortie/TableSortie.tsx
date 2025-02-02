@@ -1,8 +1,6 @@
 import { ToastContainer } from 'react-toastify'
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material'
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material'
 import CardTableSortie from './CardTableSortie';
-import { useGetAllEntre } from '../../usePerso/fonction.entre';
-import { connect } from '../../_services/account.service';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import QuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
 import { Money } from '../../_components/icons/Money';
@@ -12,40 +10,44 @@ import { useAllClients, useFetchEntreprise } from '../../usePerso/fonction.user'
 import { useStoreUuid } from '../../usePerso/store';
 import { isLicenceExpired } from '../../usePerso/fonctionPerso';
 import Select from 'react-select';
+import { ChangeEvent, useState } from 'react';
 
-export default function TableSortie({onSubmit, amount, list, onChange, formValues, selectedOption, handleChange, handleClient, selectedClient}: any) {
+export default function TableSortie({ent, onSubmit, amount, list, onChange, formValues, selectedOption, handleChange, handleClient, selectedClient}: any) {
   const entreprise_uuid = useStoreUuid((state) => state.selectedId)
   const {unEntreprise} = useFetchEntreprise(entreprise_uuid!)
-  const {entresEntreprise: entres} = useGetAllEntre(connect, entreprise_uuid!)
-  const ent = entres.filter(info => info.qte !== 0 && info.is_sortie);
-
+  
   const { getClients } = useAllClients(entreprise_uuid!);
   const clients = getClients.filter(info => info.role == 1 || info.role == 3);
-  
-  const sortedList = list?.sort((a: ABType, b: ABType) => {
+  const sortedLi = list?.sort((a: ABType, b: ABType) => {
     if (a.id === undefined) return 1;
     if (b.id === undefined) return -1;
     return b.id - a.id;
   });
 
-  console.log("dd",sortedList)
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const sortedList = sortedLi.filter((post: any) =>
+    post?.ref?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <>
       <ToastContainer position="top-right" theme="colored" />
 
+      <TextField
+        label="Rechercher par ref"
+        variant="outlined"
+        className='bg-blue-200 mt-3'
+        fullWidth
+        value={searchTerm}
+        onChange={handleSearchChange}
+      />
+
       <form onSubmit={onSubmit}>
         <div className="flex flex-col md:mt-1 py-3">
-          {/* <div>        
-            <Autocomplete
-              id="free-solo-demo"
-              freeSolo
-              options={clients}
-              getOptionLabel={(option) => (typeof option === 'string' ? option : option.nom || '')}
-              onChange={handleAutoClientChange}
-              renderInput={(params) => <TextField {...params} label="Client" />}
-            />
-          </div> */}
-
           <div className='my-2'>
             <Typography variant="h5" className='mb-2'>
               Client
@@ -57,25 +59,9 @@ export default function TableSortie({onSubmit, amount, list, onChange, formValue
               placeholder="Client"
               isClearable
               getOptionLabel={(option) => (typeof option === 'string' ? option : option.nom || '')}
-              // getOptionLabel={(option) =>
-              //   `${option.categorie_libelle} (${option.libelle}) [${option.qte}]`
-              // } // Personnalisation de l'affichage
               getOptionValue={(option) => option.uuid.toString()} // Utiliser l'id comme valeur unique
             />
           </div>
-
-          {/* <div className='mt-3'>        
-            <Autocomplete
-              id="free-solo-demo"
-              freeSolo
-              options={entres}
-              value={formValues.entre_id}
-              getOptionLabel={(option) => (typeof option === 'string' ? option : (`${option.categorie_libelle} (${option.libelle}) [${option.qte}]`)  || '')}
-              onChange={handleAutoCompleteChange}
-              renderInput={(params) => <TextField {...params} label="Designation" />}
-            />
-          </div> */}
-
           <div className='my-2'>
             <Typography variant="h5" className='mb-2'>
               Designation
@@ -115,16 +101,9 @@ export default function TableSortie({onSubmit, amount, list, onChange, formValue
             <Typography variant="h5" className='mb-2'>
             Prix Unitaire <LocalAtmIcon fontSize='large' />
             </Typography>
-            {/* <MyTextField 
-              type="text"
-              name="pu"
-              value={formValues.pu}
-              id="price"
-              placeholder="Price"
-              onChange={onChange}
-            /> */}
+            
             <MyTextField
-              required
+              disabled
               variant="outlined"
               type="number"
               inputProps={{
@@ -132,7 +111,6 @@ export default function TableSortie({onSubmit, amount, list, onChange, formValue
                 min: "0", // Pas de valeurs négatives
                 max: "9999999999.99", // Correspond à max_digits=10 dans Django
               }}
-              // label="Somme"
               name="pu"
               onChange={onChange}
               value={formValues.pu}
@@ -170,6 +148,7 @@ export default function TableSortie({onSubmit, amount, list, onChange, formValue
             <TableRow>
               <TableCell>Image</TableCell>
               <TableCell>Date</TableCell>
+              <TableCell>Ref</TableCell>
               <TableCell>Client</TableCell>
               <TableCell>Designation</TableCell>
               <TableCell>Quantite</TableCell>

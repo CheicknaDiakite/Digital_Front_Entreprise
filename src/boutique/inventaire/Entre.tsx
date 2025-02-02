@@ -1,4 +1,4 @@
-import { FormEvent, SyntheticEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, SyntheticEvent, useState } from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -18,13 +18,13 @@ import { EntreFormType } from '../../typescript/FormType';
 import { AjoutEntreForm, useFormValues } from '../../usePerso/useEntreprise';
 import { formatNumberWithSpaces, isLicenceExpired } from '../../usePerso/fonctionPerso';
 import { useStoreUuid } from '../../usePerso/store';
-import { useFetchEntreprise } from '../../usePerso/fonction.user';
+import { useFetchEntreprise, useFetchUser } from '../../usePerso/fonction.user';
 import M_Abonnement from '../../_components/Card/M_Abonnement';
 
 
 export default function Entre() {
   const uuid = useStoreUuid((state) => state.selectedId)
-
+  const {unUser} = useFetchUser(connect)
   const {unEntreprise} = useFetchEntreprise(uuid!)
 
   // const {entres} = useFetchAllEntre(top)
@@ -82,7 +82,7 @@ export default function Entre() {
 
   // Calculer la somme des "price" pour la date sélectionnée
   const totalPrice = reversedBoutiques?.reduce((acc, row: RecupType) => {
-    const price = (row.qte !== undefined && row.pu !== undefined) ? row.qte * row.pu : 0;
+    const price = (row.qte !== undefined && row.pu_achat !== undefined) ? row.qte * row.pu_achat : 0;
     return acc + price;
   }, 0);
 
@@ -125,10 +125,10 @@ export default function Entre() {
   const [formValues, handleInputChange, setFormValues] = useFormValues<EntreFormType>({
     libelle: '',
     cumuler_quantite: false,
-    categorie_slug: '',
     user_id: '',
     date: '',
     pu: 0,
+    pu_achat: 0,
     qte: 0,
   });
   
@@ -167,6 +167,11 @@ export default function Entre() {
       });
     }
   };
+
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
   
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -175,7 +180,7 @@ export default function Entre() {
     formValues["is_sortie"] = is_sortie
     formValues["user_id"] = connect
     // formValues["categorie_slug"] = validSlug
-    
+    console.log("console ..", formValues)
     ajoutEntre(formValues)
     setTerminer(false);
     setSortie(true);
@@ -183,16 +188,16 @@ export default function Entre() {
       libelle: '',
       cumuler_quantite: false,
       is_sortie: true,
-      categorie_slug: '',
       user_id: '',
       date: '',
       pu: 0,
+      pu_achat: 0,
       qte: 0,
     });
     closeopen();
     // window.location.reload();
   };
-  console.log("dd",displayedBoutiques)
+
   if (isLoading) {
     return <Box sx={{ width: 300 }}>
     <Skeleton />
@@ -207,6 +212,9 @@ export default function Entre() {
   }
 
   if (entresEntreprise) {
+    const filteredBoutiques = displayedBoutiques.filter((post) =>
+      post?.libelle?.toLowerCase().includes(searchTerm.toLowerCase())
+    ); 
     return (
       <>    
 
@@ -215,6 +223,16 @@ export default function Entre() {
         <Typography variant="h5">
           <Button variant="outlined" onClick={functionopen}>Ajout des entrer</Button>
         </Typography>
+      </Grid>
+
+      <Grid item xs={12} sm={6} className="py-2">
+        <TextField
+          label="Rechercher par libelle / ref"
+          variant="outlined"
+          className='bg-blue-200'
+          value={searchTerm}
+          onChange={handleSearchChange}
+        />
       </Grid>
 
       <div className="flex justify-center mt-4">
@@ -245,6 +263,15 @@ export default function Entre() {
             onChange={handleEndDateChange}
             InputLabelProps={{ shrink: true }}
           />
+        </Grid>
+
+        <Grid item xs={12} sm={6} className="py-2 mx-2">
+          <Typography variant="h5">
+            Nombre d'enregistrement : 
+            <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-700/10">
+              {filteredBoutiques.length}
+            </span>
+          </Typography>
         </Grid>
       </div>
       {/* Modal */}
@@ -282,32 +309,41 @@ export default function Entre() {
               <TableCell>Fournisseurs</TableCell>
               <TableCell>Designations</TableCell>
               <TableCell align="right">Quantite</TableCell>
-              <TableCell align="right">Prix Unitaire</TableCell>
-              <TableCell align="right">Somme</TableCell>
+              <TableCell align="right">Prix Unitaire (prix de vente)</TableCell>
+              {unUser.role === 1 &&  
+              <>              
+                <TableCell align="right">Prix Unitaire (prix d'achat)</TableCell>
+                <TableCell align="right">Somme</TableCell>
+              </>
+              }
             </TableRow>
           </TableHead>
           <TableBody>
-            {displayedBoutiques?.length > 0 ? 
+            {filteredBoutiques?.length > 0 ? 
             
-            displayedBoutiques?.map((row, index) => {
+            filteredBoutiques?.map((row, index) => {
                   
                 return <CardInvent key={index} row={row} />
               })
               : "Pas d'entrer"
             }
+          
+          {unUser.role === 1 &&  
+          <>          
+            <TableRow>
+              <TableCell></TableCell>
+              <TableCell align="right"></TableCell>
+              <TableCell align="right"></TableCell>
+            </TableRow>
 
-          <TableRow>
-            <TableCell></TableCell>
-            <TableCell align="right"></TableCell>
-            <TableCell align="right"></TableCell>
-          </TableRow>
-
-          <TableRow>
-            <TableCell rowSpan={4} />
-            <TableCell colSpan={3}>Total :</TableCell>
-            <TableCell colSpan={0}>{totalQte}</TableCell>
-            <TableCell align="right">{formatNumberWithSpaces(totalPrice)} <LocalAtmIcon color="primary" fontSize='small' /></TableCell>
-          </TableRow>
+            <TableRow>
+              <TableCell rowSpan={5} />
+              <TableCell colSpan={4}>Total :</TableCell>
+              <TableCell colSpan={3}>{totalQte}</TableCell>
+              <TableCell align="right">{formatNumberWithSpaces(totalPrice)} <LocalAtmIcon color="primary" fontSize='small' /></TableCell>
+            </TableRow>
+          </>
+          }
       
           </TableBody>
         </Table>

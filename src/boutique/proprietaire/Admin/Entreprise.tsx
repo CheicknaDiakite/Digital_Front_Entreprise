@@ -195,7 +195,6 @@ export default function Entreprise() {
     Veuillez-vous patienter avant l'activation de votre compte !<br/>
     Pour plus d'information contacter (91 15 48 34 // 63 83 51 14)
   </Typography>
-  
 }
 
   {userEntreprises?.map((post: any, index) => {
@@ -250,7 +249,7 @@ export default function Entreprise() {
            
             <MyTextField required
               variant="outlined" 
-              label="nom" 
+              label="Nom de l'entreprise" 
               name='nom' 
               onChange={onChange}
               sx={{
@@ -262,7 +261,7 @@ export default function Entreprise() {
 
             <MyTextField
               variant="outlined" 
-              label="adresse" 
+              label="Adresse de l'entreprise" 
               name='adresse' 
               onChange={onChange}
             />
@@ -270,7 +269,7 @@ export default function Entreprise() {
             <MyTextField
               type='number'
               variant="outlined" 
-              label="numero" 
+              label="Numero de l'entreprise" 
               name='numero' 
               onChange={onChange}
               
@@ -279,7 +278,7 @@ export default function Entreprise() {
             <MyTextField
               type='email'
               variant="outlined" 
-              label="email" 
+              label="Email de l'entreprise" 
               name='email' 
               onChange={onChange}
               
