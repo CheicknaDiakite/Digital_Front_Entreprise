@@ -180,7 +180,6 @@ export default function Entre() {
     formValues["is_sortie"] = is_sortie
     formValues["user_id"] = connect
     // formValues["categorie_slug"] = validSlug
-    console.log("console ..", formValues)
     ajoutEntre(formValues)
     setTerminer(false);
     setSortie(true);

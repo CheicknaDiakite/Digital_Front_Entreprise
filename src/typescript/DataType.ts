@@ -184,6 +184,7 @@ export type RecupType = {
     first_name?: string,
     notes?: string,
     image?: File | undefined | null ;
+    code_barre?: File | undefined | null ;
     invoiceNumber?: number,
     all_inventaire?: number,
     post?: TypeEntreprise;

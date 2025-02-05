@@ -246,6 +246,22 @@ export default function Sortie() {
 
       const {entresEntreprise: entres, refetch} = useGetAllEntre(connect, entreprise_uuid!)
       const ent = entres.filter(info => info.qte !== 0 && info.is_sortie);
+
+      const [scannedCode, setScannedCode] = useState<string>('');
+      const [open, openchange] = useState(false);
+
+      const functionopen = () => {
+        openchange(true);
+      };
+      const closeopen = () => {
+        openchange(false);
+      };
+
+      const handleScanResult = (code: string) => {
+        setScannedCode(code);
+        // Optionnel : fermer le dialog après scan
+        openchange(false);
+      };
       
       const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -253,6 +269,7 @@ export default function Sortie() {
         formValues["user_id"]= connect
 
         ajoutSortie(formValues)
+        console.log("Sortie ...", formValues)
 
         setFormValues({
           user_id: '',
@@ -263,6 +280,7 @@ export default function Sortie() {
 
         setSelectedOption(null);
         setSelectedClient(null);
+        setScannedCode("")
 
         await refetch();
       };
@@ -553,6 +571,11 @@ export default function Sortie() {
                 selectedClient={selectedClient}
                 list={sortiesBoutic}
                 ent={ent}
+                scannedCode={scannedCode}
+                functionopen={functionopen}
+                open={open}
+                handleScanResult={handleScanResult}
+                closeopen={closeopen}
                 
                 />
 

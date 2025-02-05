@@ -340,19 +340,19 @@ export function useDeleteEntre() {
   const del = useMutation({
     mutationFn: (post: DataType) => {
       return entrerService.deleteEntre(post).then((res) => {
+        console.log(res)
         if (res.data.etat !== true) {
           toast.error(res.data.message);
+        } else {
+          useQ.invalidateQueries({ queryKey: ["entre"] });
+          navigate(-1);
+          toast.success("Supprimée avec succès");
         }
       });
     },
     onError: (error: any) => {
       const message = error?.response?.data?.message || error.message || "Une erreur est survenue";
       toast.error(message);
-    },
-    onSuccess: () => {
-      useQ.invalidateQueries({ queryKey: ["entre"] });
-      navigate(-1);
-      toast.success("Supprimée avec succès");
     },
   });
 
