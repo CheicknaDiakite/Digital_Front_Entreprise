@@ -146,7 +146,8 @@ export default function ClientSortie(uuid: UuType) {
       window.location.reload();
       return <div>Error fetching data</div>
     }
-    if (unClient.role === 1 || unClient.role === 3) {
+    console.log("Sort ...", entresEntreprise)
+    if (unClient.role === 1 || unClient.role === 3 || unClient.role === 2) {
 
       if (entresEntreprise) {
         return (
@@ -255,7 +256,7 @@ export default function ClientSortie(uuid: UuType) {
                 displayedBoutiques?.map((row, index) => {                       
                     return <CardClientSortie key={index} row={row} />
                   })
-                  : "Pas de vente pour ce client"
+                  : "Pas de vente !"
                 }
           
               </TableBody>

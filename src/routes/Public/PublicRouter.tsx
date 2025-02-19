@@ -34,6 +34,7 @@ import SortieInventaire from '../../boutique/proprietaire/historique/inventaire/
 import EntrerInventaire from '../../boutique/proprietaire/historique/inventaire/EntrerInventaire'
 import EtaVente from '../../boutique/categorie/eta/EtaVente'
 import Avis from '../../boutique/proprietaire/users/Avis'
+import EtaProduits from '../../boutique/categorie/eta/EtaProduits'
 
 export default function PublicRouter() {
   notClick()
@@ -49,8 +50,9 @@ export default function PublicRouter() {
           <Route path='Avis' element={<Facture />} />
           <Route path='PreFacture' element={<Facture />} />
           <Route path='EtaDeVente' element={<EtaVente />} />
+          <Route path='inventaire/EtaDesProduits' element={<EtaProduits />} />
           
-          <Route element={<ProtectedRoute requiredRole={[1]} redirectPath="/" />}>          
+          <Route element={<ProtectedRoute requiredRole={[1, 2]} redirectPath="/" />}>          
             <Route path='detail' element={<EntrepriseDetail />} />
             <Route path='historique' element={<TableHistory />} />
             <Route path='inventaire/sortie' element={<SortieInventaire />} />

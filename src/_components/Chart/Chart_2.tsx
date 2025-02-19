@@ -19,7 +19,7 @@ interface ChartProps {
     // Trier les données par `count` de manière décroissante et prendre les 15 premiers
     const topChartData = chartData
       .sort((a, b) => b.count - a.count) // Trier par `count` décroissant
-      .slice(0, 15); // Prendre les 15 premiers
+      .slice(0, 20); // Prendre les 15 premiers
   
     // Extraire les données pour les axes X et Y
     const xAxisData = topChartData.map((item) => item.month); // Labels des mois
@@ -40,8 +40,8 @@ interface ChartProps {
             data: seriesData,
           },
         ]}
-        width={500} // Largeur du graphique
-        height={300} // Hauteur du graphique
+        width={250} // Largeur du graphique
+        height={250} // Hauteur du graphique
       />
     );
   }

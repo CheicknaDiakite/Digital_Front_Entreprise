@@ -182,7 +182,7 @@ const NavSide: React.FC = () => {
         </Collapse>
         </>       
         }
-        {(unUser.role === 1 && uuid) && 
+        {((unUser.role === 1 || unUser.role === 2) && uuid) && 
         <>        
         {/* Inventaier Par moi */}
         <ListItem button onClick={() => handleOpen(2)} selected={open === 2}>
@@ -198,6 +198,7 @@ const NavSide: React.FC = () => {
         </ListItem>
         <Collapse in={open === 2} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
+
             <Link to="/entreprise/inventaire/sortie">
               <ListItem button>
                 <ListItemIcon>
@@ -210,11 +211,11 @@ const NavSide: React.FC = () => {
                 </Typography>
               </ListItem>
             </Link>
-                      
+
             <Link to="/entreprise/inventaire/entrer">
-              <ListItem>
+              <ListItem button>
                 <ListItemIcon>
-                  {/* <AddCircleIcon /> */}
+                  {/* <CategoryIcon /> */}
                 </ListItemIcon>
                 <Typography 
                   className="text-white bg-gray-500 bg-opacity-100 px-2 py-1 rounded"
@@ -223,9 +224,27 @@ const NavSide: React.FC = () => {
                 </Typography>
               </ListItem>
             </Link>
+                      
+            <Link to="/entreprise/inventaire/EtaDesProduits">
+              <ListItem>
+                <ListItemIcon>
+                  {/* <AddCircleIcon /> */}
+                </ListItemIcon>
+                <Typography 
+                  className="text-white bg-gray-500 bg-opacity-100 px-2 py-1 rounded"
+                >
+                  Etat des produits
+                </Typography>
+              </ListItem>
+            </Link>
           
           </List>
         </Collapse>
+
+        </>
+        }
+        {(unUser.role === 1 && uuid) && 
+        <>
         {/*  */}
         <ListItem button onClick={() => handleOpen(3)} selected={open === 3}>
           <ListItemIcon>

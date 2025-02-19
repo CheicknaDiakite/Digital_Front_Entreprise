@@ -9,6 +9,7 @@ import { useCateSousCate, useInfoSousCate } from "../../../../usePerso/fonction.
 import { connect } from "../../../../_services/account.service";
 import { formatNumberWithSpaces } from "../../../../usePerso/fonctionPerso";
 import { useState } from "react";
+import { useFetchUser } from "../../../../usePerso/fonction.user";
 
 export default function Info() {
 
@@ -20,6 +21,7 @@ export default function Info() {
         slug: uuid,
         user_id: connect
     }
+    const {unUser} = useFetchUser(connect)
 
     const {sousCate} = useCateSousCate(trop)
     
@@ -138,7 +140,7 @@ export default function Info() {
         {ent.map((p, index) => {
           if (p.qte != 0) {
             return <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
-              <AnalyticEcommerce title={`${p.libelle}: quantite restant`} client={p.client} count={p.qte} extra={p.pu_achat} pied={"Prix Achat"} />
+              <AnalyticEcommerce title={`${p.libelle}: quantite restant`} client={p.client} count={p.qte} extra={p.pu_achat} pied={"Prix Achat"} user={unUser.role != 1 ? 3 : unUser.role} />
             </Grid>
           }
         })}

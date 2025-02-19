@@ -5,7 +5,6 @@ import { ReloadPrompt } from "./Prompt";
 
 export default function App() {
   
-  
   return (<>
     <ReloadPrompt />
     <ThemeCustomization>

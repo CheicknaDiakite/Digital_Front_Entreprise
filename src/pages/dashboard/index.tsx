@@ -23,7 +23,7 @@ import { BASE } from '../../_services/caller.service';
 import SimpleCharts from '../../_components/Chart/Chart_1';
 import MainCard from '../../components/MainCard';
 import { Alert, Box, CircularProgress, Stack } from '@mui/material';
-import Chart_2 from '../../_components/Chart/Chart_2';
+import MonthlyBarChart from './MonthlyBarChart';
 // import SimpleCharts from '../../_components/Chart/Chart_1';
 
 // ==============================|| DASHBOARD - DEFAULT ||============================== //
@@ -52,7 +52,7 @@ export default function DashboardDefault() {
   const {unEntreprise} = useFetchEntreprise(uuid!)
   const url = unEntreprise.image ? BASE(unEntreprise.image) : backgroundImage;
   const {stockSemaine, isLoading, isError} = useStockSemaine(unEntreprise.uuid!)
-
+  
   if (isLoading) {
     return (
       <Box sx={{ display: 'flex' }}>
@@ -137,7 +137,7 @@ export default function DashboardDefault() {
           <Typography variant="h5">Il n'y a pas eu de vente !</Typography>
           </Grid>
           ) : (
-          stockSemaine.sorties_par_mois.slice(0, 1).map((post, index) => {
+          stockSemaine.sorties_par_mois.slice(1, 2).map((post, index) => {
           // const validDate = post.week ? new Date(post.month) : new Date(); // Vérifie si `post.week` est valide
           const validD = new Date(post.month) // Vérifie si `post.week` est valide
           
@@ -151,8 +151,8 @@ export default function DashboardDefault() {
                   {/* <Typography variant="h3">$7,650</Typography> */}
                 </Stack>
               </Box>
-              {/* <MonthlyBarChart /> */}
-                <Chart_2 details={post.details} />
+              <MonthlyBarChart details={post.details} />
+                {/* <Chart_2 details={post.details} /> */}
             </MainCard>
           );
           })
@@ -193,7 +193,7 @@ export default function DashboardDefault() {
             <IconsGrid 
               icon={<AddCircleIcon className="text-blue-500" />} 
               title="Entrer/Achat" 
-              description="Entre des produits de la boutique"
+              description="Entre des produits de l'entreprise"
               className="bg-green-200" 
             />
           </Link>
@@ -206,7 +206,7 @@ export default function DashboardDefault() {
             <IconsGrid 
               icon={<ExitToAppIcon className="text-blue-500" />} 
               title="Sortie/Vente" 
-              description="Pour la sortie des prduits dans la boutique" 
+              description="Pour la sortie des prduits dans l'entreprise" 
               className="bg-red-200"
             />
           </Link>
@@ -258,8 +258,8 @@ export default function DashboardDefault() {
           <Link to="/entreprise/produit/sortie" className="m-1 block">
             <IconsGrid 
               icon={<FileCopyIcon color="primary" />} 
-              title="Factures des produits sorties" 
-              description="Factures des produits de la boutique" 
+              title="Factures sorties(ventes)" 
+              description="Factures des produits de l'entreprise" 
               className="bg-amber-200"
             />
           </Link>
@@ -271,8 +271,8 @@ export default function DashboardDefault() {
         <Link to="/entreprise/produit/entre" className="m-1 block">
           <IconsGrid 
             icon={<FileOpenIcon color="primary"/>} 
-            title="Factures des produits entrer" 
-            description="Factures des produits de la boutique" 
+            title="Factures entrer(achat)" 
+            description="Factures des produits de l'entreprise" 
             className="bg-slate-200"
           />
         </Link>
@@ -285,7 +285,7 @@ export default function DashboardDefault() {
             <IconsGrid 
               icon={<MonetizationOnIcon color="primary" />} 
               title="Depense(s)" 
-              description="Ajout des depenses de la boutique" 
+              description="Ajout des depenses de l'entreprise" 
               className="bg-orange-200"
             />
           </Link>

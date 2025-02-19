@@ -53,8 +53,8 @@ export default function SimpleCharts() {
             data: seriesData,
           },
         ]}
-        width={500}
-        height={300}
+        width={250}
+        height={250}
       />
     );
   }

@@ -167,7 +167,7 @@ export default function Client() {
           title={
             <>
               <Typography variant="h5" color="textPrimary">
-                Listes des clients ou fournisseurs de cet entreprise
+                Listes des clients ou fournisseurs de cette entreprise
               </Typography>
               <Typography color="textSecondary">
                 information sur les clients ou fournisseurs
@@ -245,6 +245,7 @@ export default function Client() {
             color="primary"
           />
         </CardActions>
+
         <Dialog open={open} onClose={closeopen} fullWidth maxWidth="xs">
           <DialogTitle>
             Ajout des clients ou fournisseurs 
@@ -327,6 +328,7 @@ export default function Client() {
           }
           
         </Dialog>
+        
       </Card>
       
     </>

@@ -75,13 +75,13 @@ export default function ModifEntre() {
 
               <TextField variant="outlined" disabled value={unEntre.categorie_slug} label="Designation" name='libelle' onChange={onChange}></TextField>
               <TextField variant="outlined" value={unEntre.libelle} label="libelle" name='libelle' onChange={onChange}></TextField>
+              <TextField variant="outlined" value={unEntre.qte} label="QTE" name='qte' onChange={onChange}></TextField>
+              <TextField variant="outlined" value={unEntre.pu} label="Prix de vente" name='pu' onChange={onChange}></TextField>
               
               {unUser.role === 1 &&               
               <TextField variant="outlined" value={unEntre.pu_achat} label="Prix d'achat" name='pu_achat' onChange={onChange}></TextField>
               }
               
-              <TextField variant="outlined" value={unEntre.pu} label="Prix de vente" name='pu' onChange={onChange}></TextField>
-              <TextField variant="outlined" value={unEntre.qte} label="QTE" name='qte' onChange={onChange}></TextField>
               <FormControlLabel
                 control={<Checkbox 
                   onChange={Ajout_Terminer} // Appelle la fonction Ajout_Terminer lors du changement

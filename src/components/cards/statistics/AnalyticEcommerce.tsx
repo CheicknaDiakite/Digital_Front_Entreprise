@@ -13,8 +13,6 @@ import MainCard from '../../../components/MainCard';
 // assets
 import RiseOutlined from '@ant-design/icons/RiseOutlined';
 import FallOutlined from '@ant-design/icons/FallOutlined';
-import { useFetchUser } from '../../../usePerso/fonction.user';
-import { connect } from '../../../_services/account.service';
 
 const iconSX = { fontSize: '0.75rem', color: 'inherit', marginLeft: 0, marginRight: 0 };
 
@@ -23,6 +21,7 @@ type AnalyticEcommerceProps = {
   pied?: string;
   pied_qte?: string;
   qte?: number | string;
+  user?: number ;
   title?: string;
   client?: string;
   count?: number | string;
@@ -32,8 +31,8 @@ type AnalyticEcommerceProps = {
   className?: string; // utiliser 'className' au lieu de 'class'
 };
 
-export default function AnalyticEcommerce({ color = 'primary', title, count, percentage, isLoss, extra, pied, className, pied_qte, qte, client }:AnalyticEcommerceProps) {
-  const {unUser} = useFetchUser(connect)
+export default function AnalyticEcommerce({ color = 'primary', title, count, percentage, isLoss, extra, pied, className, pied_qte, qte, client, user }:AnalyticEcommerceProps) {
+  
   return (
     <MainCard contentSX={{ p: 2.25 }} className={className}>
       <Stack spacing={0.5}>
@@ -67,7 +66,7 @@ export default function AnalyticEcommerce({ color = 'primary', title, count, per
         </Grid>
       </Stack>
       <Box sx={{ pt: 2.25 }}>
-      {unUser.role === 1 &&  
+      {(user === 1 || user === 2) &&  
         <Typography variant="caption" color="text.secondary">
           {pied} {' '}
           <Typography variant="caption" sx={{ color: `${color || 'primary'}.main` }}>

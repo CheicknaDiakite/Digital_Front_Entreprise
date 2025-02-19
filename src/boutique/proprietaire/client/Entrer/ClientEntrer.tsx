@@ -148,7 +148,7 @@ export default function ClientEntrer(uuid: UuType) {
     return <div>Error fetching data</div>
   }
 
-  if (unClient.role === 2 || unClient.role === 3) {
+  if (unClient.role === 2 || unClient.role === 3 || unClient.role === 1) {
     if (entresEntreprise) {
       return (
         <>    
@@ -292,7 +292,7 @@ export default function ClientEntrer(uuid: UuType) {
               displayedBoutiques?.map((row, index) => {                       
                   return <CardClientEntrer key={index} row={row} />
                 })
-                : "Pas d'achat chez ce fournisseur"
+                : "Pas d'achat !"
               }
         
             </TableBody>
