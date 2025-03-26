@@ -30,7 +30,7 @@ export default function SimpleCharts() {
   }
 
   if (stockEntreprise) {
-    const chartData = stockEntreprise?.count_sortie_par_mois?.slice(0, 6).map((post) => ({
+    const chartData = stockEntreprise?.count_sortie_par_mois?.slice(0, 12).map((post) => ({
       month: post.month ? new Date(post.month).toLocaleString('default', { month: 'short' }) : 'Unknown',
       count: post.count || 0,
     })) || [];

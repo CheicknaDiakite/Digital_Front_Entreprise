@@ -25,36 +25,42 @@ import {
 } from "@mui/icons-material";
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import DescriptionIcon from '@mui/icons-material/Description';
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {connect} from "../../../../../_services/account.service";
-import { useAddAvis, useFetchEntreprise, useFetchUser } from "../../../../../usePerso/fonction.user";
+import { useAddAvis, useFetchEntreprise, useFetchUser, useGetUserEntreprises } from "../../../../../usePerso/fonction.user";
 import { logout } from "../../../../../usePerso/fonctionPerso";
 import { useStoreUuid } from "../../../../../usePerso/store";
 import backgroundImage from "../../../../../../public/icon-192x192.png";
 import { BASE } from "../../../../../_services/caller.service";
 import MyTextField from "../../../../../_components/Input/MyTextField";
 import CloseIcon from "@mui/icons-material/Close";
+import AddBusinessIcon from '@mui/icons-material/AddBusiness';
 import { AvisType } from "../../../../../typescript/UserType";
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import Example from "../../../../../boutique/Ct";
 
 const NavSide: React.FC = () => {
   const [open, setOpen] = useState<number>(0); // Typing `open` as number
   const {unUser} = useFetchUser(connect)
   const uuid = useStoreUuid((state) => state.selectedId)
   const {unEntreprise} = useFetchEntreprise(uuid!)
+
+  const {userEntreprises} = useGetUserEntreprises(connect)
+  const addId = useStoreUuid(state => state.addId)
+
   const url = unEntreprise.image ? BASE(unEntreprise.image) : backgroundImage;
   const urlEntre = unEntreprise.image ? BASE(unEntreprise.image) : url;
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const handleOpen = (value: number): void => {
     setOpen(open === value ? 0 : value);
   };
 
-  const handleGoHome = () => {
-    navigate('/');
-    localStorage.removeItem('entreprise-uuid')
-    window.location.reload();
-  };
+  // const handleGoHome = () => {
+  //   navigate('/entreprise');
+  //   localStorage.removeItem('entreprise-uuid')
+  //   window.location.reload();
+  // };
 
   // Pour avis
 
@@ -64,6 +70,14 @@ const NavSide: React.FC = () => {
   };
   const closeopen = () => {
     openchange(false);
+  };
+
+  const [openO, openchangeO] = useState(false);
+  const functionopenO = () => {
+    openchangeO(true);
+  };
+  const closeopenO = () => {
+    openchangeO(false);
   };
 
   const {createAvis} = useAddAvis()
@@ -105,20 +119,62 @@ const NavSide: React.FC = () => {
       backgroundRepeat: 'no-repeat',
     }}
     >
-      <Link to={"#"} onClick={handleGoHome}>
+      {/* <Link to={"#"} onClick={handleGoHome}> */}
       
       {/* <Button onClick={handleGoHome}> */}
-        <CardContent onClick={handleGoHome} sx={{ display: "flex", alignItems: "center", gap: 2 }} className="border border-indigo-600">
-          <img src={urlEntre} alt="brand" style={{ height: "2rem", width: "2rem" }} />
-          <Typography variant="h5" color="textPrimary">
-            Accueil principal
-          </Typography>
-        </CardContent>
+      <CardContent className="border border-indigo-600 bg-sky-500/30 flex items-center gap-2 p-2 rounded">
+        <img
+          src={urlEntre}
+          alt="brand"
+          className="h-8 w-8 object-contain"
+        />
+        <Typography variant="h5" color="text.primary">
+          {unEntreprise.nom}
+        </Typography>
+      </CardContent>
+
       {/* </Button> */}
-      </Link>
+      {/* </Link> */}
+
       <List>
-        {uuid && <>
-        
+        <ListItem button onClick={() => handleOpen(5)} selected={open === 5}>
+          <ListItemIcon>
+            <AddBusinessIcon color="primary" fontSize="small" />
+          </ListItemIcon>
+          <Typography             
+            className="text-white bg-gray-500 bg-opacity-100 px-2 py-1 rounded"
+          >
+            Entreprise(s)
+          </Typography>
+          {open === 5 ? <ExpandLess /> : <ExpandMore />}
+        </ListItem>
+
+        <Collapse in={open === 5} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding>
+
+          {userEntreprises?.map((post: any) => {
+            return <Link 
+            to={`/entreprise`}
+            className="block"
+            onClick={() => addId(post.uuid)}
+            >
+            <ListItem button>
+              <ListItemIcon>
+                {/* <CategoryIcon color="inherit" fontSize="small" /> */}
+              </ListItemIcon>
+              <Typography 
+                className="text-black bg-white bg-opacity-100 px-2 py-1 rounded"
+              >
+                {post.nom}
+              </Typography>
+            </ListItem>
+          </Link>
+          })}
+            
+          </List>
+        </Collapse>
+
+        {uuid && <>        
         <ListItem button onClick={() => handleOpen(1)} selected={open === 1}>
           <ListItemIcon>
             <PresentationChartBarIcon color="primary" fontSize="small" />
@@ -141,12 +197,12 @@ const NavSide: React.FC = () => {
             <Link to="/categorie">
               <ListItem button>
                 <ListItemIcon>
-                  <CategoryIcon color="primary" fontSize="small" />
+                  <CategoryIcon color="inherit" fontSize="small" />
                 </ListItemIcon>
                 <Typography 
-                  className="text-white bg-gray-500 bg-opacity-100 px-2 py-1 rounded"
+                  className="text-black bg-white bg-opacity-100 px-2 py-1 rounded"
                 >
-                  Catégorie
+                  Article
                 </Typography>
               </ListItem>
             </Link>
@@ -155,12 +211,12 @@ const NavSide: React.FC = () => {
             <Link to="/entre">
               <ListItem>
                 <ListItemIcon>
-                  <AddCircleIcon color="primary" fontSize="small" />
+                  <AddCircleIcon color="success" fontSize="small" />
                 </ListItemIcon>
                 <Typography 
-                className="text-white bg-gray-500 bg-opacity-100 px-2 py-1 rounded"
+                className="text-white bg-green-500 bg-opacity-100 px-2 py-1 rounded"
                 >
-                  Entrer
+                  Entrer (Achat)
                 </Typography>
               </ListItem>
             </Link>
@@ -169,15 +225,29 @@ const NavSide: React.FC = () => {
             <Link to="/sortie">
               <ListItem>
                 <ListItemIcon>
-                  <ExitToAppIcon color="primary" fontSize="small" />
+                  <ExitToAppIcon color="error" fontSize="small" />
                 </ListItemIcon>
                 <Typography 
-                className="text-white bg-gray-500 bg-opacity-100 px-2 py-1 rounded"
+                className="text-white bg-red-500 bg-opacity-100 px-2 py-1 rounded"
                 >
-                  Sortie
+                  Sortie (Vente)
                 </Typography>
               </ListItem>
             </Link>
+
+            <Link to="/sortie/remise">
+              <ListItem>
+                <ListItemIcon>
+                  <ExitToAppIcon color="error" fontSize="small" />
+                </ListItemIcon>
+                <Typography 
+                className="text-white bg-red-400 bg-opacity-100 px-2 py-1 rounded"
+                >
+                  Remise Facture
+                </Typography>
+              </ListItem>
+            </Link>
+
           </List>
         </Collapse>
         </>       
@@ -344,6 +414,17 @@ const NavSide: React.FC = () => {
           </Typography>
         </ListItem>
 
+        <ListItem button onClick={functionopenO}>
+          <ListItemIcon>
+            <HelpOutlineIcon color="primary" fontSize="small" />
+          </ListItemIcon>
+          <Typography 
+          className="text-white bg-sky-900 bg-opacity-100 px-2 py-1 rounded"
+          >
+            Payement ?
+          </Typography>
+        </ListItem>
+
         <ListItem button onClick={logout}>
           <ListItemIcon>
             <PowerIcon color="error" fontSize="small" />
@@ -395,6 +476,19 @@ const NavSide: React.FC = () => {
             </form>
           </DialogContent>
         
+      </Dialog>
+
+      <Dialog open={openO} onClose={closeopenO} fullWidth maxWidth="sm">
+        <DialogTitle>
+          Pour l'abonnement de votre entreprise
+          <IconButton onClick={closeopenO} style={{float: "right"}}>
+            <CloseIcon color="primary"></CloseIcon>
+          </IconButton>            
+        </DialogTitle>                
+              
+        <DialogContent>
+          <Example />
+        </DialogContent>
       </Dialog>
 
       <Typography variant="h5" className="text-white bg-gray-600 bg-opacity-100 px-2 py-1 rounded">

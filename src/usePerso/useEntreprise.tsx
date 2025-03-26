@@ -36,7 +36,8 @@ export function AjoutEntreForm({
     handleAutoCompleteChange,
     handleAutoFourChange,
     Ajout_Terminer,
-    Is_Sortie
+    Is_Sortie,
+    Is_Prix
   }: any) {
     const uuid = useStoreUuid((state) => state.selectedId)
     const {souscategories} = useFetchAllSousCate(connect, uuid!)
@@ -160,6 +161,16 @@ export function AjoutEntreForm({
           {/* Autres champs ici */}
           <FormControlLabel
             control={<Checkbox 
+              onChange={Is_Prix} // Appelle la fonction Ajout_Terminer lors du changement
+            />
+            }
+            label="Prix de vente (Manuelle)"
+            labelPlacement="end"
+            onClick={Is_Prix}       
+          />
+
+          <FormControlLabel
+            control={<Checkbox 
               onChange={Ajout_Terminer} // Appelle la fonction Ajout_Terminer lors du changement
             />
             }
@@ -167,6 +178,7 @@ export function AjoutEntreForm({
             labelPlacement="end"
             onClick={Ajout_Terminer}       
           />
+
           <FormControlLabel
             control={<Checkbox 
               onChange={Is_Sortie} // Appelle la fonction Ajout_Terminer lors du changement
@@ -176,6 +188,7 @@ export function AjoutEntreForm({
             labelPlacement="end"
             onClick={Is_Sortie}       
           />
+
           <Button type="submit" color="success" variant="outlined">Envoyer</Button>
         </Stack>
       </form>

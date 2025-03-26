@@ -52,6 +52,7 @@ export type UtilisateurType = {
     uuid?: string;
     id?: string;
     user_id?: string;
+    date?: string;
     coordonne?: string;
     entreprise_id?: string;
     role: number;

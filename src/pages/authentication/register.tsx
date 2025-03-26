@@ -19,8 +19,8 @@ export default function Register() {
         <Grid item xs={12}>
           <Bienvenue />
           <Stack direction="row" justifyContent="space-between" alignItems="baseline" sx={{ mb: { xs: -0.5, sm: 0.5 } }}>
-            <Typography variant="h3">Inscription</Typography>
-            <Typography component={Link} to="/auth/login" variant="body1" sx={{ textDecoration: 'none' }} color="primary">
+            <Typography variant="h4">Inscription</Typography>
+            <Typography component={Link} to="/auth/login" variant="h4" sx={{ textDecoration: 'none' }} color="primary">
               Connexion ?
             </Typography>
           </Stack>

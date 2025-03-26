@@ -35,6 +35,7 @@ import EntrerInventaire from '../../boutique/proprietaire/historique/inventaire/
 import EtaVente from '../../boutique/categorie/eta/EtaVente'
 import Avis from '../../boutique/proprietaire/users/Avis'
 import EtaProduits from '../../boutique/categorie/eta/EtaProduits'
+import RemiseFacture from '../../boutique/sortie/RemiseFacture'
 
 export default function PublicRouter() {
   notClick()
@@ -135,6 +136,7 @@ export default function PublicRouter() {
         <Route path='sortie' >
           <Route index element={<Sortie />} />
           
+          <Route path='remise' element={<RemiseFacture />} />
           <Route path='entreprise/:uuid' element={<Sortie />} />
           {/* <Route path='entreprise' element={<EseSortie />} /> */}
           <Route path='modif/:uuid' element={<ModifSortie />} />

@@ -23,6 +23,12 @@ export default function ModifEntre() {
   const Ajout_Terminer = () => {
     ajout_terminer ? setTerminer(false) : setTerminer(true);
   };
+
+  const [is_prix, setPrix] = useState(true);
+  
+  const Is_Prix = () => {
+    is_prix ? setPrix(false) : setPrix(true);
+  };
   
   const handleDelete = () => {
     const confirmation = window.confirm("Vous êtes sûr de vouloir supprimer ?");
@@ -47,6 +53,7 @@ export default function ModifEntre() {
     e.preventDefault();
 
     unEntre["is_sortie"] = ajout_terminer
+    unEntre["is_prix"] = is_prix
 
     updateEntre(unEntre)
     
@@ -84,14 +91,24 @@ export default function ModifEntre() {
               
               <FormControlLabel
                 control={<Checkbox 
+                  onChange={Is_Prix} // Appelle la fonction Ajout_Terminer lors du changement
+                />
+                }
+                label="Prix de vente (Manuelle)"
+                labelPlacement="end"
+                onClick={Is_Prix}
+              />
+
+              <FormControlLabel
+                control={<Checkbox 
                   onChange={Ajout_Terminer} // Appelle la fonction Ajout_Terminer lors du changement
                 />
                 }
                 label="Vous ne voulez pas sortir ce produit ?"
                 labelPlacement="end"
                 onClick={Ajout_Terminer}
-                
               />
+
               <Button type="submit" color="success" variant="outlined">Envoyer</Button>
             </Stack>
           </form>

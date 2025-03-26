@@ -6,8 +6,8 @@ import {
   Typography,
   Button,
   CardActions,
-  Tabs,
-  Tab,
+  // Tabs,
+  // Tab,
   IconButton,
   Dialog,
   DialogContent,
@@ -16,47 +16,40 @@ import {
   Stack,
   Box,
   Skeleton,
-  TableContainer,
-  TableCell,
-  TableRow,
-  Table,
-  TableHead,
-  TableBody,
-  Paper,
+  // TableContainer,
+  // TableCell,
+  // TableRow,
+  // Table,
+  // TableHead,
+  // TableBody,
+  // Paper,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
   SelectChangeEvent,
+  ListItem,
+  ListItemAvatar,
+  Avatar,
+  ListItemText,
+  Chip,
+  Grid,
+  // TextField,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import { ChangeEvent, FormEvent, Fragment, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
-import VisibilityIcon from '@mui/icons-material/Visibility';
+// import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useAllClients, useCreateClient, useFetchEntreprise } from "../../../usePerso/fonction.user";
 import { connect } from "../../../_services/account.service";
 import Nav from "../../../_components/Button/Nav";
 import MyTextField from "../../../_components/Input/MyTextField";
-import { format } from "date-fns";
+// import { format } from "date-fns";
 import { useStoreUuid } from "../../../usePerso/store";
 import { ClienType } from "../../../typescript/UserType";
 import M_Abonnement from "../../../_components/Card/M_Abonnement";
-import { isLicenceExpired } from "../../../usePerso/fonctionPerso";
-
-const TABS = [
-  {
-    label: "Tous",
-    value: "all",
-  },
-  // {
-  //   label: "Monitored",
-  //   value: "monitored",
-  // },
-  // {
-  //   label: "Unmonitored",
-  //   value: "unmonitored",
-  // },
-];
+import { isLicenceExpired, stringAvatar } from "../../../usePerso/fonctionPerso";
+import MainCard from "../../../components/MainCard";
 
 
 export default function Client() {
@@ -82,12 +75,31 @@ export default function Client() {
     if (b.id === undefined) return -1;
     return Number(b.id) - Number(a.id);
   });
+
+  const [filter, setFilter] = useState<1 | 2 | 3>(3);
+  // const [startDate, setStartDate] = useState<string>(''); // Date de début
+  // const [endDate, setEndDate] = useState<string>(''); // Date de fin
+
+  const filteredClient = reversedclient?.filter((historyRow) => {
+    // Filtrage par type
+    
+    const typeFilter = filter === 3 || historyRow.role === filter;
+    // console.log("testing 11 ..", typeFilter)
+    // Filtrage par date
+    // const rowDate = new Date(historyRow.date ?? new Date());
+    // const isAfterStartDate = startDate ? rowDate >= new Date(startDate) : true;
+    // const isBeforeEndDate = endDate ? rowDate <= new Date(endDate) : true;
+
+    return typeFilter;
+  });
+
+  console.log("testing ..", filteredClient)
  
    // Calcul du nombre total de pages
-   const totalPages = Math.ceil(getUser.length / itemsPerPage);
+   const totalPages = Math.ceil(filteredClient.length / itemsPerPage);
  
    // Récupération des éléments à afficher sur la page courante
-   const clientEntreprise = reversedclient.slice(
+   const clientEntreprise = filteredClient.slice(
      (currentPage - 1) * itemsPerPage,
      currentPage * itemsPerPage
    );
@@ -163,7 +175,7 @@ export default function Client() {
       <Nav />
 
       <Card>
-        <CardHeader
+        {/* <CardHeader
           title={
             <>
               <Typography variant="h5" color="textPrimary">
@@ -179,15 +191,81 @@ export default function Client() {
               <UserPlusIcon /> Ajouter client/fournisseur
             </Button>
           }
+        /> */}
+        <CardHeader className="mx-8"
+          title={
+            <Box>
+              <Typography variant="h5" color="textPrimary">
+                Listes des clients ou fournisseurs de cette entreprise
+              </Typography>
+              <Typography color="textSecondary">
+                Information sur les clients ou fournisseurs
+              </Typography>
+            </Box>
+          }
+          action={
+            <Button
+              onClick={functionopen}
+              variant="outlined"
+              startIcon={<UserPlusIcon />}
+            >
+             Ajouter client/fournisseur
+            </Button>
+          }
         />
+        
         <CardContent>
-          <Tabs value="all">
+          {/* <Tabs value="all">
             {TABS.map(({ label, value }) => (
               <Tab key={value} label={label} value={value} />
             ))}
-          </Tabs>
+          </Tabs> */}
+
+          <Box className="flex justify-center mt-4" sx={{ marginBottom: 2, display: 'flex', alignItems: 'center' }}>
+            <Button
+              variant={filter === 3 ? 'contained' : 'outlined'}
+              onClick={() => setFilter(3)}
+              sx={{ marginRight: 1 }}
+            >
+              Tous
+            </Button>
+            <Button
+              variant={filter === 1 ? 'contained' : 'outlined'}
+              onClick={() => setFilter(1)}
+              sx={{ marginRight: 1 }}
+            >
+              Client
+            </Button>
+            <Button
+              variant={filter === 2 ? 'contained' : 'outlined'}
+              onClick={() => setFilter(2)}
+              sx={{ marginRight: 1 }}
+            >
+              Fournisseur
+            </Button>            
+
+            {/* Recherche par date */}
+            {/* <Box sx={{ marginLeft: 2, display: 'flex', gap: 2 }}>
+              <TextField
+                label="Date début"
+                className='bg-blue-200'
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                InputLabelProps={{ shrink: true }}
+              />
+              <TextField
+                label="Date fin"
+                type="date"
+                className='bg-blue-200'
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                InputLabelProps={{ shrink: true }}
+              />
+            </Box> */}
+          </Box>
           
-          <TableContainer component={Paper}>
+          {/* <TableContainer component={Paper}>
             <Table sx={{ minWidth: 700 }} aria-label="spanning table">
               <TableHead>
                 <TableRow>
@@ -225,7 +303,7 @@ export default function Client() {
                     <TableCell>
                     <Link to={`/entreprise/client/info/${post.uuid}`}>
                       <Stack direction="row" spacing={2}>
-                        {/* <Item>Modifier</Item> */}
+                       
                         <VisibilityIcon color="info" fontSize="medium" />
                       </Stack>
                     </Link>
@@ -235,9 +313,65 @@ export default function Client() {
                 })}
               </TableBody>
             </Table>
-          </TableContainer>
+          </TableContainer> */}
+          
+          <Grid container spacing={2}>
+            {clientEntreprise.map((post: any) => (
+              <Grid item xs={12} sm={6} md={4} key={post.id}> 
+              <Link to={`/entreprise/client/info/${post.uuid}`}>
+                <MainCard className="my-3" sx={{ mb: 1 }} content={false}>
+                  <ListItem alignItems="flex-start">
+                    <ListItemAvatar>
+                      <Avatar {...stringAvatar(`${post.nom}`)} />
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={post.nom}
+                      secondary={
+                        <Fragment>
+                          <Typography component="span" variant="body2" color="text.primary">
+                            {"Tel : "} {post.numero}
+                          </Typography>
+                          <br />
+                          <Typography component="span" variant="body2" color="text.primary">
+                            {"Adresse : "} {post.adresse}
+                          </Typography>
+                          <br />
+                          <Typography component="span" variant="body2" color="text.primary">
+                            {"Coordonner : "} {post.coordonne}
+                          </Typography>
+                          <br />
+                          <Typography component="span" variant="body2" color="text.primary">
+                            {"Etat de compte : "} 
+                            {/* <Link to={`/entreprise/client/info/${post.uuid}`}> */}
+                              <Chip
+                                label={post.role === 1 ? "Client" : post.role === 2 ? "Fournisseur" : "Client/Fournisseur"}
+                                variant="outlined"
+                                color={post.role === 1 ? "primary" : post.role === 2 ? "info" : "success"}
+                                sx={{ ml: "auto" }}
+                              />
+                            {/* </Link> */}
+                          </Typography>
+                        </Fragment>
+                      }
+                    />
+                    {/* <Link to={`/entreprise/client/info/${post.uuid}`}>
+                      <Chip
+                        label={post.role === 1 ? "Client" : post.role === 2 ? "Fournisseur" : "Client/Fournisseur"}
+                        variant="outlined"
+                        color={post.role === 1 ? "primary" : post.role === 2 ? "info" : "success"}
+                        sx={{ ml: "auto" }}
+                      />
+                    </Link> */}
+                  </ListItem>
+                </MainCard>
+              </Link>             
+              </Grid>
+            ))}
+          </Grid>
+
         </CardContent>
-        <CardActions>
+
+        <CardActions sx={{ justifyContent: "center" }}>
           <Pagination
             count={totalPages}
             page={currentPage}

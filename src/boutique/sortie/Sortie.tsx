@@ -1,9 +1,9 @@
-import { Box, Button, Grid, Modal, Pagination, Skeleton, TextField, Typography } from "@mui/material";
-import { ChangeEvent, FormEvent, SyntheticEvent, useEffect, useState } from "react";
+import { Box, Button, Grid, Modal, Pagination, Paper, Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material";
+import { ChangeEvent, FormEvent, Fragment, SyntheticEvent, useEffect, useState } from "react";
 import { RecupType, SortieType } from "../../typescript/DataType";
 import { connect } from "../../_services/account.service";
 import { useStoreCart } from "../../usePerso/cart_store";
-import { useCreateSortie, useFetchAllSortie, useGetAllEntre, useGetAllSortie } from "../../usePerso/fonction.entre";
+import { useCreateSortie, useFetchAllSortie, useGetAllEntre, useGetAllSortie, useUpdateSortie } from "../../usePerso/fonction.entre";
 import Fact from "../factureCard/Fact";
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import TableSortie from "./TableSortie";
@@ -24,6 +24,58 @@ type TypeText = {
   dueDate: string,
   notes: string,
   invoiceNumber: number,
+}
+
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  pt: 2,
+  px: 4,
+  pb: 3,
+};
+
+function ChildModal() {
+  const reset = useStoreCart(state => state.reset)
+  const {updateSortie} = useUpdateSortie()
+  const selectedIds = useStoreCart(state => state.selectedIds)
+  const sortiess = useStoreCart(state => state.sorties);
+  const selectSorties = sortiess.filter((sor) => sor.id !== undefined && selectedIds.has(sor.id as number));
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    const idsToUpdate = selectSorties.map(sor => sor.id);
+    updateSortie(idsToUpdate)
+    reset()
+    setOpen(false);
+  };
+
+  return (
+    <Fragment>
+      <Button onClick={handleOpen}>Confirmer</Button>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="child-modal-title"
+        aria-describedby="child-modal-description"
+      >
+        <Box sx={{ ...style, width: 200 }}>
+          <h1 id="child-modal-title">Confirmer la remie</h1>
+          {/* <p id="child-modal-description">
+            Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+          </p> */}
+          <Button onClick={handleClose}>Oui</Button>
+        </Box>
+      </Modal>
+    </Fragment>
+  );
 }
 
 export default function Sortie() {
@@ -55,6 +107,7 @@ export default function Sortie() {
 
   
   const {ajoutSortie} = useCreateSortie()
+  
   const itemsPerPage = 25; // Nombre d'éléments par page
 
   // État pour la page courante et les éléments par page
@@ -89,7 +142,9 @@ export default function Sortie() {
   // Calcul du nombre total de pages
   const totalPages = Math.ceil(reversedSorties.length / itemsPerPage);
 
-  const totalPrice = reversedSorties?.reduce((acc, row: RecupType) => {
+  const reversedSort = reversedSorties.filter((info: any) => info.is_remise === false);
+
+  const totalPrice = reversedSort?.reduce((acc, row: RecupType) => {
     const price = (row.qte !== undefined && row.pu !== undefined) ? row.qte * row.pu : 0;
     return acc + price;
   }, 0);
@@ -214,6 +269,7 @@ export default function Sortie() {
         if (selected) {
             formValues["entre_id"] = selected.uuid; // Attribue l'ID sélectionné
             formValues["pu"] = selected.pu || 0;  // Met à jour le prix unitaire si disponible
+            formValues["is_prix"] = selected.is_prix;  // Met à jour le prix unitaire si disponible
         } else {
             formValues["entre_id"] = ""; // Réinitialise si aucune option n'est sélectionnée
             formValues["pu"] = 0;       // Réinitialise également le prix unitaire
@@ -237,7 +293,6 @@ export default function Sortie() {
         }
       };
     
-
       // const handleClient = (selected: SingleValue<RecupType>) => {
       //   // console.log('Selected option:', selected?.uuid);
       //   formValues["client_id"]= selected?.uuid
@@ -245,8 +300,9 @@ export default function Sortie() {
       // };
 
       const {entresEntreprise: entres, refetch} = useGetAllEntre(connect, entreprise_uuid!)
+      
       const ent = entres.filter(info => info.qte !== 0 && info.is_sortie);
-
+      console.log(ent)
       const [scannedCode, setScannedCode] = useState<string>('');
       const [open, openchange] = useState(false);
 
@@ -269,7 +325,6 @@ export default function Sortie() {
         formValues["user_id"]= connect
 
         ajoutSortie(formValues)
-        console.log("Sortie ...", formValues)
 
         setFormValues({
           user_id: '',
@@ -285,9 +340,9 @@ export default function Sortie() {
         await refetch();
       };
 
-
       // Pour la remise
-      const selectedIds = useStoreCart(state => state.selectedIds)
+        
+        const selectedIds = useStoreCart(state => state.selectedIds)
         const sortiess = useStoreCart(state => state.sorties);
         const selectSorties = sortiess.filter((sor) => sor.id !== undefined && selectedIds.has(sor.id as number));
         // const totalPrix = selectSorties.reduce((sum, sor) => sum + sor.prix_total, 0);
@@ -298,7 +353,7 @@ export default function Sortie() {
           return acc + prixTotal;
         }, 0);
 
-      const [isModalOpen, setIsModalOpen] = useState(false);
+        const [isModalOpen, setIsModalOpen] = useState(false);
         const [fixedDiscount, setFixedDiscount] = useState<number | string>(""); // Remise fixe
         const [percentageDiscount, setPercentageDiscount] = useState<number | string>(""); // Remise en %
         const [discountedTotal, setDiscountedTotal] = useState(total); // Total avec remise
@@ -324,6 +379,21 @@ export default function Sortie() {
         // Ouvrir/fermer le modal
         const toggleModal = () => setIsModalOpen(!isModalOpen);
       
+        // Pour la remise des facture
+        const [openF, setOpenF] = useState(false);
+        const handleOpen = () => {
+          setOpenF(true);
+        };
+        const handleClose = () => {
+          setOpenF(false);
+        };
+        // const handleUpdate = async () => {
+        //   const idsToUpdate = selectSorties.map(sor => sor.id);
+        //   console.log("testing ...", selectSorties)
+          
+        //   updateSortie(idsToUpdate)
+        // };
+
         // Appliquer la remise
         const handleApplyDiscount = () => {
           calculateDiscountedTotal();
@@ -470,7 +540,98 @@ export default function Sortie() {
                   
                   <Button variant="contained" color="primary" onClick={toggleModal} className="bg-indigo-500 mx-3 text-white font-bold mt-5 py-2 px-8 rounded hover:bg-indigo-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-indigo-400">
                     Remise
-                  </Button>                  
+                  </Button> 
+
+                  <Button variant="contained" color="primary" onClick={handleOpen} className="bg-sky-500 mx-3 text-white font-bold mt-5 py-2 px-8 rounded hover:bg-sky-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-sky-400">
+                    R_Facture
+                  </Button>
+
+                  <Modal
+                    open={openF}
+                    onClose={handleClose}
+                    aria-labelledby="parent-modal-title"
+                    aria-describedby="parent-modal-description"
+                  >
+                    <Box sx={{ ...style, width: 400 }}>
+                      <h2 id="parent-modal-title">Il y a eu une remise sur ce facture ?</h2>
+                      <p id="parent-modal-description">
+                        Verifier avant de Confirmer
+                      </p>
+                      <TableContainer
+                        component={Paper}
+                        sx={{
+                          width: '100%',
+                          maxWidth: '100%',
+                          margin: '0 auto',
+                          padding: '1rem',
+                          boxSizing: 'border-box',
+                        }}
+                      >
+                        <Table
+                          sx={{
+                            minWidth: 700,
+                            '@media (max-width: 768px)': {
+                              minWidth: '100%', // S'ajuste pour les petits écrans
+                              fontSize: '0.8rem',
+                            },
+                          }}
+                          aria-label="spanning table"
+                        >
+                          <TableHead>
+                            <TableRow>
+                              {/* <TableCell>Date</TableCell> */}
+                              <TableCell>Designation</TableCell>
+                              <TableCell align="right">Quantite</TableCell>
+                              <TableCell align="right">Prix unitaire</TableCell>
+                              <TableCell align="right">Somme</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {selectSorties.map((post, index) => (
+                              <TableRow key={index}>
+                                {/* <TableCell>
+                                  {format(new Date(post.date), 'dd/MM/yyyy')}
+                                </TableCell> */}
+                                <TableCell>
+                                  {post.ref} {" - "}
+                                  {post.categorie_libelle}
+                                </TableCell>
+                                <TableCell align="right">{post.qte}</TableCell>
+                                <TableCell align="right">{formatNumberWithSpaces(post.pu)}</TableCell>
+                                <TableCell align="right">{formatNumberWithSpaces(post.prix_total)}</TableCell>
+                              </TableRow>
+                            ))}
+                            <TableRow>
+                              <TableCell rowSpan={3} />
+                              <TableCell colSpan={2} align="right" sx={{ fontWeight: 'bold' }}>
+                                Prix
+                              </TableCell>
+                              <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                                {formatNumberWithSpaces(total)}
+                              </TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell colSpan={2} align="right" sx={{ fontWeight: 'bold' }}>
+                                Remise
+                              </TableCell>
+                              <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                                {formatNumberWithSpaces(total - discountedTotal)}
+                              </TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell colSpan={2} align="right" sx={{ fontWeight: 'bold' }}>
+                                Total
+                              </TableCell>
+                              <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                                {formatNumberWithSpaces(discountedTotal)}
+                              </TableCell>
+                            </TableRow>
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                      <ChildModal />
+                    </Box>
+                  </Modal>                  
 
                   {/* Modal */}
                   <Modal open={isModalOpen} onClose={toggleModal}>
@@ -515,9 +676,7 @@ export default function Sortie() {
                     </Box>
                   </Modal>
 
-
-                </div>
-                
+                </div>                
                 
                 <div className="flex justify-center mt-4">
 

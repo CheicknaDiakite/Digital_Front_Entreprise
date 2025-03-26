@@ -27,8 +27,7 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan }) => {
             setResultText(text);
             onScan(text);
             codeReader.reset();
-          }
-          
+          }          
         }
       );
     }

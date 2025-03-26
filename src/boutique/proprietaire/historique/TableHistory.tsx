@@ -46,6 +46,7 @@ function Row(props: { row: EntrepriseType }) {
 
   // Pagination : calcul des données à afficher sur la page courante
   const totalPages = Math.ceil((filteredHistorique?.length ?? 0) / rowsPerPage);
+  
   const paginatedHistorique = filteredHistorique?.slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage

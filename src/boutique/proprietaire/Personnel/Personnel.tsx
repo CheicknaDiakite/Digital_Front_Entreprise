@@ -1,4 +1,4 @@
-import { UserPlusIcon } from "@heroicons/react/24/solid";
+// import { UserPlusIcon } from "@heroicons/react/24/solid";
 import {
   Card,
   CardHeader,
@@ -6,8 +6,8 @@ import {
   Typography,
   Button,
   CardActions,
-  Tabs,
-  Tab,
+  // Tabs,
+  // Tab,
   IconButton,
   Dialog,
   DialogContent,
@@ -16,42 +16,49 @@ import {
   Stack,
   Box,
   Skeleton,
-  TableContainer,
-  TableCell,
-  TableRow,
-  Table,
-  TableHead,
-  TableBody,
-  Paper,
+  // TableContainer,
+  // TableCell,
+  // TableRow,
+  // Table,
+  // TableHead,
+  // TableBody,
+  // Paper,
+  ListItem,
+  ListItemAvatar,
+  Avatar,
+  ListItemText,
+  Chip,
+  Grid,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import { ChangeEvent, FormEvent, Fragment, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { FormValueType } from "../../../typescript/FormType";
-import VisibilityIcon from '@mui/icons-material/Visibility';
+// import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useCreateAdminUser, useFetchAllUsers, useFetchEntreprise } from "../../../usePerso/fonction.user";
 import { connect } from "../../../_services/account.service";
 import Nav from "../../../_components/Button/Nav";
 import MyTextField from "../../../_components/Input/MyTextField";
 import { useStoreUuid } from "../../../usePerso/store";
-import { format } from "date-fns";
+// import { format } from "date-fns";
 import M_Abonnement from "../../../_components/Card/M_Abonnement";
-import { isLicenceExpired } from "../../../usePerso/fonctionPerso";
+import { isLicenceExpired, stringAvatar } from "../../../usePerso/fonctionPerso";
+import MainCard from "../../../components/MainCard";
 
-const TABS = [
-  {
-    label: "Tous",
-    value: "all",
-  },
-  // {
-  //   label: "Monitored",
-  //   value: "monitored",
-  // },
-  // {
-  //   label: "Unmonitored",
-  //   value: "unmonitored",
-  // },
-];
+// const TABS = [
+//   {
+//     label: "Tous",
+//     value: "all",
+//   },
+//   {
+//     label: "Monitored",
+//     value: "monitored",
+//   },
+//   {
+//     label: "Unmonitored",
+//     value: "unmonitored",
+//   },
+// ];
 
 
 export default function Personnel() {
@@ -143,7 +150,7 @@ export default function Personnel() {
       <Nav />
 
       <Card>
-        <CardHeader
+        <CardHeader className="mx-8"
           title={
             <>
               <Typography variant="h5" color="textPrimary">
@@ -156,18 +163,19 @@ export default function Personnel() {
           }
           action={
             <Button onClick={functionopen} variant="outlined">
-              <UserPlusIcon /> Ajout d'un membre
+             Ajout d'un membre
             </Button>
           }
         />
+
         <CardContent>
-          <Tabs value="all">
+          {/* <Tabs value="all">
             {TABS.map(({ label, value }) => (
               <Tab key={value} label={label} value={value} />
             ))}
-          </Tabs>
+          </Tabs> */}
           
-          <TableContainer component={Paper}>
+          {/* <TableContainer component={Paper}>
             <Table sx={{ minWidth: 700 }} aria-label="spanning table">
               <TableHead>
                 <TableRow>
@@ -202,7 +210,7 @@ export default function Personnel() {
                     <TableCell>
                     <Link to={`/entreprise/personnel/modif/${post.uuid}`}>
                       <Stack direction="row" spacing={2}>
-                        {/* <Item>Modifier</Item> */}
+                        
                         <VisibilityIcon color="info" fontSize="medium" />
                       </Stack>
                     </Link>
@@ -212,9 +220,108 @@ export default function Personnel() {
                 })}
               </TableBody>
             </Table>
-          </TableContainer>
+          </TableContainer> */}
+
+          {/* {getUs.map((post: any, index) => {
+           return <MainCard className="m-5" sx={{ mb: 1 }} content={false} key={index}>
+              <ListItem alignItems="flex-start">
+                <ListItemAvatar>
+                  <Avatar {...stringAvatar(`${post.last_name} ${post.first_name}`)} />
+                </ListItemAvatar>
+                <ListItemText
+                  primary={(`${post.last_name} ${post.first_name}`)}
+                  secondary={
+                    <Fragment>
+                      <Typography
+                        sx={{ display: 'inline' }}
+                        component="span"
+                        variant="body2"
+                        color="text.primary"
+                      >
+                        {"Type de compte : "} {post.role===1 ? "Admin" :
+                                post.role===2 ? "Gerant" :
+                                post.role===3 ? "Caissier(e)" : "Visiteur"}
+                      </Typography>
+                      
+                    </Fragment>
+                  }
+                />
+
+                <Link to={`/entreprise/personnel/modif/${post.uuid}`}>
+                  <Chip
+                    label={"Modifier"}
+                    variant="outlined"
+                    color={"info"}
+                    sx={{ ml: "auto" }} // Aligner le Chip à droite
+                  />
+                </Link>
+              </ListItem>
+            </MainCard>
+          })} */}
+
+          <Grid container spacing={2}>
+            {getUs.map((post: any) => (
+              <Grid item xs={12} sm={6} md={4} key={post.id}>   
+              <Link to={`/entreprise/personnel/modif/${post.uuid}`}>              
+                <MainCard className="my-3" sx={{ mb: 1 }} content={false}>
+                  <ListItem alignItems="flex-start">
+                    <ListItemAvatar>
+                      <Avatar {...stringAvatar(`${post.last_name} ${post.first_name}`)} />
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={(`${post.last_name} ${post.first_name}`)}
+                      secondary={
+                        <Fragment>
+                          <Typography component="span" variant="body2" color="text.primary">
+                            {"Tel : "} {post.numero}
+                          </Typography>
+                          <br />
+                          <Typography component="span" variant="body2" color="text.primary">
+                            {"Email : "} {post.email_user}
+                          </Typography>
+                          <br />
+                          {/* <Typography component="span" variant="body2" color="text.primary">
+                            {"Coordonner : "} {post.coordonne}
+                          </Typography> */}
+                          <Typography
+                              sx={{ display: 'inline' }}
+                              component="span"
+                              variant="body2"
+                              color="text.primary"
+                            >
+                              {"Type de compte : "}
+
+                              {/* {post.role===1 ? "Admin" :
+                                post.role===2 ? "Gerant" :
+                                post.role===3 ? "Caissier(e)" : "Visiteur"} */}
+
+                                <Chip
+                                  label={post.role === 1 ? "Admin" : post.role === 2 ? "Gerant" : post.role===3 ? "Caissier(e)" : "Visiteur"}
+                                  variant="outlined"
+                                  color={post.role === 1 ? "primary" : post.role === 2 ? "primary" : "info"}
+                                  sx={{ ml: "auto" }}
+                                />
+                            </Typography>
+                        </Fragment>
+                      }
+                    />
+                    {/* <Link to={`/entreprise/personnel/modif/${post.uuid}`}> */}
+                      {/* <Chip
+                        label={"Modifier"}
+                        variant="outlined"
+                        color={"info"}
+                        sx={{ ml: "auto" }} // Aligner le Chip à droite
+                      /> */}
+                    {/* </Link> */}
+                  </ListItem>
+                </MainCard>
+              </Link>           
+              </Grid>
+            ))}
+          </Grid>
         </CardContent>
-        <CardActions>
+
+        <CardActions sx={{ justifyContent: "center" }}>
           <Pagination
             count={totalPages}
             page={currentPage}

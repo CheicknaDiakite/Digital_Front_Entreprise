@@ -20,8 +20,8 @@ export default function Login() {
         <Grid item xs={12}>
           <Bienvenue />
           <Stack direction="row" justifyContent="space-between" alignItems="baseline" sx={{ mb: { xs: -0.5, sm: 0.5 } }}>
-            <Typography variant="h3">Connexion</Typography>
-            <Typography component={Link} to="/auth/register" variant="body1" sx={{ textDecoration: 'none' }} color="primary">
+            <Typography variant="h4">Connexion</Typography>
+            <Typography component={Link} to="/auth/register" variant="h4" sx={{ textDecoration: 'none' }} color="primary">
               Inscription ?
             </Typography>
           </Stack>

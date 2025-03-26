@@ -45,6 +45,7 @@ export type SortieType = {
     categorie_libelle?: string;
     qte: number;
     pu: number;
+    is_prix?: boolean;
     entre_id?: string;
 }
 
@@ -61,6 +62,7 @@ export type EntreType = {
     ref?: string;
     entreprise_id?: string;
     is_sortie?: boolean;
+    is_prix?: boolean;
     entre_id?: number;
 } & SousType
 
@@ -183,6 +185,7 @@ export type RecupType = {
     last_name?: string,
     first_name?: string,
     notes?: string,
+    is_prix?: boolean,
     image?: File | undefined | null ;
     code_barre?: File | undefined | null ;
     invoiceNumber?: number,

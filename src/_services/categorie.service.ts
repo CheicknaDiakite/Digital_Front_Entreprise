@@ -613,8 +613,27 @@ const addSortie = async (data: SortieType) => {
  * Mise à jour d'un utilisateur
  */
 const updateSortie = async (nom: SortieType) => {
+    console.log("testing 111 ...", nom)
     try {
         const response = await Axios.post('entreprise/sortie/set',
+            nom,{                         
+                headers: {
+                    'Authorization': `${token_1}`
+                },
+                withCredentials: true
+            });
+        return response;
+    } catch (error) {
+        console.error("Error fetching entreprises:", error);
+        throw error;
+    }
+    
+}
+
+const updateFacSortie = async (nom: SortieType) => {
+    console.log("testing Fac ...", nom)
+    try {
+        const response = await Axios.post('entreprise/sortie/setFac',
             nom,{                         
                 headers: {
                     'Authorization': `${token_1}`
@@ -650,5 +669,5 @@ const deleteSortie = async (categorie: DataType) => {
 
 // Décaraltion des esrvices pour import
 export const sortieService = {
-    allSortie, getSortie, addSortie, updateSortie, deleteSortie, getAllSortie
+    allSortie, getSortie, addSortie, updateSortie, deleteSortie, getAllSortie, updateFacSortie
 }

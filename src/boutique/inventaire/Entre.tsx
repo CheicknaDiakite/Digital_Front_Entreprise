@@ -44,6 +44,12 @@ export default function Entre() {
   const Is_Sortie = () => {
     is_sortie ? setSortie(false) : setSortie(true);
   };
+
+  const [is_prix, setPrix] = useState(true);
+
+  const Is_Prix = () => {
+    is_prix ? setPrix(false) : setPrix(true);
+  };
   
   const {entresEntreprise, isLoading, isError} = useGetAllEntre(connect, uuid!)
   const itemsPerPage = 25; // Nombre d'éléments par page
@@ -178,15 +184,19 @@ export default function Entre() {
 
     formValues["cumuler_quantite"] = ajout_terminer
     formValues["is_sortie"] = is_sortie
+    formValues["is_prix"] = is_prix
     formValues["user_id"] = connect
     // formValues["categorie_slug"] = validSlug
     ajoutEntre(formValues)
+    
     setTerminer(false);
     setSortie(true);
+    setPrix(true);
     setFormValues({
       libelle: '',
       cumuler_quantite: false,
       is_sortie: true,
+      is_prix: true,
       user_id: '',
       date: '',
       pu: 0,
@@ -240,7 +250,6 @@ export default function Entre() {
           page={currentPage}
           onChange={handlePageChange}
           color="primary"
-          
         />
 
         <Grid item className='mx-2'>
@@ -290,6 +299,7 @@ export default function Entre() {
             handleAutoFourChange={handleAutoFourChange}
             Ajout_Terminer={Ajout_Terminer}
             Is_Sortie={Is_Sortie}
+            Is_Prix={Is_Prix}
 
           />          
          

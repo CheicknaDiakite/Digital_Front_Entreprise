@@ -27,7 +27,6 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal }) =
   // Exemple de fonction pour formater les nombres avec des espaces
   // const formatNumberWithSpaces = (num: number): string =>
   //   num.toLocaleString('fr-FR', { minimumFractionDigits: 2 });
-  
   return (
     <TableContainer
       component={Paper}

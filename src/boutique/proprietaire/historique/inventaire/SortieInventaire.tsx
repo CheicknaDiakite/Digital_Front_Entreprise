@@ -50,43 +50,21 @@ export default function SortieInventaire() {
               const validD = new Date(post.month) // Vérifie si `post.week` est valide
               
               return (
-                  <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
-                  {/* <Link to="/sortie"> */}
-                      <AnalyticEcommerce
-                      title=" "
-                      count={post.count || 0} // Définit 0 par défaut si `post.count` est absent
-                      pied={`Détails des sorties ou ventes pour le mois de`}
-                      extra={format(validD, 'MMMM yyyy')} // Format de la date
-                      className="bg-blue-100"
-                      user={unUser.role}
-                      />
-                  {/* </Link> */}
-                  </Grid>
+                <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
+                {/* <Link to="/sortie"> */}
+                  <AnalyticEcommerce
+                  title=" "
+                  count={post.count || 0} // Définit 0 par défaut si `post.count` est absent
+                  pied={`Détails des sorties ou ventes pour le mois de`}
+                  extra={format(validD, 'MMMM yyyy')} // Format de la date
+                  className="bg-blue-100"
+                  user={unUser.role}
+                  />
+                {/* </Link> */}
+                </Grid>
               );
               })
-          )}
-  
-          {/* <ul>
-            {stockEntreprise.details_sortie_par_mois && 
-              Object.entries(stockEntreprise.details_sortie_par_mois).map(([mois, details]) => {
-                console.log("test ..",details)
-                return <li key={mois}>
-                  <h3>Détails pour {mois}</h3>
-                  <ul>
-                    {details?.map((detail) => (
-                      <li key={detail.id}>
-                        <p>Quantité : {detail.qte}</p>
-                        <p>Prix unitaire : {detail.pu}</p>
-                        <p>Prix total : {detail.prix_total}</p>
-                        <p>Date : {new Date(detail.created_at).toLocaleDateString()}</p>
-                      </li>
-                    ))}
-                  </ul>
-                </li>
-              })}
-          </ul> */}
-  
-        
+          )}        
     
           {/* Ajout d'espace (si nécessaire) */}
           <Grid item md={8} sx={{ display: { sm: 'none', md: 'block', lg: 'none' } }} />

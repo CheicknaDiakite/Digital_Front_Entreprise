@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import ReactToPrint from 'react-to-print'
 import Header from './component/Header';
-import MainDetails from './component/MainDetails';
-import ClientDetails from './component/ClientDetails';
-import Dates from './component/Dates';
+// import MainDetails from './component/MainDetails';
+// import ClientDetails from './component/ClientDetails';
+// import Dates from './component/Dates';
 import Notes from './component/Notes';
-import Footer from './component/Footer';
+// import Footer from './component/Footer';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { useStoreCart } from '../../usePerso/cart_store';
 import TableFact from './TableFact';
@@ -15,7 +15,7 @@ import { BASE } from '../../_services/caller.service';
 import { RecupType } from '../../typescript/DataType';
 
 
-export default function Fact({clientName, clientAddress, clientCoordonne, invoiceNumber, invoiceDate, dueDate, notes, numeroFac,  post, discountedTotal}: RecupType | any) {
+export default function Fact({clientName, invoiceNumber, invoiceDate, notes, numeroFac,  post, discountedTotal}: RecupType | any) {
   let url = BASE(post.image);
   
   
@@ -31,9 +31,9 @@ export default function Fact({clientName, clientAddress, clientCoordonne, invoic
     return acc + prixTotal;
   }, 0);
     
-  const [bankName] = useState<string>("");
-  const [bankAccount] = useState<string>("");
-  const [website] = useState<string>("");
+  // const [bankName] = useState<string>("");
+  // const [bankAccount] = useState<string>("");
+  // const [website] = useState<string>("");
   const [quantity] = useState<number>(0);
   const [price] = useState<number>(0);
   const [amount, setAmount] = useState<number>(0);
@@ -69,7 +69,7 @@ export default function Fact({clientName, clientAddress, clientCoordonne, invoic
         {/* Invoice Preview */}
         <div className="invoice__preview bg-white p-5 rounded-2xl border-4 border-green-300">
             <button type="button" className="bg-red-500 ml-5 text-white font-bold py-2 px-8 rounded hover:bg-red-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-red-400" onClick={()=>reset()}>
-                <RemoveIcon />
+              <RemoveIcon />
             </button>
           <ReactToPrint
             trigger={() => (
@@ -88,27 +88,34 @@ export default function Fact({clientName, clientAddress, clientCoordonne, invoic
             nom={post.nom}
             numeroFac={numeroFac}
             url={url}
+            email={post.email}
+            address={post.adresse}
+            numero={post.numero}
+            coordonne={post.coordonne}
+            clientName={clientName}
+            invoiceDate={invoiceDate}
+            invoiceNumber={invoiceNumber}
             />
 
-            <MainDetails
+            {/* <MainDetails
             name={post.nom}
             address={post.adresse}
             numero={post.numero}
             coordonne={post.coordonne}
-            />
+            /> */}
 
-            <ClientDetails 
+            {/* <ClientDetails 
             clientName={clientName}
             clientAddress={clientAddress}
             clientCoordonne={clientCoordonne}
             invoiceNumber={invoiceNumber}
-            />
+            /> */}
 
-            <Dates 
+            {/* <Dates 
             invoiceNumber={invoiceNumber}
             invoiceDate={invoiceDate}
             dueDate={dueDate}
-            />
+            /> */}
 
             <TableFact
             list={selectSorties}
@@ -120,14 +127,14 @@ export default function Fact({clientName, clientAddress, clientCoordonne, invoic
             notes={notes}
             />
 
-            <Footer 
+            {/* <Footer 
             name={post.nom}
             email={post.email}
             website={website}
             phone={post.numero}
             bankAccount={bankAccount}
             bankName={bankName}
-            />
+            /> */}
           </div>
         </div>
       </main>

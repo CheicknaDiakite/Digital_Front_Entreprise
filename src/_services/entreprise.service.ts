@@ -143,7 +143,7 @@ const stockEntreprise = async (entreprise_id: string, user_id: string) => {
             });
         return response;
     } catch (error) {
-        console.error("Error fetching user profile:", error);
+        // console.error("Error fetching user profile:", error);
         throw error;
     }
     
@@ -162,7 +162,7 @@ const stockCateSemaine = async (entreprise_id: string) => {
             });
         return response;
     } catch (error) {
-        console.error("Error fetching user profile:", error);
+        // console.error("Error fetching user profile:", error);
         throw error;
     }
     

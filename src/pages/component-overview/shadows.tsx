@@ -146,13 +146,13 @@ export default function ComponentShadow() {
               <Grid item className="py-3">
                 <Typography variant="h5">
                   <Button variant="outlined" onClick={functionopen}>
-                    Ajout Categorie
+                    Ajout d'article
                   </Button>
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={6} className="py-2">
                 <TextField
-                  label="Rechercher une catégorie"
+                  label="Rechercher un article"
                   variant="outlined"
                   className='bg-blue-200'
                   fullWidth
@@ -170,12 +170,12 @@ export default function ComponentShadow() {
                   ))
                 ) : (
                   <Typography variant="body1" className="text-center w-full p-5 m-5">
-                    Aucune catégorie trouvée
+                    Aucun article trouvé
                   </Typography>
                 )}
                 <Dialog open={open} onClose={closeopen} fullWidth maxWidth="xs">
                   <DialogTitle>
-                    Categorie
+                    Article
                     <IconButton onClick={closeopen} style={{ float: 'right' }}>
                       <CloseIcon color="primary" />
                     </IconButton>
@@ -191,7 +191,7 @@ export default function ComponentShadow() {
                         <Stack spacing={2} margin={2}>
                           <MyTextField
                             required
-                            label="Nom de la categorie"
+                            label="Nom de l'article"
                             name="libelle"
                             value={formValues.libelle}
                             onChange={onChange}

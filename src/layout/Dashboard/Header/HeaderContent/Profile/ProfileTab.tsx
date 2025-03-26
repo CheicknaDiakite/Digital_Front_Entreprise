@@ -48,7 +48,7 @@ export default function ProfileTab() {
         <Link to={`/entreprise/utilisateur/modif/${unUser.uuid}`}>
           <ListItemButton >
             <ListItemIcon>
-              <EditIcon color="secondary" fontSize="small"/>
+              <EditIcon color="primary" fontSize="small"/>
             </ListItemIcon>
             <ListItemText primary="modifier votre profile" />
           </ListItemButton>
@@ -57,7 +57,7 @@ export default function ProfileTab() {
           <Link to={"/entreprise/personnel"}>
             <ListItemButton >
               <ListItemIcon>
-                <PeopleOutlineRoundedIcon color="secondary" />
+                <PeopleOutlineRoundedIcon color="primary" />
               </ListItemIcon>
                 <ListItemText primary="Voir les utilisateurs" />            
             </ListItemButton>
@@ -68,7 +68,7 @@ export default function ProfileTab() {
         <Link to={"/entreprise/client"}>
           <ListItemButton >
             <ListItemIcon>
-              <PeopleOutlineRoundedIcon color="secondary" />
+              <PeopleOutlineRoundedIcon color="primary" />
             </ListItemIcon>
               <ListItemText primary="Voir les clients ou fournisseurs" />            
           </ListItemButton>
@@ -79,7 +79,7 @@ export default function ProfileTab() {
         <Link to={"/entreprise/detail"}>
           <ListItemButton >
             <ListItemIcon>
-              <AddBusinessIcon color="secondary" />
+              <AddBusinessIcon color="primary" />
             </ListItemIcon>
             <ListItemText primary="Entreprise" />
           </ListItemButton>
@@ -88,7 +88,7 @@ export default function ProfileTab() {
         }
         <ListItemButton onClick={logout} >
           <ListItemIcon>
-            <LogoutIcon color="secondary" />
+            <LogoutIcon color="primary" />
           </ListItemIcon>
           <ListItemText primary="Logout" />
         </ListItemButton>

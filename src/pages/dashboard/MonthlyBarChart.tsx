@@ -103,7 +103,7 @@ export default function MonthlyBarChart({ details }: ChartProps) {
     <Box id="chart" sx={{ bgcolor: 'transparent' }}>
       <ReactApexChart
         options={updatedOptions}
-        series={[{ data: seriesData }]}  // La série doit être un tableau d'objets
+        series={[{ name: 'nombre', data: seriesData }]}  // La série doit être un tableau d'objets
         type="bar"
         height={365}
       />

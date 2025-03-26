@@ -24,7 +24,7 @@ export default function SettingTab() {
         <Link to={`/entreprise/produit/sortie`}>      
           <ListItemButton >
             <ListItemIcon>
-              <FileCopyIcon color="secondary" />
+              <FileCopyIcon color="primary" />
             </ListItemIcon>
             <ListItemText primary="Produit sortie" />
           </ListItemButton>
@@ -34,7 +34,7 @@ export default function SettingTab() {
         <Link to={`/entreprise/produit/entre`}>      
           <ListItemButton >
             <ListItemIcon>
-              <FileOpenIcon color="secondary" />
+              <FileOpenIcon color="primary" />
             </ListItemIcon>
             <ListItemText primary="Produit entre" />
           </ListItemButton>
@@ -45,7 +45,7 @@ export default function SettingTab() {
         <Link to={"/entreprise/depense"}>        
           <ListItemButton >
             <ListItemIcon>
-              <MonetizationOnIcon color="secondary" />
+              <MonetizationOnIcon color="primary" />
             </ListItemIcon>
             <ListItemText primary="Depense(s)" />
           </ListItemButton>

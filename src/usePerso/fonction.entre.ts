@@ -480,7 +480,7 @@ export function useCreateSortie() {
 }
 
 export function useUpdateSortie() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const useQ = useQueryClient();
 
   const modif = useMutation({
@@ -489,10 +489,10 @@ export function useUpdateSortie() {
         .updateSortie(data)
         .then((res) => {
           if (res.data.etat === true) {
-            toast.success("Modification reuissi");
+            toast.success("Remise effectuer");
             useQ.invalidateQueries({ queryKey: ["sortie"] });
             // navigate("/admin/formation/index")
-            navigate(-1);
+            // navigate(-1);
           } else {
             toast.error(res.data.message);
           }
@@ -504,11 +504,43 @@ export function useUpdateSortie() {
     },
   });
 
-  const updateSortie = (chap: SortieType) => {
+  const updateSortie = (chap: any) => {
     modif.mutate(chap);
   };
 
   return {updateSortie}
+}
+
+export function useUpdateRemiseSortie() {
+  // const navigate = useNavigate();
+  const useQ = useQueryClient();
+
+  const modif = useMutation({
+    mutationFn: (data: SortieType) => {
+      return sortieService
+        .updateFacSortie(data)
+        .then((res) => {
+          if (res.data.etat === true) {
+            toast.success("Remise annuler");
+            useQ.invalidateQueries({ queryKey: ["sortie"] });
+            // navigate("/admin/formation/index")
+            // navigate(-1);
+          } else {
+            toast.error(res.data.message);
+          }
+        })
+        .catch((err) => console.log(err));
+    },
+    onError: (error) => {
+      foncError(error);
+    },
+  });
+
+  const updateRemiseSortie = (chap: any) => {
+    modif.mutate(chap);
+  };
+
+  return {updateRemiseSortie}
 }
 
 export function useDeleteSortie() {

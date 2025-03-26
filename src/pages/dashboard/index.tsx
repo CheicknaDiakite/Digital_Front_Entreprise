@@ -81,10 +81,11 @@ export default function DashboardDefault() {
     }}
     >
 
-      <Grid item xs={12} sx={{ mb: -2.25 }}>
+      <Grid item xs={12} sx={{ mb: -2.25 }} >
         <Typography 
         variant="h5" 
-        className='text-black'
+        // className='text-black border bg-zinc-100/20 flex items-center gap-2 p-2 rounded'
+        // maxWidth={"sm"}
         >
           Page d'accueil
         </Typography>
@@ -97,7 +98,7 @@ export default function DashboardDefault() {
       </Grid> */}
       <Grid item xs={12} md={7} lg={10}>
         <Grid container alignItems="center" justifyContent="space-between">
-          <Grid item>
+          <Grid className='text-black border border-indigo-600 bg-zinc-100/50 flex items-center gap-2 p-2 rounded' item>
             <Typography 
             variant="h5"
             >
@@ -110,7 +111,7 @@ export default function DashboardDefault() {
           <Box sx={{ p: 3, pb: 0 }}>
             <Stack spacing={2}>
               <Typography variant="h6" color="text.secondary">
-                  Eta de vente des 6 derniers mois
+                  Eta de vente
               </Typography>
               {/* <Typography variant="h3">$7,650</Typography> */}
             </Stack>
@@ -122,7 +123,7 @@ export default function DashboardDefault() {
 
       <Grid item xs={12} md={7} lg={12}>
         <Grid container alignItems="center" justifyContent="space-between">
-          <Grid item>
+          <Grid className='text-black border border-indigo-600 bg-zinc-100/50 flex items-center gap-2 p-2 rounded' item>
             <Typography 
             variant="h5"
             >
@@ -137,7 +138,7 @@ export default function DashboardDefault() {
           <Typography variant="h5">Il n'y a pas eu de vente !</Typography>
           </Grid>
           ) : (
-          stockSemaine.sorties_par_mois.slice(1, 2).map((post, index) => {
+          stockSemaine.sorties_par_mois.slice(-1).map((post, index) => {
           // const validDate = post.week ? new Date(post.month) : new Date(); // Vérifie si `post.week` est valide
           const validD = new Date(post.month) // Vérifie si `post.week` est valide
           
@@ -161,13 +162,13 @@ export default function DashboardDefault() {
       </Grid>
 
       {unUser.role === 1 && <>
-        <Grid item xs={12} md={4}>
-          <Link to="/entreprise/detail" className="m-1 block">
+        <Grid item xs={6} md={4}>
+          <Link to="/entreprise/detail" className=" block">
             <IconsGrid 
-              icon={<AddBusinessIcon color="primary" />} 
+              icon={<AddBusinessIcon color="primary" fontSize='inherit' />} 
               title="Entreprise" 
-              description="Entreprise"
-              className="bg-blue-200"
+              description="Les informations de l'entreprise"
+              className="bg-blue-100"
             />
           </Link>
         </Grid>
@@ -175,12 +176,12 @@ export default function DashboardDefault() {
       }
 
       {(unUser.role === 1 || unUser.role === 2) &&       
-        <Grid item xs={12} md={4}>
-          <Link to="/categorie" className="m-1 block">
+        <Grid item xs={6} md={4}>
+          <Link to="/categorie" className=" block">
             <IconsGrid 
-              icon={<CategoryIcon className="text-blue-500" />} 
-              title="Catégorie" 
-              description="Description de la catégorie des produits" 
+              icon={<CategoryIcon color="primary" fontSize='inherit' />} 
+              title="Article || Catégorie" 
+              description="Les differents articles de l'entreprise" 
               className='bg-white'
             />
           </Link>
@@ -188,105 +189,116 @@ export default function DashboardDefault() {
       }
 
       {(unUser.role === 1 || unUser.role === 2) &&       
-        <Grid item xs={12} md={4}>
-          <Link to="/entre" className="m-1 block">
+        <Grid item xs={6} md={4}>
+          <Link to="/entre" className=" block">
             <IconsGrid 
-              icon={<AddCircleIcon className="text-blue-500" />} 
-              title="Entrer/Achat" 
+              icon={<AddCircleIcon color="primary" fontSize='inherit' />} 
+              title="Entrer || Achat" 
               description="Entre des produits de l'entreprise"
-              className="bg-green-200" 
+              className="bg-green-100" 
             />
           </Link>
         </Grid>
       }
 
       {(unUser.role === 1 || unUser.role === 2 || unUser.role === 3) &&
-        <Grid item xs={12} md={4}>
-          <Link to="/sortie" className="m-1 block">
+        <Grid item xs={6} md={4}>
+          <Link to="/sortie" className=" block">
             <IconsGrid 
-              icon={<ExitToAppIcon className="text-blue-500" />} 
-              title="Sortie/Vente" 
+              icon={<ExitToAppIcon color="primary" fontSize='inherit' />} 
+              title="Sortie || Vente" 
               description="Pour la sortie des prduits dans l'entreprise" 
-              className="bg-red-200"
+              className="bg-red-100"
             />
           </Link>
         </Grid>
       }
 
       {(unUser.role === 1 || unUser.role === 2 || unUser.role === 3) &&       
-        <Grid item xs={12} md={4}>
-          <Link to="/entreprise/client" className="m-1 block">
+        <Grid item xs={6} md={4}>
+          <Link to="/entreprise/client" className=" block">
             <IconsGrid 
-              icon={<PeopleOutlineRoundedIcon className="text-blue-500" />} 
-              title="Clients/Fournisseurs" 
+              icon={<PeopleOutlineRoundedIcon color="primary" fontSize='inherit' />} 
+              title="Clients || Fournisseurs" 
               description="Pour ajouter des clients ou fournisseurs" 
-              className="bg-lime-200"
+              className="bg-lime-100"
             />
           </Link>
         </Grid>
       }
       {(unUser.role === 1 ) &&       
-        <Grid item xs={12} md={4}>
-          <Link to="/entreprise/personnel" className="m-1 block">
+        <Grid item xs={6} md={4}>
+          <Link to="/entreprise/personnel" className=" block">
             <IconsGrid 
-              icon={<PersonAddAltIcon className="text-blue-500" />} 
+              icon={<PersonAddAltIcon color="primary" fontSize='inherit' />} 
               title="Personnels" 
               description="Pour ajouter des personnes qui ont acces au plate-forme" 
-              className="bg-cyan-200"
+              className="bg-cyan-100"
             />
           </Link>
         </Grid>
       }
 
-      <Grid item xs={12} md={4}>
-        <Link to="/entreprise/PreFacture" className="m-1 block">
+      <Grid item xs={6} md={4}>
+        <Link to="/entreprise/PreFacture" className=" block">
           <IconsGrid 
-            icon={<ReceiptIcon className="text-blue-500" />} 
+            icon={<ReceiptIcon color="primary" fontSize='inherit' />} 
             title="Facture Proforma" 
             description="Ce facture ne sera pas enregistrer"
-            className="bg-neutral-200" 
+            className="bg-neutral-100" 
           />
         </Link>
       </Grid> 
 
-      <Grid item xs={12} sx={{ mb: -2.25 }}>
+      {/* <Grid  item xs={12} sx={{ mb: -2.25 }}>
         <Typography variant="h5" >Archiges = Pour les factures et depenses (en version numerique si necessaire en PDF)</Typography>
-      </Grid>
+      </Grid> */}
+
+        <Grid container alignItems="center" justifyContent="space-between" xs={12} sx={{ mb: -2.25 }}>
+          <Grid className='text-black border border-indigo-600 bg-zinc-100/50 flex items-center gap-2 p-2 mx-5 mt-5 rounded' item>
+            <Typography 
+            variant="h5"
+            >
+              Archiges = Pour les factures et depenses (en version numerique si necessaire en PDF)
+            </Typography>
+          </Grid>
+          <Grid item />
+        </Grid>
       
       {(unUser.role === 1 || unUser.role === 2 || unUser.role === 3) &&       
-        <Grid item xs={12} md={4}>
-          <Link to="/entreprise/produit/sortie" className="m-1 block">
+        <Grid item xs={6} md={4}>
+          <Link to="/entreprise/produit/sortie" className=" block">
             <IconsGrid 
-              icon={<FileCopyIcon color="primary" />} 
+              icon={<FileCopyIcon color="primary" fontSize='inherit' />} 
               title="Factures sorties(ventes)" 
               description="Factures des produits de l'entreprise" 
-              className="bg-amber-200"
+              className="bg-amber-100"
             />
           </Link>
         </Grid>
       }
 
       {(unUser.role === 1 || unUser.role === 2) &&       
-      <Grid item xs={12} md={4}>
-        <Link to="/entreprise/produit/entre" className="m-1 block">
+      <Grid item xs={6} md={4}>
+        <Link to="/entreprise/produit/entre" className=" block">
           <IconsGrid 
-            icon={<FileOpenIcon color="primary"/>} 
+            icon={<FileOpenIcon color="primary" fontSize='inherit'/>} 
             title="Factures entrer(achat)" 
             description="Factures des produits de l'entreprise" 
-            className="bg-slate-200"
+            className="bg-slate-100"
           />
         </Link>
       </Grid>
       }
 
       {(unUser.role === 1 || unUser.role === 2 || unUser.role === 3) &&       
-        <Grid item xs={12} md={4}>
-          <Link to="/entreprise/depense" className="m-1 block">
+        <Grid item xs={6} md={4}>
+          <Link to="/entreprise/depense" className=" block">
             <IconsGrid 
-              icon={<MonetizationOnIcon color="primary" />} 
+              icon={<MonetizationOnIcon color="primary" fontSize='inherit' />} 
               title="Depense(s)" 
               description="Ajout des depenses de l'entreprise" 
-              className="bg-orange-200"
+              className="bg-orange-100"
             />
           </Link>
         </Grid>

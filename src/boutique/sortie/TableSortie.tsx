@@ -66,7 +66,7 @@ export default function TableSortie({
       handleChange(filteredEnt[0]); // ou une fonction qui met à jour selectedOption
     }
   }, [filteredEnt]);
-
+  console.log("gg ...", formValues)
   return (
     <>
       <ToastContainer position="top-right" theme="colored" />
@@ -118,23 +118,6 @@ export default function TableSortie({
             />
           </div>
 
-          {/* <div className="my-2">
-            <Typography variant="h5" className="mb-2">
-              Code Barre : {scannedCode}
-            </Typography>
-            <Select
-              options={filteredEnt} // Affiche uniquement les options filtrées
-              value={selectedOption}
-              onChange={handleChange}
-              placeholder="QR"
-              isClearable
-              getOptionLabel={(option: any) =>
-                `${option.categorie_libelle} (${option.libelle}) [${option.qte}]`
-              }
-              getOptionValue={(option: any) => option.uuid.toString()}
-            />
-          </div> */}
-
           <div className="my-2">
             <Typography variant="h5" className="mb-2">
               Designation : {scannedCode}
@@ -172,24 +155,46 @@ export default function TableSortie({
             <Typography variant="h5" className="mb-2">
               Prix Unitaire <LocalAtmIcon fontSize="large" />
             </Typography>
-            <MyTextField
-              disabled
-              variant="outlined"
-              type="number"
-              inputProps={{
-                step: '0.01',
-                min: '0',
-                max: '9999999999.99',
-              }}
-              name="pu"
-              onChange={onChange}
-              value={formValues.pu}
-              sx={{
-                '& .MuiFormLabel-asterisk': {
-                  color: 'red',
-                },
-              }}
-            />
+            {formValues.is_prix ? 
+              <MyTextField
+                disabled
+                variant="outlined"
+                type="number"
+                inputProps={{
+                  step: '0.01',
+                  min: '0',
+                  max: '9999999999.99',
+                }}
+                name="pu"
+                onChange={onChange}
+                value={formValues.pu}
+                sx={{
+                  '& .MuiFormLabel-asterisk': {
+                    color: 'red',
+                  },
+                }}
+              /> 
+              : 
+              <MyTextField
+                disabled={formValues.is_prix}
+                variant="outlined"
+                type="number"
+                inputProps={{
+                  step: '0.01',
+                  min: '0',
+                  max: '9999999999.99',
+                }}
+                name="pu"
+                onChange={onChange}
+                value={formValues.pu}
+                sx={{
+                  '& .MuiFormLabel-asterisk': {
+                    color: 'red',
+                  },
+                }}
+              />
+            }
+            
           </div>
 
           <div className="flex flex-col">
@@ -229,8 +234,8 @@ export default function TableSortie({
             </TableRow>
           </TableHead>
           <TableBody>
-            {sortedList.map((row: any, index: number) => {
-              return <CardTableSortie key={index} row={row} />;
+            {sortedList.map((row: any) => {
+              return <CardTableSortie key={row.id} row={row} />;
             })}
           </TableBody>
         </Table>

@@ -24,7 +24,7 @@ export default function AuthFooter() {
         </Typography>
 
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 1, sm: 3 }} textAlign={{ xs: 'center', sm: 'inherit' }}>
-          <Typography
+          {/* <Typography
             variant="subtitle2"
             color="primary"
             
@@ -39,7 +39,7 @@ export default function AuthFooter() {
               +223 63 83 51 14 {" "}
             </a>                  
               
-          </Typography>
+          </Typography> */}
           
           <Typography
             variant="subtitle2"

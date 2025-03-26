@@ -1,5 +1,5 @@
 import { Alert, Box, CircularProgress, Grid, Stack, Typography } from '@mui/material'
-import { formatNumberWithSpaces } from '../../../../../usePerso/fonctionPerso';
+// import { formatNumberWithSpaces } from '../../../../../usePerso/fonctionPerso';
 import { useFetchEntreprise, useStockEntreprise } from '../../../../../usePerso/fonction.user';
 import { connect } from '../../../../../_services/account.service';
 import AnalyticEcommerce from '../../../../../components/cards/statistics/AnalyticEcommerce';
@@ -37,7 +37,7 @@ export default function EtatProduit() {
       </Grid>
   
       <Grid item xs={12} sm={6} md={4} lg={3}>
-        <AnalyticEcommerce title="La somme des quantités sorties et le chiffre d'affaire" count={stockEntreprise.somme_sortie_qte} percentage={formatNumberWithSpaces(stockEntreprise.somme_sortie_pu)} className="bg-green-100" />
+        <AnalyticEcommerce title="La somme des quantités sorties" count={stockEntreprise.somme_sortie_qte} className="bg-green-100" />
       </Grid>
       
       <Grid item xs={12} sm={6} md={4} lg={3}>

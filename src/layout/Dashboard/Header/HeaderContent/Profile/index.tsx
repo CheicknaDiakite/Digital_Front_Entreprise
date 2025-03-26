@@ -110,14 +110,11 @@ export default function Profile() {
   const iconBackColorOpen = 'grey.100';
 
   if (isLoading) {
-    // return <div>Chargement...</div>;
-    
       return (
         <Box sx={{ width: 300 }}>
           <CircularProgress />
         </Box>
       );
-
   }
   
   if (isError) {

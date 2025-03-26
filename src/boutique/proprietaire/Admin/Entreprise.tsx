@@ -102,13 +102,6 @@ export default function Entreprise() {
         });
       };
 
-      // const onSelectChange = (e: SelectChangeEvent<string>) => {
-      //   setFormValues({
-      //     ...formValues,
-      //     [e.target.name]: e.target.value,
-      //   });
-      // };
-
       const handleAutoFourChange = (_: SyntheticEvent<Element, Event>,
         value: string | RecupType,
         // reason: AutocompleteChangeReason
