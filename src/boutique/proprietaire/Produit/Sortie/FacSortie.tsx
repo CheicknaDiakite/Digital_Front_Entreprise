@@ -148,7 +148,7 @@ export default function FacSortie() {
          
         <Grid className='py-2'>
           <Typography variant="h5">
-            <Button variant="outlined" onClick={functionopen}>Ajout des Factures de sortie</Button>
+            <Button variant="outlined" className="rounded border-x-1 animate-border-rotate" onClick={functionopen}>Ajout des Factures de sortie</Button>
           </Typography>
         </Grid>
         <div className="flex justify-center mt-4">

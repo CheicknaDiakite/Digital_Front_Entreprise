@@ -10,7 +10,7 @@ import MainCard from '../../components/MainCard';
 import ComponentWrapper from './ComponentWrapper';
 import ComponentSkeleton from './ComponentSkeleton';
 import { Alert, Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Skeleton, TextField } from '@mui/material';
-import { ChangeEvent, FormEvent, useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { connect } from '../../_services/account.service';
 import { Link } from 'react-router-dom';
 import { useCategoriesEntreprise, useCreateCategorie } from '../../usePerso/fonction.categorie';
@@ -24,6 +24,7 @@ import { isLicenceExpired } from '../../usePerso/fonctionPerso';
 import { BASE } from '../../_services/caller.service';
 import img from '../../../public/icon-192x192.png'
 import M_Abonnement from '../../_components/Card/M_Abonnement';
+import { useForm } from 'react-hook-form';
 
 // ===============================|| SHADOW BOX ||=============================== //
 interface ShadowBoxProps {
@@ -62,27 +63,27 @@ export default function ComponentShadow() {
   const uuid = useStoreUuid((state) => state.selectedId);
 
   const { unEntreprise } = useFetchEntreprise(uuid!);
+  
+  const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm<CategorieFormType>();
 
-  const [open, openchange] = useState(false);
-  const functionopen = () => openchange(true);
-  const closeopen = () => openchange(false);
+
+  const [open, setOpen] = useState(false);
+
+  const functionopen = () => setOpen(true);
+  const closeopen = () => {
+    reset(); // Réinitialise le formulaire à la fermeture
+    setOpen(false);
+  };
 
   const { cateEntreprises, isLoading, isError } = useCategoriesEntreprise(connect, uuid!);
 
   const { ajoutCategorie } = useCreateCategorie();
 
-  const [formValues, setFormValues] = useState<CategorieFormType>({
-    libelle: '',
-    user_id: '',
-    entreprise_id: '',
-  });
-
-  const [image, setImage] = useState<File | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>(''); // Nouvel état pour le champ de recherche
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setImage(e.target.files[0]);
+      setValue("image", e.target.files[0]); // Stocke l'image dans useForm
     }
   };
 
@@ -90,27 +91,11 @@ export default function ComponentShadow() {
     setSearchTerm(e.target.value);
   };
 
-  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormValues({
-      ...formValues,
-      [name]: value,
-    });
-  };
+  const onSubmit = (data: CategorieFormType) => {
+    data.user_id = connect;
+    data.entreprise_id = uuid!;
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    formValues['user_id'] = connect;
-    formValues['image'] = image;
-    formValues['entreprise_id'] = uuid!;
-
-    ajoutCategorie(formValues);
-    setFormValues({
-      libelle: '',
-      user_id: '',
-      entreprise_id: '',
-    });
+    ajoutCategorie(data);
     closeopen();
   };
 
@@ -145,7 +130,7 @@ export default function ComponentShadow() {
             <Grid item xs={12}>
               <Grid item className="py-3">
                 <Typography variant="h5">
-                  <Button variant="outlined" onClick={functionopen}>
+                  <Button variant="outlined" className="rounded border-x-1 animate-border-rotate" onClick={functionopen}>
                     Ajout d'article
                   </Button>
                 </Typography>
@@ -157,8 +142,7 @@ export default function ComponentShadow() {
                   className='bg-blue-200'
                   fullWidth
                   value={searchTerm}
-                  onChange={handleSearchChange}
-                  
+                  onChange={handleSearchChange}                  
                 />
               </Grid>
               <Grid container spacing={2}>
@@ -184,37 +168,22 @@ export default function ComponentShadow() {
                     <M_Abonnement />
                   ) : (
                     <DialogContent>
-                      <form
-                        className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96"
-                        onSubmit={onSubmit}
-                      >
+                      <form onSubmit={handleSubmit(onSubmit)}>
                         <Stack spacing={2} margin={2}>
                           <MyTextField
-                            required
+                            
                             label="Nom de l'article"
-                            name="libelle"
-                            value={formValues.libelle}
-                            onChange={onChange}
-                            sx={{
-                              "& .MuiFormLabel-asterisk": {
-                                color: "red", // Personnalise la couleur de l'étoile en rouge
-                              },
-                            }}
+                            {...register("libelle", { required: "Ce champ est obligatoire" })}
+                            error={!!errors.libelle}
+                            helperText={errors.libelle?.message}
                           />
                           <MyTextField
                             label="Image"
-                            name="image"
                             type="file"
                             onChange={handleImageChange}
-                            InputLabelProps={{
-                              shrink: true,
-                            }}
+                            InputLabelProps={{ shrink: true }}
                           />
-                          <Button
-                            type="submit"
-                            color="success"
-                            variant="outlined"
-                          >
+                          <Button type="submit" color="success" variant="outlined">
                             Envoyer
                           </Button>
                         </Stack>

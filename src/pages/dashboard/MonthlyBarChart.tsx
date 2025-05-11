@@ -84,7 +84,7 @@ export default function MonthlyBarChart({ details }: ChartProps) {
   // Trier les données par `count` de manière décroissante et prendre les 15 premiers
   const topChartData = chartData
     .sort((a, b) => b.count - a.count) // Trier par `count` décroissant
-    .slice(0, 25); // Prendre les 15 premiers
+    .slice(0, 50); // Prendre les 15 premiers
 
   // Extraire les données pour les axes X et Y
   const xAxisData = topChartData.map((item) => item.month); // Labels des mois

@@ -3,7 +3,11 @@ import { TypeAnimation } from "react-type-animation";
 export default function Bienvenue() {
   return (
     <div className="text-2xl font-extrabold">
-        <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-green-300">
+        <span 
+        // className="bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-green-300"
+        className="bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-green-300 animate-gradient-animate"
+
+        >
             
             <TypeAnimation
               sequence={[

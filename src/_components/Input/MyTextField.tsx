@@ -1,22 +1,23 @@
-import { TextField, TextFieldProps } from '@mui/material'
-import { ChangeEvent } from 'react'
+import { forwardRef } from "react";
+import { TextField, TextFieldProps } from "@mui/material";
+import { ChangeEvent } from "react";
 
 type TypeText = {
-  
-  name: string,
-  onChange: (value: ChangeEvent<HTMLInputElement>) => void,
-} & TextFieldProps; // Étend TextFieldProps pour inclure toutes les props de MUI
+  name?: string;
+  onChange?: (value: ChangeEvent<HTMLInputElement>) => void;
+} & TextFieldProps;
 
-export default function MyTextField({ name, onChange, ...props}: TypeText) {
+// Utiliser forwardRef pour transmettre ref à react-hook-form
+const MyTextField = forwardRef<HTMLInputElement, TypeText>(({ name, onChange, ...props }, ref) => {
   return (
-    <TextField 
-    variant="outlined"
-    
-    name={name}
-    onChange={onChange}
-    {...props}
-    >
-        
-    </TextField>
-  )
-}
+    <TextField
+      variant="outlined"
+      name={name}
+      onChange={onChange}
+      inputRef={ref} // Transmet ref à react-hook-form
+      {...props}
+    />
+  );
+});
+
+export default MyTextField;

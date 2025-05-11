@@ -44,6 +44,8 @@ import { useStoreUuid } from "../../../../usePerso/store";
       unClient["entreprise_id"] =  entreprise_id!
       updateClient(unClient);
     };
+
+    console.log("unC", unClient)
   
     return (
       <div className="flex justify-center items-center flex-col">
@@ -62,7 +64,7 @@ import { useStoreUuid } from "../../../../usePerso/store";
           <form className="mt-8" onSubmit={onSubmit}>
             <div className="mb-1 flex flex-col gap-6">
               <Typography variant="h6" color="textPrimary">
-                Nom de l'entreprise
+                Nom Complet
               </Typography>
               <MyTextField 
               fullWidth
@@ -72,6 +74,17 @@ import { useStoreUuid } from "../../../../usePerso/store";
               value={unClient.nom}
               />
               
+              <Typography variant="h6" color="textPrimary">
+                Email
+              </Typography>
+              <MyTextField 
+              fullWidth
+              variant="outlined"
+              name="email"
+              onChange={onChange}
+              value={unClient.email}
+              />
+
               <Typography variant="h6" color="textPrimary">
                 Adresse
               </Typography>
@@ -93,7 +106,7 @@ import { useStoreUuid } from "../../../../usePerso/store";
               onChange={onChange}
               value={unClient.coordonne}
               />
-              <Typography variant="h6" color="textPrimary">
+              {/* <Typography variant="h6" color="textPrimary">
                 libelle
               </Typography>
               <MyTextField 
@@ -102,7 +115,7 @@ import { useStoreUuid } from "../../../../usePerso/store";
               name="libelle"
               onChange={onChange}
               value={unClient.libelle}
-              />
+              /> */}
               <Typography variant="h6" color="textPrimary">
                 numero
               </Typography>

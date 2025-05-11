@@ -124,13 +124,13 @@ export default function Info() {
 
     {sousCate?.map((post, index) => (
 
-    <Grid key={index} item xs={12} sx={{ mb: -2.25 }} className='pb-3'>
+    <Grid key={index} item xs={12} sx={{ mb: -2.25 }} className='my-2'>
       <Typography variant="h5">Les informations concernant la sortie ou le stock de :</Typography>
       <Typography variant="h2" color="blue">{post.libelle}</Typography>
     </Grid>
     ))}
 
-    <Grid className='py-2'>
+    <Grid className='my-2'>
       <Grid container rowSpacing={4.5} columnSpacing={2.75}>
 
         <Grid item xs={12} sm={6} md={4} lg={3}>
@@ -147,7 +147,7 @@ export default function Info() {
       </Grid>
     </Grid>
 
-    <TableContainer component={Paper}>
+    <TableContainer component={Paper} className="mt-4">
       <Table sx={{ minWidth: 700 }} aria-label="spanning table">
         <TableHead>
           <TableRow>

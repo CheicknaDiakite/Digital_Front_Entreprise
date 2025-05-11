@@ -7,6 +7,7 @@ import { useCreateSortie, useFetchAllSortie, useGetAllEntre, useGetAllSortie, us
 import Fact from "../factureCard/Fact";
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import TableSortie from "./TableSortie";
+import QuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
 import { useFetchEntreprise, useFetchUser } from "../../usePerso/fonction.user";
 import Nav from "../../_components/Button/Nav";
 import MyTextField from "../../_components/Input/MyTextField";
@@ -146,6 +147,11 @@ export default function Sortie() {
 
   const totalPrice = reversedSort?.reduce((acc, row: RecupType) => {
     const price = (row.qte !== undefined && row.pu !== undefined) ? row.qte * row.pu : 0;
+    return acc + price;
+  }, 0);
+
+  const totalQte = reversedSorties?.reduce((acc, row: RecupType) => {
+    const price = (row.qte !== undefined && row.pu !== undefined) ? row.qte : 0;
     return acc + price;
   }, 0);
 
@@ -293,16 +299,10 @@ export default function Sortie() {
         }
       };
     
-      // const handleClient = (selected: SingleValue<RecupType>) => {
-      //   // console.log('Selected option:', selected?.uuid);
-      //   formValues["client_id"]= selected?.uuid
-      //   setSelectedClient(selected);
-      // };
-
       const {entresEntreprise: entres, refetch} = useGetAllEntre(connect, entreprise_uuid!)
       
       const ent = entres.filter(info => info.qte !== 0 && info.is_sortie);
-      console.log(ent)
+      
       const [scannedCode, setScannedCode] = useState<string>('');
       const [open, openchange] = useState(false);
 
@@ -387,13 +387,7 @@ export default function Sortie() {
         const handleClose = () => {
           setOpenF(false);
         };
-        // const handleUpdate = async () => {
-        //   const idsToUpdate = selectSorties.map(sor => sor.id);
-        //   console.log("testing ...", selectSorties)
-          
-        //   updateSortie(idsToUpdate)
-        // };
-
+        
         // Appliquer la remise
         const handleApplyDiscount = () => {
           calculateDiscountedTotal();
@@ -461,7 +455,7 @@ export default function Sortie() {
                   />
                 </div>
 
-                <div className="flex flex-col">
+                {/* <div className="flex flex-col">
                   <Typography variant="h5" className='mb-2'>
                     Adresse du client
                   </Typography>
@@ -473,9 +467,9 @@ export default function Sortie() {
                     autoComplete="off"
                     onChange={onChan}
                   />
-                </div>
+                </div> */}
                 
-                <div className="flex flex-col">
+                {/* <div className="flex flex-col">
                   <Typography variant="h5" className='mb-2'>
                     Coordonne du client
                   </Typography>
@@ -487,7 +481,7 @@ export default function Sortie() {
                     autoComplete="off"
                     onChange={onChan}
                   />
-                </div>
+                </div> */}
 
               </article>
 
@@ -710,6 +704,9 @@ export default function Sortie() {
                   <Grid item>
                     <Typography variant="h5" className='mx-2'>
                       Chiffre d'affaire = {formatNumberWithSpaces(totalPrice)} <LocalAtmIcon fontSize='medium' color="primary" />
+                    </Typography>
+                    <Typography variant="h5" className='mx-2'>
+                      Qte = {formatNumberWithSpaces(totalQte)} <QuantityLimitsIcon fontSize='medium' color="primary" />
                     </Typography>
                   </Grid>
                 }               

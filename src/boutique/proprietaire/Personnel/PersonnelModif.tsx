@@ -145,7 +145,7 @@ export function PersonnelModif() {
               onChange={onSelectChange}
               label="Role"
             >
-              <MenuItem value={2}>Gerant</MenuItem>
+              <MenuItem value={2}>Superviseur</MenuItem>
               <MenuItem value={3}>Caissier(e)</MenuItem>
               <MenuItem value={4}>Visiteur</MenuItem>
             </Select>

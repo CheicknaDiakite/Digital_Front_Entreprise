@@ -126,7 +126,7 @@ export default function Profile() {
 
   if (unUser) {
     return (
-      <Box sx={{ flexShrink: 0, ml: 0.75 }} className="bg-blue-300 border-2 border-green-500 rounded-lg">
+      <Box sx={{ flexShrink: 0, ml: 0.75 }} className="bg-blue-200 border border-dashed animate-border-rotate rounded-lg">
         <ButtonBase
           sx={{
             p: 0.25,

@@ -47,7 +47,11 @@ export default function HistoriqueSupp() {
           <TableHead>
             <TableRow>
               <TableCell align="center" colSpan={3}>
-                Historiques des produits supprimés
+                Historiques des produits supprimés                
+                <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-700/10">
+                  {suppH.length}
+                </span>
+                
               </TableCell>
               {/* <TableCell align="right">Prix</TableCell> */}
             </TableRow>
@@ -55,7 +59,7 @@ export default function HistoriqueSupp() {
                     <TableCell>Date</TableCell>
                     <TableCell>Type</TableCell>
                     <TableCell align="right">Quantite</TableCell>
-                    <TableCell align="right">Prix Unitaire ($)</TableCell>
+                    <TableCell align="right">Prix Unitaire (P.V)</TableCell>
                     <TableCell align="right">libelle</TableCell>
                     <TableCell align="right">categorie</TableCell>
                     <TableCell align="right">Action</TableCell>

@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography';
 // project import
 
 import { Alert, Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Skeleton, Stack, TextField } from '@mui/material';
-import { ChangeEvent, FormEvent, useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { RecupType, RouteParams } from '../../../typescript/DataType';
 import { connect } from '../../../_services/account.service';
 import { Link, useParams } from 'react-router-dom';
@@ -24,6 +24,7 @@ import { isLicenceExpired } from '../../../usePerso/fonctionPerso';
 import { BASE } from '../../../_services/caller.service';
 import MainCard from '../../../components/MainCard';
 import M_Abonnement from '../../../_components/Card/M_Abonnement';
+import { useForm } from 'react-hook-form';
 
 // ==============================|| DASHBOARD - DEFAULT ||============================== //
 export interface SousCategorie {
@@ -85,13 +86,24 @@ export default function SousCat() {
   const {uuid} = useParams<RouteParams>()
   const entreprise_uuid = useStoreUuid((state) => state.selectedId)
   const {unEntreprise} = useFetchEntreprise(entreprise_uuid!)
-  const [open, openchange]= useState(false);
-  const functionopen = () => {
-    openchange(true)
-  }
+
+  const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm<SousCategorieFormType>();
+
+  // const [open, openchange]= useState(false);
+  // const functionopen = () => {
+  //   openchange(true)
+  // }
+  // const closeopen = () => {
+  //   openchange(false)
+  // }
+
+  const [open, setOpen] = useState(false);
+  
+  const functionopen = () => setOpen(true);
   const closeopen = () => {
-    openchange(false)
-  }
+    reset(); // Réinitialise le formulaire à la fermeture
+    setOpen(false);
+  };
   
   const recup = {
     slug: uuid,
@@ -102,51 +114,50 @@ export default function SousCat() {
   // const {souscategories} = useFetchAllSousCate(top)
   const {ajoutSousCate} = useCreateSousCate()
 
-  const [image, setImage] = useState<File | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>(''); 
 
+  // const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+  //   if (e.target.files && e.target.files[0]) {
+  //     setValue(e.target.files[0]);
+  //   }
+  // };
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setImage(e.target.files[0]);
-    }
-  };
+      if (e.target.files && e.target.files[0]) {
+        setValue("image", e.target.files[0]); // Stocke l'image dans useForm
+      }
+    };
 
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
+
+
   
-  const [formValues, setFormValues] = useState<SousCategorieFormType>({
-    libelle: '',
-    categorie_slug: '',
-    user_id: '',
-  });
+  // const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
 
-  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormValues({
-      ...formValues,
-      [name]: value,
-    });
-  };
-  
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  //   const validSlug = uuid || '';
 
-    const validSlug = uuid || '';
-
-    formValues["user_id"] = connect
-    formValues["image"] = image
-    formValues["categorie_slug"] = validSlug
+  //   formValues["user_id"] = connect
+  //   formValues["image"] = image
+  //   formValues["categorie_slug"] = validSlug
     
-    ajoutSousCate(formValues)
+  //   ajoutSousCate(formValues)
 
-    setFormValues({
-      libelle: '',
-      categorie_slug: '',
-      user_id: '',
-    })
+  //   setFormValues({
+  //     libelle: '',
+  //     categorie_slug: '',
+  //     user_id: '',
+  //   })
 
-    closeopen()
+  //   closeopen()
+  // };
+  const onSubmit = (data: SousCategorieFormType) => {
+    data.user_id = connect;
+    data.categorie_slug = uuid || '';
+
+    ajoutSousCate(data);
+    closeopen();
   };
   
   if (isLoading) {
@@ -184,7 +195,7 @@ export default function SousCat() {
     
           <Grid item className="py-3">
             <Typography variant="h5">
-              <Button variant="outlined" onClick={functionopen} >Ajout du Produit</Button>
+              <Button variant="outlined" className="rounded border-x-1 animate-border-rotate" onClick={functionopen} >Ajout du Produit</Button>
             </Typography>
           </Grid>
           <Grid item xs={12} sm={6} className="py-2">
@@ -216,10 +227,10 @@ export default function SousCat() {
             :
             <DialogContent>
               {/* <DialogContentText>Categorie</DialogContentText> */}
-              <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmit}>
+              <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={handleSubmit(onSubmit)}>
                 <Stack spacing={2} margin={2}>
                   {/* <TextField variant="outlined" label="libelle" name='libelle' onChange={onChange}></TextField> */}
-                  <MyTextField
+                  {/* <MyTextField
                     required
                     label={"Nom du produit"}
                     name={"libelle"}
@@ -229,6 +240,12 @@ export default function SousCat() {
                         color: "red", // Personnalise la couleur de l'étoile en rouge
                       },
                     }}
+                  /> */}
+                  <MyTextField                                              
+                    label="Nom de l'article"
+                    {...register("libelle", { required: "Ce champ est obligatoire" })}
+                    error={!!errors.libelle}
+                    helperText={errors.libelle?.message}
                   />
 
                   <MyTextField 

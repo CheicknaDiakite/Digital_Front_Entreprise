@@ -102,7 +102,7 @@ export default function ModifEntreprise() {
       <Button size="small" className='rounded-full shadow-md shadow-red-800/50' onClick={handleDelete}>
         <DeleteIcon fontSize='small' />
       </Button>
-      <Grid container rowSpacing={4.5} columnSpacing={2.75}>
+      <Grid container rowSpacing={4.5} justifyContent="center" alignItems="center" columnSpacing={2.75}>
         <Grid item xs={12} md={5} lg={6}>        
             <MainCard sx={{ mt: 2 }} content={false} title="Modification de l'entreprise">
                 <Typography variant="h5" color="primary" className='mx-5'>

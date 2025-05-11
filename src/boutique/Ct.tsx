@@ -2,32 +2,39 @@ import { CheckIcon } from '@heroicons/react/20/solid'
 
 const tiers = [
   {
-    name: 'Mensuelle',
+    name: 'Trimestriel',
     id: 'tier-hobby',
     href: '#',
-    priceMonthly: '6000 f/mois',
+    priceMonthly: '25 000 f',
+    price: '30 000 f',
     description: "Le plan parfait si vous venez de commencer avec notre produit.",
     features: [
-      'Calcule le nombre de vente (par mois)', 
+      'Suivis des stocks',
+      'Voir le nombre de vente effectuer (par mois)', 
+      'Les produits les plus vendus (par mois)',
       'Gestion de facture', 
       'Suivis des depenses', 
       'Gestion d\'hinstorique des produits',
-      'Les produits les plus vendus',
+      'Gestion d\'archive',
+      
     ],
     featured: false,
   },
   {
-    name: 'Annuelle',
+    name: 'Annuel',
     id: 'tier-enterprise',
     href: '#',
-    priceMonthly: '65000 f/ans',
-    description: 'Support et infrastructure dédiés pour votre entreprise.',
+    priceMonthly: '80 000 f',
+    price: '100 000 f',
+    description: "Le choix idéal pour profiter pleinement de notre produit toute l'année.",
     features: [
-      'Calcule le nombre de vente (par mois)', 
+      'Suivis des stocks',
+      'Voir le nombre de vente effectuer (par mois)', 
+      'Les produits les plus vendus (par mois)',
       'Gestion de facture', 
       'Suivis des depenses', 
       'Gestion d\'hinstorique des produits',
-      'Les produits les plus vendus',
+      'Gestion d\'archive',
     ],
     featured: true,
   },
@@ -52,11 +59,11 @@ export default function Example() {
       <div className="mx-auto max-w-4xl text-center">
         <h2 className="text-base/7 font-semibold text-indigo-600">Gest Stocks</h2>
         <p className="mt-2 text-5xl font-semibold tracking-tight text-balance text-gray-900 sm:text-6xl">
-          Pour l'abonnement de votre entreprise
+          Pour l'abonnement de votre entreprise !
         </p>
       </div>
       <p className="mx-auto mt-6 max-w-2xl text-center text-lg font-medium text-pretty text-gray-600 sm:text-xl/8">
-        Choisissez un plan abordable qui contient les meilleures fonctionnalités pour engager votre public, fidéliser vos clients et stimuler les ventes.
+        Choisissez un plan abordable qui contient les meilleures fonctionnalités pour engager votre entreprise, fidéliser vos clients et stimuler les ventes.
       </p>
       <div className="mx-auto mt-16 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:max-w-4xl lg:grid-cols-2">
         {tiers.map((tier, tierIdx) => (
@@ -78,6 +85,11 @@ export default function Example() {
             >
               {tier.name}
             </h3>
+
+            <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-700/10 line-through">
+              {tier.price}
+            </span>
+
             <p className="mt-4 flex items-baseline gap-x-2">
               <span
                 className={classNames(

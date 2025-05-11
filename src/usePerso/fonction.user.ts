@@ -185,6 +185,30 @@ export function useAllUsers(slug: string) {
     return { getUsers, setUsers, isLoading, isError };
 }
 
+export function useAllMesUsers(slug: string) {
+    const [getMesUsers, setMesUsers] = useState([]);
+
+    const {data: us, isLoading, isError} = useQuery({
+      queryKey: ["MesUserGet", slug],
+      queryFn: () =>
+        userService.allMesUsers(slug).then((res) => {
+          if (res.data.etat === true) {
+            return res.data.donnee;
+          } else {
+            // toast.error("Les identifiants sont incorrects");
+          }
+        }),
+    });
+
+    useEffect(() => {
+        if (us) {
+          setMesUsers(us);
+        }
+      }, [us]);
+
+    return { getMesUsers, setMesUsers, isLoading, isError };
+}
+
 export function useCreateUser() {
     const navigate = useNavigate();
     const useQ = useQueryClient();
@@ -372,6 +396,33 @@ export function useCreateAdminUser() {
       };
 
     return { createAdmin }
+}
+
+export function useCreateCabinetUser() {
+    
+    const useQ = useQueryClient();
+
+    const ajoutAdmin = useMutation({
+        mutationFn: (post: FormValueType) => {
+          return userService.userCabinetRegister(post)
+          .then((res) => {
+            if (res.data.etat===false) {
+              if(res.data.message !== "requette invalide"){
+                toast.error(res.data.message);
+              }
+            } else {
+              useQ.invalidateQueries({ queryKey: ["UserCabinetGet"] });
+              toast.success("Inscription réussie");
+            }
+        })
+        },
+      });
+  
+      const createCabinetAdmin = (post: FormValueType) => {
+        ajoutAdmin.mutate(post);
+      };
+
+    return { createCabinetAdmin }
 }
 
 // Pour les clients

@@ -9,6 +9,7 @@ import Notes from './component/Notes';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { useStoreCart } from '../../usePerso/cart_store';
 import TableFact from './TableFact';
+import backgroundImage from '../../../public/assets/img/img.jpg'
 import "./print.css";
 // import { generateOrderNumber } from '../../usePerso/fonctionPerso';
 import { BASE } from '../../_services/caller.service';
@@ -16,7 +17,9 @@ import { RecupType } from '../../typescript/DataType';
 
 
 export default function Fact({clientName, invoiceNumber, invoiceDate, notes, numeroFac,  post, discountedTotal}: RecupType | any) {
-  let url = BASE(post.image);
+  // let url = BASE(post.image);
+  
+    const url = post.image ? BASE(post.image) : backgroundImage;
   
   
   const selectedIds = useStoreCart(state => state.selectedIds)

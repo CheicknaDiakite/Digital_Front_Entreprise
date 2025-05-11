@@ -24,6 +24,7 @@ import SimpleCharts from '../../_components/Chart/Chart_1';
 import MainCard from '../../components/MainCard';
 import { Alert, Box, CircularProgress, Stack } from '@mui/material';
 import MonthlyBarChart from './MonthlyBarChart';
+
 // import SimpleCharts from '../../_components/Chart/Chart_1';
 
 // ==============================|| DASHBOARD - DEFAULT ||============================== //
@@ -84,27 +85,26 @@ export default function DashboardDefault() {
       <Grid item xs={12} sx={{ mb: -2.25 }} >
         <Typography 
         variant="h5" 
-        // className='text-black border bg-zinc-100/20 flex items-center gap-2 p-2 rounded'
+        className='box-decoration-clone bg-linear-to-r from-indigo-700 to-red-600 px-2 text-white rounded border-l-2 animate-border-rotate'
         // maxWidth={"sm"}
         >
-          Page d'accueil
-        </Typography>
-        
+          Page d'accueil          
+        </Typography>        
       </Grid>
-
       
       {/* <Grid item xs={12} sx={{ mb: -2.25 }}>
         <SimpleCharts />
       </Grid> */}
       <Grid item xs={12} md={7} lg={10}>
         <Grid container alignItems="center" justifyContent="space-between">
-          <Grid className='text-black border border-indigo-600 bg-zinc-100/50 flex items-center gap-2 p-2 rounded' item>
-            <Typography 
-            variant="h5"
-            >
-              Le nombre de vente ou sortie effectuer
-            </Typography>
-          </Grid>
+        <Grid 
+          className="box-decoration-clone bg-linear-to-t from-indigo-700 to-red-600 px-2 text-white bg-zinc-500/50 flex items-center gap-2 p-2 rounded border-y-2 animate-border-rotate"
+          item>
+          <Typography variant="h5">
+            Le nombre de vente ou sortie effectuer
+          </Typography>
+        </Grid>
+
           <Grid item />
         </Grid>
         <MainCard sx={{ mt: 2 }} content={false}>
@@ -123,7 +123,9 @@ export default function DashboardDefault() {
 
       <Grid item xs={12} md={7} lg={12}>
         <Grid container alignItems="center" justifyContent="space-between">
-          <Grid className='text-black border border-indigo-600 bg-zinc-100/50 flex items-center gap-2 p-2 rounded' item>
+          <Grid 
+          className='box-decoration-clone bg-linear-to-t from-indigo-700 to-red-600 px-2 text-white bg-zinc-500/50 flex items-center gap-2 p-2 rounded border-y-2 animate-border-rotate' 
+          item>
             <Typography 
             variant="h5"
             >
@@ -163,12 +165,12 @@ export default function DashboardDefault() {
 
       {unUser.role === 1 && <>
         <Grid item xs={6} md={4}>
-          <Link to="/entreprise/detail" className=" block">
+          <Link to="/entreprise/detail" className="block">
             <IconsGrid 
               icon={<AddBusinessIcon color="primary" fontSize='inherit' />} 
               title="Entreprise" 
-              description="Les informations de l'entreprise"
-              className="bg-blue-100"
+              description="Les informations de votre entreprise"
+              className="bg-blue-100 rounded border-x-2 animate-border-rotate"
             />
           </Link>
         </Grid>
@@ -177,12 +179,12 @@ export default function DashboardDefault() {
 
       {(unUser.role === 1 || unUser.role === 2) &&       
         <Grid item xs={6} md={4}>
-          <Link to="/categorie" className=" block">
+          <Link to="/categorie" className="block">
             <IconsGrid 
               icon={<CategoryIcon color="primary" fontSize='inherit' />} 
               title="Article || Catégorie" 
               description="Les differents articles de l'entreprise" 
-              className='bg-white'
+              className='bg-white rounded border-x-2 animate-border-rotate'
             />
           </Link>
         </Grid>
@@ -190,12 +192,12 @@ export default function DashboardDefault() {
 
       {(unUser.role === 1 || unUser.role === 2) &&       
         <Grid item xs={6} md={4}>
-          <Link to="/entre" className=" block">
+          <Link to="/entre" className="block">
             <IconsGrid 
               icon={<AddCircleIcon color="primary" fontSize='inherit' />} 
               title="Entrer || Achat" 
               description="Entre des produits de l'entreprise"
-              className="bg-green-100" 
+              className="bg-green-100 rounded border-x-2 animate-border-rotate" 
             />
           </Link>
         </Grid>
@@ -203,12 +205,12 @@ export default function DashboardDefault() {
 
       {(unUser.role === 1 || unUser.role === 2 || unUser.role === 3) &&
         <Grid item xs={6} md={4}>
-          <Link to="/sortie" className=" block">
+          <Link to="/sortie" className="block">
             <IconsGrid 
               icon={<ExitToAppIcon color="primary" fontSize='inherit' />} 
               title="Sortie || Vente" 
               description="Pour la sortie des prduits dans l'entreprise" 
-              className="bg-red-100"
+              className="bg-red-100 rounded border-x-2 animate-border-rotate"
             />
           </Link>
         </Grid>
@@ -216,36 +218,36 @@ export default function DashboardDefault() {
 
       {(unUser.role === 1 || unUser.role === 2 || unUser.role === 3) &&       
         <Grid item xs={6} md={4}>
-          <Link to="/entreprise/client" className=" block">
+          <Link to="/entreprise/client" className="block">
             <IconsGrid 
               icon={<PeopleOutlineRoundedIcon color="primary" fontSize='inherit' />} 
               title="Clients || Fournisseurs" 
               description="Pour ajouter des clients ou fournisseurs" 
-              className="bg-lime-100"
+              className="bg-lime-100 rounded border-x-2 animate-border-rotate"
             />
           </Link>
         </Grid>
       }
       {(unUser.role === 1 ) &&       
         <Grid item xs={6} md={4}>
-          <Link to="/entreprise/personnel" className=" block">
+          <Link to="/entreprise/personnel" className="block">
             <IconsGrid 
               icon={<PersonAddAltIcon color="primary" fontSize='inherit' />} 
               title="Personnels" 
               description="Pour ajouter des personnes qui ont acces au plate-forme" 
-              className="bg-cyan-100"
+              className="bg-cyan-100 rounded border-x-2 animate-border-rotate"
             />
           </Link>
         </Grid>
       }
 
       <Grid item xs={6} md={4}>
-        <Link to="/entreprise/PreFacture" className=" block">
+        <Link to="/entreprise/PreFacture" className="block">
           <IconsGrid 
             icon={<ReceiptIcon color="primary" fontSize='inherit' />} 
             title="Facture Proforma" 
             description="Ce facture ne sera pas enregistrer"
-            className="bg-neutral-100" 
+            className="bg-neutral-100 rounded border-x-2 animate-border-rotate" 
           />
         </Link>
       </Grid> 
@@ -255,11 +257,13 @@ export default function DashboardDefault() {
       </Grid> */}
 
         <Grid container alignItems="center" justifyContent="space-between" xs={12} sx={{ mb: -2.25 }}>
-          <Grid className='text-black border border-indigo-600 bg-zinc-100/50 flex items-center gap-2 p-2 mx-5 mt-5 rounded' item>
+          <Grid 
+          className='box-decoration-clone bg-linear-to-t from-indigo-700 to-red-600 px-2 mx-5 mt-5 text-white bg-zinc-500/50 flex items-center gap-2 p-2 rounded border-y-2 animate-border-rotate' 
+          item>
             <Typography 
             variant="h5"
             >
-              Archiges = Pour les factures et depenses (en version numerique si necessaire en PDF)
+              Archives = Pour les factures et depenses (en version numerique si necessaire en PDF)
             </Typography>
           </Grid>
           <Grid item />
@@ -267,12 +271,12 @@ export default function DashboardDefault() {
       
       {(unUser.role === 1 || unUser.role === 2 || unUser.role === 3) &&       
         <Grid item xs={6} md={4}>
-          <Link to="/entreprise/produit/sortie" className=" block">
+          <Link to="/entreprise/produit/sortie" className="block">
             <IconsGrid 
               icon={<FileCopyIcon color="primary" fontSize='inherit' />} 
               title="Factures sorties(ventes)" 
               description="Factures des produits de l'entreprise" 
-              className="bg-amber-100"
+              className="bg-amber-100 rounded border-x-2 animate-border-rotate"
             />
           </Link>
         </Grid>
@@ -280,12 +284,12 @@ export default function DashboardDefault() {
 
       {(unUser.role === 1 || unUser.role === 2) &&       
       <Grid item xs={6} md={4}>
-        <Link to="/entreprise/produit/entre" className=" block">
+        <Link to="/entreprise/produit/entre" className="block">
           <IconsGrid 
             icon={<FileOpenIcon color="primary" fontSize='inherit'/>} 
             title="Factures entrer(achat)" 
             description="Factures des produits de l'entreprise" 
-            className="bg-slate-100"
+            className="bg-slate-100 rounded border-x-2 animate-border-rotate"
           />
         </Link>
       </Grid>
@@ -293,12 +297,12 @@ export default function DashboardDefault() {
 
       {(unUser.role === 1 || unUser.role === 2 || unUser.role === 3) &&       
         <Grid item xs={6} md={4}>
-          <Link to="/entreprise/depense" className=" block">
+          <Link to="/entreprise/depense" className="block">
             <IconsGrid 
               icon={<MonetizationOnIcon color="primary" fontSize='inherit' />} 
               title="Depense(s)" 
               description="Ajout des depenses de l'entreprise" 
-              className="bg-orange-100"
+              className="bg-orange-100 rounded border-x-2 animate-border-rotate"
             />
           </Link>
         </Grid>

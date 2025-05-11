@@ -1,10 +1,6 @@
 import { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react'
 import ReactToPrint from 'react-to-print'
-import Footer from '../component/Footer'
 import Notes from '../component/Notes'
-import Dates from '../component/Dates'
-import ClientDetails from '../component/ClientDetails'
-import MainDetails from '../component/MainDetails'
 import Header from '../component/Header'
 import TableForm from '../component/TableForm'
 import toast from 'react-hot-toast'
@@ -160,7 +156,7 @@ export default function Facture() {
               <div className="flex flex-col justify-center">
                 
                 <article className="md:grid grid-cols-2 gap-10">
-                  <div className="flex flex-col">
+                  {/* <div className="flex flex-col">
                     
                     <Typography variant="h5">
                       Bank de l'entreprise
@@ -173,9 +169,9 @@ export default function Facture() {
                     // value={bankName}
                     onChange={onChange}
                     />
-                  </div>
+                  </div> */}
   
-                  <div className="flex flex-col">
+                  {/* <div className="flex flex-col">
                     
                     <Typography variant="h5">
                       Numero de Bank
@@ -189,7 +185,7 @@ export default function Facture() {
                     // value={bankAccount}
                     onChange={onChange}
                     />
-                  </div>
+                  </div> */}
                 </article>
   
                 <article className="md:grid grid-cols-2 gap-10 p-2">
@@ -208,7 +204,7 @@ export default function Facture() {
                     />
                   </div>
   
-                  <div className="flex flex-col">
+                  {/* <div className="flex flex-col">
                     
                     <Typography variant="h5">
                       Adresse du client
@@ -221,9 +217,9 @@ export default function Facture() {
                     // value={clientAddress}
                     onChange={onChange}
                     />
-                  </div>
+                  </div> */}
 
-                  <div className="flex flex-col">
+                  {/* <div className="flex flex-col">
                     
                     <Typography variant="h5">
                       Coordonne du client
@@ -236,7 +232,7 @@ export default function Facture() {
                     // value={clientCoordonne}
                     onChange={onChange}
                     />
-                  </div>
+                  </div> */}
                 </article>
   
                 <article className="md:grid grid-cols-3 gap-10">
@@ -360,31 +356,41 @@ export default function Facture() {
                   Ordo-
                 </button> */}
               <Header 
-              orderNumber={orderNumber}
-              nom={unEntreprise.nom}
-              url={url}
+              // orderNumber={orderNumber}
+              // nom={unEntreprise.nom}
+              // url={url}
+                nom={unEntreprise.nom}
+                numeroFac={orderNumber}
+                url={url}
+                email={unEntreprise.email}
+                address={unEntreprise.adresse}
+                numero={unEntreprise.numero}
+                coordonne={unEntreprise.coordonne}
+                clientName={texte.clientName}
+                invoiceDate={texte.invoiceDate}
+                invoiceNumber={texte.invoiceNumber}
               />
   
-              <MainDetails
+              {/* <MainDetails
               name={unEntreprise.nom}
               address={unEntreprise.adresse}
               numero={unEntreprise.numero}
               coordonne={unEntreprise.coordonne}
               // url={url}
-              />
+              /> */}
   
-              <ClientDetails 
+              {/* <ClientDetails 
               clientName={texte.clientName}
               clientAddress={texte.clientAddress}
               clientCoordonne={texte.clientCoordonne}
               invoiceNumber={texte.invoiceNumber}
-              />
+              /> */}
   
-              <Dates 
+              {/* <Dates 
               invoiceNumber={texte.invoiceNumber}
               invoiceDate={texte.invoiceDate}
               dueDate={texte.dueDate}
-              />
+              /> */}
   
               <TableList 
               list={list}
@@ -395,14 +401,14 @@ export default function Facture() {
               notes={texte.notes}
               />
   
-              <Footer 
+              {/* <Footer 
               name={unEntreprise.nom}
               email={unEntreprise.email}
               website={texte.website}
               phone={unEntreprise.numero}
               bankAccount={texte.bankAccount}
               bankName={texte.bankName}
-              />
+              /> */}
             </div>
           </div>
           )}

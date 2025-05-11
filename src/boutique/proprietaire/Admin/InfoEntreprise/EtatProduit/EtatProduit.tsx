@@ -28,9 +28,18 @@ export default function EtatProduit() {
     return <>
     <Grid container rowSpacing={4.5} columnSpacing={2.75}>
       
-      <Grid container alignItems="center" justifyContent="space-between" className='pt-5 mt-5'>
-        <Grid item>
+      <Grid container alignItems="center" justifyContent="center" className='pt-5 mt-5'>
+        {/* <Grid item>
           <Typography variant="h5">Les infos de l'entreprise</Typography>
+        </Grid> */}
+        <Grid 
+        className='box-decoration-clone bg-linear-to-t from-indigo-700 to-red-600 px-2 mx-5 text-white bg-zinc-500/50 flex items-center gap-2 p-2 rounded border-x-2 animate-border-rotate' 
+        item>
+          <Typography 
+          variant="h5"
+          >
+            Les infos de l'entreprise
+          </Typography>
         </Grid>
       <Grid />
         

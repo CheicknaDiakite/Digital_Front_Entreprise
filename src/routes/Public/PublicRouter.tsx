@@ -36,9 +36,10 @@ import EtaVente from '../../boutique/categorie/eta/EtaVente'
 import Avis from '../../boutique/proprietaire/users/Avis'
 import EtaProduits from '../../boutique/categorie/eta/EtaProduits'
 import RemiseFacture from '../../boutique/sortie/RemiseFacture'
+import MesInscrit from '../../boutique/proprietaire/users/MesInscrit'
 
 export default function PublicRouter() {
-  notClick()
+  // notClick()
   return (<div className='bg-zinc-200'>
 
     <Routes>
@@ -145,10 +146,13 @@ export default function PublicRouter() {
         <Route path='user'>
 
           <Route element={<ProtectedRoute requiredRole={1} redirectPath="/" />}>
-            <Route path="admin" element={<Users />} />
+            <Route path="admin" element={<Users />} />            
             <Route path="avis" element={<Avis />} />
-            <Route path='admin/modif/:uuid' element={<UserModif />} />
+            
           </Route>
+
+          <Route path="mesInscrit" element={<MesInscrit />} />
+          <Route path='admin/modif/:uuid' element={<UserModif />} />
 
           <Route path='modif/:id' element={<Admin />} />
         </Route>

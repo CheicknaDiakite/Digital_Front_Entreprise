@@ -28,7 +28,7 @@ export default defineConfig({
           },
         workbox: {
             globPatterns: ['**/*{js,css,html,ico,png,svg}'],
-            maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3 MB par exemple
+            maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB par exemple
             runtimeCaching: [{
                 urlPattern: /^https:\/\/diakitedigital\.com\/.*/i,
                 handler: 'CacheFirst',

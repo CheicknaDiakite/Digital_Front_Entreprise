@@ -34,29 +34,20 @@ export default function AuthWrapper({ children }: ChildrenProps) {
             sx={{ minHeight: { xs: 'calc(100vh - 210px)', sm: 'calc(100vh - 134px)', md: 'calc(100vh - 112px)' } }}
           >
             
-            <div className=" flex justify-center mx-5 text-2xl font-extrabold">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-300">
-                {/* En cas d'incompréhension contacter :
-                <a
-                href="https://wa.me/91154834"
-                style={{ textDecoration: 'none', color: 'inherit' }}
-                target="_blank"
-                rel="noopener noreferrer"
-                >
-                {" "}+223 91 15 48 34 {" "}
-                </a>                  
-                sur whatsapp  */}
+            <div className="flex justify-center mx-5 text-2xl font-extrabold">
+              <span 
+              className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-300 rounded border-2 animate-border-rotate"
+              >
                 <TypeAnimation
                   sequence={[
-                    // Same substring at the start will only be typed out once, initially
-                    'En cas d\'aide contacter :',
-                    1000, // wait 1s before replacing "Mice" with "Hamsters"
-                    'En cas d\'aide contacter : +223 91 15 48 34',
+                    "En cas de besoin, contacter : +223 91 15 48 34",
                     1000,
-                    'En cas d\'aide contacter : Pour plus d\'information',
+                    "En cas de souci, contacter : Pour plus d'information",
                     1000,
-                    // 'En cas d\'incompréhension contacter ',
-                    // 1000
+                    "En cas de problème, contacter : +223 91 15 48 34",
+                    1000,
+                    "En cas de question, contacter : Pour plus d'information",
+                    1000,
                   ]}
                   wrapper="span"
                   speed={50}
@@ -64,8 +55,8 @@ export default function AuthWrapper({ children }: ChildrenProps) {
                   repeat={Infinity}
                 />
               </span>
-              
             </div>
+
             <Grid item>
               <AuthCard>{children}</AuthCard>
             </Grid>

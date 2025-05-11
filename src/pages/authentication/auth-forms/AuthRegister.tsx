@@ -1,225 +1,145 @@
-import { ChangeEvent, useEffect, useState } from 'react';
-// material-ui
-import Button from '@mui/material/Button';
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import Button from "@mui/material/Button";
+import { Card, FormControl, InputLabel, MenuItem, Select, Stack, TextField } from "@mui/material";
+import { useCreateUser } from "../../../usePerso/fonction.user";
+import countryList from "react-select-country-list";
+import toast from "react-hot-toast";
 
-// third party
-// assets
-import { FormValueType } from '../../../typescript/FormType';
-import { Card, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, TextField } from '@mui/material';
-import { useCreateUser } from '../../../usePerso/fonction.user';
-import countryList from 'react-select-country-list';
-import toast from 'react-hot-toast';
-
-// ============================|| JWT - REGISTER ||============================ //
+type FormType = {
+  username: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  numero: string;
+  password: string;
+  passwordConfirm: string;
+  pays: string;
+};
 
 export default function AuthRegister() {
-
-  // const {create} = useUtilisateur()
-  const {create} = useCreateUser()
-
+  const { create } = useCreateUser();
   const options = countryList().getData();
-  
-  const [formValues, setFormValues] = useState<FormValueType>({
-    username: '',
-    first_name: '',
-    last_name: '',
-    email: '',
-    numero: '',
-    password: '',
-  });
 
-  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormValues({
-      ...formValues,
-      [name]: value,
-    });
-  };
+  const {
+    register,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm<FormType>();
 
-  const onSelectChange = (e: SelectChangeEvent<string>) => {
-    setFormValues({
-      ...formValues,
-      [e.target.name]: e.target.value,
-    });
-  };
+  const password = watch("password");
 
   let toastId: string | undefined;
 
   const handle = () => {
-    // Affiche le toast et stocke son ID
     toastId = toast.loading("Chargement pour vous envoyer un email ...");
-
-    // Ferme automatiquement le toast après 1 minute
     setTimeout(() => {
       if (toastId) {
-        toast.dismiss(toastId); // Supprime le toast
+        toast.dismiss(toastId);
       }
-    }, 6500); // 1 minute en millisecondes
+    }, 6500);
   };
 
   useEffect(() => {
-    // Nettoie le toast lorsque le composant est démonté
     return () => {
       if (toastId) {
-        toast.dismiss(toastId); // Supprime le toast
+        toast.dismiss(toastId);
       }
     };
   }, []);
 
-
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!formValues.numero || formValues.numero.length < 5) {
-      toast.error("Le numero n'est pas bien correct !");
-    } else if (formValues.password.length < 6) {
-      toast.error("Le mot de passe doit contenir au moins 6 caractères");
-    } else if (formValues.password !== formValues.passwordConfirm) {
-      toast.error("Les mots de passe ne correspondent pas");
-    } else {
-      // Action de création
-      // handle(); // Appelle le toast de chargement
-      // Simule une opération asynchrone
-        create(formValues);
-        // console.log("test ",formValues);
-        
-        setFormValues({
-          username: "",
-          first_name: "",
-          last_name: "",
-          email: "",
-          password: "",
-          passwordConfirm: "",
-          numero: "",
-        });
-       // Remplacez cette valeur pour le temps d'exécution de votre opération réelle
-    }
+  const onSubmit = (data: FormType) => {
+    create(data);
+    reset();
+    // toast.success("Inscription réussie !");
   };
 
   return (
-    <>
-      <Card variant="outlined" sx={{ boxShadow: 0, bgcolor: 'transparent' }}>
-        <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmit}>
-          <Stack spacing={2} margin={2}>
-            {/* <TextField variant="outlined" label="Nom d'utilisateur" name='username' onChange={onChange}></TextField> */}
-            <TextField 
-            required
-            variant="outlined" 
-            label="Nom" 
-            name='last_name' 
-            value={formValues.last_name} 
-            onChange={onChange}
-            sx={{
-              "& .MuiFormLabel-asterisk": {
-                color: "red", // Personnalise la couleur de l'étoile en rouge
-              },
-            }}
-            ></TextField>
+    <Card variant="outlined" sx={{ boxShadow: 0, bgcolor: "transparent" }}>
+      <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={handleSubmit(onSubmit)}>
+        <Stack spacing={2} margin={2}>
+          <TextField
+            label="Nom"
+            variant="outlined"
+            {...register("last_name", { required: "Ce champ est obligatoire" })}
+            error={!!errors.last_name}
+            helperText={errors.last_name?.message}
+          />
 
-            <TextField 
-            required
-            variant="outlined" 
-            label="Prenom" 
-            name='first_name' 
-            value={formValues.first_name} 
-            onChange={onChange}
-            sx={{
-              "& .MuiFormLabel-asterisk": {
-                color: "red", // Personnalise la couleur de l'étoile en rouge
-              },
-            }}
-            ></TextField>
+          <TextField
+            label="Prénom"
+            variant="outlined"
+            {...register("first_name", { required: "Ce champ est obligatoire" })}
+            error={!!errors.first_name}
+            helperText={errors.first_name?.message}
+          />
 
-            <TextField
-            required
-            type='email' 
-            variant="outlined" 
-            label="Email" 
-            name='email' 
-            value={formValues.email} 
-            onChange={onChange}
-            sx={{
-              "& .MuiFormLabel-asterisk": {
-                color: "red", // Personnalise la couleur de l'étoile en rouge
-              },
-            }}
-            ></TextField>
-            
-            <TextField
-              required
-              type="text"
-              variant="outlined"
-              label="Numéro"
-              name="numero"
-              value={formValues.numero || ""}
-              onChange={onChange}
-              inputProps={{
-                pattern: "^[+]?\\d*$", // Permet uniquement les chiffres et éventuellement un "+" au début
-                maxLength: 15, // Limite la longueur à un nombre raisonnable pour un numéro international
-              }}
-              sx={{
-                "& .MuiFormLabel-asterisk": {
-                  color: "red", // Personnalise la couleur de l'étoile en rouge
-                },
-              }}
-            />
+          <TextField
+            label="Email"
+            type="email"
+            variant="outlined"
+            {...register("email", {
+              required: "L'email est obligatoire",
+              pattern: { value: /^\S+@\S+$/i, message: "Format d'email invalide" },
+            })}
+            error={!!errors.email}
+            helperText={errors.email?.message}
+          />
 
-            <FormControl fullWidth className='mb-4'>
-              <InputLabel id="select-pays-label" 
-              required
-              sx={{
-                "& .MuiFormLabel-asterisk": {
-                  color: "red", // Personnalise la couleur de l'étoile en rouge
-                },
-              }}
-              >Votre pays</InputLabel>
-              <Select
-                labelId="select-pays-label"
-                // value={selectedCountry}
-                onChange={onSelectChange}
-                name='pays'
-                placeholder="Choisir un pays"
-              >
-                {options.map((option) => (
-                  <MenuItem key={option.value} value={option.label}>
-                    {option.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+          <TextField
+            label="Numéro"
+            variant="outlined"
+            {...register("numero", {
+              required: "Le numéro est obligatoire",
+              pattern: { value: /^[+]?[0-9]{5,15}$/, message: "Format de numéro invalide" },
+            })}
+            error={!!errors.numero}
+            helperText={errors.numero?.message}
+          />
 
-            <TextField required
-            type='password' 
-            value={formValues.password} 
-            variant="outlined" 
-            label="Mot de passe" 
-            name='password' 
-            onChange={onChange}
-            sx={{
-              "& .MuiFormLabel-asterisk": {
-                color: "red", // Personnalise la couleur de l'étoile en rouge
-              },
-            }}
-            ></TextField>
+          <FormControl fullWidth error={!!errors.pays}>
+            <InputLabel>Votre pays</InputLabel>
+            <Select {...register("pays", { required: "Veuillez sélectionner un pays" })}>
+              {options.map((option) => (
+                <MenuItem key={option.value} value={option.label}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </Select>
+            {errors.pays && <p style={{ color: "red", fontSize: "12px" }}>{errors.pays.message}</p>}
+          </FormControl>
 
-            <TextField required
-            type='password' 
-            value={formValues.passwordConfirm} 
-            variant="outlined" 
-            label="Mot de passe de confirmation" 
-            name='passwordConfirm' 
-            onChange={onChange}
-            sx={{
-              "& .MuiFormLabel-asterisk": {
-                color: "red", // Personnalise la couleur de l'étoile en rouge
-              },
-            }}
-            ></TextField>
+          <TextField
+            label="Mot de passe"
+            type="password"
+            variant="outlined"
+            {...register("password", {
+              required: "Le mot de passe est obligatoire",
+              minLength: { value: 6, message: "Doit contenir au moins 6 caractères" },
+            })}
+            error={!!errors.password}
+            helperText={errors.password?.message}
+          />
 
-            <Button type="submit" color="success" variant="outlined" onClick={handle} >Inscription</Button>
-          </Stack>
-        </form>
-      </Card>
-    </>
+          <TextField
+            label="Confirmer le mot de passe"
+            type="password"
+            variant="outlined"
+            {...register("passwordConfirm", {
+              required: "La confirmation est obligatoire",
+              validate: (value) => value === password || "Les mots de passe ne correspondent pas",
+            })}
+            error={!!errors.passwordConfirm}
+            helperText={errors.passwordConfirm?.message}
+          />
+
+          <Button type="submit" color="success" variant="outlined" onClick={handle}>
+            Inscription
+          </Button>
+        </Stack>
+      </form>
+    </Card>
   );
 }

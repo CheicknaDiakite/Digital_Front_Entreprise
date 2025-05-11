@@ -79,7 +79,7 @@ function Row(props: { row: EntrepriseType }) {
         <TableCell align="right">{row.adresse}</TableCell>
         <TableCell align="right">{row.numero}</TableCell>
         <TableCell align="right">{row.email}</TableCell>
-        <TableCell align="right">#</TableCell>
+        {/* <TableCell align="right">#</TableCell> */}
       </TableRow>
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
@@ -87,6 +87,9 @@ function Row(props: { row: EntrepriseType }) {
             <Box sx={{ margin: 1 }}>
               <Typography variant="h6" gutterBottom component="div">
                 History
+                <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-700/10">
+                  {filteredHistorique?.length}
+                </span>
               </Typography>
 
               {/* Recherche par type et date */}
@@ -139,7 +142,7 @@ function Row(props: { row: EntrepriseType }) {
                     <TableCell>Date</TableCell>
                     <TableCell>Type</TableCell>
                     <TableCell align="right">Quantite</TableCell>
-                    <TableCell align="right">Prix unitaire ($)</TableCell>
+                    <TableCell align="right">Prix unitaire (P.V)</TableCell>
                     <TableCell align="right">Libelle</TableCell>
                     <TableCell align="right">Categorie</TableCell>
                     <TableCell align="right">Action</TableCell>
@@ -215,7 +218,7 @@ export default function TableHistory() {
               <TableCell align="right">Adresse</TableCell>
               <TableCell align="right">Telephone&nbsp;(TEL)</TableCell>
               <TableCell align="right">Email</TableCell>
-              <TableCell align="right">####&nbsp;(g)</TableCell>
+              {/* <TableCell align="right">####&nbsp;(g)</TableCell> */}
             </TableRow>
           </TableHead>
           <TableBody>

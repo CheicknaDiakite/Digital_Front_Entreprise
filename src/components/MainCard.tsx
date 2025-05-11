@@ -61,12 +61,13 @@ const MainCard = forwardRef<HTMLDivElement, MainCardProps>(
     boxShadow = theme.palette.mode === 'dark' ? boxShadow || true : boxShadow;
 
     return (
-      <Card
+      <Card   
+        className='rounded border-x-2 animate-border-rotate'     
         elevation={elevation || 0}
         ref={ref}
         {...others}
         sx={{
-          border: border ? '1px solid' : 'none',
+          // border: border ? '1px solid' : 'none',
           borderRadius: 2,
           borderColor: theme.palette.mode === 'dark' ? theme.palette.divider : theme.palette.grey[800],
           boxShadow: boxShadow && (!border || theme.palette.mode === 'dark') ? shadow || theme.customShadows.z1 : 'inherit',
@@ -81,6 +82,7 @@ const MainCard = forwardRef<HTMLDivElement, MainCardProps>(
           },
           ...sx
         }}
+        
       >
         {/* card header and action */}
         {!darkTitle && title && <CardHeader sx={headerSX} titleTypographyProps={{ variant: 'subtitle1' }} title={title} action={secondary} />}

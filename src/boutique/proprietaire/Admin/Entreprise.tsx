@@ -16,6 +16,7 @@ import MyTextField from '../../../_components/Input/MyTextField';
 import { useStoreUuid } from '../../../usePerso/store';
 import CountrySelect from '../../../_components/Liste_Pays/CountrySelect';
 import { RecupType } from '../../../typescript/DataType';
+import clsx from 'clsx';
 
 // const CARD = ({post}) => (
   
@@ -183,8 +184,12 @@ export default function Entreprise() {
   (unUser.role === 2 || unUser.role === 3 || unUser.role === 4)  ?
   ""
   :
-  <Typography variant="h5" className='m-5 p-5' color="primary" sx={{ mt: 1 }}>
-    Nous vous remercions pour votre inscription sur Gest Stock.<br/>
+  <Typography 
+    variant="h5" 
+    className='box-decoration-clone bg-linear-to-r p-5 m-5 text-white' 
+    color="primary" 
+    sx={{ mt: 1 }}>
+    Nous vous remercions pour votre inscription sur Gest Stocks.<br/>
     Veuillez-vous patienter avant l'activation de votre compte !<br/>
     Pour plus d'information contacter (91 15 48 34 // 63 83 51 14)
   </Typography>
@@ -210,15 +215,33 @@ export default function Entreprise() {
             description={
               post.licence_active && (
                 <p>
-                  Cette entreprise est activé et possède une licence
-                  <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-700/10">
-                    {post.licence_type}
-                  </span>{' '}
-                  jusqu'au{' '}
-                  <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-700/10">
-                    {post.licence_date_expiration}
-                  </span>
-                </p>
+                Cette entreprise est activée et possède une licence
+                <span
+                  className={clsx(
+                    "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset",
+                    {
+                      "bg-red-50 text-red-700 ring-red-700/10": post.licence_type === "Free",
+                      "bg-yellow-50 text-yellow-700 ring-yellow-700/10": post.licence_type === "Basic",
+                      "bg-green-50 text-green-700 ring-green-700/10": post.licence_type === "Premium",
+                    }
+                  )}
+                >
+                  {post.licence_type}
+                </span>{" "}
+                jusqu'au{" "}
+                <span
+                  className={clsx(
+                    "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset",
+                    {
+                      "bg-red-50 text-red-700 ring-red-700/10": post.licence_type === "Free",
+                      "bg-yellow-50 text-yellow-700 ring-yellow-700/10": post.licence_type === "Basic",
+                      "bg-green-50 text-green-700 ring-green-700/10": post.licence_type === "Premium",
+                    }
+                  )}
+                >
+                  {post.licence_date_expiration}
+                </span>
+              </p>
               )
             }
           />

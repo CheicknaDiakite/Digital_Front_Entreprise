@@ -40,11 +40,20 @@ export default function InfoUsers() {
    }
     
   return <>
-  <Grid container rowSpacing={4.5} columnSpacing={2.75}>
+  <Grid container rowSpacing={4.5} justifyContent="center" alignItems="center" columnSpacing={2.75}>
     <Grid item xs={12} md={5} lg={4}>
         <Grid container alignItems="center" justifyContent="space-between">
-        <Grid item>
+        {/* <Grid item>
             <Typography variant="h5">Les utilisateurs de cette entreprise</Typography>
+        </Grid> */}
+        <Grid 
+        className='box-decoration-clone bg-linear-to-t from-indigo-700 to-red-600 px-2 my-5 text-white bg-zinc-500/50 flex items-center gap-2 p-2 rounded border-x-2 animate-border-rotate' 
+        item>
+            <Typography 
+            variant="h5"
+            >
+            Les utilisateurs de cette entreprise
+            </Typography>
         </Grid>
         <Grid item />
         </Grid>
@@ -56,12 +65,10 @@ export default function InfoUsers() {
             handleDelete(post.uuid)
             }
         };
-        return <MainCard sx={{ mb: 1 }} content={false}>
-            
+        return <MainCard sx={{ mb: 1 }} content={false}>            
             <ListItem key={index} alignItems="flex-start">
-                <ListItemAvatar>
-                
-                <Avatar {...stringAvatar(`${post.last_name} ${post.first_name}`)} />
+                <ListItemAvatar>                
+                    <Avatar {...stringAvatar(`${post.last_name} ${post.first_name}`)} />
                 </ListItemAvatar>
                 <ListItemText
                 primary={post.username}
@@ -84,8 +91,6 @@ export default function InfoUsers() {
                         />
                         :
                         <Chip
-                        // label="delete"
-                        // onClick={handleClick}
                         onDelete={handleDeleted}
                         deleteIcon={<DeleteIcon />}
                         variant="outlined"

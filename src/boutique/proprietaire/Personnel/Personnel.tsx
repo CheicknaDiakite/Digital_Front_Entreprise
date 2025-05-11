@@ -31,7 +31,7 @@ import {
   Grid,
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import { ChangeEvent, FormEvent, Fragment, useState } from "react";
+import { ChangeEvent, Fragment, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { FormValueType } from "../../../typescript/FormType";
 // import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -44,6 +44,7 @@ import { useStoreUuid } from "../../../usePerso/store";
 import M_Abonnement from "../../../_components/Card/M_Abonnement";
 import { isLicenceExpired, stringAvatar } from "../../../usePerso/fonctionPerso";
 import MainCard from "../../../components/MainCard";
+import { useForm } from "react-hook-form";
 
 // const TABS = [
 //   {
@@ -64,14 +65,24 @@ import MainCard from "../../../components/MainCard";
 export default function Personnel() {
   const uuid = useStoreUuid((state) => state.selectedId)
   const {unEntreprise} = useFetchEntreprise(uuid!)
+
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValueType>();
   
-  const [open, openchange] = useState(false);
-  const functionopen = () => {
-    openchange(true);
-  };
+  const [open, setOpen] = useState(false);
+    
+  const functionopen = () => setOpen(true);
   const closeopen = () => {
-    openchange(false);
+    reset(); // Réinitialise le formulaire à la fermeture
+    setOpen(false);
   };
+  
+  // const [open, openchange] = useState(false);
+  // const functionopen = () => {
+  //   openchange(true);
+  // };
+  // const closeopen = () => {
+  //   openchange(false);
+  // };
 
   const top = {
     entreprise_id: uuid,
@@ -82,14 +93,6 @@ export default function Personnel() {
   // const {unEntreprise} = useFetchEntreprise(uuid!)
   // const { userEntreprises } = useGetUserEntreprises(connect);
   const { createAdmin } = useCreateAdminUser();
-
-  const [formValues, setFormValues] = useState<FormValueType>({
-    username: "",
-    first_name: "",
-    last_name: "",
-    email_user: "",
-    password: "",
-  });
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
@@ -105,31 +108,33 @@ export default function Personnel() {
     setCurrentPage(page);
   };
 
-  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormValues({
-      ...formValues,
-      [name]: value,
-    });
-  };
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    formValues["entreprise_id"] = uuid!
+  // const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+  //   formValues["entreprise_id"] = uuid!
     
-    createAdmin(formValues);
+  //   createAdmin(formValues);
     
-    // Réinitialisation des champs du formulaire
-    setFormValues({
-      username: "",
-      first_name: "",
-      last_name: "",
-      email_user: "",
-      numero: "",
-      password: "",
-    });
+  //   // Réinitialisation des champs du formulaire
+  //   setFormValues({
+  //     username: "",
+  //     first_name: "",
+  //     last_name: "",
+  //     email_user: "",
+  //     numero: "",
+  //     password: "",
+  //   });
+  //   closeopen();
+  // };
+
+  const onSubmit = (data: FormValueType) => {
+    // data.user_id = connect;
+    data.entreprise_id = uuid!;
+
+
+    createAdmin(data);
+    
     closeopen();
-
   };
 
   if (isLoading) {
@@ -162,8 +167,8 @@ export default function Personnel() {
             </>
           }
           action={
-            <Button onClick={functionopen} variant="outlined">
-             Ajout d'un membre
+            <Button onClick={functionopen} className="rounded border-x-1 animate-border-rotate" variant="outlined">
+              Ajout d'un membre
             </Button>
           }
         />
@@ -296,7 +301,7 @@ export default function Personnel() {
                                 post.role===3 ? "Caissier(e)" : "Visiteur"} */}
 
                                 <Chip
-                                  label={post.role === 1 ? "Admin" : post.role === 2 ? "Gerant" : post.role===3 ? "Caissier(e)" : "Visiteur"}
+                                  label={post.role === 1 ? "Admin" : post.role === 2 ? "Superviseur" : post.role===3 ? "Caissier(e)" : "Visiteur"}
                                   variant="outlined"
                                   color={post.role === 1 ? "primary" : post.role === 2 ? "primary" : "info"}
                                   sx={{ ml: "auto" }}
@@ -343,7 +348,7 @@ export default function Personnel() {
             :        
           
           <DialogContent>
-            <form onSubmit={onSubmit}>
+            <form onSubmit={handleSubmit(onSubmit)}>
               <Stack spacing={2}  margin={2}>
                 
                 {/* <MyTextField 
@@ -354,24 +359,33 @@ export default function Personnel() {
                 /> */}
                 <MyTextField 
                 label="Prenom"
-                name="last_name"
-                onChange={onChange}
-                fullWidth
+                // name="last_name"
+                // onChange={onChange}
+                // fullWidth
+                {...register("last_name", { required: "Ce champ est obligatoire" })}
+                error={!!errors.last_name}
+                helperText={errors.last_name?.message}
                 />
                 
                 <MyTextField 
                   label="Nom de famille"
-                  name="first_name"
-                  onChange={onChange}
-                  fullWidth
+                  // name="first_name"
+                  // onChange={onChange}
+                  // fullWidth
+                  {...register("first_name", { required: "Ce champ est obligatoire" })}
+                  error={!!errors.first_name}
+                  helperText={errors.first_name?.message}
                 />
                 <MyTextField
-                  required
+                  // required
                   type="text"
                   variant="outlined"
                   label="Numéro"
-                  name="numero"
-                  onChange={onChange}
+                  // name="numero"
+                  // onChange={onChange}
+                  {...register("numero", { required: "Ce champ est obligatoire" })}
+                  error={!!errors.numero}
+                  helperText={errors.numero?.message}
                   inputProps={{
                     pattern: "^[+]?\\d*$", // Permet uniquement les chiffres et éventuellement un "+" au début
                     maxLength: 15, // Limite la longueur à un nombre raisonnable pour un numéro international
@@ -380,15 +394,22 @@ export default function Personnel() {
                 <MyTextField 
                   label="Email"
                   type="email"
-                  name="email_user"
-                  onChange={onChange}
+                  // name="email_user"
+                  // onChange={onChange}
+                  {...register("email_user", { required: "Ce champ est obligatoire" })}
+                  error={!!errors.email_user}
+                  helperText={errors.email_user?.message}
                   fullWidth
                 />
+
                 <MyTextField 
                   label="Mot de passe"
                   type="password"
-                  name="password"
-                  onChange={onChange}
+                  // name="password"
+                  // onChange={onChange}
+                  {...register("password", { required: "Ce champ est obligatoire" })}
+                  error={!!errors.password}
+                  helperText={errors.password?.message}
                   fullWidth
                 />
                 

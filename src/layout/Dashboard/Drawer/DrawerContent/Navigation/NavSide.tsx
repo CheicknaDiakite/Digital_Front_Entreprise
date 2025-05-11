@@ -122,11 +122,11 @@ const NavSide: React.FC = () => {
       {/* <Link to={"#"} onClick={handleGoHome}> */}
       
       {/* <Button onClick={handleGoHome}> */}
-      <CardContent className="border border-indigo-600 bg-sky-500/30 flex items-center gap-2 p-2 rounded">
+      <CardContent className="border border-indigo-600 bg-sky-500/30 flex items-center gap-2 p-2 rounded border-dashed animate-border-rotate">
         <img
           src={urlEntre}
           alt="brand"
-          className="h-8 w-8 object-contain"
+          className="h-8 w-8 object-contain rounded-full"
         />
         <Typography variant="h5" color="text.primary">
           {unEntreprise.nom}
@@ -163,7 +163,7 @@ const NavSide: React.FC = () => {
                 {/* <CategoryIcon color="inherit" fontSize="small" /> */}
               </ListItemIcon>
               <Typography 
-                className="text-black bg-white bg-opacity-100 px-2 py-1 rounded"
+                className="text-black bg-white bg-opacity-100 px-2 py-1 rounded border animate-border-rotate"
               >
                 {post.nom}
               </Typography>
@@ -389,6 +389,22 @@ const NavSide: React.FC = () => {
         </Link>
         </>
         }
+
+        {(unUser.role === 1 && unUser.is_cabinet ) && <>        
+        <Link to="/user/mesInscrit">
+          <ListItem button>
+            <ListItemIcon>
+              <UserCircleIcon color="primary" fontSize="small" />
+            </ListItemIcon>
+            <Typography 
+            className="text-white bg-blue-900 bg-opacity-100 px-2 py-1 rounded"
+            >
+              Mes inscrits
+            </Typography>
+          </ListItem>
+        </Link>
+        </>
+        }
         
         <Link to="https://documentation.gest-stocks.com">
           <ListItem >
@@ -414,16 +430,19 @@ const NavSide: React.FC = () => {
           </Typography>
         </ListItem>
 
-        <ListItem button onClick={functionopenO}>
-          <ListItemIcon>
-            <HelpOutlineIcon color="primary" fontSize="small" />
-          </ListItemIcon>
-          <Typography 
-          className="text-white bg-sky-900 bg-opacity-100 px-2 py-1 rounded"
-          >
-            Payement ?
-          </Typography>
-        </ListItem>
+        {(unUser.role === 1 || unUser.role === 2) &&        
+          <ListItem button onClick={functionopenO}>
+            <ListItemIcon>
+              <HelpOutlineIcon color="primary" fontSize="small" />
+            </ListItemIcon>
+            <Typography 
+            className="text-white bg-sky-900 bg-opacity-100 px-2 py-1 rounded"
+            >
+              Abonnement ?
+            </Typography>
+          </ListItem>
+        }
+
 
         <ListItem button onClick={logout}>
           <ListItemIcon>
@@ -480,7 +499,7 @@ const NavSide: React.FC = () => {
 
       <Dialog open={openO} onClose={closeopenO} fullWidth maxWidth="sm">
         <DialogTitle>
-          Pour l'abonnement de votre entreprise
+          Abonnement de votre entreprise !
           <IconButton onClick={closeopenO} style={{float: "right"}}>
             <CloseIcon color="primary"></CloseIcon>
           </IconButton>            

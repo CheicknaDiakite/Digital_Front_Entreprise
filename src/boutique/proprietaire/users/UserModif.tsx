@@ -7,11 +7,13 @@ import {
     Select,
     FormControl,
     SelectChangeEvent,
+    Checkbox,
+    FormControlLabel,
   } from "@mui/material";
   import DeleteIcon from '@mui/icons-material/DeleteOutline';
   import { useParams } from "react-router-dom";
   import { connect } from "../../../_services/account.service";
-  import { ChangeEvent, FormEvent } from "react";
+  import { ChangeEvent, FormEvent, useState } from "react";
   import { useDeleteUser, useFetchUser, useUpdateUser } from "../../../usePerso/fonction.user";
   import Nav from "../../../_components/Button/Nav";
   import MyTextField from "../../../_components/Input/MyTextField";
@@ -22,16 +24,12 @@ import {
     unUser["user_id"] = connect;
     const { updateUser } = useUpdateUser();
     const {deleteUser} = useDeleteUser()
-  
-    // const { userBoutiques, isLoading } = useGetUserBoutiques(String(connect));
-  
-    // const [selectedBoutique, setSelectedBoutique] = useState<number>(0);
-  
-    // useEffect(() => {
-    //   if (!isLoading && userBoutiques.length > 0) {
-    //     setSelectedBoutique(userBoutiques[0].id); // Sélectionner la première boutique par défaut
-    //   }
-    // }, [isLoading, userBoutiques]);
+
+    const [is_cab, setCab] = useState(false);
+
+    const Is_Cab = () => {
+      is_cab ? setCab(false) : setCab(true);
+    };
   
     const onChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement >) => {
       const { name, value } = e.target;
@@ -50,9 +48,9 @@ import {
   
     const onSubmit = (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      // unUser["user_id"] = connect;
+      unUser["is_cabinet"] = is_cab;
       // unUser["boutique_id"] = selectedBoutique;
-      
+      console.log(unUser)
       updateUser(unUser);
     };
   
@@ -131,6 +129,16 @@ import {
                 <MenuItem value={4}>Visiteur</MenuItem> */}
               </Select>
             </FormControl>
+
+            <FormControlLabel
+              control={<Checkbox 
+                onChange={Is_Cab} // Appelle la fonction Ajout_Terminer lors du changement
+              />
+              }
+              label="Intermediere ?"
+              labelPlacement="end"
+              onClick={Is_Cab}       
+            />
   
             <Button className="mt-6" type="submit" color="primary" variant="contained" fullWidth>
               Modifier

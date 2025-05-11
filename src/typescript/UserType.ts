@@ -37,8 +37,9 @@ export type UtilisateurType = {
     numero: number;
     username: string;
     is_admin?: string;
-    is_superuser?: string;
+    is_superuser?: boolean;
     is_sortie?: boolean;
+    is_cabinet?: boolean;
     repassword?: string,
     password?: string,
   };

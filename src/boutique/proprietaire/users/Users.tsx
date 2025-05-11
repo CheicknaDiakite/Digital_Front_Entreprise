@@ -76,6 +76,8 @@ export default function Users() {
     currentPage * itemsPerPage
   );
 
+  console.log("uu ",usersEntreprise)
+
   const totalPages = Math.ceil(getUsers.length / itemsPerPage);
 
   // const getUs = getUsers.slice(
@@ -155,6 +157,7 @@ export default function Users() {
                   <TableCell>Nom</TableCell>
                   <TableCell>Numero</TableCell>
                   <TableCell>Email</TableCell>
+                  <TableCell>Intermediere</TableCell>
                   <TableCell>Type de compte</TableCell>
                   <TableCell>
                     
@@ -171,6 +174,21 @@ export default function Users() {
                     </TableCell>
                     <TableCell >{post.numero}</TableCell>
                     <TableCell >{post.email}</TableCell>
+                    <TableCell>
+                      {/* {post.is_cabinet ? "Intermediere" :
+                                 "False"
+                                } */}
+                      <span 
+                        className={post.is_cabinet ? 
+                        "inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-700/10" :
+                        ""
+                        }
+                      >
+                        {post.is_cabinet ? "Intermediere" :
+                          ""
+                        }
+                      </span>
+                    </TableCell>        
                     <TableCell className={post.role===1 ? "" : "bg-red-300 text-white"} >{post.role===1 ? "Activer" :
                                  "Visiteur"
                                 }

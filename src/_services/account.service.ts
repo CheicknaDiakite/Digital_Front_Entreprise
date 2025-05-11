@@ -33,6 +33,16 @@ const userAdminRegister = (data: FormValueType) => {
             withCredentials: true
         });
 }
+
+const userCabinetRegister = (data: FormValueType) => {
+    return Axios.post('utilisateur/admin/cabinet',
+        data,{                         
+            headers: {
+                'Authorization': `${token_1}`
+            },
+            withCredentials: true
+        });
+}
 const avisCreate = (data: AvisType) => {
     
     return Axios.post('entreprise/avis/add',
@@ -138,9 +148,27 @@ const userAll = async (data?: TypeSlug): Promise<ReponseUser> => {
     }
     
 }
+
 const allUsers = async (data: string) => {
     try {
         const response = await Axios.get(`utilisateur/get/${data}`,
+            {                         
+                headers: {
+                    'Authorization': `${token_1}`
+                },
+                withCredentials: true
+            });
+        return response;
+    } catch (error) {
+        console.error("Error fetching user profile:", error);
+        throw error;
+    }
+    
+}
+
+const allMesUsers = async (data: string) => {
+    try {
+        const response = await Axios.get(`utilisateur/get/mes_user/${data}`,
             {                         
                 headers: {
                     'Authorization': `${token_1}`
@@ -293,8 +321,9 @@ const userLogout = () => {
 export const userService = {
     userRegister, userLogin, userGet, userUpdate, userDelete,
     userAll, userLogout, userUnGet, userAdminRegister, allUsers,
-    userForgot, avisDelete, avisGet, avisCreate,
-    allClients, userClient, userUnClient, clientUpdate, clientDelete
+    userForgot, avisDelete, avisGet, avisCreate, allMesUsers,
+    allClients, userClient, userUnClient, clientUpdate, clientDelete,
+    userCabinetRegister
 }
 
 const saveToken = (token: string, tok?: string) => {

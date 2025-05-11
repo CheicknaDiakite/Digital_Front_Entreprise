@@ -123,6 +123,7 @@ export default function TableSortie({
               Designation : {scannedCode}
             </Typography>
             <Select
+              required
               options={ent} // Ici, vous pouvez également filtrer si besoin
               value={selectedOption}
               onChange={handleChange}
@@ -142,6 +143,7 @@ export default function TableSortie({
               Quantite <QuantityLimitsIcon fontSize="large" />
             </Typography>
             <MyTextField
+              required
               type="number"
               name="qte"
               value={formValues.qte}

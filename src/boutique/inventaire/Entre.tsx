@@ -230,7 +230,7 @@ export default function Entre() {
       <Nav />
       <Grid className='py-2'>
         <Typography variant="h5">
-          <Button variant="outlined" onClick={functionopen}>Ajout des entrer</Button>
+          <Button variant="outlined" className="rounded border-x-1 animate-border-rotate" onClick={functionopen}>Ajout des entrer</Button>
         </Typography>
       </Grid>
 

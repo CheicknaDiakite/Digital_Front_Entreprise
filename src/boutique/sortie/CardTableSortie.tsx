@@ -62,7 +62,7 @@ export default function CardTableSortie({row}: any) {
     <TableCell >{formatNumberWithSpaces(row.pu)}</TableCell>        
     <TableCell >{formatNumberWithSpaces(row.prix_total)} <LocalAtmIcon color="primary" fontSize='small' /></TableCell>
     {/* {ccyFormat(price)} */}
-    {(unUser.role === 1) &&     
+    {(unUser.role === 1 || unUser.role === 2 ) &&     
     <TableCell>
       <Link to={`/sortie/modif/${row.uuid}`}>
         <Stack direction="row" spacing={2}>

@@ -27,7 +27,6 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  SelectChangeEvent,
   ListItem,
   ListItemAvatar,
   Avatar,
@@ -37,7 +36,7 @@ import {
   // TextField,
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import { ChangeEvent, FormEvent, Fragment, useState } from "react";
+import { ChangeEvent, Fragment, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 // import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useAllClients, useCreateClient, useFetchEntreprise } from "../../../usePerso/fonction.user";
@@ -50,19 +49,31 @@ import { ClienType } from "../../../typescript/UserType";
 import M_Abonnement from "../../../_components/Card/M_Abonnement";
 import { isLicenceExpired, stringAvatar } from "../../../usePerso/fonctionPerso";
 import MainCard from "../../../components/MainCard";
+import { useForm } from "react-hook-form";
 
 
 export default function Client() {
 
   const uuid = useStoreUuid((state) => state.selectedId)
   const {unEntreprise} = useFetchEntreprise(uuid!)
+
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<ClienType>();
   
-  const [open, openchange] = useState(false);
-  const functionopen = () => {
-    openchange(true);
-  };
+  
+  // const [open, openchange] = useState(false);
+  // const functionopen = () => {
+  //   openchange(true);
+  // };
+  // const closeopen = () => {
+  //   openchange(false);
+  // };
+
+  const [open, setOpen] = useState(false);
+    
+  const functionopen = () => setOpen(true);
   const closeopen = () => {
-    openchange(false);
+    reset(); // Réinitialise le formulaire à la fermeture
+    setOpen(false);
   };
 
   const { getClients: getUser, isLoading, isError } = useAllClients(uuid!);
@@ -93,8 +104,6 @@ export default function Client() {
     return typeFilter;
   });
 
-  console.log("testing ..", filteredClient)
- 
    // Calcul du nombre total de pages
    const totalPages = Math.ceil(filteredClient.length / itemsPerPage);
  
@@ -111,50 +120,33 @@ export default function Client() {
   
   const { createClient } = useCreateClient();
 
-  const [formValues, setFormValues] = useState<ClienType>({
-    nom: "",
-    email: "",
-    adresse: "",
-    coordonne: "",
-    numero: 0,
-    role: 0,
-  });
+  // const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+  //   formValues["user_id"]= connect,
+  //   formValues["entreprise_id"]= uuid!,
 
-  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormValues({
-      ...formValues,
-      [name]: value,
-    });
-  };
+  //   createClient(formValues);
 
-  const onSelectChange = (e: SelectChangeEvent<number>) => {
-    setFormValues({
-      ...formValues,
-      [e.target.name]: e.target.value,
-    });
-  };
+  //   // Réinitialisation des champs du formulaire
+  //   setFormValues({
+  //     nom: "",
+  //     email: "",
+  //     adresse: "",
+  //     coordonne: "",
+  //     numero: 0,
+  //     role: 0,
+  //   });
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    formValues["user_id"]= connect,
-    formValues["entreprise_id"]= uuid!,
-
-    createClient(formValues);
-
-    // Réinitialisation des champs du formulaire
-    setFormValues({
-      nom: "",
-      email: "",
-      adresse: "",
-      coordonne: "",
-      numero: 0,
-      role: 0,
-    });
-
-    // Fermez le dialogue (si nécessaire)
-    closeopen();
+  //   // Fermez le dialogue (si nécessaire)
+  //   closeopen();
     
+  // };
+  const onSubmit = (data: ClienType) => {
+    data.user_id = connect;
+    data.entreprise_id = uuid!;
+
+    createClient(data);
+    closeopen();
   };
 
   if (isLoading) {
@@ -208,6 +200,7 @@ export default function Client() {
               onClick={functionopen}
               variant="outlined"
               startIcon={<UserPlusIcon />}
+              className="rounded border-x-1 animate-border-rotate"
             >
              Ajouter client/fournisseur
             </Button>
@@ -333,6 +326,10 @@ export default function Client() {
                           </Typography>
                           <br />
                           <Typography component="span" variant="body2" color="text.primary">
+                            {"Email : "} {post.email}
+                          </Typography>
+                          <br />
+                          <Typography component="span" variant="body2" color="text.primary">
                             {"Adresse : "} {post.adresse}
                           </Typography>
                           <br />
@@ -394,46 +391,51 @@ export default function Client() {
             :        
                
           <DialogContent>
-            <form onSubmit={onSubmit}>
+            <form onSubmit={handleSubmit(onSubmit)}>
               <Stack spacing={2}  margin={2}>
                 
-                <MyTextField 
+                {/* <MyTextField 
                 label="Nom complet"
                 name="nom"
                 onChange={onChange}
                 value={formValues.nom}
                 fullWidth
+                /> */}
+                <MyTextField                                              
+                  label="Nom complet"
+                  {...register("nom", { required: "Ce champ est obligatoire" })}
+                  error={!!errors.nom}
+                  helperText={errors.nom?.message}
                 />
-                <MyTextField 
-                label="Adresse"
-                name="adresse"
-                onChange={onChange}
-                value={formValues.adresse}
-                fullWidth
+
+                <MyTextField                                              
+                  label="Numero"
+                  type="number"
+                  {...register("numero")}
+                  error={!!errors.numero}
+                  helperText={errors.numero?.message}
                 />
                 
                 <MyTextField 
-                  label="Coordonne"
-                  name="coordonne"
-                  onChange={onChange}
-                  value={formValues.coordonne}
-                  fullWidth
-                />
-                <MyTextField 
-                  label="Numero"
-                  type="number"
-                  name="numero"
-                  onChange={onChange}
-                  value={formValues.numero}
-                  fullWidth
-                />
-                <MyTextField 
                   label="Email"
                   type="email"
-                  name="email"
-                  onChange={onChange}
-                  value={formValues.email}
-                  fullWidth
+                  {...register("email")}
+                  error={!!errors.email}
+                  helperText={errors.email?.message}
+                />
+
+                <MyTextField                                              
+                  label="Adresse"
+                  {...register("adresse")}
+                  error={!!errors.adresse}
+                  helperText={errors.adresse?.message}
+                />
+                
+                <MyTextField                                              
+                  label="Coordonne"
+                  {...register("coordonne")}
+                  error={!!errors.coordonne}
+                  helperText={errors.coordonne?.message}
                 />
 
                 <FormControl fullWidth margin="normal">
@@ -441,9 +443,12 @@ export default function Client() {
                   <Select
                     labelId="role-label"
                     id="role-select"
-                    name="role"
-                    value={formValues.role || 0}
-                    onChange={onSelectChange}
+                    // name="role"
+                    // value={formValues.role || 0}
+                    // onChange={onSelectChange}
+                    {...register("role", { required: "Ce champ est obligatoire" })}
+                    error={!!errors.role}
+                    // helperText={errors.role?.message}
                     label="Role"
                   >
                     <MenuItem value={1}>Client</MenuItem>

@@ -66,7 +66,7 @@ export default function ModifSortie() {
   
   return (<>
   <Nav>
-    {unUser.role === 1 &&     
+    {(unUser.role === 1 || unUser.role === 2) &&     
       <Button size="small" className='rounded-full shadow-md shadow-red-800/50' onClick={handleDelete}>
         <DeleteIcon fontSize='small' />
       </Button>
