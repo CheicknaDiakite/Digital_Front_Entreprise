@@ -18,21 +18,6 @@ export default function Header({ orderNumber, nom, numeroFac, url, address, nume
           <Typography variant="h6">{nom}</Typography>
           <img src={url} alt="img" className="h-24 w-24" />
         </Box>
-
-
-        {/* <Box textAlign="center">
-          {orderNumber && (
-            <Typography variant="h6" sx={{ mt: 2 }}>
-              Numéro de la facture : {orderNumber}
-            </Typography>
-          )}
-
-          {numeroFac && (
-            <Typography variant="h4" sx={{ mt: 2 }}>
-              Numéro de la facture : {numeroFac}
-            </Typography>
-          )}
-        </Box> */}
       </Toolbar> 
       <div className="header text-center mb-6">
             {/* <h2 className="text-2xl font-bold">DIAKITE DIGITAL</h2> */}

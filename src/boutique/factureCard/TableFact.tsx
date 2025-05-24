@@ -21,12 +21,15 @@ interface TableFactProps {
     }[];
   total: number;
   discountedTotal: number;
+  payerTotal: number;
 }
 
-const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal }) => {
+const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, payerTotal }) => {
   // Exemple de fonction pour formater les nombres avec des espaces
   // const formatNumberWithSpaces = (num: number): string =>
   //   num.toLocaleString('fr-FR', { minimumFractionDigits: 2 });
+  const resteAPayer = (total - ((total - discountedTotal) + (total - payerTotal)))
+
   return (
     <TableContainer
       component={Paper}
@@ -91,10 +94,18 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal }) =
           </TableRow>
           <TableRow>
             <TableCell colSpan={2} align="right" sx={{ fontWeight: 'bold' }}>
-              Total
+              Montant Payer 
             </TableCell>
             <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-              {formatNumberWithSpaces(discountedTotal)}
+              {formatNumberWithSpaces(total - payerTotal)}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell colSpan={2} align="right" sx={{ fontWeight: 'bold' }}>
+              Total {(total - payerTotal) ? "(Restant) :" : ":"}
+            </TableCell>
+            <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+              {formatNumberWithSpaces(resteAPayer)}
             </TableCell>
           </TableRow>
         </TableBody>

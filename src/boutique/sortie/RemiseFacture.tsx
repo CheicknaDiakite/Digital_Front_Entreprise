@@ -306,7 +306,7 @@ export default function RemiseFacture() {
             </Grid>
             </div>  
         
-              <TableContainer component={Paper}>
+              <TableContainer component={Paper} className='mt-3'>
                 <Table sx={{ minWidth: 700 }} aria-label="spanning table">
                   <TableHead>
                     <TableRow>

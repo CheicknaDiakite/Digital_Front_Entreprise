@@ -44,8 +44,6 @@ import { useStoreUuid } from "../../../../usePerso/store";
       unClient["entreprise_id"] =  entreprise_id!
       updateClient(unClient);
     };
-
-    console.log("unC", unClient)
   
     return (
       <div className="flex justify-center items-center flex-col">

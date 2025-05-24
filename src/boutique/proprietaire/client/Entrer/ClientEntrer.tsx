@@ -274,7 +274,7 @@ export default function ClientEntrer(uuid: UuType) {
           </DialogContent>
         </Dialog>
     
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} className='mt-3'>
           <Table sx={{ minWidth: 700 }} aria-label="spanning table">
             <TableHead>
               

@@ -294,7 +294,7 @@ export default function Depense() {
         
       </Dialog>
   
-      <TableContainer ref={componentRef} component={Paper}>
+      <TableContainer ref={componentRef} component={Paper} className='mt-3'>
         <Table sx={{ minWidth: 700 }} aria-label="spanning table">
           <TableHead>
             <TableRow>

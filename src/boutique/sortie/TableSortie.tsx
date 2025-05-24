@@ -66,7 +66,6 @@ export default function TableSortie({
       handleChange(filteredEnt[0]); // ou une fonction qui met à jour selectedOption
     }
   }, [filteredEnt]);
-  console.log("gg ...", formValues)
   return (
     <>
       <ToastContainer position="top-right" theme="colored" />

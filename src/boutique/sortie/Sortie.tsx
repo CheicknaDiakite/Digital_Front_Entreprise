@@ -14,9 +14,10 @@ import MyTextField from "../../_components/Input/MyTextField";
 import { useStoreUuid } from "../../usePerso/store";
 import { formatNumberWithSpaces } from "../../usePerso/fonctionPerso";
 import { SingleValue } from 'react-select';
+import { format } from "date-fns";
 
  
-type TypeText = {
+export type TypeText = {
   clientName: string,
   clientAddress: string,
   numeroFac: string,
@@ -243,6 +244,8 @@ export default function Sortie() {
         }
       };
 
+      const itemDate = format(new Date(), 'yyyy-dd-MM');
+
       const handleAutoClientChange = (_: SyntheticEvent<Element, Event>,
         value: string | RecupType | null,
         // reason: AutocompleteChangeReason
@@ -354,9 +357,12 @@ export default function Sortie() {
         }, 0);
 
         const [isModalOpen, setIsModalOpen] = useState(false);
+        const [isModalOpenPay, setIsModalOpenPay] = useState(false);
         const [fixedDiscount, setFixedDiscount] = useState<number | string>(""); // Remise fixe
+        const [payDiscount, setPayDiscount] = useState<number | string>(""); // Remise fixe
         const [percentageDiscount, setPercentageDiscount] = useState<number | string>(""); // Remise en %
         const [discountedTotal, setDiscountedTotal] = useState(total); // Total avec remise
+        const [payerTotal, setPayerTotal] = useState(total); // Total avec remise
       
         // Normaliser la saisie (remplace ',' par '.')
         const normalizeInput = (value: string) => value.replace(",", ".");
@@ -375,9 +381,21 @@ export default function Sortie() {
           }
           setDiscountedTotal(Math.max(0, newTotal)); // Empêche un total négatif
         };
+
+        const calculatePayerTotal = () => {
+          let newTotal = total;
+          const fixed = parseFloat(normalizeInput(payDiscount as string)) || 0;
+          
+          if (fixed) {
+            newTotal -= fixed;
+          }
+          
+          setPayerTotal(Math.max(0, newTotal)); // Empêche un total négatif
+        };
       
         // Ouvrir/fermer le modal
         const toggleModal = () => setIsModalOpen(!isModalOpen);
+        const toggleModalPay = () => setIsModalOpenPay(!isModalOpenPay);
       
         // Pour la remise des facture
         const [openF, setOpenF] = useState(false);
@@ -391,7 +409,12 @@ export default function Sortie() {
         // Appliquer la remise
         const handleApplyDiscount = () => {
           calculateDiscountedTotal();
+          calculatePayerTotal();
           toggleModal();
+        };
+        const handleApplyPayer = () => {
+          calculatePayerTotal();
+          toggleModalPay();
         };
       // fin
       if (isLoading) {
@@ -411,360 +434,372 @@ export default function Sortie() {
         return (
           <>
           <main
-        className="m-5 p-5 gap-10 xl:items-start"
-        style={{
-          maxWidth: "1920px",
-          margin: "auto",
-        }}
-      >
-        <div className='py-2'>
-          <Nav />
-        </div>
-
-        <section className="invoice__preview bg-white p-5 rounded-2xl border-4 border-blue-300">
-          <div className="bg-white p-5 rounded shadow">
-            <div className="flex flex-col justify-center">
-              
-              <article className="md:grid grid-cols-2 gap-10">
-              <div className="flex flex-col">
-                    
-                    <Typography variant="h5">
-                      Numero de la facture
-                    </Typography>
-                    <MyTextField 
-                    type="text"
-                    name="numeroFac"
-                    placeholder="Numero de la facture"
-                    autoComplete="off"
-                    // value={bankName}
-                    onChange={onChan}
-                    />
-                  </div>
-
-                <div className="flex flex-col">
-                  <Typography variant="h5" className='mb-2'>
-                    Nom du client
-                  </Typography>
-                  <MyTextField 
-                    type="text"
-                    name="clientName"
-                    id="clientName"
-                    placeholder="Nom du client"
-                    autoComplete="off"
-                    onChange={onChan}
-                  />
-                </div>
-
-                {/* <div className="flex flex-col">
-                  <Typography variant="h5" className='mb-2'>
-                    Adresse du client
-                  </Typography>
-                  <MyTextField 
-                    type="text"
-                    name="clientAddress"
-                    id="clientAddress"
-                    placeholder="Adresse du client"                  
-                    autoComplete="off"
-                    onChange={onChan}
-                  />
-                </div> */}
-                
-                {/* <div className="flex flex-col">
-                  <Typography variant="h5" className='mb-2'>
-                    Coordonne du client
-                  </Typography>
-                  <MyTextField 
-                    type="text"
-                    name="clientCoordonne"
-                    id="clientCoordonne"
-                    placeholder="Coordonne du client"
-                    autoComplete="off"
-                    onChange={onChan}
-                  />
-                </div> */}
-
-              </article>
-
-              <article className="md:grid grid-cols-3 gap-10 mt-5">
-                <div className="flex flex-col">
-                  <Typography variant="h5" className='mb-2'>
-                    Numero du client
-                  </Typography>
-                  <MyTextField 
-                    type="number"
-                    name="invoiceNumber"
-                    id="invoiceNumber"
-                    placeholder="Numero du client"
-                    autoComplete="off"
-                    onChange={onChan}
-                  />
-                </div>
-
-                <div className="flex flex-col">
-                  <Typography variant="h5" className='mb-2'>
-                    Date de la facture
-                  </Typography>
-                  <MyTextField 
-                    type="date"
-                    name="invoiceDate"
-                    id="invoiceDate"
-                    placeholder="Date de la facture"
-                    autoComplete="off"
-                    onChange={onChan}
-                  />
-                </div>
-              </article>
-
-              {/* This is our table form */}
-              <article>
-                <div className="mb-5">
-                  <Button 
-                  variant="outlined" 
-                  onClick={() => {
-                    handleSaveSorties();
-                    handleOnClick();
-                  }}
-                  className="bg-green-500 text-white font-bold mt-5 py-2 px-8 rounded hover:bg-green-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-green-400">
-                    Facture
-                  </Button>
-
-                  <Button variant="outlined" onClick={handleOpenClick} className="bg-red-500 mx-3 text-white font-bold mt-5 py-2 px-8 rounded hover:bg-red-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-red-400">
-                    Off.
-                  </Button>
-                  
-                  <Button variant="contained" color="primary" onClick={toggleModal} className="bg-indigo-500 mx-3 text-white font-bold mt-5 py-2 px-8 rounded hover:bg-indigo-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-indigo-400">
-                    Remise
-                  </Button> 
-
-                  <Button variant="contained" color="primary" onClick={handleOpen} className="bg-sky-500 mx-3 text-white font-bold mt-5 py-2 px-8 rounded hover:bg-sky-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-sky-400">
-                    R_Facture
-                  </Button>
-
-                  <Modal
-                    open={openF}
-                    onClose={handleClose}
-                    aria-labelledby="parent-modal-title"
-                    aria-describedby="parent-modal-description"
-                  >
-                    <Box sx={{ ...style, width: 400 }}>
-                      <h2 id="parent-modal-title">Il y a eu une remise sur ce facture ?</h2>
-                      <p id="parent-modal-description">
-                        Verifier avant de Confirmer
-                      </p>
-                      <TableContainer
-                        component={Paper}
-                        sx={{
-                          width: '100%',
-                          maxWidth: '100%',
-                          margin: '0 auto',
-                          padding: '1rem',
-                          boxSizing: 'border-box',
-                        }}
-                      >
-                        <Table
-                          sx={{
-                            minWidth: 700,
-                            '@media (max-width: 768px)': {
-                              minWidth: '100%', // S'ajuste pour les petits écrans
-                              fontSize: '0.8rem',
-                            },
-                          }}
-                          aria-label="spanning table"
-                        >
-                          <TableHead>
-                            <TableRow>
-                              {/* <TableCell>Date</TableCell> */}
-                              <TableCell>Designation</TableCell>
-                              <TableCell align="right">Quantite</TableCell>
-                              <TableCell align="right">Prix unitaire</TableCell>
-                              <TableCell align="right">Somme</TableCell>
-                            </TableRow>
-                          </TableHead>
-                          <TableBody>
-                            {selectSorties.map((post, index) => (
-                              <TableRow key={index}>
-                                {/* <TableCell>
-                                  {format(new Date(post.date), 'dd/MM/yyyy')}
-                                </TableCell> */}
-                                <TableCell>
-                                  {post.ref} {" - "}
-                                  {post.categorie_libelle}
-                                </TableCell>
-                                <TableCell align="right">{post.qte}</TableCell>
-                                <TableCell align="right">{formatNumberWithSpaces(post.pu)}</TableCell>
-                                <TableCell align="right">{formatNumberWithSpaces(post.prix_total)}</TableCell>
-                              </TableRow>
-                            ))}
-                            <TableRow>
-                              <TableCell rowSpan={3} />
-                              <TableCell colSpan={2} align="right" sx={{ fontWeight: 'bold' }}>
-                                Prix
-                              </TableCell>
-                              <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-                                {formatNumberWithSpaces(total)}
-                              </TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell colSpan={2} align="right" sx={{ fontWeight: 'bold' }}>
-                                Remise
-                              </TableCell>
-                              <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-                                {formatNumberWithSpaces(total - discountedTotal)}
-                              </TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell colSpan={2} align="right" sx={{ fontWeight: 'bold' }}>
-                                Total
-                              </TableCell>
-                              <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-                                {formatNumberWithSpaces(discountedTotal)}
-                              </TableCell>
-                            </TableRow>
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
-                      <ChildModal />
-                    </Box>
-                  </Modal>                  
-
-                  {/* Modal */}
-                  <Modal open={isModalOpen} onClose={toggleModal}>
-                    <Box
-                      sx={{
-                        position: "absolute",
-                        top: "50%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%)",
-                        bgcolor: "background.paper",
-                        boxShadow: 24,
-                        p: 4,
-                        borderRadius: 2,
-                        minWidth: 300,
-                      }}
-                    >
-                      <h2>Ajouter une remise</h2>
-                      <TextField
-                        label="Montant fixe (ex: 1500 ou 85.45)"
-                        variant="outlined"
-                        fullWidth
-                        margin="normal"
-                        value={fixedDiscount}
-                        onChange={(e) => setFixedDiscount(normalizeInput(e.target.value))}
-                      />
-                      <TextField
-                        label="Pourcentage (ex: 2% ou 5%)"
-                        variant="outlined"
-                        fullWidth
-                        margin="normal"
-                        value={percentageDiscount}
-                        onChange={(e) => setPercentageDiscount(normalizeInput(e.target.value))}
-                      />
-                      <div className="flex justify-end mt-4">
-                        <Button variant="outlined" onClick={toggleModal} sx={{ mr: 2 }}>
-                          Annuler
-                        </Button>
-                        <Button variant="contained" color="primary" onClick={handleApplyDiscount}>
-                          Appliquer
-                        </Button>
-                      </div>
-                    </Box>
-                  </Modal>
-
-                </div>                
-                
-                <div className="flex justify-center mt-4">
-
-                {(unUser.role === 1 || unUser.role === 2) && 
-                  <>                
-                    <Grid item className='mx-2'>
-                      <TextField
-                        className='bg-sky-300'
-                        label="Date de début"
-                        type="date"
-                        value={selectedStartDate}
-                        onChange={handleStartDateChange}
-                        InputLabelProps={{ shrink: true }}
-                      />
-                    </Grid>
-
-                    <Grid item>
-                      <TextField
-                        className='bg-sky-300'
-                        label="Date de fin"
-                        type="date"
-                        value={selectedEndDate}
-                        onChange={handleEndDateChange}
-                        InputLabelProps={{ shrink: true }}
-                      />
-                    </Grid>
-                  </>
-                }
-
-                {unUser.role === 1 &&                 
-                  <Grid item>
-                    <Typography variant="h5" className='mx-2'>
-                      Chiffre d'affaire = {formatNumberWithSpaces(totalPrice)} <LocalAtmIcon fontSize='medium' color="primary" />
-                    </Typography>
-                    <Typography variant="h5" className='mx-2'>
-                      Qte = {formatNumberWithSpaces(totalQte)} <QuantityLimitsIcon fontSize='medium' color="primary" />
-                    </Typography>
-                  </Grid>
-                }               
-                  
-                </div>
-                
-                <TableSortie 
-                onSubmit={onSubmit}
-                onChange={onChange}
-                formValues={formValues}
-                amount={amount}
-                handleAutoCompleteChange={handleAutoCompleteChange}
-                handleAutoClientChange={handleAutoClientChange}
-                handleSaveSorties={handleSaveSorties}
-                handleChange={handleChange}
-                handleClient={handleClient}
-                selectedOption={selectedOption}
-                selectedClient={selectedClient}
-                list={sortiesBoutic}
-                ent={ent}
-                scannedCode={scannedCode}
-                functionopen={functionopen}
-                open={open}
-                handleScanResult={handleScanResult}
-                closeopen={closeopen}
-                
-                />
-
-                {/* Composant de pagination */}
-                <div className="flex justify-center mt-4">
-                  <Pagination
-                    count={totalPages}
-                    page={currentPage}
-                    onChange={handlePageChange}
-                    color="primary"
-                  />
-                </div>
-              </article>
-
-              <Grid item>
-                <Typography variant="h5">Ajouter une note</Typography>
-              </Grid>
-              <textarea
-                name="notes"
-                className="mt-2"
-                cols={30}
-                rows={10}
-                placeholder="Ajouter une note pour plus de details pour ce facture"
-                maxLength={500}
-                // value={notes}
-                onChange={onChan}
-              ></textarea>
+            className="m-5 p-5 gap-10 xl:items-start"
+            style={{
+              maxWidth: "1920px",
+              margin: "auto",
+            }}
+          >
+            <div className='py-2'>
+              <Nav />
             </div>
-          </div>
-          
-        </section>
 
-      </main>      
+            <section className="invoice__preview bg-white p-5 rounded-2xl border-4 border-blue-300">
+              <div className="bg-white p-5 rounded shadow">
+                <div className="flex flex-col justify-center">
+                  
+                  <article className="md:grid grid-cols-2 gap-10">
+                  <div className="flex flex-col">
+                        
+                        <Typography variant="h5">
+                          Numero de la facture
+                        </Typography>
+                        <MyTextField 
+                        type="text"
+                        name="numeroFac"
+                        placeholder="Numero de la facture"
+                        autoComplete="off"
+                        // value={bankName}
+                        onChange={onChan}
+                        />
+                      </div>
+
+                    <div className="flex flex-col">
+                      <Typography variant="h5" className='mb-2'>
+                        Nom du client
+                      </Typography>
+                      <MyTextField 
+                        type="text"
+                        name="clientName"
+                        id="clientName"
+                        placeholder="Nom du client"
+                        autoComplete="off"
+                        onChange={onChan}
+                      />
+                    </div>
+
+                  </article>
+
+                  <article className="md:grid grid-cols-3 gap-10 mt-5">
+                    <div className="flex flex-col">
+                      <Typography variant="h5" className='mb-2'>
+                        Numero du client
+                      </Typography>
+                      <MyTextField 
+                        type="number"
+                        name="invoiceNumber"
+                        id="invoiceNumber"
+                        placeholder="Numero du client"
+                        autoComplete="off"
+                        onChange={onChan}
+                      />
+                    </div>
+
+                    <div className="flex flex-col">
+                      <Typography variant="h5" className='mb-2'>
+                        Date de la facture
+                      </Typography>
+                      <MyTextField 
+                        type="date"
+                        name="invoiceDate"
+                        id="invoiceDate"
+                        placeholder="Date de la facture"
+                        autoComplete="off"
+                        onChange={onChan}
+                      />
+                    </div>
+                  </article>
+
+                  {/* This is our table form */}
+                  <article>
+                    <div className="mb-5">
+                      <Button 
+                      variant="outlined" 
+                      onClick={() => {
+                        handleSaveSorties();
+                        handleOnClick();
+                      }}
+                      className="bg-green-500 text-white font-bold mt-5 py-2 px-8 rounded hover:bg-green-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-green-400">
+                        Facture
+                      </Button>
+
+                      <Button variant="outlined" onClick={handleOpenClick} className="bg-red-500 mx-3 text-white font-bold mt-5 py-2 px-8 rounded hover:bg-red-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-red-400">
+                        Off.
+                      </Button>
+                      
+                      <Button variant="contained" color="primary" onClick={toggleModal} className="bg-indigo-500 mx-3 text-white font-bold mt-5 py-2 px-8 rounded hover:bg-indigo-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-indigo-400">
+                        Remise
+                      </Button>
+
+                      <Button variant="contained" color="primary" onClick={toggleModalPay} className="bg-orange-500 mx-3 text-white font-bold mt-5 py-2 px-8 rounded hover:bg-orange-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-orange-400">
+                        Payer
+                      </Button> 
+
+                      <Button variant="contained" color="primary" onClick={handleOpen} className="bg-sky-500 mx-3 text-white font-bold mt-5 py-2 px-8 rounded hover:bg-sky-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-sky-400">
+                        R_Facture
+                      </Button>
+
+                      <Modal
+                        open={openF}
+                        onClose={handleClose}
+                        aria-labelledby="parent-modal-title"
+                        aria-describedby="parent-modal-description"
+                      >
+                        <Box sx={{ ...style, width: 400 }}>
+                          <h2 id="parent-modal-title">Il y a eu une remise sur ce facture ?</h2>
+                          <p id="parent-modal-description">
+                            Verifier avant de Confirmer
+                          </p>
+                          <TableContainer
+                            component={Paper}
+                            sx={{
+                              width: '100%',
+                              maxWidth: '100%',
+                              margin: '0 auto',
+                              padding: '1rem',
+                              boxSizing: 'border-box',
+                            }}
+                          >
+                            <Table
+                              sx={{
+                                minWidth: 700,
+                                '@media (max-width: 768px)': {
+                                  minWidth: '100%', // S'ajuste pour les petits écrans
+                                  fontSize: '0.8rem',
+                                },
+                              }}
+                              aria-label="spanning table"
+                            >
+                              <TableHead>
+                                <TableRow>
+                                  {/* <TableCell>Date</TableCell> */}
+                                  <TableCell>Designation</TableCell>
+                                  <TableCell align="right">Quantite</TableCell>
+                                  <TableCell align="right">Prix unitaire</TableCell>
+                                  <TableCell align="right">Somme</TableCell>
+                                </TableRow>
+                              </TableHead>
+                              <TableBody>
+                                {selectSorties.map((post, index) => (
+                                  <TableRow key={index}>
+                                    {/* <TableCell>
+                                      {format(new Date(post.date), 'dd/MM/yyyy')}
+                                    </TableCell> */}
+                                    <TableCell>
+                                      {post.ref} {" - "}
+                                      {post.categorie_libelle}
+                                    </TableCell>
+                                    <TableCell align="right">{post.qte}</TableCell>
+                                    <TableCell align="right">{formatNumberWithSpaces(post.pu)}</TableCell>
+                                    <TableCell align="right">{formatNumberWithSpaces(post.prix_total)}</TableCell>
+                                  </TableRow>
+                                ))}
+                                <TableRow>
+                                  <TableCell rowSpan={3} />
+                                  <TableCell colSpan={2} align="right" sx={{ fontWeight: 'bold' }}>
+                                    Prix
+                                  </TableCell>
+                                  <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                                    {formatNumberWithSpaces(total)}
+                                  </TableCell>
+                                </TableRow>
+                                <TableRow>
+                                  <TableCell colSpan={2} align="right" sx={{ fontWeight: 'bold' }}>
+                                    Remise
+                                  </TableCell>
+                                  <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                                    {formatNumberWithSpaces(total - discountedTotal)}
+                                  </TableCell>
+                                </TableRow>
+                                <TableRow>
+                                  <TableCell colSpan={2} align="right" sx={{ fontWeight: 'bold' }}>
+                                    Total
+                                  </TableCell>
+                                  <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                                    {formatNumberWithSpaces(discountedTotal)}
+                                  </TableCell>
+                                </TableRow>
+                              </TableBody>
+                            </Table>
+                          </TableContainer>
+                          <ChildModal />
+                        </Box>
+                      </Modal>                  
+
+                      {/* Modal */}
+                      <Modal open={isModalOpen} onClose={toggleModal}>
+                        <Box
+                          sx={{
+                            position: "absolute",
+                            top: "50%",
+                            left: "50%",
+                            transform: "translate(-50%, -50%)",
+                            bgcolor: "background.paper",
+                            boxShadow: 24,
+                            p: 4,
+                            borderRadius: 2,
+                            minWidth: 300,
+                          }}
+                        >
+                          <h2>Ajouter une remise</h2>
+                          <TextField
+                            label="Montant fixe (ex: 1500 ou 85.45)"
+                            variant="outlined"
+                            fullWidth
+                            margin="normal"
+                            value={fixedDiscount}
+                            onChange={(e) => setFixedDiscount(normalizeInput(e.target.value))}
+                          />
+                          <TextField
+                            label="Pourcentage (ex: 2% ou 5%)"
+                            variant="outlined"
+                            fullWidth
+                            margin="normal"
+                            value={percentageDiscount}
+                            onChange={(e) => setPercentageDiscount(normalizeInput(e.target.value))}
+                          />
+                          <div className="flex justify-end mt-4">
+                            <Button variant="outlined" onClick={toggleModal} sx={{ mr: 2 }}>
+                              Annuler
+                            </Button>
+                            <Button variant="contained" color="primary" onClick={handleApplyDiscount}>
+                              Appliquer
+                            </Button>
+                          </div>
+                        </Box>
+                      </Modal>
+
+                      {/* Modal Payer */}
+                      <Modal open={isModalOpenPay} onClose={toggleModalPay}>
+                        <Box
+                          sx={{
+                            position: "absolute",
+                            top: "50%",
+                            left: "50%",
+                            transform: "translate(-50%, -50%)",
+                            bgcolor: "background.paper",
+                            boxShadow: 24,
+                            p: 4,
+                            borderRadius: 2,
+                            minWidth: 300,
+                          }}
+                        >
+                          <h2>Ajouter le montant payer</h2>
+                          <TextField
+                            label="Montant fixe (ex: 1500 ou 85.45)"
+                            variant="outlined"
+                            fullWidth
+                            margin="normal"
+                            value={payDiscount}
+                            onChange={(e) => setPayDiscount(normalizeInput(e.target.value))}
+                          />
+                          
+                          <div className="flex justify-end mt-4">
+                            <Button variant="outlined" onClick={toggleModalPay} sx={{ mr: 2 }}>
+                              Annuler
+                            </Button>
+                            <Button variant="contained" color="primary" onClick={handleApplyPayer}>
+                              Appliquer
+                            </Button>
+                          </div>
+                        </Box>
+                      </Modal>
+
+                    </div>                
+                    
+                    <div className="flex justify-center mt-4">
+
+                    {(unUser.role === 1 || unUser.role === 2) && 
+                      <>                
+                        <Grid item className='mx-2'>
+                          <TextField
+                            className='bg-sky-300'
+                            label="Date de début"
+                            type="date"
+                            value={selectedStartDate}
+                            onChange={handleStartDateChange}
+                            InputLabelProps={{ shrink: true }}
+                          />
+                        </Grid>
+
+                        <Grid item>
+                          <TextField
+                            className='bg-sky-300'
+                            label="Date de fin"
+                            type="date"
+                            value={selectedEndDate}
+                            onChange={handleEndDateChange}
+                            InputLabelProps={{ shrink: true }}
+                          />
+                        </Grid>
+                      </>
+                    }
+
+                    {unUser.role === 1 &&                 
+                      <Grid item>
+                        <Typography variant="h5" className='mx-2'>
+                          Chiffre d'affaire = {formatNumberWithSpaces(totalPrice)} <LocalAtmIcon fontSize='medium' color="primary" />
+                        </Typography>
+                        <Typography variant="h5" className='mx-2'>
+                          Qte = {formatNumberWithSpaces(totalQte)} <QuantityLimitsIcon fontSize='medium' color="primary" />
+                        </Typography>
+                      </Grid>
+                    }               
+                      
+                    </div>
+                    
+                    <TableSortie 
+                    onSubmit={onSubmit}
+                    onChange={onChange}
+                    formValues={formValues}
+                    amount={amount}
+                    handleAutoCompleteChange={handleAutoCompleteChange}
+                    handleAutoClientChange={handleAutoClientChange}
+                    handleSaveSorties={handleSaveSorties}
+                    handleChange={handleChange}
+                    handleClient={handleClient}
+                    selectedOption={selectedOption}
+                    selectedClient={selectedClient}
+                    list={sortiesBoutic}
+                    ent={ent}
+                    scannedCode={scannedCode}
+                    functionopen={functionopen}
+                    open={open}
+                    handleScanResult={handleScanResult}
+                    closeopen={closeopen}
+                    
+                    />
+
+                    {/* Composant de pagination */}
+                    <div className="flex justify-center mt-4">
+                      <Pagination
+                        count={totalPages}
+                        page={currentPage}
+                        onChange={handlePageChange}
+                        color="primary"
+                      />
+                    </div>
+                  </article>
+
+                  <Grid item>
+                    <Typography variant="h5">Ajouter une note</Typography>
+                  </Grid>
+                  <textarea
+                    name="notes"
+                    className="mt-2"
+                    cols={30}
+                    rows={10}
+                    placeholder="Ajouter une note pour plus de details pour ce facture"
+                    maxLength={500}
+                    // value={notes}
+                    onChange={onChan}
+                  ></textarea>
+                </div>
+              </div>
+              
+            </section>
+
+          </main>      
           <div className='py-8'>
             {/* <FactureCard /> */}
             {(showInvoice && entreprise) && (
@@ -773,12 +808,13 @@ export default function Sortie() {
               clientAddress={clientInfo.clientAddress || texte.clientAddress}
               clientCoordonne={clientInfo.clientCoordonne || texte.clientCoordonne}
               invoiceNumber={clientInfo.clientNumero || texte.invoiceNumber}
-              invoiceDate={texte.invoiceDate}
+              invoiceDate={texte.invoiceDate || itemDate}
               numeroFac={texte.numeroFac}
               dueDate={texte.dueDate}
               notes={texte.notes}
               post={entreprise}
               discountedTotal={discountedTotal}
+              payerTotal={payerTotal}
               />
             )
             

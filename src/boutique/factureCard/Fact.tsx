@@ -16,7 +16,7 @@ import { BASE } from '../../_services/caller.service';
 import { RecupType } from '../../typescript/DataType';
 
 
-export default function Fact({clientName, invoiceNumber, invoiceDate, notes, numeroFac,  post, discountedTotal}: RecupType | any) {
+export default function Fact({clientName, invoiceNumber, invoiceDate, notes, numeroFac,  post, discountedTotal, payerTotal}: RecupType | any) {
   // let url = BASE(post.image);
   
     const url = post.image ? BASE(post.image) : backgroundImage;
@@ -34,9 +34,6 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
     return acc + prixTotal;
   }, 0);
     
-  // const [bankName] = useState<string>("");
-  // const [bankAccount] = useState<string>("");
-  // const [website] = useState<string>("");
   const [quantity] = useState<number>(0);
   const [price] = useState<number>(0);
   const [amount, setAmount] = useState<number>(0);
@@ -52,13 +49,6 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
 
     calculateAmount();
   }, [amount, price, quantity, setAmount]);
-
-  // const [orderNumber, setOrderNumber] = useState<string | null>(null);
-
-  // const handleClick = () => {
-  //   const newOrderNumber = generateOrderNumber();
-  //   setOrderNumber(newOrderNumber);
-  // };
 
   return (
     <>
@@ -124,6 +114,7 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
             list={selectSorties}
             total={totalPrix}
             discountedTotal={discountedTotal}
+            payerTotal={payerTotal}
             />
 
             <Notes 

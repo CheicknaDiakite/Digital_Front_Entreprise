@@ -39,7 +39,7 @@ import RemiseFacture from '../../boutique/sortie/RemiseFacture'
 import MesInscrit from '../../boutique/proprietaire/users/MesInscrit'
 
 export default function PublicRouter() {
-  // notClick()
+  notClick()
   return (<div className='bg-zinc-200'>
 
     <Routes>
