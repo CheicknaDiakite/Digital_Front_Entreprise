@@ -9,7 +9,7 @@ import QuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
 import { RecupType, SortieType } from '../../../../typescript/DataType';
 import { useCreateSortie, useFetchAllSortie, useGetAllEntre } from '../../../../usePerso/fonction.entre';
 import { Money } from '../../../../_components/icons/Money';
-import { useFetchEntreprise, useUnClient } from '../../../../usePerso/fonction.user';
+import { useFetchEntreprise, useFetchUser, useUnClient } from '../../../../usePerso/fonction.user';
 import { useStoreUuid } from '../../../../usePerso/store';
 import { formatNumberWithSpaces, isLicenceExpired } from '../../../../usePerso/fonctionPerso';
 import Fact from '../../../factureCard/Fact';
@@ -22,6 +22,7 @@ export default function ClientSortie(uuid: UuType) {
     user_id: connect,
     client_id: uuid.uuid,
   }
+  const {unUser} = useFetchUser(connect)
   const {unClient} = useUnClient(uuid.uuid!);
   
     // const {ajoutEntre} = useCreateEntre()
@@ -416,17 +417,6 @@ export default function ClientSortie(uuid: UuType) {
 
                     
                       <>                
-                        {/* <Grid item className='mx-2'>
-                          <TextField
-                            className='bg-sky-300'
-                            label="Date de début"
-                            type="date"
-                            value={selectedStartDate}
-                            onChange={handleStartDateChange}
-                            InputLabelProps={{ shrink: true }}
-                          />
-                        </Grid> */}
-
                         
                         <Grid item className='mx-2'>
                           <TextField
@@ -449,11 +439,11 @@ export default function ClientSortie(uuid: UuType) {
                             InputLabelProps={{ shrink: true }}
                           />
                         </Grid>
-
-                        
-                        <Typography variant="h4" className='mx-2'>
-                          Somme total = {formatNumberWithSpaces(totalPrice)} <LocalAtmIcon color="primary" fontSize='medium' />
-                        </Typography>
+                        {unUser.role === 1 &&                        
+                          <Typography variant="h4" className='mx-2'>
+                            Somme total = {formatNumberWithSpaces(totalPrice)} <LocalAtmIcon color="primary" fontSize='medium' />
+                          </Typography>
+                        }
                       </>
                     
 

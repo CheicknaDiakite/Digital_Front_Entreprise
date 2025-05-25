@@ -145,7 +145,7 @@ export default function ClientEntrer(uuid: UuType) {
 
   if (isError) {
     // window.location.reload();
-    return <div>Error fetching data</div>
+    return <div>Non autoriser !</div>
   }
 
   if (unClient.role === 2 || unClient.role === 3 || unClient.role === 1) {

@@ -92,14 +92,18 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
               {formatNumberWithSpaces(total - discountedTotal)}
             </TableCell>
           </TableRow>
-          <TableRow>
-            <TableCell colSpan={2} align="right" sx={{ fontWeight: 'bold' }}>
-              Montant Payer 
-            </TableCell>
-            <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-              {formatNumberWithSpaces(total - payerTotal)}
-            </TableCell>
-          </TableRow>
+          {(total - payerTotal) ? 
+            <TableRow>
+              <TableCell colSpan={2} align="right" sx={{ fontWeight: 'bold' }}>
+                Montant Payer 
+              </TableCell>
+              <TableCell align="right" sx={{ fontWeight: 'bold' }}>
+                {formatNumberWithSpaces(total - payerTotal)}
+              </TableCell>
+            </TableRow>
+          : 
+          ""}
+          
           <TableRow>
             <TableCell colSpan={2} align="right" sx={{ fontWeight: 'bold' }}>
               Total {(total - payerTotal) ? "(Restant) :" : ":"}

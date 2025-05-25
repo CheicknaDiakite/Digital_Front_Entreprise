@@ -52,25 +52,25 @@ export default function ClientInfo() {
         aria-label="basic tabs example"
         >
 
-          <Tab label="Client ou Fournisseur Modification" {...a11yProps(0)} />
-                   
+          <Tab label="Vente(client)" {...a11yProps(0)} />
+
           <Tab label="Achat(Fournisseur)" {...a11yProps(1)} />
-         
-          <Tab label="Vente(client)" {...a11yProps(2)} />
+
+          <Tab label="Modification" {...a11yProps(2)} />                 
          
         </Tabs>
       </Box>
 
       <CustomTabPanel value={value} index={0}>
-        <ClientModif uuid={uuid!} />
+        <ClientSortie uuid={uuid!} />
       </CustomTabPanel>
       
       <CustomTabPanel value={value} index={1}>
         <ClientEntrer uuid={uuid!} />
       </CustomTabPanel>
-      
+
       <CustomTabPanel value={value} index={2}>
-        <ClientSortie uuid={uuid!} />
+        <ClientModif uuid={uuid!} />
       </CustomTabPanel>
       
     </Box>
