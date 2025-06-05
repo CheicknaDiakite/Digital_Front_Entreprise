@@ -1,111 +1,125 @@
-import { useEffect } from 'react';
+import { FC, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import Button from '@mui/material/Button';
-import Stack from '@mui/material/Stack';
-import { Card, TextField } from '@mui/material';
+import { Button, Stack, Card, TextField } from '@mui/material';
 import toast from 'react-hot-toast';
 import { useLoginUser } from '../../../usePerso/fonction.user';
 
-// Définition du type de formulaire
-type FormType = {
+interface LoginFormData {
   username: string;
   password: string;
-};
+}
 
-export default function AuthLogin() {
+const AuthLogin: FC = () => {
   const { login } = useLoginUser();
 
-  // Utilisation de react-hook-form
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
-  } = useForm<FormType>();
-
-  let toastId: string | undefined;
-
-  const handle = () => {
-    // Affiche le toast et stocke son ID
-    toastId = toast.loading("Chargement ...");
-
-    // Ferme automatiquement le toast après 6.5 secondes
-    setTimeout(() => {
-      if (toastId) {
-        toast.dismiss(toastId);
-      }
-    }, 6500);
-  };
+    formState: { errors, isSubmitting }
+  } = useForm<LoginFormData>({
+    defaultValues: {
+      username: '',
+      password: ''
+    }
+  });
 
   useEffect(() => {
-    // Nettoie le toast lorsque le composant est démonté
-    return () => {
-      if (toastId) {
-        toast.dismiss(toastId);
+    const checkRegistrationSuccess = () => {
+      const isSuccess = localStorage.getItem('inscriptionSuccess') === 'true';
+      if (isSuccess) {
+        toast.success('Inscription réussie');
+        toast.success('Un mail vous a été envoyé');
+        localStorage.removeItem('inscriptionSuccess');
       }
     };
+
+    checkRegistrationSuccess();
   }, []);
 
-  useEffect(() => {
-    // Vérifie si l'inscription a réussi
-    if (localStorage.getItem("inscriptionSuccess") === "true") {
-      toast.success("Inscription réussie");
-      toast.success("Un mail vous a été envoyé");
-      localStorage.removeItem("inscriptionSuccess");
-    }
-  }, []);
+  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-  // Fonction de soumission du formulaire
-  const onSubmit = (data: FormType) => {
-    
-    login(data);
-    reset(); // Réinitialise les valeurs du formulaire
+  const onSubmit = async (data: LoginFormData) => {
+    toast.promise(
+      (async () => {
+        await delay(5000);
+        await login(data);
+        reset();
+      })(),
+      {
+        loading: 'Connexion en cours...',
+        success: ' ',  // Message vide mais requis
+        error: (err) => err instanceof Error ? err.message : 'Erreur lors de la connexion'
+      }
+    );
   };
-  
+
   return (
-    <Card variant="outlined" sx={{ boxShadow: 0, bgcolor: 'transparent' }}>
-      <form
-        className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96"
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        <Stack spacing={2} margin={2}>
+    <Card 
+      variant="outlined" 
+      sx={{ 
+        boxShadow: 0, 
+        bgcolor: 'transparent',
+        '& .MuiTextField-root': { mb: 2 }
+      }}
+    >
+      <form onSubmit={handleSubmit(onSubmit)} className="p-4">
+        <Stack spacing={2}>
           <TextField
-            // required
-            variant="outlined"
-            label="Nom d'utilisateur ou Numero"
+            label="Nom d'utilisateur ou Numéro"
             error={!!errors.username}
-            helperText={errors.username ? 'Ce champ est requis' : ''}
-            {...register('username', { required: true })}
-            sx={{
-              "& .MuiFormLabel-asterisk": {
-                color: "red",
+            helperText={errors.username?.message || ''}
+            {...register('username', { 
+              required: 'Le nom d\'utilisateur est requis'
+            })}
+            fullWidth
+            disabled={isSubmitting}
+            InputProps={{
+              sx: {
+                '&:hover fieldset': {
+                  borderColor: 'primary.main',
+                },
               },
             }}
           />
           <TextField
-            // required
-            variant="outlined"
             label="Mot de passe"
             type="password"
             error={!!errors.password}
-            helperText={errors.password ? 'Ce champ est requis' : ''}
-            {...register('password', { required: true })}
-            sx={{
-              "& .MuiFormLabel-asterisk": {
-                color: "red",
+            helperText={errors.password?.message || ''}
+            {...register('password', { 
+              required: 'Le mot de passe est requis'
+            })}
+            fullWidth
+            disabled={isSubmitting}
+            InputProps={{
+              sx: {
+                '&:hover fieldset': {
+                  borderColor: 'primary.main',
+                },
               },
             }}
           />
           <Button
             type="submit"
-            color="success"
-            variant="outlined"
-            onClick={handle}
+            variant="contained"
+            color="primary"
+            disabled={isSubmitting}
+            sx={{
+              py: 1.5,
+              textTransform: 'none',
+              fontWeight: 600,
+              '&:hover': {
+                backgroundColor: 'primary.dark',
+              },
+            }}
           >
-            Connecter
+            {isSubmitting ? 'Connexion en cours...' : 'Se connecter'}
           </Button>
         </Stack>
       </form>
     </Card>
   );
-}
+};
+
+export default AuthLogin;

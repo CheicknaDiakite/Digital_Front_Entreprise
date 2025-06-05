@@ -1,60 +1,77 @@
-import Nav from '../../../_components/Button/Nav'
 import { Box, Grid, Stack, Typography } from '@mui/material';
-import MainCard from '../../../components/MainCard';
 import { format } from 'date-fns';
+import Nav from '../../../_components/Button/Nav';
+import MainCard from '../../../components/MainCard';
+import MonthlyBarChart from '../../../pages/dashboard/MonthlyBarChart';
 import { useFetchEntreprise, useStockSemaine } from '../../../usePerso/fonction.user';
 import { useStoreUuid } from '../../../usePerso/store';
-import MonthlyBarChart from '../../../pages/dashboard/MonthlyBarChart';
+
+// Types
+interface ProductSaleDetails {
+  details: any; // TODO: Define specific type based on your data structure
+  month: string;
+}
+
+const MAX_MONTHS_TO_DISPLAY = 12;
+
+const MonthlyProductChart = ({ saleData }: { saleData: ProductSaleDetails }) => {
+  const saleDate = new Date(saleData.month);
+  
+  return (
+    <MainCard sx={{ mt: 2 }} content={false}>
+      <Box sx={{ p: 3, pb: 0 }}>
+        <Stack spacing={2}>
+          <Typography variant="h6" color="text.secondary">
+            {format(saleDate, 'MMMM yyyy')}
+          </Typography>
+        </Stack>
+      </Box>
+      <MonthlyBarChart details={saleData.details} />
+    </MainCard>
+  );
+};
 
 export default function EtaProduits() {
-    
-    const uuid = useStoreUuid((state) => state.selectedId)
-    const {unEntreprise} = useFetchEntreprise(uuid!)
+  const uuid = useStoreUuid((state) => state.selectedId);
+  const { unEntreprise } = useFetchEntreprise(uuid!);
+  const { stockSemaine } = useStockSemaine(unEntreprise?.uuid!);
 
-    const {stockSemaine} = useStockSemaine(unEntreprise.uuid!)
-    
-  return (<>
-    <Nav />
-
-    <Grid container rowSpacing={4.5} columnSpacing={2.75}>
-        {/* Titre */}
-      <Grid item xs={12} md={7} lg={12}>
-        
-        <Grid item xs={12} sx={{ mb: -2.25 }} className='pb-3'>
-          <Typography variant="h5">Le nombre des produits vendues effectuées par mois</Typography>
+  const hasSales = stockSemaine?.sorties_par_mois && stockSemaine.sorties_par_mois.length > 0;
+  
+  return (
+    <>
+      <Nav />
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <Typography variant="h5" component="h1" gutterBottom>
+            Statistiques des ventes de produits par mois
+          </Typography>
         </Grid>
 
-        {(!stockSemaine.sorties_par_mois || stockSemaine.sorties_par_mois.length === 0) ? (
-          <Grid item xs={12} sx={{ mb: -2.25 }}>
-          <Typography variant="h5">Il n'y a pas eu de vente !</Typography>
-          </Grid>
+        <Grid item xs={12}>
+          {!hasSales ? (
+            <Typography 
+              variant="h6" 
+              color="text.secondary" 
+              align="center"
+              sx={{ mt: 2 }}
+            >
+              Aucune donnée de vente disponible pour le moment.
+            </Typography>
           ) : (
-          stockSemaine.sorties_par_mois.slice(0, 12).map((post, index) => {
-          // const validDate = post.week ? new Date(post.month) : new Date(); // Vérifie si `post.week` est valide
-          const validD = new Date(post.month) // Vérifie si `post.week` est valide
-          
-          return (
-            <MainCard key={index} sx={{ mt: 2 }} content={false}>
-              <Box sx={{ p: 3, pb: 0 }}>
-                <Stack spacing={2}>
-                  <Typography variant="h6" color="text.secondary">
-                    {format(validD, 'MMMM yyyy')}
-                  </Typography>
-                  {/* <Typography variant="h3">$7,650</Typography> */}
-                </Stack>
-              </Box>
-                <MonthlyBarChart details={post.details} />
-                {/* <Chart_2 details={post.details} /> */}
-            </MainCard>
-          );
-          })
-        )}
-  
+            <Grid container spacing={3}>
+              {stockSemaine.sorties_par_mois
+                ?.slice(0, MAX_MONTHS_TO_DISPLAY)
+                .map((saleData, index) => (
+                  <Grid item xs={12} key={`${saleData.month}-${index}`}>
+                    <MonthlyProductChart saleData={saleData} />
+                  </Grid>
+                ))
+              }
+            </Grid>
+          )}
+        </Grid>
       </Grid>
-        {/* Ajout d'espace (si nécessaire) */}
-        <Grid item md={8} sx={{ display: { sm: 'none', md: 'block', lg: 'none' } }} />
-    </Grid>
-  
-  </>
-  )
+    </>
+  );
 }

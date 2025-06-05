@@ -1,39 +1,56 @@
-import { Box, Button, FormControl, InputLabel, MenuItem, Modal, Select, SelectChangeEvent, TextField, Typography } from '@mui/material';
-import { ChangeEvent, FormEvent, useState } from 'react'
+import { 
+  Box, 
+  Button, 
+  Container,
+  FormControl, 
+  InputLabel, 
+  MenuItem, 
+  Modal, 
+  Select, 
+  TextField, 
+  Typography,
+  Paper,
+  IconButton,
+  CircularProgress,
+  Alert,
+  Divider,
+  Stack,
+  Avatar,
+  SelectChangeEvent
+} from '@mui/material';
+import { ChangeEvent, FormEvent, useState } from 'react';
 import { useParams } from 'react-router-dom';
-// import Select from 'react-select';
 import { useFetchUser, useUpdateUser } from '../../../usePerso/fonction.user';
 import { connect } from '../../../_services/account.service';
 import countryList from 'react-select-country-list';
 import toast from 'react-hot-toast';
 import { logout } from '../../../usePerso/fonctionPerso';
 import Nav from '../../../_components/Button/Nav';
-
+import CloseIcon from '@mui/icons-material/Close';
+import LockIcon from '@mui/icons-material/Lock';
+import PersonIcon from '@mui/icons-material/Person';
 
 const style = {
-  position: 'absolute',
+  position: 'absolute' as const,
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: 400,
   bgcolor: 'background.paper',
-  border: '2px solid #000',
+  borderRadius: 2,
   boxShadow: 24,
-  p: 4,
+  p: 0,
 };
+
 export default function Admin() {
-  const {uuid} = useParams()
-  
+  const { uuid } = useParams();
   const [open, setOpen] = useState(false);
+  const { unUser, setUnUser, isLoading, isError } = useFetchUser(uuid!);
+  const { updateUser } = useUpdateUser();
+  const options = countryList().getData();
+
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-
-  const {unUser, setUnUser, isLoading} = useFetchUser(uuid!)
-  
-  const {updateUser} = useUpdateUser()
-  
-  // const [pays, setPays] = useState(null);
-  const options = countryList().getData();
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -52,201 +69,227 @@ export default function Admin() {
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // const validSlug = slug || '';
-
-    unUser["user_id"] = connect
-    // unEntre["categorie_slug"] = validSlug
-    
-    
-    updateUser(unUser)
+    unUser["user_id"] = connect;
+    updateUser(unUser);
   };
 
   const onSubmitPass = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // const validSlug = slug || '';
-
-    unUser["uuid"] = connect
-    unUser["user_id"] = connect
-    if(unUser.password !== unUser.repassword){
-        toast.error("Les deux mots de passe ne correspondent pas");
-    } else {
-      updateUser(unUser)
-      logout()
+    unUser["uuid"] = connect;
+    unUser["user_id"] = connect;
+    
+    if (unUser.password !== unUser.repassword) {
+      toast.error("Les deux mots de passe ne correspondent pas");
+      return;
     }
     
-    
+    updateUser(unUser);
+    logout();
   };
 
   if (isLoading) {
-    <div>ChangeEvent ...</div>
+    return (
+      <Box className="flex items-center justify-center min-h-screen">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Container maxWidth="sm" className="py-8">
+        <Alert 
+          severity="error"
+          className="shadow-lg"
+          action={
+            <Button color="inherit" size="small" onClick={() => window.location.reload()}>
+              Réessayer
+            </Button>
+          }
+        >
+          Une erreur est survenue lors du chargement des données
+        </Alert>
+      </Container>
+    );
   }
 
   if (unUser) {
-    return (<>
-      <Nav />
-        <div>
-          {/* <Button onClick={handleOpen}>Open modal</Button> */}
+    return (
+      <>
+        <Nav />
+        <Container maxWidth="lg" className="py-8">
+          <Paper elevation={0} className="border rounded-lg overflow-hidden">
+            <Box className="p-6 border-b bg-gray-50">
+              <div className="flex items-center gap-4">
+                <Avatar 
+                  className="w-16 h-16 bg-blue-100 text-blue-600"
+                >
+                  <PersonIcon className="w-8 h-8" />
+                </Avatar>
+                <div>
+                  <Typography variant="h4" className="font-semibold text-gray-900">
+                    Profile Utilisateur
+                  </Typography>
+                  <Typography variant="body1" className="text-gray-500">
+                    Gérez vos informations personnelles et vos paramètres de sécurité
+                  </Typography>
+                </div>
+              </div>
+            </Box>
+
+            <Box className="p-6">
+              <form onSubmit={onSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Stack spacing={3}>
+                    <Typography variant="subtitle2" className="text-gray-600 font-medium">
+                      Informations de base
+                    </Typography>
+
+                    <TextField
+                      label="Nom d'utilisateur"
+                      name="username"
+                      value={unUser.username}
+                      onChange={onChange}
+                      disabled
+                      className="bg-gray-50"
+                      fullWidth
+                    />
+
+                    <TextField
+                      label="Nom"
+                      name="last_name"
+                      value={unUser.last_name}
+                      onChange={onChange}
+                      required
+                      fullWidth
+                    />
+
+                    <TextField
+                      label="Prénom"
+                      name="first_name"
+                      value={unUser.first_name}
+                      onChange={onChange}
+                      required
+                      fullWidth
+                    />
+                  </Stack>
+
+                  <Stack spacing={3}>
+                    <Typography variant="subtitle2" className="text-gray-600 font-medium">
+                      Contact et Localisation
+                    </Typography>
+
+                    <TextField
+                      label="Numéro"
+                      name="numero"
+                      value={unUser.numero}
+                      onChange={onChange}
+                      fullWidth
+                    />
+
+                    <FormControl fullWidth>
+                      <InputLabel>Pays</InputLabel>
+                      <Select
+                        value={unUser.pays || ''}
+                        onChange={onSelectChange}
+                        name="pays"
+                        label="Pays"
+                      >
+                        {options.map((option) => (
+                          <MenuItem key={option.value} value={option.label}>
+                            {option.label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+
+                    <TextField
+                      label="Email"
+                      name="email"
+                      type="email"
+                      value={unUser.email}
+                      onChange={onChange}
+                      required
+                      fullWidth
+                    />
+                  </Stack>
+                </div>
+
+                <Divider />
+
+                <div className="flex justify-between items-center pt-4">
+                  <Button
+                    variant="outlined"
+                    startIcon={<LockIcon />}
+                    onClick={handleOpen}
+                  >
+                    Changer le mot de passe
+                  </Button>
+
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    Enregistrer les modifications
+                  </Button>
+                </div>
+              </form>
+            </Box>
+          </Paper>
+
           <Modal
             open={open}
             onClose={handleClose}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
+            aria-labelledby="modal-password"
           >
-            <Box sx={style} className="m-2">
-              <Typography id="modal-modal-title" variant="h6" component="h2">
-                Changement de mot de passe
-              </Typography>
-              <form className="grid grid-cols-1 lg:grid-cols-2 gap-4" onSubmit={onSubmitPass}>
-              
-              <TextField
-                label="Change le mot de passe"
-                name="password"
-                onChange={onChange}
-                variant="outlined"
-                className="my-4"
-                InputLabelProps={{
-                  shrink: true, // Force le label à rester au-dessus du champ
-                }}
-                // {...register('last_name')}
-                fullWidth
-              />
-              <TextField
-                label="Confirmer le mot de passe"
-                name="repassword"
-                onChange={onChange}
-                className="my-4"
-                InputLabelProps={{
-                  shrink: true, // Force le label à rester au-dessus du champ
-                }}
-                // {...register('first_name')}
-                fullWidth
-              />
-              
-              <div className="col-span-1 lg:col-span-2">
-                <Button variant="contained" color="primary" type="submit" >
-                  Modifier votre mot de passe
-                </Button>
-              </div>
-            </form>
-            </Box>
-          </Modal>
-        </div>
-    
-        <div className="bg-white shadow-lg rounded-lg p-6">
-          {/* Card header */}
-          {/* <div className="mb-6">
-            <h3 className="text-xl font-semibold mb-1">Profile Details</h3>
-            <p className="text-gray-600">Les details de votre profile.</p>
-          </div> */}
-          {/* Card body */}
-          <div className="flex lg:flex-row flex-col items-center justify-between mb-6">
-            {/* <UserImg post={unUser} /> */}
-            <div className="mt-4 lg:mt-0">
-              <Button variant="outlined" size="small" onClick={handleOpen} >
-                Changer mot de passe
-              </Button>
-
-              {/* <Button onClick={handleOpen}>Open modal</Button> */}
-            </div>
-          </div>
-          <hr className="my-5" />
-          <div>
-            <h4 className="text-lg font-semibold mb-2">Detail de l'utilisateur</h4>
-            <p className="text-gray-600 mb-4">Les details de votre profile.</p>
-            {/* Form */}
-            <form className="grid grid-cols-1 lg:grid-cols-2 gap-4" onSubmit={onSubmit}>
-              <TextField
-                label="Nom d'utilisateur"
-                name="username"
-                value={unUser.username}
-                variant="outlined"
-                onChange={onChange}
-                className="mb-4"
-                InputLabelProps={{
-                  shrink: true, // Force le label à rester au-dessus du champ
-                }}
-                disabled
-                // {...register('username')}
-                fullWidth
-              />
-              <TextField
-                label="Nom"
-                name="last_name"
-                value={unUser.last_name}
-                variant="outlined"
-                onChange={onChange}
-                className="mb-4"
-                InputLabelProps={{
-                  shrink: true, // Force le label à rester au-dessus du champ
-                }}
-                // {...register('last_name')}
-                fullWidth
-              />
-              <TextField
-                label="Prenom"
-                name="first_name"
-                value={unUser.first_name}
-                onChange={onChange}
-                className="mb-4"
-                InputLabelProps={{
-                  shrink: true, // Force le label à rester au-dessus du champ
-                }}
-                // {...register('first_name')}
-                fullWidth
-              />
-              <TextField
-                label="Numero"
-                name="numero"
-                value={unUser.numero}
-                onChange={onChange}
-                className="mb-4"
-                InputLabelProps={{
-                  shrink: true, // Force le label à rester au-dessus du champ
-                }}
-                // {...register('numero')}
-                fullWidth
-              />
-              <FormControl fullWidth className='mb-4'>
-                <InputLabel id="select-pays-label">Pays = {unUser.pays}</InputLabel>
-                <Select
-                  labelId="select-pays-label"
-                  // value={selectedCountry}
-                  onChange={onSelectChange}
-                  name='pays'
-                  placeholder="Choisir un pays"
+            <Paper sx={style}>
+              <Box className="flex justify-between items-center p-4 border-b">
+                <Typography variant="h6" className="font-medium">
+                  Changement de mot de passe
+                </Typography>
+                <IconButton 
+                  onClick={handleClose}
+                  size="small"
+                  className="text-gray-500 hover:text-gray-700"
                 >
-                  {options.map((option) => (
-                    <MenuItem key={option.value} value={option.label}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              
-              <TextField
-                label="Email"
-                name="email"
-                type="email"
-                value={unUser.email}
-                onChange={onChange}
-                className="mb-4"
-                InputLabelProps={{
-                  shrink: true, // Force le label à rester au-dessus du champ
-                }}                
-                fullWidth
-              />
-    
-              <div className="col-span-1 lg:col-span-2">
-                <Button variant="contained" color="primary" type="submit" fullWidth>
-                  Modifier votre profile
-                </Button>
-              </div>
-            </form>
-          </div>
-        </div>
-    </>
-      );
-    };
+                  <CloseIcon />
+                </IconButton>
+              </Box>
+
+              <form onSubmit={onSubmitPass} className="p-4 space-y-4">
+                <TextField
+                  label="Nouveau mot de passe"
+                  name="password"
+                  type="password"
+                  onChange={onChange}
+                  required
+                  fullWidth
+                />
+
+                <TextField
+                  label="Confirmer le mot de passe"
+                  name="repassword"
+                  type="password"
+                  onChange={onChange}
+                  required
+                  fullWidth
+                />
+
+                <Box className="pt-4 border-t flex justify-end">
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    Mettre à jour le mot de passe
+                  </Button>
+                </Box>
+              </form>
+            </Paper>
+          </Modal>
+        </Container>
+      </>
+    );
   }
+}

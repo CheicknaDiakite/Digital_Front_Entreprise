@@ -47,21 +47,141 @@ interface IconsGridProps {
   icon: ReactNode;
   title: string;
   image: string;
-  description: string;
+  description: ReactNode;
 }
 
+interface EntrepriseFormValues extends EntrepriseType {
+  libelle?: string;
+}
+
+interface LicenceTagProps {
+  type: string;
+  children: ReactNode;
+}
+
+const LicenceTag: FC<LicenceTagProps> = ({ type, children }) => (
+  <span
+    className={clsx(
+      "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset",
+      {
+        "bg-red-50 text-red-700 ring-red-700/10": type === "Free",
+        "bg-yellow-50 text-yellow-700 ring-yellow-700/10": type === "Basic",
+        "bg-green-50 text-green-700 ring-green-700/10": type === "Premium",
+      }
+    )}
+  >
+    {children}
+  </span>
+);
+
 const IconsGrid: FC<IconsGridProps> = ({ icon, title, description, image }) => (
-  <div className="icon-box bg-white p-4 shadow-md rounded-lg text-center">
+  <div className="icon-box bg-white p-4 shadow-md rounded-lg text-center hover:shadow-lg transition-shadow duration-200">
     <div className="icon flex justify-center items-center text-4xl mb-4">
-      <img src={image} alt={title} className="h-16 w-16" />
+      <img src={image} alt={title} className="h-16 w-16 object-cover rounded-full" />
     </div>
-    <h4 className="text-xl font-semibold mb-2">
-      <a href="#" className="text-blue-500 hover:underline">
-        {title} {" "} {icon}
-      </a>
+    <h4 className="text-xl font-semibold mb-2 flex items-center justify-center gap-2">
+      <span className="text-blue-600">{title}</span>
+      {icon}
     </h4>
-    <p className="text-gray-600">{description}</p>
+    <div className="text-gray-600">{description}</div>
   </div>
+);
+
+const LoadingState = () => (
+  <Box sx={{ width: 300, margin: '2rem auto' }}>
+    <Skeleton height={60} />
+    <Skeleton animation="wave" height={60} />
+    <Skeleton animation={false} height={60} />
+  </Box>
+);
+
+const ErrorState = () => {
+  window.location.reload();
+  return <Typography color="error">Une erreur est survenue. Rechargement...</Typography>;
+};
+
+const EntrepriseDialog: FC<{
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (e: FormEvent<HTMLFormElement>) => void;
+  formValues: EntrepriseFormValues;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  licenceType: string;
+  onLicenceChange: (event: SelectChangeEvent) => void;
+  onCountryChange: (event: any, value: string | RecupType) => void;
+}> = ({
+  open,
+  onClose,
+  onSubmit,
+  formValues,
+  onChange,
+  licenceType,
+  onLicenceChange,
+  onCountryChange
+}) => (
+  <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <DialogTitle>
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Typography variant="h6">Ajouter une entreprise</Typography>
+        <IconButton onClick={onClose} size="small">
+          <CloseIcon />
+        </IconButton>
+      </Box>
+    </DialogTitle>
+    <DialogContent>
+      <form onSubmit={onSubmit} className="space-y-4 mt-4">
+        <Stack spacing={3}>
+          <MyTextField
+            label="Nom de l'entreprise"
+            name="nom"
+            value={formValues.nom}
+            onChange={onChange}
+            required
+          />
+          <MyTextField
+            label="Email"
+            name="email"
+            type="email"
+            value={formValues.email}
+            onChange={onChange}
+            required
+          />
+          <MyTextField
+            label="Numéro de téléphone"
+            name="numero"
+            type="tel"
+            value={formValues.numero || ''}
+            onChange={onChange}
+            required
+          />
+          <MyTextField
+            label="Adresse"
+            name="adresse"
+            value={formValues.adresse}
+            onChange={onChange}
+            required
+          />
+          <CountrySelect onChange={onCountryChange} />
+          <FormControl fullWidth>
+            <InputLabel>Type de licence</InputLabel>
+            <Select
+              value={licenceType}
+              label="Type de licence"
+              onChange={onLicenceChange}
+              required
+            >
+              <MenuItem value="Free">Gratuit</MenuItem>
+              <MenuItem value="Basic">Basique</MenuItem>
+              <MenuItem value="Premium">Premium</MenuItem>
+            </Select>
+          </FormControl>
+          <Button type="submit" variant="contained" color="primary" fullWidth>
+            Ajouter l'entreprise
+          </Button>
+        </Stack>
+      </form>
+    </DialogContent>
+  </Dialog>
 );
 
 export default function Entreprise() {
@@ -74,20 +194,13 @@ export default function Entreprise() {
     const addId = useStoreUuid(state => state.addId)
 
     const [age, setAge] = useState('');
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     const handleChange = (event: SelectChangeEvent) => {
       setAge(event.target.value as string);
     };
     
-    const [open, openchange]= useState(false);
-    const functionopen = () => {
-        openchange(true)
-    }
-    const closeopen = () => {
-        openchange(false)
-    }
-
-    const [formValues, setFormValues] = useState<EntrepriseType>({
+    const [formValues, setFormValues] = useState<EntrepriseFormValues>({
         nom: '',
         email: '',
         numero: 0,
@@ -139,20 +252,15 @@ export default function Entreprise() {
           user_id: '',
           libelle: '',
         })
-        closeopen()
+        setIsDialogOpen(false)
       };
 
   if (isLoading) {
-    return <Box sx={{ width: 300 }}>
-    <Skeleton />
-    <Skeleton animation="wave" />
-    <Skeleton animation={false} />
-  </Box>
+    return <LoadingState />
   }
 
   if (isError) {
-    window.location.reload();
-    return <div>Error</div>
+    return <ErrorState />
   }
 
   if (userEntreprises) {
@@ -175,7 +283,7 @@ export default function Entreprise() {
 {unUser.role === 1 ? 
   <Grid item xs={12} sx={{ textAlign: 'center', mb: 3 }}>
     <Typography variant="h5">
-      <Button variant="contained" onClick={functionopen}>
+      <Button variant="contained" onClick={() => setIsDialogOpen(true)}>
         Ajout de l'Entreprise
       </Button>
     </Typography>
@@ -214,34 +322,16 @@ export default function Entreprise() {
             title={post.nom}
             description={
               post.licence_active && (
-                <p>
-                Cette entreprise est activée et possède une licence
-                <span
-                  className={clsx(
-                    "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset",
-                    {
-                      "bg-red-50 text-red-700 ring-red-700/10": post.licence_type === "Free",
-                      "bg-yellow-50 text-yellow-700 ring-yellow-700/10": post.licence_type === "Basic",
-                      "bg-green-50 text-green-700 ring-green-700/10": post.licence_type === "Premium",
-                    }
-                  )}
-                >
-                  {post.licence_type}
-                </span>{" "}
-                jusqu'au{" "}
-                <span
-                  className={clsx(
-                    "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset",
-                    {
-                      "bg-red-50 text-red-700 ring-red-700/10": post.licence_type === "Free",
-                      "bg-yellow-50 text-yellow-700 ring-yellow-700/10": post.licence_type === "Basic",
-                      "bg-green-50 text-green-700 ring-green-700/10": post.licence_type === "Premium",
-                    }
-                  )}
-                >
-                  {post.licence_date_expiration}
-                </span>
-              </p>
+                <div className="space-y-2">
+                  <p>Cette entreprise est activée et possède une licence</p>
+                  <LicenceTag type={post.licence_type}>
+                    {post.licence_type}
+                  </LicenceTag>
+                  <p>jusqu'au</p>
+                  <LicenceTag type={post.licence_type}>
+                    {post.licence_date_expiration}
+                  </LicenceTag>
+                </div>
               )
             }
           />
@@ -256,112 +346,23 @@ export default function Entreprise() {
   })}
   </Grid>
     
-    <Dialog open={open} onClose={closeopen} fullWidth maxWidth="xs">
-        <DialogTitle>Ajout de l'Entreprise<IconButton onClick={closeopen} style={{float: "right"}}><CloseIcon color="primary"></CloseIcon></IconButton> </DialogTitle>
-        <DialogContent>
-          
-        <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmit}>
-          <Stack spacing={2} margin={2}>
-           
-            <MyTextField required
-              variant="outlined" 
-              label="Nom de l'entreprise" 
-              name='nom' 
-              onChange={onChange}
-              sx={{
-                "& .MuiFormLabel-asterisk": {
-                  color: "red", // Personnalise la couleur de l'étoile en rouge
-                },
-              }}
-            />
-
-            <MyTextField
-              variant="outlined" 
-              label="Adresse de l'entreprise" 
-              name='adresse' 
-              onChange={onChange}
-            />
-
-            <MyTextField
-              type='number'
-              variant="outlined" 
-              label="Numero de l'entreprise" 
-              name='numero' 
-              onChange={onChange}
-              
-            />
-
-            <MyTextField
-              type='email'
-              variant="outlined" 
-              label="Email de l'entreprise" 
-              name='email' 
-              onChange={onChange}
-              
-            />
-
-            {/* <MyTextField
-              type='text'
-              variant="outlined" 
-              label="Type d'entreprise" 
-              name='libelle' 
-              onChange={onChange}
-              
-            /> */}
-
-            <FormControl fullWidth>
-              <InputLabel id="demo-simple-select-label">Type d'entreprise</InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={age}
-                label="Type d'entreprise"
-                onChange={handleChange}
-              >
-                <MenuItem value={"Boutique"}>Boutique</MenuItem>
-                <MenuItem value={"Quincaillerie"}>Quincaillerie</MenuItem>
-                <MenuItem value={"Super marché"}>Super marché</MenuItem>
-                <MenuItem value={"Boulangerie"}>Boulangerie</MenuItem>
-                <MenuItem value={"Pharmacie"}>Pharmacie</MenuItem>
-                <MenuItem value={"Pâtisserie"}>Pâtisserie</MenuItem>
-                <MenuItem value={"Autre"}>Autre</MenuItem>
-              </Select>
-              
-            </FormControl>
-
-            <CountrySelect
-            onSelectChange={handleAutoFourChange}
-            label={"Choisisez le pays ou se trouve l'entreprise !"}             
-            />
-            
-            {/* <FormControl fullWidth className='mb-4'>
-              <InputLabel id="select-pays-label">Choisisez le pays ou se trouve l'entreprise</InputLabel>
-              <Select
-                labelId="select-pays-label"
-                // value={selectedCountry}
-                onChange={onSelectChange}
-                name='pays'
-                placeholder="Choisir un pays"
-              >
-                {options.map((option) => (
-                  <MenuItem key={option.value} value={option.label}>
-                    {option.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl> */}
-            <Button type="submit" color="success" variant="outlined" >Envoyer</Button>
-          </Stack>
-        </form>
-        </DialogContent>
-    </Dialog>
+    <EntrepriseDialog
+      open={isDialogOpen}
+      onClose={() => setIsDialogOpen(false)}
+      onSubmit={onSubmit}
+      formValues={formValues}
+      onChange={onChange}
+      licenceType={age}
+      onLicenceChange={handleChange}
+      onCountryChange={handleAutoFourChange}
+    />
   </>
   } else {
 
   return <>
   <Grid className='py-2'>
     <Typography variant="h5">
-      <Button variant="outlined" onClick={functionopen} >Ajout de l'entreprise</Button>
+      <Button variant="outlined" onClick={() => setIsDialogOpen(true)} >Ajout de l'entreprise</Button>
     </Typography>
   </Grid>
   </>

@@ -1,110 +1,153 @@
-import { Alert, Avatar, Box, Chip, CircularProgress, Grid, ListItem, ListItemAvatar, ListItemText, Stack, Typography } from '@mui/material';
-import MainCard from '../../../../../components/MainCard';
-import { stringAvatar } from '../../../../../usePerso/fonctionPerso';
+import { 
+  Alert, 
+  Avatar, 
+  Box, 
+  Chip, 
+  CircularProgress, 
+  Container,
+  IconButton,
+  List,
+  ListItem, 
+  ListItemAvatar, 
+  ListItemText,
+  Paper,
+  Tooltip,
+  Button,
+  Typography,
+  Fade
+} from '@mui/material';
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
-import React from 'react';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import PersonIcon from '@mui/icons-material/Person';
 import { connect } from '../../../../../_services/account.service';
 import { useGetEntrepriseUsers, useRemoveUserEntreprise } from '../../../../../usePerso/fonction.user';
 import { useStoreUuid } from '../../../../../usePerso/store';
 
 export default function InfoUsers() {
-    const uuid = useStoreUuid((state) => state.selectedId)
-    const {entrepriseUsers, isLoading, isError} = useGetEntrepriseUsers(uuid!)
+  const uuid = useStoreUuid((state) => state.selectedId);
+  const { entrepriseUsers, isLoading, isError } = useGetEntrepriseUsers(uuid!);
+  const { removeEntreprise } = useRemoveUserEntreprise();
 
-    const {removeEntreprise} = useRemoveUserEntreprise()
+  const handleDelete = (userId: string) => {
+    const confirmation = window.confirm("Êtes-vous sûr de vouloir retirer cet utilisateur de l'entreprise ?");
+    if (confirmation) {
+      removeEntreprise({
+        entreprise_id: uuid!,
+        user_id: userId,
+        admin_id: connect,
+      });
+    }
+  };
 
-    const handleDelete = (post: any) => {
-        const top = {
-            entreprise_id: uuid,
-            user_id: post,
-            admin_id: connect,
+  if (isLoading) {
+    return (
+      <Box className="flex items-center justify-center p-8">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Alert 
+        severity="error" 
+        className="m-4"
+        action={
+          <Button color="inherit" size="small" onClick={() => window.location.reload()}>
+            Réessayer
+          </Button>
         }
-        removeEntreprise(top);
-        console.info('delete.', top);
-        };
+      >
+        Problème de connexion ! Veuillez réessayer.
+      </Alert>
+    );
+  }
 
-   if (isLoading) {
-    return (
-        <Box sx={{ display: 'flex' }}>
-          <CircularProgress />
-        </Box>
-      );
-   }
-   
-   if (isError) {
-    return (
-        <Stack sx={{ width: '100%' }} spacing={2}>        
-          <Alert severity="error">Probleme de connexion !</Alert>
-        </Stack>
-      );
-   }
-    
-  return <>
-  <Grid container rowSpacing={4.5} justifyContent="center" alignItems="center" columnSpacing={2.75}>
-    <Grid item xs={12} md={5} lg={4}>
-        <Grid container alignItems="center" justifyContent="space-between">
-        {/* <Grid item>
-            <Typography variant="h5">Les utilisateurs de cette entreprise</Typography>
-        </Grid> */}
-        <Grid 
-        className='box-decoration-clone bg-linear-to-t from-indigo-700 to-red-600 px-2 my-5 text-white bg-zinc-500/50 flex items-center gap-2 p-2 rounded border-x-2 animate-border-rotate' 
-        item>
-            <Typography 
-            variant="h5"
-            >
-            Les utilisateurs de cette entreprise
-            </Typography>
-        </Grid>
-        <Grid item />
-        </Grid>
-        {entrepriseUsers && entrepriseUsers.map((post, index) => {
-        const handleDeleted = () => {
-            const confirmation = window.confirm("Vous êtes sûr de vouloir supprimer cet utilisateur de cet entreprise ?");
-            if (confirmation) {
-            // Appel de la fonction de suppression
-            handleDelete(post.uuid)
-            }
-        };
-        return <MainCard sx={{ mb: 1 }} content={false}>            
-            <ListItem key={index} alignItems="flex-start">
-                <ListItemAvatar>                
-                    <Avatar {...stringAvatar(`${post.last_name} ${post.first_name}`)} />
-                </ListItemAvatar>
-                <ListItemText
-                primary={post.username}
-                secondary={
-                    <React.Fragment>
-                    <Typography
-                        sx={{ display: 'inline' }}
-                        component="span"
-                        variant="body2"
-                        color="text.primary"
+  return (
+    <Container maxWidth="md" className="py-8">
+      <div className="mb-6">
+        <Typography variant="h4" className="font-semibold text-gray-900 mb-2">
+          Utilisateurs de l'entreprise
+        </Typography>
+        <Typography variant="body1" className="text-gray-500">
+          {entrepriseUsers?.length || 0} utilisateur{entrepriseUsers?.length !== 1 ? 's' : ''} enregistré{entrepriseUsers?.length !== 1 ? 's' : ''}
+        </Typography>
+      </div>
+
+      <Paper elevation={0} className="border rounded-lg overflow-hidden">
+        <List className="divide-y">
+          {entrepriseUsers?.map((user, index) => (
+            <ListItem
+              key={index}
+              className="hover:bg-gray-50 transition-colors"
+              secondaryAction={
+                user.uuid === connect ? (
+                  <Tooltip 
+                    title="Administrateur" 
+                    arrow 
+                    TransitionComponent={Fade}
+                  >
+                    <IconButton disabled className="text-green-600">
+                      <AdminPanelSettingsIcon />
+                    </IconButton>
+                  </Tooltip>
+                ) : (
+                  <Tooltip 
+                    title="Retirer l'utilisateur" 
+                    arrow 
+                    TransitionComponent={Fade}
+                  >
+                    <IconButton 
+                      onClick={() => handleDelete(user.uuid!)}
+                      className="text-red-600 hover:bg-red-50"
                     >
-                        {post.last_name} {post.first_name}
-                    </Typography>
-                    {post.uuid === connect ? 
-                        <Chip
-                        label="admin"
-                        variant="outlined"
-                        color="success"
-                        className='mx-5'
-                        />
-                        :
-                        <Chip
-                        onDelete={handleDeleted}
-                        deleteIcon={<DeleteIcon />}
-                        variant="outlined"
-                        color="error"
-                        className='mx-5'
-                        />
-                    }
-                    </React.Fragment>
+                      <DeleteIcon />
+                    </IconButton>
+                  </Tooltip>
+                )
+              }
+            >
+              <ListItemAvatar>
+                <Avatar className={user.uuid === connect ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'}>
+                  {user.uuid === connect ? <AdminPanelSettingsIcon /> : <PersonIcon />}
+                </Avatar>
+              </ListItemAvatar>
+              
+              <ListItemText
+                primary={
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{user.username}</span>
+                    {user.uuid === connect && (
+                      <Chip
+                        label="Admin"
+                        size="small"
+                        className="bg-green-100 text-green-600 text-xs"
+                      />
+                    )}
+                  </div>
                 }
-                />
+                secondary={
+                  <Typography variant="body2" className="text-gray-500">
+                    {user.last_name} {user.first_name}
+                  </Typography>
+                }
+              />
             </ListItem>
-        </MainCard>
-        })}
-    </Grid>
-  </Grid>
-  </>
+          ))}
+
+          {(!entrepriseUsers || entrepriseUsers.length === 0) && (
+            <ListItem>
+              <ListItemText
+                primary={
+                  <Typography className="text-center text-gray-500 py-8">
+                    Aucun utilisateur enregistré
+                  </Typography>
+                }
+              />
+            </ListItem>
+          )}
+        </List>
+      </Paper>
+    </Container>
+  );
 }

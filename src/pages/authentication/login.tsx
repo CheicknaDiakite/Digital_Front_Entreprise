@@ -1,27 +1,40 @@
+import { FC } from 'react';
 import { Link } from 'react-router-dom';
-
-// material-ui
-import Grid from '@mui/material/Grid';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-
-// project import
+import { Grid, Stack, Typography } from '@mui/material';
 import AuthWrapper from './AuthWrapper';
 import AuthLogin from './auth-forms/AuthLogin';
 import Bienvenue from '../../_components/Card/Bienvenue';
 
-
-// ================================|| LOGIN ||================================ //
-
-export default function Login() {
-    return (
-      <AuthWrapper>
+const Login: FC = () => {
+  return (
+    <AuthWrapper>
       <Grid container spacing={3}>
         <Grid item xs={12}>
           <Bienvenue />
-          <Stack direction="row" justifyContent="space-between" alignItems="baseline" sx={{ mb: { xs: -0.5, sm: 0.5 } }}>
-            <Typography variant="h4">Connexion</Typography>
-            <Typography component={Link} to="/auth/register" variant="h4" sx={{ textDecoration: 'none' }} color="primary">
+          <Stack 
+            direction="row" 
+            justifyContent="space-between" 
+            alignItems="baseline" 
+            sx={{ 
+              mb: { xs: -0.5, sm: 0.5 } 
+            }}
+          >
+            <Typography variant="h4" color="text.primary">
+              Connexion
+            </Typography>
+            <Typography
+              component={Link}
+              to="/auth/register"
+              variant="h4"
+              sx={{ 
+                textDecoration: 'none',
+                transition: 'color 0.3s',
+                '&:hover': {
+                  color: 'primary.dark'
+                }
+              }}
+              color="primary"
+            >
               Inscription ?
             </Typography>
           </Stack>
@@ -29,10 +42,26 @@ export default function Login() {
         <Grid item xs={12}>
           <AuthLogin />
         </Grid>
-        <Typography component={Link} to="/auth/mot_de_passe_oublier" className='mx-5' sx={{ textDecoration: 'none' }} color="primary">
-          Mot de passe oublier ?
-        </Typography>
+        <Grid item xs={12}>
+          <Typography
+            component={Link}
+            to="/auth/mot_de_passe_oublier"
+            sx={{ 
+              textDecoration: 'none',
+              ml: 2,
+              transition: 'color 0.3s',
+              '&:hover': {
+                color: 'primary.dark'
+              }
+            }}
+            color="primary"
+          >
+            Mot de passe oublié ?
+          </Typography>
+        </Grid>
       </Grid>
-      </AuthWrapper>
-    )
-}
+    </AuthWrapper>
+  );
+};
+
+export default Login;

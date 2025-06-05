@@ -1,5 +1,4 @@
 import {
-    Card,
     Typography,
     Button,
     InputLabel,
@@ -7,6 +6,8 @@ import {
     Select,
     FormControl,
     SelectChangeEvent,
+    Paper,
+    Box,
   } from "@mui/material";
   import { ChangeEvent, FormEvent } from "react";
 import { connect } from "../../../../_services/account.service";
@@ -14,6 +15,11 @@ import { useUnClient, useUpdateClient } from "../../../../usePerso/fonction.user
 import MyTextField from "../../../../_components/Input/MyTextField";
 import { UuType } from "../../../../typescript/Account";
 import { useStoreUuid } from "../../../../usePerso/store";
+import PersonIcon from '@mui/icons-material/Person';
+import EmailIcon from '@mui/icons-material/Email';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import PhoneIcon from '@mui/icons-material/Phone';
+import BusinessIcon from '@mui/icons-material/Business';
  
  export function ClientModif(uuid: UuType) {
     const entreprise_id = useStoreUuid((state) => state.selectedId)
@@ -46,96 +52,114 @@ import { useStoreUuid } from "../../../../usePerso/store";
     };
   
     return (
-      <div className="flex justify-center items-center flex-col">
-        {/* <Nav>
-          <Button size="small" className='rounded-full shadow-md shadow-red-800/50' onClick={() => deleteClient(unClient)}>
-            <DeleteIcon fontSize='small' />
-          </Button>
-        </Nav> */}
-        <Card elevation={3} style={{ padding: "20px", maxWidth: "500px", width: "100%" }}>
-          <Typography variant="h4" color="textPrimary">
-            Modification
-          </Typography>
-          <Typography color="textSecondary" className="mt-1">
-            modification de cet utilisateur 
-          </Typography>
-          <form className="mt-8" onSubmit={onSubmit}>
-            <div className="mb-1 flex flex-col gap-6">
-              <Typography variant="h6" color="textPrimary">
-                Nom Complet
-              </Typography>
+      <Box className="max-w-2xl mx-auto">
+        <Paper elevation={0} className="p-6 space-y-6">
+          <div className="border-b pb-4">
+            <Typography variant="h5" className="font-semibold text-gray-900">
+              Modification du profil
+            </Typography>
+            <Typography variant="body2" className="text-gray-500 mt-1">
+              Mettez à jour les informations du client
+            </Typography>
+          </div>
+  
+          <form onSubmit={onSubmit} className="space-y-6">
+            {/* Nom complet */}
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2 text-gray-700">
+                <PersonIcon fontSize="small" />
+                <Typography variant="subtitle2">Nom Complet</Typography>
+              </div>
               <MyTextField 
               fullWidth
               variant="outlined"
               name="nom"
               onChange={onChange}
               value={unClient.nom}
+              placeholder="Nom complet du client"
+              className="bg-white"
               />
-              
-              <Typography variant="h6" color="textPrimary">
-                Email
-              </Typography>
+            </div>
+  
+            {/* Email */}
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2 text-gray-700">
+                <EmailIcon fontSize="small" />
+                <Typography variant="subtitle2">Email</Typography>
+              </div>
               <MyTextField 
               fullWidth
               variant="outlined"
               name="email"
+              type="email"
               onChange={onChange}
               value={unClient.email}
+              placeholder="Adresse email"
+              className="bg-white"
               />
-
-              <Typography variant="h6" color="textPrimary">
-                Adresse
-              </Typography>
+            </div>
+  
+            {/* Adresse */}
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2 text-gray-700">
+                <LocationOnIcon fontSize="small" />
+                <Typography variant="subtitle2">Adresse</Typography>
+              </div>
               <MyTextField 
               fullWidth
               variant="outlined"
               name="adresse"
               onChange={onChange}
               value={unClient.adresse}
+              placeholder="Adresse complète"
+              className="bg-white"
               />
-
-              <Typography variant="h6" color="textPrimary">
-                coordonne
-              </Typography>
+            </div>
+  
+            {/* Coordonnées */}
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2 text-gray-700">
+                <BusinessIcon fontSize="small" />
+                <Typography variant="subtitle2">Coordonnées</Typography>
+              </div>
               <MyTextField 
               fullWidth
               variant="outlined"
               name="coordonne"
               onChange={onChange}
               value={unClient.coordonne}
+              placeholder="Coordonnées supplémentaires"
+              className="bg-white"
               />
-              {/* <Typography variant="h6" color="textPrimary">
-                libelle
-              </Typography>
-              <MyTextField 
-              fullWidth
-              variant="outlined"
-              name="libelle"
-              onChange={onChange}
-              value={unClient.libelle}
-              /> */}
-              <Typography variant="h6" color="textPrimary">
-                numero
-              </Typography>
+            </div>
+  
+            {/* Numéro */}
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2 text-gray-700">
+                <PhoneIcon fontSize="small" />
+                <Typography variant="subtitle2">Numéro de téléphone</Typography>
+              </div>
               <MyTextField 
               fullWidth
               variant="outlined"
               name="numero"
               onChange={onChange}
               value={unClient.numero}
+              placeholder="Numéro de téléphone"
+              className="bg-white"
               />
-              
             </div>
   
-            <FormControl fullWidth margin="normal">
-              <InputLabel id="role-label">Type = {unClient.role === 1 ? "Client" : unClient.role === 2 ? "Fournisseur" : "Autre"}</InputLabel>
+            {/* Type de client */}
+            <FormControl fullWidth variant="outlined" className="bg-white">
+              <InputLabel id="role-label">Type de client</InputLabel>
               <Select
                 labelId="role-label"
                 id="role-select"
                 name="role"
                 value={unClient.role || 0}
                 onChange={onSelectChange}
-                label="Role"
+                label="Type de client"
               >
                 <MenuItem value={1}>Client</MenuItem>
                 <MenuItem value={2}>Fournisseur</MenuItem>
@@ -143,13 +167,21 @@ import { useStoreUuid } from "../../../../usePerso/store";
               </Select>
             </FormControl>
   
-            <Button className="mt-6" type="submit" color="primary" variant="contained" fullWidth>
-              Modifier
-            </Button>
-            
+            {/* Submit Button */}
+            <div className="pt-4">
+              <Button
+                type="submit"
+                variant="contained"
+                fullWidth
+                size="large"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                Enregistrer les modifications
+              </Button>
+            </div>
           </form>
-        </Card>
-      </div>
+        </Paper>
+      </Box>
     );
   }
   

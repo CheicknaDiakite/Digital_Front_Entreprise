@@ -1,5 +1,22 @@
-import { Box, Button, Grid, Modal, Pagination, Paper, Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
-import { ChangeEvent, Fragment, useState } from 'react'
+import { 
+  Box, 
+  Button, 
+  Grid, 
+  Modal, 
+  Pagination, 
+  Paper, 
+  Skeleton, 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableContainer, 
+  TableHead, 
+  TableRow, 
+  TextField, 
+  Typography,
+  IconButton,
+} from '@mui/material';
+import { ChangeEvent, Fragment, useState } from 'react';
 import CardTableSortie from './CardTableSortie';
 // import { ABType } from '../../typescript/Account';
 import { RecupType } from '../../typescript/DataType';
@@ -9,7 +26,7 @@ import Nav from '../../_components/Button/Nav';
 import { useStoreCart } from '../../usePerso/cart_store';
 import { formatNumberWithSpaces } from '../../usePerso/fonctionPerso';
 import { connect } from '../../_services/account.service';
-
+import CloseIcon from '@mui/icons-material/Close';
 
 const style = {
   position: 'absolute',
@@ -63,12 +80,67 @@ function ChildModal() {
   );
 }
 
-export default function RemiseFacture() {
-    const entreprise_uuid = useStoreUuid((state) => state.selectedId)
+// Types
+// interface ConfirmationModalProps {
+//   open: boolean;
+//   onClose: () => void;
+//   onConfirm: () => void;
+//   selectedItems: number;
+// }
 
-    const selectedIds = useStoreCart(state => state.selectedIds)
-    const sortiess = useStoreCart(state => state.sorties);
-    const selectSorties = sortiess.filter((sor) => sor.id !== undefined && selectedIds.has(sor.id as number));
+// Components
+const LoadingState = () => (
+  <Box className="p-6">
+    <Skeleton variant="rectangular" height={100} className="mb-4" />
+    <Skeleton variant="rectangular" height={400} />
+  </Box>
+);
+
+const ErrorState = () => (
+  <Box className="p-6">
+    <Typography variant="h6" color="error" align="center">
+      Une erreur est survenue. Veuillez rafraîchir la page.
+    </Typography>
+  </Box>
+);
+
+// const ConfirmationModal = ({ open, onClose, onConfirm, selectedItems }: ConfirmationModalProps) => (
+//   <Modal
+//     open={open}
+//     onClose={onClose}
+//     aria-labelledby="confirmation-modal-title"
+//   >
+//     <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl p-6 w-[400px]">
+//       <div className="flex justify-between items-center mb-4">
+//         <Typography variant="h6" id="confirmation-modal-title">
+//           Confirmation de remise
+//         </Typography>
+//         <IconButton onClick={onClose} size="small">
+//           <CloseIcon />
+//         </IconButton>
+//       </div>
+      
+//       <Typography variant="body1" className="mb-6">
+//         Voulez-vous vraiment annuler la remise sur {selectedItems} facture(s) ?
+//       </Typography>
+
+//       <div className="flex justify-end gap-3">
+//         <Button onClick={onClose} variant="outlined">
+//           Annuler
+//         </Button>
+//         <Button onClick={onConfirm} variant="contained" color="primary">
+//           Confirmer
+//         </Button>
+//       </div>
+//     </Box>
+//   </Modal>
+// );
+
+export default function RemiseFacture() {
+    const entreprise_uuid = useStoreUuid((state) => state.selectedId);
+    // const { updateRemiseSortie } = useUpdateRemiseSortie();
+    const { selectedIds, sorties, setSorties } = useStoreCart();
+    const selectSorties = sorties.filter((sor) => sor.id !== undefined && selectedIds.has(sor.id as number));
 
     const itemsPerPage = 25;
 
@@ -135,26 +207,24 @@ export default function RemiseFacture() {
     });
 
     // Pour la remise des facture
-    const [openF, setOpenF] = useState(false);
-    const handleOpen = () => {
-        setOpenF(true);
-    };
-    const handleClose = () => {
-        setOpenF(false);
-    };
-
-    const setSorties = useStoreCart(state => state.setSorties)
+    // const [openF, setOpenF] = useState(false);
+    // const handleOpen = () => {
+    //     setOpenF(true);
+    // };
+    // const handleClose = () => {
+    //     setOpenF(false);
+    // };
 
     const top = {
         all: "all",
         user_id: connect
     }
     
-    const {sorties} = useFetchAllSortie(top)
+    const { sorties: allSorties } = useFetchAllSortie(top)
 
     const handleSaveSorties = () => {
-        setSorties(sorties);
-      };
+        setSorties(allSorties);
+    };
 
     const [searchTerm, setSearchTerm] = useState<string>('');
     const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -165,17 +235,23 @@ export default function RemiseFacture() {
         post?.ref?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    // States
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // const handleConfirmRemise = () => {
+    //     const selectedSorties = sorties.filter((sor) => sor.id && selectedIds.has(sor.id));
+    //     const idsToUpdate = selectedSorties.map(sor => sor.id);
+    //     updateRemiseSortie(idsToUpdate);
+    //     reset();
+    //     setIsModalOpen(false);
+    // };
+
     if (isLoading) {
-    return <Box sx={{ width: 300 }}>
-    <Skeleton />
-    <Skeleton animation="wave" />
-    <Skeleton animation={false} />
-    </Box>
+    return <LoadingState />
     }
 
     if (isError) {
-    window.location.reload();
-    return <div>Error ...</div>
+    return <ErrorState />
     }
 
     if (sortiesEntreprise) {
@@ -196,72 +272,77 @@ export default function RemiseFacture() {
                 Selectioner
             </Button>
     
-            <Button variant="contained" color="primary" onClick={handleOpen} className="bg-sky-500 mx-3 text-white font-bold mt-5 py-2 px-8 rounded hover:bg-sky-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-sky-400">
+            <Button variant="contained" color="primary" onClick={() => setIsModalOpen(true)} className="bg-sky-500 mx-3 text-white font-bold mt-5 py-2 px-8 rounded hover:bg-sky-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-sky-400" disabled={selectedIds.size === 0}>
             R_Facture
             </Button>
     
             <Modal
-            open={openF}
-            onClose={handleClose}
-            aria-labelledby="parent-modal-title"
-            aria-describedby="parent-modal-description"
+                open={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                aria-labelledby="parent-modal-title"
+                aria-describedby="parent-modal-description"
             >
-            <Box sx={{ ...style, width: 400 }}>
-                <h2 id="parent-modal-title">Vous voulez annuler la remise sur ce facture ?</h2>
-                <p id="parent-modal-description">
-                Verifier avant de Confirmer
-                </p>
-                <TableContainer
-                component={Paper}
-                sx={{
-                    width: '100%',
-                    maxWidth: '100%',
-                    margin: '0 auto',
-                    padding: '1rem',
-                    boxSizing: 'border-box',
-                }}
-                >
-                <Table
+                <Box sx={{ ...style, width: 400 }}>
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 id="parent-modal-title">Vous voulez annuler la remise sur cette facture ?</h2>
+                        <IconButton onClick={() => setIsModalOpen(false)} size="small">
+                            <CloseIcon />
+                        </IconButton>
+                    </div>
+                    <p id="parent-modal-description">
+                    Verifier avant de Confirmer
+                    </p>
+                    <TableContainer
+                    component={Paper}
                     sx={{
-                    minWidth: 700,
-                    '@media (max-width: 768px)': {
-                        minWidth: '100%', // S'ajuste pour les petits écrans
-                        fontSize: '0.8rem',
-                    },
+                        width: '100%',
+                        maxWidth: '100%',
+                        margin: '0 auto',
+                        padding: '1rem',
+                        boxSizing: 'border-box',
                     }}
-                    aria-label="spanning table"
-                >
-                    <TableHead>
-                    <TableRow>
-                        {/* <TableCell>Date</TableCell> */}
-                        <TableCell>Designation</TableCell>
-                        <TableCell align="right">Quantite</TableCell>
-                        <TableCell align="right">Prix unitaire</TableCell>
-                        <TableCell align="right">Somme</TableCell>
-                    </TableRow>
-                    </TableHead>
-                    <TableBody>
+                    >
+                    <Table
+                        sx={{
+                        minWidth: 700,
+                        '@media (max-width: 768px)': {
+                            minWidth: '100%', // S'ajuste pour les petits écrans
+                            fontSize: '0.8rem',
+                        },
+                        }}
+                        aria-label="spanning table"
+                    >
+                        <TableHead>
+                        <TableRow>
+                            {/* <TableCell>Date</TableCell> */}
+                            <TableCell>Designation</TableCell>
+                            <TableCell align="right">Quantite</TableCell>
+                            <TableCell align="right">Prix unitaire</TableCell>
+                            <TableCell align="right">Somme</TableCell>
+                        </TableRow>
+                        </TableHead>
+                        <TableBody>
     
-                        {selectSorties.map((post, index) => (
-                            <TableRow key={index}>
-                            {/* <TableCell>
-                                {format(new Date(post.date), 'dd/MM/yyyy')}
-                            </TableCell> */}
-                            <TableCell>
-                                {post.ref} {" - "}
-                                {post.categorie_libelle}
-                            </TableCell>
-                            <TableCell align="right">{post.qte}</TableCell>
-                            <TableCell align="right">{formatNumberWithSpaces(post.pu)}</TableCell>
-                            <TableCell align="right">{formatNumberWithSpaces(post.prix_total)}</TableCell>
-                            </TableRow>
-                        ))}
+                            {selectSorties.map((post, index) => (
+                                <TableRow key={index}>
+                                {/* <TableCell>
+                                    {format(new Date(post.date), 'dd/MM/yyyy')}
+                                </TableCell> */}
+                                <TableCell>
+                                    {post.ref} {" - "}
+                                    {post.categorie_libelle}
+                                </TableCell>
+                                <TableCell align="right">{post.qte}</TableCell>
+                                <TableCell align="right">{formatNumberWithSpaces(post.pu)}</TableCell>
+                                <TableCell align="right">{formatNumberWithSpaces(post.prix_total)}</TableCell>
+                                </TableRow>
+                            ))}
     
-                    </TableBody>                
-                </Table>
-                </TableContainer>
-                <ChildModal />
-            </Box>
+                        </TableBody>                
+                    </Table>
+                    </TableContainer>
+                    <ChildModal />
+                </Box>
             </Modal>   
     
             <Grid item xs={12} sm={6} className="py-2">

@@ -1,3 +1,4 @@
+import { FC, ChangeEvent, FormEvent, useState } from "react";
 import {
   Card,
   CardHeader,
@@ -5,9 +6,6 @@ import {
   Typography,
   Button,
   CardActions,
-  Tabs,
-  Tab,
-  TextField,
   IconButton,
   Dialog,
   DialogContent,
@@ -15,7 +13,6 @@ import {
   Pagination,
   Stack,
   Box,
-  Skeleton,
   TableContainer,
   TableCell,
   TableRow,
@@ -27,32 +24,143 @@ import {
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { ChangeEvent, FormEvent, Fragment, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
+import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import { FormValueType } from "../../../typescript/FormType";
 import { useAllUsers, useCreateAdminUser } from "../../../usePerso/fonction.user";
 import { connect } from "../../../_services/account.service";
 import Nav from "../../../_components/Button/Nav";
-import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
-const TABS = [
-  {
-    label: "Tous",
-    value: "all",
-  },
-  
-];
+import MyTextField from "../../../_components/Input/MyTextField";
+
+// Types
+interface UserData {
+  id: number;
+  uuid: string;
+  last_name: string;
+  first_name: string;
+  email: string;
+  numero: string;
+  is_cabinet: boolean;
+  role: number;
+}
+
+interface UserTableRowProps {
+  user: UserData;
+}
+
+// Components
+const LoadingState: FC = () => (
+  <Box sx={{ width: 300, margin: '2rem auto' }}>
+    <Stack spacing={2}>
+      <Box sx={{ height: 60, bgcolor: 'grey.200', borderRadius: 1 }} />
+      <Box sx={{ height: 60, bgcolor: 'grey.200', borderRadius: 1 }} />
+      <Box sx={{ height: 60, bgcolor: 'grey.200', borderRadius: 1 }} />
+    </Stack>
+  </Box>
+);
+
+const ErrorState: FC = () => {
+  window.location.reload();
+  return (
+    <Box display="flex" justifyContent="center" p={4}>
+      <Typography color="error" variant="h6">
+        Une erreur est survenue. Rechargement...
+      </Typography>
+    </Box>
+  );
+};
+
+const UserTableRow: FC<UserTableRowProps> = ({ user }) => (
+  <TableRow hover>
+    <TableCell>
+      {user.last_name} {user.first_name}
+    </TableCell>
+    <TableCell>{user.numero}</TableCell>
+    <TableCell>{user.email}</TableCell>
+    <TableCell>
+      {user.is_cabinet && (
+        <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-700/10">
+          Intermediere
+        </span>
+      )}
+    </TableCell>
+    <TableCell 
+      className={user.role === 1 ? "" : "bg-red-300 text-white"}
+    >
+      {user.role === 1 ? "Activer" : "Visiteur"}
+    </TableCell>
+    <TableCell>
+      <Link to={`/user/admin/modif/${user.uuid}`}>
+        <IconButton color="info" size="small">
+          <VisibilityIcon />
+        </IconButton>
+      </Link>
+    </TableCell>
+  </TableRow>
+);
+
+const AddUserDialog: FC<{
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (e: FormEvent<HTMLFormElement>) => void;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+}> = ({ open, onClose, onSubmit, onChange }) => (
+  <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <DialogTitle>
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Typography variant="h6">Ajouter un administrateur</Typography>
+        <IconButton onClick={onClose} size="small">
+          <CloseIcon />
+        </IconButton>
+      </Box>
+    </DialogTitle>
+    <DialogContent>
+      <form onSubmit={onSubmit} className="space-y-4 mt-4">
+        <Stack spacing={3}>
+          <MyTextField
+            label="Nom d'utilisateur"
+            name="username"
+            onChange={onChange}
+            required
+          />
+          <MyTextField
+            label="Nom"
+            name="last_name"
+            onChange={onChange}
+            required
+          />
+          <MyTextField
+            label="Prénom"
+            name="first_name"
+            onChange={onChange}
+            required
+          />
+          <MyTextField
+            label="Email"
+            type="email"
+            name="email"
+            onChange={onChange}
+            required
+          />
+          <MyTextField
+            label="Mot de passe"
+            type="password"
+            name="password"
+            onChange={onChange}
+            required
+          />
+          <Button type="submit" variant="contained" color="primary" fullWidth>
+            Ajouter
+          </Button>
+        </Stack>
+      </form>
+    </DialogContent>
+  </Dialog>
+);
 
 export default function Users() {
-  const [open, openchange] = useState(false);
-  
-  const closeopen = () => {
-    openchange(false);
-  };
-
-  const { getUsers, isLoading, isError } = useAllUsers(connect);
-  
-  const { createAdmin } = useCreateAdminUser();
-
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const [formValues, setFormValues] = useState<FormValueType>({
     username: "",
     first_name: "",
@@ -61,214 +169,122 @@ export default function Users() {
     password: "",
   });
 
-  const [currentPage, setCurrentPage] = useState(1);
+  const { getUsers, isLoading, isError } = useAllUsers(connect);
+  const { createAdmin } = useCreateAdminUser();
+  
   const itemsPerPage = 25;
-
-  const reversedUser = getUsers?.slice().sort((a: any, b: any) => {
-      if (a.id === undefined) return 1;
-      if (b.id === undefined) return -1;
-      return b.id - a.id;
-    });
-
-    // Récupération des éléments à afficher sur la page courante
-   const usersEntreprise = reversedUser.slice(
+  const sortedUsers = getUsers?.slice().sort((a: UserData, b: UserData) => b.id - a.id) || [];
+  const currentUsers = sortedUsers.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+  const totalPages = Math.ceil((sortedUsers.length || 0) / itemsPerPage);
 
-  console.log("uu ",usersEntreprise)
-
-  const totalPages = Math.ceil(getUsers.length / itemsPerPage);
-
-  // const getUs = getUsers.slice(
-  //   (currentPage - 1) * itemsPerPage,
-  //   currentPage * itemsPerPage
-  // );
-  
   const handlePageChange = (_: ChangeEvent<unknown>, page: number) => {
     setCurrentPage(page);
   };
 
-  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormValues({
-      ...formValues,
+    setFormValues(prev => ({
+      ...prev,
       [name]: value,
+    }));
+  };
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    createAdmin(formValues);
+    setIsDialogOpen(false);
+    setFormValues({
+      username: "",
+      first_name: "",
+      last_name: "",
+      email: "",
+      password: "",
     });
   };
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    createAdmin(formValues);
-  };
+  if (isLoading) return <LoadingState />;
+  if (isError) return <ErrorState />;
+  if (!getUsers) return null;
 
-  if (isLoading) {
-    return <Box sx={{ width: 300 }}>
-    <Skeleton />
-    <Skeleton animation="wave" />
-    <Skeleton animation={false} />
-  </Box>
-  }
-
-  if (isError) {
-    window.location.reload();
-    return <div>Error ...</div>
-  }
-
-  if (getUsers) {
-    return <>    
+  return (
+    <>
       <Nav />
-
-      <Card>
+      <Card elevation={3}>
         <CardHeader
           title={
-            <>
-              <Typography variant="h5" color="textPrimary">
+            <Box>
+              <Typography variant="h5" color="primary" gutterBottom>
                 Les nouveaux inscrits
-                
               </Typography>
-              <Typography color="textSecondary">
-                L'ensembles des administrateurs de Gest Stock
+              <Typography variant="body2" color="text.secondary">
+                L'ensemble des administrateurs de Gest Stock
               </Typography>
-
-            </>
+            </Box>
+          }
+          action={
+            <Button
+              variant="contained"
+              startIcon={<PersonAddAltIcon />}
+              onClick={() => setIsDialogOpen(true)}
+            >
+              Ajouter un admin
+            </Button>
           }
         />
         <CardContent>
-          
-          <Stack spacing={3} direction="row">
-                
-            <Badge color="secondary" overlap="circular" badgeContent={getUsers.length}>
+          <Box mb={3}>
+            <Badge 
+              color="secondary" 
+              badgeContent={getUsers.length} 
+              showZero
+              max={999}
+            >
               <PersonAddAltIcon fontSize="large" color="primary" />
             </Badge>
-            
-          </Stack>
-          <Tabs value="all">
-            {TABS.map(({ label, value }) => (
-              <Tab key={value} label={label} value={value} />
-            ))}
-          </Tabs>
-          
-          <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 700 }} aria-label="spanning table">
+          </Box>
+
+          <TableContainer component={Paper} elevation={0}>
+            <Table sx={{ minWidth: 700 }}>
               <TableHead>
                 <TableRow>
-                  
                   <TableCell>Nom</TableCell>
-                  <TableCell>Numero</TableCell>
+                  <TableCell>Numéro</TableCell>
                   <TableCell>Email</TableCell>
-                  <TableCell>Intermediere</TableCell>
+                  <TableCell>Intermédiaire</TableCell>
                   <TableCell>Type de compte</TableCell>
-                  <TableCell>
-                    
-                  </TableCell>
+                  <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {usersEntreprise.map((post: any, index) => (
-                <Fragment key={index} >
-                  <TableRow>            
-                      
-                    <TableCell>
-                      {post.last_name} {post.first_name}                        
-                    </TableCell>
-                    <TableCell >{post.numero}</TableCell>
-                    <TableCell >{post.email}</TableCell>
-                    <TableCell>
-                      {/* {post.is_cabinet ? "Intermediere" :
-                                 "False"
-                                } */}
-                      <span 
-                        className={post.is_cabinet ? 
-                        "inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-700/10" :
-                        ""
-                        }
-                      >
-                        {post.is_cabinet ? "Intermediere" :
-                          ""
-                        }
-                      </span>
-                    </TableCell>        
-                    <TableCell className={post.role===1 ? "" : "bg-red-300 text-white"} >{post.role===1 ? "Activer" :
-                                 "Visiteur"
-                                }
-                    </TableCell>        
-                    <TableCell>
-                    <Link to={`/user/admin/modif/${post.uuid}`}>
-                      <Stack direction="row" spacing={2}>
-                        {/* <Item>Modifier</Item> */}
-                        <VisibilityIcon color="info" fontSize="medium" />
-                      </Stack>
-                    </Link>
-                    </TableCell>        
-                  </TableRow>
-                </Fragment>
+                {currentUsers.map((user: UserData) => (
+                  <UserTableRow key={user.uuid} user={user} />
                 ))}
               </TableBody>
             </Table>
           </TableContainer>
         </CardContent>
-        <CardActions>
+        
+        <CardActions sx={{ justifyContent: 'center', padding: 2 }}>
           <Pagination
             count={totalPages}
             page={currentPage}
             onChange={handlePageChange}
             color="primary"
+            showFirstButton
+            showLastButton
           />
         </CardActions>
-        <Dialog open={open} onClose={closeopen}>
-          <DialogTitle>
-            Ajout des entrer
-            <IconButton onClick={closeopen}>
-              <CloseIcon />
-            </IconButton>
-          </DialogTitle>
-          <DialogContent>
-            <form onSubmit={onSubmit}>
-              <Stack spacing={2}>
-                <TextField
-                  label="Username"
-                  name="username"
-                  onChange={onChange}
-                  fullWidth
-                />
-                <TextField
-                  label="Last Name"
-                  name="last_name"
-                  onChange={onChange}
-                  fullWidth
-                />
-                <TextField
-                  label="First Name"
-                  name="first_name"
-                  onChange={onChange}
-                  fullWidth
-                />
-                <TextField
-                  label="Email"
-                  type="email"
-                  name="email"
-                  onChange={onChange}
-                  fullWidth
-                />
-                <TextField
-                  label="Password"
-                  type="password"
-                  name="password"
-                  onChange={onChange}
-                  fullWidth
-                />
-                <Button type="submit" variant="contained" color="primary">
-                  Add User
-                </Button>
-              </Stack>
-            </form>
-          </DialogContent>
-        </Dialog>
       </Card>
-    </>
-    ;
-  }
 
-  return null;
+      <AddUserDialog
+        open={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onSubmit={handleSubmit}
+        onChange={handleInputChange}
+      />
+    </>
+  );
 }

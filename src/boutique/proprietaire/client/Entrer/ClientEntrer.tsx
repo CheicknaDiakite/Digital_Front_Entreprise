@@ -1,9 +1,31 @@
 import React, { ChangeEvent, FormEvent, SyntheticEvent, useState } from 'react'
 import { UuType } from '../../../../typescript/Account'
-import { Autocomplete, Box, Button, Checkbox, Dialog, DialogContent, DialogTitle, FormControlLabel, Grid, IconButton, Pagination, Paper, Skeleton, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Checkbox,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  FormControlLabel,
+  IconButton,
+  Pagination,
+  Paper,
+  Skeleton,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+} from '@mui/material';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import QuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
-import CloseIcon from "@mui/icons-material/Close"
+import CloseIcon from "@mui/icons-material/Close";
+import AddIcon from '@mui/icons-material/Add';
 import MyTextField from '../../../../_components/Input/MyTextField';
 import { connect } from '../../../../_services/account.service';
 import { RecupType } from '../../../../typescript/DataType';
@@ -151,154 +173,204 @@ export default function ClientEntrer(uuid: UuType) {
   if (unClient.role === 2 || unClient.role === 3 || unClient.role === 1) {
     if (entresEntreprise) {
       return (
-        <>    
-  
-        {/* <Nav /> */}
-        <Grid className='py-2'>
-          <Typography variant="h5">
-            <Button variant="outlined" onClick={functionopen}>Ajout des entrer</Button>
-          </Typography>
-        </Grid>
-  
-        <div className="flex justify-center mt-4">
-          <Pagination
-            count={totalPages}
-            page={currentPage}
-            onChange={handlePageChange}
-            color="primary"
-          />
-  
-          <TextField
-            label="Recherche par date"
-            className='bg-sky-300'
-            type="date"
-            value={selectedDate}
-            onChange={handleDateChange}
-            InputLabelProps={{
-              shrink: true, // Force le label à rester au-dessus du champ
+        <div className="space-y-6">
+          {/* Header Section */}
+          <div className="flex justify-between items-center">
+            <Typography variant="h5" className="font-semibold text-gray-900">
+              Gestion des Entrées
+            </Typography>
+            <Button
+              variant="contained"
+              onClick={functionopen}
+              startIcon={<AddIcon />}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              Nouvelle Entrée
+            </Button>
+          </div>
+
+          {/* Filters Section */}
+          <Paper elevation={0} className="p-4 bg-white rounded-lg">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+              <TextField
+                label="Recherche par date"
+                type="date"
+                value={selectedDate}
+                onChange={handleDateChange}
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                className="bg-white"
+              />
+              
+              <div className="flex items-center space-x-2">
+                <LocalAtmIcon color="primary" />
+                <Typography variant="h6" className="text-gray-700">
+                  Total : {formatNumberWithSpaces(totalPrice)} F
+                </Typography>
+              </div>
+
+              <div className="flex justify-end">
+                <Pagination
+                  count={totalPages}
+                  page={currentPage}
+                  onChange={handlePageChange}
+                  color="primary"
+                  size="medium"
+                />
+              </div>
+            </div>
+          </Paper>
+
+          {/* Table Section */}
+          <TableContainer component={Paper} elevation={0}>
+            <Table>
+              <TableHead>
+                <TableRow sx={{ backgroundColor: '#f8fafc' }}>
+                  <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
+                  <TableCell sx={{ fontWeight: 600 }}>Désignation</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 600 }}>Quantité</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 600 }}>Prix Unitaire</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 600 }}>Total</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {displayedBoutiques?.length > 0 ? (
+                  displayedBoutiques.map((row, index) => (
+                    <CardClientEntrer key={index} row={row} />
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={5} align="center" className="py-8">
+                      <Typography variant="body1" className="text-gray-500">
+                        Aucun achat enregistré
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          {/* Add Entry Modal */}
+          <Dialog 
+            open={open} 
+            onClose={closeopen} 
+            fullWidth 
+            maxWidth="sm"
+            PaperProps={{
+              elevation: 0,
+              className: "rounded-lg"
             }}
-          />
-  
-          <Typography variant="h4" className='mx-2'>
-            Somme total = {formatNumberWithSpaces(totalPrice)} <LocalAtmIcon color="primary" fontSize='medium' />
-          </Typography>
-        </div>
-        {/* Modal */}
-        <Dialog open={open} onClose={closeopen} fullWidth maxWidth="xs">
-          <DialogTitle>Ajout des entrer<IconButton onClick={closeopen} style={{float: "right"}}><CloseIcon color="primary"></CloseIcon></IconButton> </DialogTitle>
-          <DialogContent>
+          >
+            <DialogTitle className="flex justify-between items-center border-b pb-3">
+              <Typography variant="h6" className="font-semibold">
+                Ajouter une nouvelle entrée
+              </Typography>
+              <IconButton onClick={closeopen} size="small">
+                <CloseIcon />
+              </IconButton>
+            </DialogTitle>
             
-            <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmit}>
-              <Stack spacing={2} margin={2}>
-    
+            <DialogContent className="mt-4">
+              <form onSubmit={onSubmit} className="space-y-4">
                 <Autocomplete
-                  id="free-solo-demo"
                   freeSolo
                   options={souscategories}
                   getOptionLabel={(option) => (typeof option === 'string' ? option : option.libelle || '')}
                   onChange={handleAutoCompleteChange}
-                  renderInput={(params) => <TextField {...params} required
-                                name='categorie_slug' 
-                                onChange={onChange} 
-                                label="Categorie"
-                                sx={{
-                                  "& .MuiFormLabel-asterisk": {
-                                    color: "red", // Personnalise la couleur de l'étoile en rouge
-                                  },
-                                }} 
-                              />}
-                  
+                  renderInput={(params) => (
+                    <TextField 
+                      {...params} 
+                      required
+                      label="Catégorie"
+                      name="categorie_slug"
+                      onChange={onChange}
+                      className="bg-white"
+                    />
+                  )}
                 />
-    
-                {/* <TextField variant="outlined" label="libelle" name='libelle' onChange={onChange}></TextField> */}
-                <MyTextField 
-                  label={"libelle"}
-                  name={"libelle"}
+
+                <MyTextField
+                  label="Libellé"
+                  name="libelle"
                   onChange={onChange}
+                  fullWidth
+                  className="bg-white"
                 />
-  
-                <MyTextField required
-                  variant="outlined" 
-                  type='date' 
-                  label="Date" 
-                  name='date' 
+
+                <MyTextField
+                  required
+                  type="date"
+                  label="Date"
+                  name="date"
                   onChange={onChange}
-                  InputLabelProps={{
-                    shrink: true, // Force le label à rester au-dessus du champ
-                  }}
-                  sx={{
-                    "& .MuiFormLabel-asterisk": {
-                      color: "red", // Personnalise la couleur de l'étoile en rouge
-                    },
-                  }}
+                  InputLabelProps={{ shrink: true }}
+                  fullWidth
+                  className="bg-white"
                 />
-                <Typography variant="h6" className='mx-2'>
-                  Quantite <QuantityLimitsIcon color="error" fontSize='small' />
-                </Typography>
-                <MyTextField required
-                  variant="outlined" 
-                  type='number'
-                  name='qte' 
-                  onChange={onChange}
-                  sx={{
-                    "& .MuiFormLabel-asterisk": {
-                      color: "red", // Personnalise la couleur de l'étoile en rouge
-                    },
-                  }}
-                />
-                <Typography variant="h6" className='mx-2'>
-                  Prix Unitaire <LocalAtmIcon color="error" fontSize='small' />
-                </Typography>
-                <MyTextField required
-                  variant="outlined" 
-                  type='number'
-                  name='pu' 
-                  onChange={onChange}
-                  sx={{
-                    "& .MuiFormLabel-asterisk": {
-                      color: "red", // Personnalise la couleur de l'étoile en rouge
-                    },
-                  }}
-                />
-  
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <QuantityLimitsIcon color="primary" fontSize="small" />
+                      <Typography variant="subtitle2">Quantité</Typography>
+                    </div>
+                    <MyTextField
+                      required
+                      type="number"
+                      name="qte"
+                      onChange={onChange}
+                      fullWidth
+                      className="bg-white"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <LocalAtmIcon color="primary" fontSize="small" />
+                      <Typography variant="subtitle2">Prix Unitaire</Typography>
+                    </div>
+                    <MyTextField
+                      required
+                      type="number"
+                      name="pu"
+                      onChange={onChange}
+                      fullWidth
+                      className="bg-white"
+                    />
+                  </div>
+                </div>
+
                 <FormControlLabel
-                  value="end"
-                  control={<Checkbox />}
-                  label="Voulez-vous ajouter aux derniers stock ?"
-                  labelPlacement="end"
-                  onClick={Ajout_Terminer}
+                  control={
+                    <Checkbox 
+                      checked={ajout_terminer}
+                      onChange={Ajout_Terminer}
+                      color="primary"
+                    />
+                  }
+                  label="Ajouter au stock existant"
                 />
-                <Button type="submit" color="success" variant="outlined">Envoyer</Button>
-              </Stack>
-            </form>
-          </DialogContent>
-        </Dialog>
-    
-        <TableContainer component={Paper} className='mt-3'>
-          <Table sx={{ minWidth: 700 }} aria-label="spanning table">
-            <TableHead>
-              
-              <TableRow>
-                <TableCell>Date</TableCell>
-                <TableCell>Designation</TableCell>
-                <TableCell align="right">Quantite</TableCell>
-                <TableCell align="right">Prix Unitaire</TableCell>
-                <TableCell align="right">Somme</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {displayedBoutiques?.length > 0 ? 
-              
-              displayedBoutiques?.map((row, index) => {                       
-                  return <CardClientEntrer key={index} row={row} />
-                })
-                : "Pas d'achat !"
-              }
-        
-            </TableBody>
-          </Table>
-        </TableContainer>
-        </>
+
+                <div className="pt-4 flex justify-end space-x-3">
+                  <Button 
+                    onClick={closeopen}
+                    variant="outlined"
+                  >
+                    Annuler
+                  </Button>
+                  <Button 
+                    type="submit" 
+                    variant="contained"
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    Enregistrer
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
       );
     }
   } else {

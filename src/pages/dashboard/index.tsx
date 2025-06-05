@@ -1,6 +1,5 @@
 // material-ui
 import Grid from '@mui/material/Grid';
-
 import Typography from '@mui/material/Typography';
 import CategoryIcon from '@mui/icons-material/Category';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
@@ -13,7 +12,7 @@ import FileOpenIcon from '@mui/icons-material/FileOpen';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import AddBusinessIcon from '@mui/icons-material/AddBusiness';
 import { Link } from 'react-router-dom';
-import { FC, ReactNode } from 'react';
+import { FC } from 'react';
 import backgroundImage from '../../../public/assets/img/img.jpg'
 import { useFetchEntreprise, useFetchUser, useStockSemaine } from '../../usePerso/fonction.user';
 import { connect } from '../../_services/account.service';
@@ -21,42 +20,58 @@ import { useStoreUuid } from '../../usePerso/store';
 import { format } from 'date-fns';
 import { BASE } from '../../_services/caller.service';
 import SimpleCharts from '../../_components/Chart/Chart_1';
-import MainCard from '../../components/MainCard';
-import { Alert, Box, CircularProgress, Stack } from '@mui/material';
+import { Alert, Box, CircularProgress, Stack, Paper, Container, Button } from '@mui/material';
 import MonthlyBarChart from './MonthlyBarChart';
 
 // import SimpleCharts from '../../_components/Chart/Chart_1';
 
 // ==============================|| DASHBOARD - DEFAULT ||============================== //
-interface IconsGridProps {
-  icon: ReactNode;
+
+// Types
+interface NavigationCardType {
+  icon: JSX.Element;
   title: string;
   description: string;
-  className?: string; // Ajouter cette ligne
+  to: string;
+  className: string;
 }
 
-const IconsGrid: FC<IconsGridProps> = ({ icon, title, description, className }) => (
-  <div className={`icon-box p-4 shadow-md rounded-lg text-center ${className}`}>
-    <div className="icon text-4xl mb-4">{icon}</div>
-    <h4 className="text-xl font-semibold mb-2">
-      <a href="#" className="text-blue-500 hover:underline">
-        {title}
-      </a>
-    </h4>
-    <p className="text-gray-600">{description}</p>
-  </div>
+// type NavigationCardOrNull = NavigationCardType | null;
+
+const NavigationCard: FC<NavigationCardType> = ({ icon, title, description, className, to }) => (
+  <Link to={to} className="block h-full">
+    <Paper
+      elevation={0}
+      className={`h-full transition-all duration-200 hover:shadow-lg rounded border-x-2 animate-border-rotate ${className}`}
+    >
+      <Box className="p-6 text-center h-full flex flex-col justify-between">
+        <div className="mb-4">
+          <Box className="text-4xl mb-4 text-blue-600">
+            {icon}
+          </Box>
+          <Typography variant="h6" className="mb-2 font-medium text-gray-900">
+            {title}
+          </Typography>
+        </div>
+        <Typography variant="body2" className="text-gray-600">
+          {description}
+        </Typography>
+      </Box>
+    </Paper>
+  </Link>
 );
 
 export default function DashboardDefault() {
-  const {unUser} = useFetchUser(connect)
-  const uuid = useStoreUuid((state) => state.selectedId)
-  const {unEntreprise} = useFetchEntreprise(uuid!)
-  const url = unEntreprise.image ? BASE(unEntreprise.image) : backgroundImage;
-  const {stockSemaine, isLoading, isError} = useStockSemaine(unEntreprise.uuid!)
+  const { unUser } = useFetchUser(connect);
+  const uuid = useStoreUuid((state) => state.selectedId);
+  const { unEntreprise } = useFetchEntreprise(uuid!);
+  const { stockSemaine, isLoading, isError } = useStockSemaine(unEntreprise.uuid!);
   
+  const url = unEntreprise.image ? BASE(unEntreprise.image) : backgroundImage;
+
   if (isLoading) {
     return (
-      <Box sx={{ display: 'flex' }}>
+      <Box className="flex items-center justify-center min-h-screen">
         <CircularProgress />
       </Box>
     );
@@ -64,251 +79,179 @@ export default function DashboardDefault() {
 
   if (isError) {
     return (
-      <Stack sx={{ width: '100%' }} spacing={2}>        
-        <Alert severity="error">Probleme de connexion !</Alert>
-      </Stack>
+      <Container maxWidth="sm" className="py-8">
+        <Alert 
+          severity="error"
+          className="shadow-lg"
+          action={
+            <Button color="inherit" size="small" onClick={() => window.location.reload()}>
+              Réessayer
+            </Button>
+          }
+        >
+          Problème de connexion ! Veuillez réessayer.
+        </Alert>
+      </Container>
     );
   }
 
+  const navigationCards = [
+    unUser.role === 1 ? {
+      icon: <AddBusinessIcon fontSize="inherit" />,
+      title: "Entreprise",
+      description: "Les informations de votre entreprise",
+      className: "bg-blue-50",
+      to: "/entreprise/detail"
+    } : null,
+    (unUser.role === 1 || unUser.role === 2) ? {
+      icon: <CategoryIcon fontSize="inherit" />,
+      title: "Article || Catégorie",
+      description: "Les différents articles de l'entreprise",
+      className: "bg-white",
+      to: "/categorie"
+    } : null,
+    (unUser.role === 1 || unUser.role === 2) && {
+      icon: <AddCircleIcon fontSize="inherit" />,
+      title: "Entrer || Achat",
+      description: "Entrée des produits de l'entreprise",
+      className: "bg-green-50",
+      to: "/entre"
+    },
+    (unUser.role === 1 || unUser.role === 2 || unUser.role === 3) && {
+      icon: <ExitToAppIcon fontSize="inherit" />,
+      title: "Sortie || Vente",
+      description: "Pour la sortie des produits dans l'entreprise",
+      className: "bg-red-50",
+      to: "/sortie"
+    },
+    (unUser.role === 1 || unUser.role === 2 || unUser.role === 3) && {
+      icon: <PeopleOutlineRoundedIcon fontSize="inherit" />,
+      title: "Clients || Fournisseurs",
+      description: "Pour ajouter des clients ou fournisseurs",
+      className: "bg-lime-50",
+      to: "/entreprise/client"
+    },
+    unUser.role === 1 && {
+      icon: <PersonAddAltIcon fontSize="inherit" />,
+      title: "Personnels",
+      description: "Pour ajouter des personnes qui ont accès à la plateforme",
+      className: "bg-cyan-50",
+      to: "/entreprise/personnel"
+    },
+    {
+      icon: <ReceiptIcon fontSize="inherit" />,
+      title: "Facture Proforma",
+      description: "Cette facture ne sera pas enregistrée",
+      className: "bg-neutral-50",
+      to: "/entreprise/PreFacture"
+    },
+    (unUser.role === 1 || unUser.role === 2 || unUser.role === 3) && {
+      icon: <FileCopyIcon fontSize="inherit" />,
+      title: "Factures sorties (ventes)",
+      description: "Factures des produits de l'entreprise",
+      className: "bg-amber-50",
+      to: "/entreprise/produit/sortie"
+    },
+    (unUser.role === 1 || unUser.role === 2) && {
+      icon: <FileOpenIcon fontSize="inherit" />,
+      title: "Factures entrées (achat)",
+      description: "Factures des produits de l'entreprise",
+      className: "bg-slate-50",
+      to: "/entreprise/produit/entre"
+    },
+    (unUser.role === 1 || unUser.role === 2 || unUser.role === 3) && {
+      icon: <MonetizationOnIcon fontSize="inherit" />,
+      title: "Dépense(s)",
+      description: "Ajout des dépenses de l'entreprise",
+      className: "bg-orange-50",
+      to: "/entreprise/depense"
+    }
+  ].filter((card): card is NavigationCardType => Boolean(card));
+
   return (
-    <Grid container 
-    rowSpacing={4.5} 
-    columnSpacing={2.75}
-    style={{
-      background: `linear-gradient(rgba(128, 128, 128, 0.7), rgba(128, 128, 128, 0.7)), url(${url}) center center`, 
-      backgroundSize: 'cover', // Peut être 'cover' ou 'contain' selon votre besoin
-      backgroundPosition: 'center',
-      backgroundRepeat: 'no-repeat',
-    }}
+    <Box
+      className="min-h-screen py-8"
+      sx={{
+        background: `linear-gradient(rgba(128, 128, 128, 0.7), rgba(128, 128, 128, 0.7)), url(${url})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed'
+      }}
     >
-
-      <Grid item xs={12} sx={{ mb: -2.25 }} >
-        <Typography 
-        variant="h5" 
-        className='box-decoration-clone bg-linear-to-r from-indigo-700 to-red-600 px-2 text-white rounded border-l-2 animate-border-rotate'
-        // maxWidth={"sm"}
-        >
-          Page d'accueil          
-        </Typography>        
-      </Grid>
-      
-      {/* <Grid item xs={12} sx={{ mb: -2.25 }}>
-        <SimpleCharts />
-      </Grid> */}
-      <Grid item xs={12} md={7} lg={10}>
-        <Grid container alignItems="center" justifyContent="space-between">
-        <Grid 
-          className="box-decoration-clone bg-linear-to-t from-indigo-700 to-red-600 px-2 text-white bg-zinc-500/50 flex items-center gap-2 p-2 rounded border-y-2 animate-border-rotate"
-          item>
-          <Typography variant="h5">
-            Le nombre de vente ou sortie effectuer
-          </Typography>
-        </Grid>
-
-          <Grid item />
-        </Grid>
-        <MainCard sx={{ mt: 2 }} content={false}>
-          <Box sx={{ p: 3, pb: 0 }}>
-            <Stack spacing={2}>
-              <Typography variant="h6" color="text.secondary">
-                  Eta de vente
-              </Typography>
-              {/* <Typography variant="h3">$7,650</Typography> */}
-            </Stack>
+      <Container maxWidth="xl">
+        <Stack spacing={6}>
+          {/* Header */}
+          <Box>
+            <Typography variant="h4" className="font-semibold text-gray-900 mb-2">
+              Tableau de bord
+            </Typography>
+            <Typography variant="body1" className="text-gray-600">
+              Bienvenue dans votre espace de gestion
+            </Typography>
           </Box>
-          {/* <MonthlyBarChart /> */}
-            <SimpleCharts />
-        </MainCard>
-      </Grid>
 
-      <Grid item xs={12} md={7} lg={12}>
-        <Grid container alignItems="center" justifyContent="space-between">
-          <Grid 
-          className='box-decoration-clone bg-linear-to-t from-indigo-700 to-red-600 px-2 text-white bg-zinc-500/50 flex items-center gap-2 p-2 rounded border-y-2 animate-border-rotate' 
-          item>
-            <Typography 
-            variant="h5"
-            >
-              Les produits les plus vendes du mois en cours
-            </Typography>
-          </Grid>
-          <Grid item />
-        </Grid>
-        
-        {(!stockSemaine.sorties_par_mois || stockSemaine.sorties_par_mois.length === 0) ? (
-          <Grid item xs={12} sx={{ mb: -2.25 }}>
-          <Typography variant="h5">Il n'y a pas eu de vente !</Typography>
-          </Grid>
-          ) : (
-          stockSemaine.sorties_par_mois.slice(-1).map((post, index) => {
-          // const validDate = post.week ? new Date(post.month) : new Date(); // Vérifie si `post.week` est valide
-          const validD = new Date(post.month) // Vérifie si `post.week` est valide
-          
-          return (
-            <MainCard key={index} sx={{ mt: 2 }} content={false}>
-              <Box sx={{ p: 3, pb: 0 }}>
-                <Stack spacing={2}>
-                  <Typography variant="h6" color="text.secondary">
-                    {format(validD, 'MMMM yyyy')}
-                  </Typography>
-                  {/* <Typography variant="h3">$7,650</Typography> */}
-                </Stack>
+          {/* Sales Statistics */}
+          <Paper elevation={0} className="border rounded-lg overflow-hidden">
+            <Box className="p-6 border-b bg-gray-50">
+              <Typography variant="h5" className="font-medium text-gray-900">
+                Statistiques des ventes
+              </Typography>
+            </Box>
+            <Box className="p-6">
+              <SimpleCharts />
+            </Box>
+          </Paper>
+
+          {/* Monthly Sales */}
+          {stockSemaine.sorties_par_mois && stockSemaine.sorties_par_mois.length > 0 ? (
+            <Paper elevation={0} className="border rounded-lg overflow-hidden">
+              <Box className="p-6 border-b bg-gray-50">
+                <Typography variant="h5" className="font-medium text-gray-900">
+                  Produits les plus vendus - {format(new Date(stockSemaine.sorties_par_mois[stockSemaine.sorties_par_mois.length - 1].month), 'MMMM yyyy')}
+                </Typography>
               </Box>
-              <MonthlyBarChart details={post.details} />
-                {/* <Chart_2 details={post.details} /> */}
-            </MainCard>
-          );
-          })
-        )}
-        
-      </Grid>
+              <Box className="p-6">
+                <MonthlyBarChart details={stockSemaine.sorties_par_mois[stockSemaine.sorties_par_mois.length - 1].details} />
+              </Box>
+            </Paper>
+          ) : (
+            <Alert severity="info" className="border">
+              Aucune vente n'a été enregistrée ce mois-ci
+            </Alert>
+          )}
 
-      {unUser.role === 1 && <>
-        <Grid item xs={6} md={4}>
-          <Link to="/entreprise/detail" className="block">
-            <IconsGrid 
-              icon={<AddBusinessIcon color="primary" fontSize='inherit' />} 
-              title="Entreprise" 
-              description="Les informations de votre entreprise"
-              className="bg-blue-100 rounded border-x-2 animate-border-rotate"
-            />
-          </Link>
-        </Grid>
-      </>      
-      }
-
-      {(unUser.role === 1 || unUser.role === 2) &&       
-        <Grid item xs={6} md={4}>
-          <Link to="/categorie" className="block">
-            <IconsGrid 
-              icon={<CategoryIcon color="primary" fontSize='inherit' />} 
-              title="Article || Catégorie" 
-              description="Les differents articles de l'entreprise" 
-              className='bg-white rounded border-x-2 animate-border-rotate'
-            />
-          </Link>
-        </Grid>
-      }
-
-      {(unUser.role === 1 || unUser.role === 2) &&       
-        <Grid item xs={6} md={4}>
-          <Link to="/entre" className="block">
-            <IconsGrid 
-              icon={<AddCircleIcon color="primary" fontSize='inherit' />} 
-              title="Entrer || Achat" 
-              description="Entre des produits de l'entreprise"
-              className="bg-green-100 rounded border-x-2 animate-border-rotate" 
-            />
-          </Link>
-        </Grid>
-      }
-
-      {(unUser.role === 1 || unUser.role === 2 || unUser.role === 3) &&
-        <Grid item xs={6} md={4}>
-          <Link to="/sortie" className="block">
-            <IconsGrid 
-              icon={<ExitToAppIcon color="primary" fontSize='inherit' />} 
-              title="Sortie || Vente" 
-              description="Pour la sortie des prduits dans l'entreprise" 
-              className="bg-red-100 rounded border-x-2 animate-border-rotate"
-            />
-          </Link>
-        </Grid>
-      }
-
-      {(unUser.role === 1 || unUser.role === 2 || unUser.role === 3) &&       
-        <Grid item xs={6} md={4}>
-          <Link to="/entreprise/client" className="block">
-            <IconsGrid 
-              icon={<PeopleOutlineRoundedIcon color="primary" fontSize='inherit' />} 
-              title="Clients || Fournisseurs" 
-              description="Pour ajouter des clients ou fournisseurs" 
-              className="bg-lime-100 rounded border-x-2 animate-border-rotate"
-            />
-          </Link>
-        </Grid>
-      }
-      {(unUser.role === 1 ) &&       
-        <Grid item xs={6} md={4}>
-          <Link to="/entreprise/personnel" className="block">
-            <IconsGrid 
-              icon={<PersonAddAltIcon color="primary" fontSize='inherit' />} 
-              title="Personnels" 
-              description="Pour ajouter des personnes qui ont acces au plate-forme" 
-              className="bg-cyan-100 rounded border-x-2 animate-border-rotate"
-            />
-          </Link>
-        </Grid>
-      }
-
-      <Grid item xs={6} md={4}>
-        <Link to="/entreprise/PreFacture" className="block">
-          <IconsGrid 
-            icon={<ReceiptIcon color="primary" fontSize='inherit' />} 
-            title="Facture Proforma" 
-            description="Ce facture ne sera pas enregistrer"
-            className="bg-neutral-100 rounded border-x-2 animate-border-rotate" 
-          />
-        </Link>
-      </Grid> 
-
-      {/* <Grid  item xs={12} sx={{ mb: -2.25 }}>
-        <Typography variant="h5" >Archiges = Pour les factures et depenses (en version numerique si necessaire en PDF)</Typography>
-      </Grid> */}
-
-        <Grid container alignItems="center" justifyContent="space-between" xs={12} sx={{ mb: -2.25 }}>
-          <Grid 
-          className='box-decoration-clone bg-linear-to-t from-indigo-700 to-red-600 px-2 mx-5 mt-5 text-white bg-zinc-500/50 flex items-center gap-2 p-2 rounded border-y-2 animate-border-rotate' 
-          item>
-            <Typography 
-            variant="h5"
-            >
-              Archives = Pour les factures et depenses (en version numerique si necessaire en PDF)
+          {/* Navigation Section */}
+          <Box>
+            <Typography variant="h5" className="font-medium text-gray-900 mb-4">
+              Navigation rapide
             </Typography>
-          </Grid>
-          <Grid item />
-        </Grid>
-      
-      {(unUser.role === 1 || unUser.role === 2 || unUser.role === 3) &&       
-        <Grid item xs={6} md={4}>
-          <Link to="/entreprise/produit/sortie" className="block">
-            <IconsGrid 
-              icon={<FileCopyIcon color="primary" fontSize='inherit' />} 
-              title="Factures sorties(ventes)" 
-              description="Factures des produits de l'entreprise" 
-              className="bg-amber-100 rounded border-x-2 animate-border-rotate"
-            />
-          </Link>
-        </Grid>
-      }
+            <Paper elevation={0} className="border p-6 mb-4">
+              <Typography variant="body1" className="text-gray-600">
+                Pour les factures et dépenses (en version numérique si nécessaire en PDF)
+              </Typography>
+            </Paper>
+            <Grid container spacing={3}>
+              {navigationCards.map((card, index) => (
+                <Grid item xs={6} sm={6} md={4} key={index}>
+                  <NavigationCard {...card} />
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
 
-      {(unUser.role === 1 || unUser.role === 2) &&       
-      <Grid item xs={6} md={4}>
-        <Link to="/entreprise/produit/entre" className="block">
-          <IconsGrid 
-            icon={<FileOpenIcon color="primary" fontSize='inherit'/>} 
-            title="Factures entrer(achat)" 
-            description="Factures des produits de l'entreprise" 
-            className="bg-slate-100 rounded border-x-2 animate-border-rotate"
-          />
-        </Link>
-      </Grid>
-      }
-
-      {(unUser.role === 1 || unUser.role === 2 || unUser.role === 3) &&       
-        <Grid item xs={6} md={4}>
-          <Link to="/entreprise/depense" className="block">
-            <IconsGrid 
-              icon={<MonetizationOnIcon color="primary" fontSize='inherit' />} 
-              title="Depense(s)" 
-              description="Ajout des depenses de l'entreprise" 
-              className="bg-orange-100 rounded border-x-2 animate-border-rotate"
-            />
-          </Link>
-        </Grid>
-      }
-      
-      <Grid item md={8} sx={{ display: { sm: 'none', md: 'block', lg: 'none' } }} />
-    </Grid>
+          {/* Archives Section */}
+          {/* <Box>
+            <Typography variant="h5" className="font-medium text-gray-900 mb-4">
+              Archives
+            </Typography>
+            <Paper elevation={0} className="border p-6">
+              <Typography variant="body1" className="text-gray-600">
+                Pour les factures et dépenses (en version numérique si nécessaire en PDF)
+              </Typography>
+            </Paper>
+          </Box> */}
+        </Stack>
+      </Container>
+    </Box>
   );
 }

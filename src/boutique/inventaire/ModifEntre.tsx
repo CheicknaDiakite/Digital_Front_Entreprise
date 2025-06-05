@@ -1,13 +1,25 @@
 import { ChangeEvent, FormEvent, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { RouteParams } from '../../typescript/DataType'
-import { Button, Card, CardContent, Checkbox, DialogContent, DialogTitle, FormControlLabel, Stack, TextField } from '@mui/material'
+import { 
+  Button,  
+  Checkbox,  
+  FormControlLabel,
+  TextField,
+  Typography,
+  Paper,
+  Box,
+  IconButton,
+} from '@mui/material'
 import { connect } from '../../_services/account.service'
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
 import { useDeleteEntre, useFetchEntre, useUpdateEntre } from '../../usePerso/fonction.entre'
 import Nav from '../../_components/Button/Nav'
 import { useFetchUser } from '../../usePerso/fonction.user'
 import { useStoreUuid } from '../../usePerso/store'
+import SaveIcon from '@mui/icons-material/Save';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { Link } from 'react-router-dom';
 
 export default function ModifEntre() {
   const {uuid} = useParams<RouteParams>()
@@ -20,20 +32,15 @@ export default function ModifEntre() {
 
   const [ajout_terminer, setTerminer] = useState(true);
   
-  const Ajout_Terminer = () => {
-    ajout_terminer ? setTerminer(false) : setTerminer(true);
-  };
+  const Ajout_Terminer = () => setTerminer(!ajout_terminer);
 
   const [is_prix, setPrix] = useState(true);
   
-  const Is_Prix = () => {
-    is_prix ? setPrix(false) : setPrix(true);
-  };
+  const Is_Prix = () => setPrix(!is_prix);
   
   const handleDelete = () => {
-    const confirmation = window.confirm("Vous êtes sûr de vouloir supprimer ?");
+    const confirmation = window.confirm("Êtes-vous sûr de vouloir supprimer cette entrée ?");
     if (confirmation) {
-      // Appel de la fonction de suppression
       deleteEntre(unEntre);
     }
   };
@@ -59,64 +66,138 @@ export default function ModifEntre() {
     
   };
 
-  return (<>
-    <Nav>
-    {(unUser.role === 1 || unUser.role === 2) &&     
-      <Button size="small" className='rounded-full shadow-md shadow-red-800/50' onClick={handleDelete}>
-        <DeleteIcon fontSize='small' />
-      </Button>
-    }
-    </Nav>
-    <Card sx={{ minWidth: 275 }}>
-        <CardContent>
-          {/* <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-            Word of the Day
-          </Typography> */}
-          <div className='flex justify-center items-center flex-col'>
-
-          <DialogTitle>Entrer Modification</DialogTitle>
-          <DialogContent>
-            {/* <DialogContentText>Categorie</DialogContentText> */}
-            <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmit}>
-            <Stack spacing={2} margin={2}>
-
-              <TextField variant="outlined" disabled value={unEntre.categorie_slug} label="Designation" name='libelle' onChange={onChange}></TextField>
-              <TextField variant="outlined" value={unEntre.libelle} label="libelle" name='libelle' onChange={onChange}></TextField>
-              <TextField variant="outlined" value={unEntre.qte} label="QTE" name='qte' onChange={onChange}></TextField>
-              <TextField variant="outlined" value={unEntre.pu} label="Prix de vente" name='pu' onChange={onChange}></TextField>
-              
-              {unUser.role === 1 &&               
-              <TextField variant="outlined" value={unEntre.pu_achat} label="Prix d'achat" name='pu_achat' onChange={onChange}></TextField>
-              }
-              
-              <FormControlLabel
-                control={<Checkbox 
-                  onChange={Is_Prix} // Appelle la fonction Ajout_Terminer lors du changement
-                />
-                }
-                label="Prix de vente (Manuelle)"
-                labelPlacement="end"
-                onClick={Is_Prix}
-              />
-
-              <FormControlLabel
-                control={<Checkbox 
-                  onChange={Ajout_Terminer} // Appelle la fonction Ajout_Terminer lors du changement
-                />
-                }
-                label="Vous ne voulez pas sortir ce produit ?"
-                labelPlacement="end"
-                onClick={Ajout_Terminer}
-              />
-
-              <Button type="submit" color="success" variant="outlined">Envoyer</Button>
-            </Stack>
-          </form>
-          </DialogContent>
+  return (
+    <div className="min-h-screen bg-gray-50 py-6">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Nav>
+          <div className="flex items-center space-x-2">
+            <Link to="/inventaire/entre">
+              <IconButton size="small" className="hover:bg-gray-100">
+                <ArrowBackIcon />
+              </IconButton>
+            </Link>
+            {(unUser.role === 1 || unUser.role === 2) && (
+              <IconButton 
+                onClick={handleDelete}
+                size="small"
+                className="text-red-600 hover:bg-red-50"
+              >
+                <DeleteIcon />
+              </IconButton>
+            )}
           </div>
-        </CardContent>
-        
-    </Card>
-  </>
+        </Nav>
+
+        <Paper elevation={0} className="mt-6 rounded-lg overflow-hidden">
+          <Box className="p-6">
+            {/* Header */}
+            <div className="border-b pb-4 mb-6">
+              <Typography variant="h4" className="font-semibold text-gray-900">
+                Modification d'une Entrée
+              </Typography>
+              <Typography variant="body2" className="text-gray-500 mt-1">
+                Modifiez les informations de l'entrée en stock
+              </Typography>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={onSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 gap-6">
+                <TextField
+                  label="Désignation"
+                  variant="outlined"
+                  disabled
+                  value={unEntre.categorie_slug}
+                  fullWidth
+                  className="bg-gray-50"
+                />
+
+                <TextField
+                  label="Libellé"
+                  variant="outlined"
+                  name="libelle"
+                  value={unEntre.libelle}
+                  onChange={onChange}
+                  fullWidth
+                  className="bg-white"
+                />
+
+                <TextField
+                  label="Quantité"
+                  variant="outlined"
+                  name="qte"
+                  type="number"
+                  value={unEntre.qte}
+                  onChange={onChange}
+                  fullWidth
+                  className="bg-white"
+                />
+
+                <TextField
+                  label="Prix de vente"
+                  variant="outlined"
+                  name="pu"
+                  type="number"
+                  value={unEntre.pu}
+                  onChange={onChange}
+                  fullWidth
+                  className="bg-white"
+                />
+                
+                {unUser.role === 1 && (
+                  <TextField
+                    label="Prix d'achat"
+                    variant="outlined"
+                    name="pu_achat"
+                    type="number"
+                    value={unEntre.pu_achat}
+                    onChange={onChange}
+                    fullWidth
+                    className="bg-white"
+                  />
+                )}
+
+                <div className="space-y-4 pt-2">
+                  <FormControlLabel
+                    control={
+                      <Checkbox 
+                        checked={!is_prix}
+                        onChange={Is_Prix}
+                        color="primary"
+                      />
+                    }
+                    label="Prix de vente manuel"
+                    className="text-gray-700"
+                  />
+
+                  <FormControlLabel
+                    control={
+                      <Checkbox 
+                        checked={!ajout_terminer}
+                        onChange={Ajout_Terminer}
+                        color="primary"
+                      />
+                    }
+                    label="Ne pas autoriser la sortie de ce produit"
+                    className="text-gray-700"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-6">
+                <Button
+                  type="submit"
+                  variant="contained"
+                  startIcon={<SaveIcon />}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  Enregistrer les modifications
+                </Button>
+              </div>
+            </form>
+          </Box>
+        </Paper>
+      </div>
+    </div>
   )
 }

@@ -6,70 +6,73 @@ import AnalyticEcommerce from '../../../../components/cards/statistics/AnalyticE
 import { format } from 'date-fns';
 import Nav from '../../../../_components/Button/Nav';
 
+// Types
+interface MonthlySale {
+  month: string;
+  count: number;
+}
+
+// Loading component
+const LoadingSpinner = () => (
+  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
+    <CircularProgress />
+  </Box>
+);
+
+// Error component
+const ErrorMessage = () => (
+  <Stack sx={{ width: '100%', padding: 2 }} spacing={2}>        
+    <Alert severity="error">Une erreur est survenue lors de la récupération des données. Veuillez réessayer.</Alert>
+  </Stack>
+);
+
 export default function SortieInventaire() {
     const uuid = useStoreUuid((state) => state.selectedId);
-    const {unUser} = useFetchUser(connect)
+    const { unUser } = useFetchUser(connect);
     const { unEntreprise } = useFetchEntreprise(uuid!);
-    const { stockEntreprise, isLoading, isError } = useStockEntreprise(unEntreprise.uuid!, connect);
+    const { stockEntreprise, isLoading, isError } = useStockEntreprise(unEntreprise?.uuid!, connect);
     
-    // const sortiesParMois = stockEntreprise?.details_sortie_par_mois || {};
-    if (isLoading) {
-      return (
-        <Box sx={{ display: 'flex' }}>
-          <CircularProgress />
-        </Box>
-      );
-    }
+    if (isLoading) return <LoadingSpinner />;
+    if (isError) return <ErrorMessage />;
+    if (!stockEntreprise) return null;
 
-    if (isError) {
-      return (
-        <Stack sx={{ width: '100%' }} spacing={2}>        
-          <Alert severity="error">Probleme de connexion !</Alert>
-        </Stack>
-      );
-    }
+    const hasSales = stockEntreprise.count_sortie_par_mois && stockEntreprise.count_sortie_par_mois.length > 0;
 
-    if (stockEntreprise) {
-
-      return (<>
+    return (
+      <>
         <Nav />
-      
         <Grid container rowSpacing={4.5} columnSpacing={2.75}>
-          {/* Titre */}
           <Grid item xs={12} sx={{ mb: -2.25 }}>
-            <Typography variant="h5">Le nombre de ventes effectuées par mois</Typography>
+            <Typography variant="h5" component="h1" gutterBottom>
+              Statistiques des ventes mensuelles
+            </Typography>
           </Grid>
     
-          {(!stockEntreprise.count_sortie_par_mois || stockEntreprise.count_sortie_par_mois.length === 0) ? (
-              <Grid item xs={12} sx={{ mb: -2.25 }}>
-              <Typography variant="h5">Il n'y a pas eu de vente !</Typography>
-              </Grid>
-              ) : (
-              stockEntreprise.count_sortie_par_mois.map((post, index) => {
-              // const validDate = post.week ? new Date(post.month) : new Date(); // Vérifie si `post.week` est valide
-              const validD = new Date(post.month) // Vérifie si `post.week` est valide
+          {!hasSales ? (
+            <Grid item xs={12}>
+              <Typography variant="h6" color="text.secondary" align="center">
+                Aucune vente n'a été enregistrée pour le moment.
+              </Typography>
+            </Grid>
+          ) : (
+            stockEntreprise.count_sortie_par_mois?.map((sale: MonthlySale, index: number) => {
+              const saleDate = new Date(sale.month);
               
               return (
-                <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
-                {/* <Link to="/sortie"> */}
+                <Grid item key={`${sale.month}-${index}`} xs={12} sm={6} md={4} lg={3}>
                   <AnalyticEcommerce
-                  title=" "
-                  count={post.count || 0} // Définit 0 par défaut si `post.count` est absent
-                  pied={`Détails des sorties ou ventes pour le mois de`}
-                  extra={format(validD, 'MMMM yyyy')} // Format de la date
-                  className="bg-blue-100"
-                  user={unUser.role}
+                    title="Ventes mensuelles"
+                    count={sale.count}
+                    pied="Détails des ventes pour le mois de"
+                    extra={format(saleDate, 'MMMM yyyy')}
+                    className="bg-blue-100"
+                    user={unUser.role}
                   />
-                {/* </Link> */}
                 </Grid>
               );
-              })
-          )}        
-    
-          {/* Ajout d'espace (si nécessaire) */}
-          <Grid item md={8} sx={{ display: { sm: 'none', md: 'block', lg: 'none' } }} />
+            })
+          )}
         </Grid>
       </>
-      );
-    }
-  }
+    );
+}

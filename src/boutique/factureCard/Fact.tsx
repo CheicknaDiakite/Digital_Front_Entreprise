@@ -7,6 +7,7 @@ import Header from './component/Header';
 import Notes from './component/Notes';
 // import Footer from './component/Footer';
 import RemoveIcon from '@mui/icons-material/Remove';
+import PrintIcon from '@mui/icons-material/Print';
 import { useStoreCart } from '../../usePerso/cart_store';
 import TableFact from './TableFact';
 import backgroundImage from '../../../public/assets/img/img.jpg'
@@ -14,9 +15,9 @@ import "./print.css";
 // import { generateOrderNumber } from '../../usePerso/fonctionPerso';
 import { BASE } from '../../_services/caller.service';
 import { RecupType } from '../../typescript/DataType';
+import { Paper } from '@mui/material';
 
-
-export default function Fact({clientName, invoiceNumber, invoiceDate, notes, numeroFac,  post, discountedTotal, payerTotal}: RecupType | any) {
+export default function Fact({clientName, invoiceNumber, invoiceDate, notes, numeroFac, post, discountedTotal, payerTotal}: RecupType | any) {
   // let url = BASE(post.image);
   
     const url = post.image ? BASE(post.image) : backgroundImage;
@@ -51,87 +52,65 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
   }, [amount, price, quantity, setAmount]);
 
   return (
-    <>
-    <main
-        className="m-5 p-5 xl:grid grid-cols-1 gap-10 xl:items-start"
-        style={{
-          maxWidth: "1920px",
-          margin: "auto",
-        }}
-      >
-        {/* Invoice Preview */}
-        <div className="invoice__preview bg-white p-5 rounded-2xl border-4 border-green-300">
-            <button type="button" className="bg-red-500 ml-5 text-white font-bold py-2 px-8 rounded hover:bg-red-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-red-400" onClick={()=>reset()}>
-              <RemoveIcon />
-            </button>
-          <ReactToPrint
-            trigger={() => (
-              <button className="bg-green-500 ml-5 text-white font-bold py-2 px-8 rounded hover:bg-green-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-green-400">
-                Print / Download
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-[1200px] mx-auto px-4">
+        <Paper elevation={0} className="bg-white rounded-lg overflow-hidden">
+          <div className="p-6">
+            {/* Actions Bar */}
+            <div className="flex items-center justify-end space-x-4 mb-6">
+              <button 
+                onClick={() => reset()}
+                className="inline-flex items-center px-4 py-2 border border-red-500 text-red-500 rounded-md hover:bg-red-50 transition-colors duration-200"
+              >
+                <RemoveIcon className="w-5 h-5 mr-2" />
+                <span>Annuler</span>
               </button>
-            )}
-            content={() => componentRef.current}
-          />
-          {/* <button onClick={handleClick} className="bg-sky-500 ml-5 text-white font-bold py-2 px-8 rounded hover:bg-sky-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-sky-400">
-            Numero de la facture (Auto)
-          </button> */}
-          <div ref={componentRef} className="p-8 m-8 print-container">
-            <Header
-            // orderNumber={orderNumber}
-            nom={post.nom}
-            numeroFac={numeroFac}
-            url={url}
-            email={post.email}
-            address={post.adresse}
-            numero={post.numero}
-            coordonne={post.coordonne}
-            clientName={clientName}
-            invoiceDate={invoiceDate}
-            invoiceNumber={invoiceNumber}
-            />
+              
+              <ReactToPrint
+                trigger={() => (
+                  <button className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200">
+                    <PrintIcon className="w-5 h-5 mr-2" />
+                    <span>Imprimer / Télécharger</span>
+                  </button>
+                )}
+                content={() => componentRef.current}
+              />
+            </div>
 
-            {/* <MainDetails
-            name={post.nom}
-            address={post.adresse}
-            numero={post.numero}
-            coordonne={post.coordonne}
-            /> */}
+            {/* Invoice Content */}
+            <div 
+              ref={componentRef} 
+              className="bg-white p-8 rounded-lg shadow-sm border border-gray-100 print-container"
+            >
+              <Header
+              // orderNumber={orderNumber}
+              nom={post.nom}
+              numeroFac={numeroFac}
+              url={url}
+              email={post.email}
+              address={post.adresse}
+              numero={post.numero}
+              coordonne={post.coordonne}
+              clientName={clientName}
+              invoiceDate={invoiceDate}
+              invoiceNumber={invoiceNumber}
+              />
 
-            {/* <ClientDetails 
-            clientName={clientName}
-            clientAddress={clientAddress}
-            clientCoordonne={clientCoordonne}
-            invoiceNumber={invoiceNumber}
-            /> */}
+              <TableFact
+              list={selectSorties}
+              total={totalPrix}
+              discountedTotal={discountedTotal}
+              payerTotal={payerTotal}
+              />
 
-            {/* <Dates 
-            invoiceNumber={invoiceNumber}
-            invoiceDate={invoiceDate}
-            dueDate={dueDate}
-            /> */}
+              <Notes 
+              notes={notes}
+              />
 
-            <TableFact
-            list={selectSorties}
-            total={totalPrix}
-            discountedTotal={discountedTotal}
-            payerTotal={payerTotal}
-            />
-
-            <Notes 
-            notes={notes}
-            />
-
-            {/* <Footer 
-            name={post.nom}
-            email={post.email}
-            website={website}
-            phone={post.numero}
-            bankAccount={bankAccount}
-            bankName={bankName}
-            /> */}
+            </div>
           </div>
-        </div>
-      </main>
-    </>
+        </Paper>
+      </div>
+    </div>
   )
 }

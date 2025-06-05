@@ -4,15 +4,16 @@ import { useStoreUuid } from '../../usePerso/store';
 import { connect } from '../../_services/account.service';
 import { Alert, Box, CircularProgress, Stack } from '@mui/material';
 
+type MonthlyData = {
+  somme_qte: number;
+  somme_prix_total: string;
+}
+
 export default function SimpleCharts() {
   const uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise } = useFetchEntreprise(uuid!);
   const { stockEntreprise, isLoading, isError } = useStockEntreprise(unEntreprise.uuid!, connect);
 
-  // Mappez les données depuis `stockEntreprise.count_sortie_par_mois`
-  // const chartData = stockEntreprise?.count_sortie_par_mois?.slice(0, 3).map((post) => ({
-  
-  
   if (isLoading) {
     return (
       <Box sx={{ display: 'flex' }}>
@@ -29,15 +30,22 @@ export default function SimpleCharts() {
     );
   }
 
-  if (stockEntreprise) {
-    const chartData = stockEntreprise?.count_sortie_par_mois?.slice(0, 12).map((post) => ({
-      month: post.month ? new Date(post.month).toLocaleString('default', { month: 'short' }) : 'Unknown',
-      count: post.count || 0,
-    })) || [];
+  if (stockEntreprise?.details_sortie_par_mois) {
+    const monthlyData = stockEntreprise.details_sortie_par_mois as unknown as Record<string, MonthlyData>;
+    const chartData = Object.entries(monthlyData).map(([month, data]) => ({
+      month: new Date(month).toLocaleString('default', { month: 'short' }),
+      count: data.somme_qte || 0,
+    }));
+
+    // Trier les données par date
+    chartData.sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime());
+
+    // Prendre les 12 derniers mois
+    const last12Months = chartData.slice(-12);
   
     // Extraire les données pour le graphique
-    const xAxisData = chartData.map((item) => item.month); // Noms des mois
-    const seriesData = chartData.map((item) => item.count); // Données de compte
+    const xAxisData = last12Months.map(item => item.month);
+    const seriesData = last12Months.map(item => item.count);
 
     return (
       <BarChart
@@ -58,4 +66,6 @@ export default function SimpleCharts() {
       />
     );
   }
+
+  return null;
 }

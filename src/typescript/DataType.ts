@@ -7,6 +7,8 @@ export type TypeSlug = {
 export type DataType = {
     user_id: string;
     libelle?: string;
+    entreprise_id?: string;
+    admin_id?: string;
 }
 export type DataSlugType = {
     user_id: string;
@@ -119,7 +121,7 @@ export type TypeEntreprise = {
 
 type StockMonth = {
     libelle: string;
-    count: number;
+    somme_qte: number;
 }
 type StokcWeekType = {
     month: string;

@@ -1,31 +1,51 @@
-import { TypeAnimation } from "react-type-animation";
+import { FC } from 'react';
+import { TypeAnimation } from 'react-type-animation';
+import { Box, Typography } from '@mui/material';
 
-export default function Bienvenue() {
+const Bienvenue: FC = () => {
   return (
-    <div className="text-2xl font-extrabold">
-        <span 
-        // className="bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-green-300"
-        className="bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-green-300 animate-gradient-animate"
+    <Box 
+      component="div" 
+      sx={{
+        fontSize: { xs: '1.5rem', sm: '2rem' },
+        fontWeight: 800,
+        mb: 3
+      }}
+    >
+      <Typography
+        component="span"
+        sx={{
+          backgroundImage: 'linear-gradient(to right, #93C5FD, #86EFAC)',
+          backgroundClip: 'text',
+          color: 'transparent',
+          animation: 'gradient 3s ease infinite',
+          display: 'inline-block',
+          '@keyframes gradient': {
+            '0%': {
+              backgroundPosition: '0% 50%'
+            },
+            '50%': {
+              backgroundPosition: '100% 50%'
+            },
+            '100%': {
+              backgroundPosition: '0% 50%'
+            }
+          }
+        }}
+      >
+        <TypeAnimation
+          sequence={[
+            'Bienvenue sur Gest Stock',
+            1000
+          ]}
+          wrapper="span"
+          speed={50}
+          repeat={Infinity}
+          style={{ display: 'inline-block' }}
+        />
+      </Typography>
+    </Box>
+  );
+};
 
-        >
-            
-            <TypeAnimation
-              sequence={[
-                // Same substring at the start will only be typed out once, initially
-                'Bienvenue sur Gest Stock',
-                1000, // wait 1s before replacing "Mice" with "Hamsters"
-                // 'En cas d\'incompréhension contacter : +223 91 15 48 34',
-                // 1000,
-                // 'En cas d\'incompréhension contacter : Pour plus d\'information',
-                // 1000,
-                // 'En cas d\'incompréhension contacter ',
-                // 1000
-              ]}
-              wrapper="span"
-              speed={50}
-              repeat={Infinity}
-            />
-        </span>
-    </div>
-  )
-}
+export default Bienvenue;

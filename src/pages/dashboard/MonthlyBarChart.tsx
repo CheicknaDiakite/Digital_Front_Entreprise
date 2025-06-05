@@ -44,7 +44,7 @@ const barChartOptions: ApexOptions = {
 
 // ==============================|| MONTHLY BAR CHART ||============================== //
 interface ChartProps {
-  details: { libelle: string; count: number }[];
+  details: { libelle: string; somme_qte: number }[];
 }
 
 export default function MonthlyBarChart({ details }: ChartProps) {
@@ -78,7 +78,7 @@ export default function MonthlyBarChart({ details }: ChartProps) {
   // Mappez les données pour le graphique
   const chartData = details.map((post) => ({
     month: post.libelle || 'Inconnu', // Utilisez "Inconnu" si `libelle` est vide ou manquant
-    count: post.count || 0, // Par défaut, utilisez 0 si `count` est vide ou manquant
+    count: post.somme_qte || 0, // Par défaut, utilisez 0 si `count` est vide ou manquant
   }));
 
   // Trier les données par `count` de manière décroissante et prendre les 15 premiers

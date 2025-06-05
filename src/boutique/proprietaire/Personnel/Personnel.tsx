@@ -1,11 +1,7 @@
 // import { UserPlusIcon } from "@heroicons/react/24/solid";
 import {
-  Card,
-  CardHeader,
-  CardContent,
   Typography,
   Button,
-  CardActions,
   // Tabs,
   // Tab,
   IconButton,
@@ -13,16 +9,9 @@ import {
   DialogContent,
   DialogTitle,
   Pagination,
-  Stack,
   Box,
   Skeleton,
-  // TableContainer,
-  // TableCell,
-  // TableRow,
-  // Table,
-  // TableHead,
-  // TableBody,
-  // Paper,
+  Paper,
   ListItem,
   ListItemAvatar,
   Avatar,
@@ -45,22 +34,7 @@ import M_Abonnement from "../../../_components/Card/M_Abonnement";
 import { isLicenceExpired, stringAvatar } from "../../../usePerso/fonctionPerso";
 import MainCard from "../../../components/MainCard";
 import { useForm } from "react-hook-form";
-
-// const TABS = [
-//   {
-//     label: "Tous",
-//     value: "all",
-//   },
-//   {
-//     label: "Monitored",
-//     value: "monitored",
-//   },
-//   {
-//     label: "Unmonitored",
-//     value: "unmonitored",
-//   },
-// ];
-
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
 export default function Personnel() {
   const uuid = useStoreUuid((state) => state.selectedId)
@@ -75,14 +49,6 @@ export default function Personnel() {
     reset(); // Réinitialise le formulaire à la fermeture
     setOpen(false);
   };
-  
-  // const [open, openchange] = useState(false);
-  // const functionopen = () => {
-  //   openchange(true);
-  // };
-  // const closeopen = () => {
-  //   openchange(false);
-  // };
 
   const top = {
     entreprise_id: uuid,
@@ -108,25 +74,6 @@ export default function Personnel() {
     setCurrentPage(page);
   };
 
-
-  // const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-  //   formValues["entreprise_id"] = uuid!
-    
-  //   createAdmin(formValues);
-    
-  //   // Réinitialisation des champs du formulaire
-  //   setFormValues({
-  //     username: "",
-  //     first_name: "",
-  //     last_name: "",
-  //     email_user: "",
-  //     numero: "",
-  //     password: "",
-  //   });
-  //   closeopen();
-  // };
-
   const onSubmit = (data: FormValueType) => {
     // data.user_id = connect;
     data.entreprise_id = uuid!;
@@ -138,293 +85,208 @@ export default function Personnel() {
   };
 
   if (isLoading) {
-    return <Box sx={{ width: 300 }}>
-    <Skeleton />
-    <Skeleton animation="wave" />
-    <Skeleton animation={false} />
-  </Box>
+    return (
+      <Box className="p-4">
+        <Skeleton variant="rectangular" height={200} className="mb-4" />
+        <Skeleton variant="rectangular" height={100} className="mb-2" />
+        <Skeleton variant="rectangular" height={100} />
+      </Box>
+    );
   }
 
   if (isError) {
-    window.location.reload();
-    return <div>Error ...</div>
+    return (
+      <Box className="p-4">
+        <Typography variant="h6" color="error">
+          Une erreur est survenue lors du chargement des données
+        </Typography>
+      </Box>
+    );
   }
 
   if (getUser) {
-    return <>    
-      <Nav />
+    return (
+      <div className="min-h-screen bg-gray-50 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Nav />
 
-      <Card>
-        <CardHeader className="mx-8"
-          title={
-            <>
-              <Typography variant="h5" color="textPrimary">
-                Listes des membres de cette entreprise
-              </Typography>
-              <Typography color="textSecondary">
-                information sur les membres de l'entreprise
-              </Typography>
-            </>
-          }
-          action={
-            <Button onClick={functionopen} className="rounded border-x-1 animate-border-rotate" variant="outlined">
-              Ajout d'un membre
-            </Button>
-          }
-        />
-
-        <CardContent>
-          {/* <Tabs value="all">
-            {TABS.map(({ label, value }) => (
-              <Tab key={value} label={label} value={value} />
-            ))}
-          </Tabs> */}
-          
-          {/* <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 700 }} aria-label="spanning table">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Nom</TableCell>
-                  <TableCell>Numero</TableCell>
-                  <TableCell>Compte</TableCell>
-                  <TableCell>
-                    
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {getUs.map((post: any, index) => {
-                const validDate = post.date ?? new Date();
-                return <Fragment key={index} >
-                  <TableRow>            
-                      
-                    <TableCell>                      
-                      {format(new Date(validDate), 'dd/MM/yyyy')}
-                    </TableCell>
-                    
-                    <TableCell>
-                      {post.last_name} {post.first_name}                        
-                    </TableCell>
-                    <TableCell >{post.numero}</TableCell>
-                    <TableCell >{post.role===1 ? "Admin" :
-                                post.role===2 ? "Gerant" :
-                                post.role===3 ? "Caissier(e)" : "Visiteur"
-                                }
-                    </TableCell>        
-                    <TableCell>
-                    <Link to={`/entreprise/personnel/modif/${post.uuid}`}>
-                      <Stack direction="row" spacing={2}>
-                        
-                        <VisibilityIcon color="info" fontSize="medium" />
-                      </Stack>
-                    </Link>
-                    </TableCell>        
-                  </TableRow>
-                </Fragment>
-                })}
-              </TableBody>
-            </Table>
-          </TableContainer> */}
-
-          {/* {getUs.map((post: any, index) => {
-           return <MainCard className="m-5" sx={{ mb: 1 }} content={false} key={index}>
-              <ListItem alignItems="flex-start">
-                <ListItemAvatar>
-                  <Avatar {...stringAvatar(`${post.last_name} ${post.first_name}`)} />
-                </ListItemAvatar>
-                <ListItemText
-                  primary={(`${post.last_name} ${post.first_name}`)}
-                  secondary={
-                    <Fragment>
-                      <Typography
-                        sx={{ display: 'inline' }}
-                        component="span"
-                        variant="body2"
-                        color="text.primary"
-                      >
-                        {"Type de compte : "} {post.role===1 ? "Admin" :
-                                post.role===2 ? "Gerant" :
-                                post.role===3 ? "Caissier(e)" : "Visiteur"}
-                      </Typography>
-                      
-                    </Fragment>
-                  }
-                />
-
-                <Link to={`/entreprise/personnel/modif/${post.uuid}`}>
-                  <Chip
-                    label={"Modifier"}
-                    variant="outlined"
-                    color={"info"}
-                    sx={{ ml: "auto" }} // Aligner le Chip à droite
-                  />
-                </Link>
-              </ListItem>
-            </MainCard>
-          })} */}
-
-          <Grid container spacing={2}>
-            {getUs.map((post: any) => (
-              <Grid item xs={12} sm={6} md={4} key={post.id}>   
-              <Link to={`/entreprise/personnel/modif/${post.uuid}`}>              
-                <MainCard className="my-3" sx={{ mb: 1 }} content={false}>
-                  <ListItem alignItems="flex-start">
-                    <ListItemAvatar>
-                      <Avatar {...stringAvatar(`${post.last_name} ${post.first_name}`)} />
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={(`${post.last_name} ${post.first_name}`)}
-                      secondary={
-                        <Fragment>
-                          <Typography component="span" variant="body2" color="text.primary">
-                            {"Tel : "} {post.numero}
-                          </Typography>
-                          <br />
-                          <Typography component="span" variant="body2" color="text.primary">
-                            {"Email : "} {post.email_user}
-                          </Typography>
-                          <br />
-                          {/* <Typography component="span" variant="body2" color="text.primary">
-                            {"Coordonner : "} {post.coordonne}
-                          </Typography> */}
-                          <Typography
-                              sx={{ display: 'inline' }}
-                              component="span"
-                              variant="body2"
-                              color="text.primary"
-                            >
-                              {"Type de compte : "}
-
-                              {/* {post.role===1 ? "Admin" :
-                                post.role===2 ? "Gerant" :
-                                post.role===3 ? "Caissier(e)" : "Visiteur"} */}
-
-                                <Chip
-                                  label={post.role === 1 ? "Admin" : post.role === 2 ? "Superviseur" : post.role===3 ? "Caissier(e)" : "Visiteur"}
-                                  variant="outlined"
-                                  color={post.role === 1 ? "primary" : post.role === 2 ? "primary" : "info"}
-                                  sx={{ ml: "auto" }}
-                                />
-                            </Typography>
-                        </Fragment>
-                      }
-                    />
-                    {/* <Link to={`/entreprise/personnel/modif/${post.uuid}`}> */}
-                      {/* <Chip
-                        label={"Modifier"}
-                        variant="outlined"
-                        color={"info"}
-                        sx={{ ml: "auto" }} // Aligner le Chip à droite
-                      /> */}
-                    {/* </Link> */}
-                  </ListItem>
-                </MainCard>
-              </Link>           
-              </Grid>
-            ))}
-          </Grid>
-        </CardContent>
-
-        <CardActions sx={{ justifyContent: "center" }}>
-          <Pagination
-            count={totalPages}
-            page={currentPage}
-            onChange={handlePageChange}
-            color="primary"
-          />
-        </CardActions>
-        <Dialog open={open} onClose={closeopen} fullWidth maxWidth="xs">
-          <DialogTitle>
-            Ajout des utilisateurs 
-            <IconButton onClick={closeopen} style={{float: "right"}}>
-              <CloseIcon color="primary"></CloseIcon>
-            </IconButton>            
-          </DialogTitle>
-          
-          {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
-          <M_Abonnement />  
-          )
-            :        
-          
-          <DialogContent>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <Stack spacing={2}  margin={2}>
-                
-                {/* <MyTextField 
-                label="Nom d'utilisateur"
-                name="username"
-                onChange={onChange}
-                fullWidth
-                /> */}
-                <MyTextField 
-                label="Prenom"
-                // name="last_name"
-                // onChange={onChange}
-                // fullWidth
-                {...register("last_name", { required: "Ce champ est obligatoire" })}
-                error={!!errors.last_name}
-                helperText={errors.last_name?.message}
-                />
-                
-                <MyTextField 
-                  label="Nom de famille"
-                  // name="first_name"
-                  // onChange={onChange}
-                  // fullWidth
-                  {...register("first_name", { required: "Ce champ est obligatoire" })}
-                  error={!!errors.first_name}
-                  helperText={errors.first_name?.message}
-                />
-                <MyTextField
-                  // required
-                  type="text"
-                  variant="outlined"
-                  label="Numéro"
-                  // name="numero"
-                  // onChange={onChange}
-                  {...register("numero", { required: "Ce champ est obligatoire" })}
-                  error={!!errors.numero}
-                  helperText={errors.numero?.message}
-                  inputProps={{
-                    pattern: "^[+]?\\d*$", // Permet uniquement les chiffres et éventuellement un "+" au début
-                    maxLength: 15, // Limite la longueur à un nombre raisonnable pour un numéro international
-                  }}
-                />
-                <MyTextField 
-                  label="Email"
-                  type="email"
-                  // name="email_user"
-                  // onChange={onChange}
-                  {...register("email_user", { required: "Ce champ est obligatoire" })}
-                  error={!!errors.email_user}
-                  helperText={errors.email_user?.message}
-                  fullWidth
-                />
-
-                <MyTextField 
-                  label="Mot de passe"
-                  type="password"
-                  // name="password"
-                  // onChange={onChange}
-                  {...register("password", { required: "Ce champ est obligatoire" })}
-                  error={!!errors.password}
-                  helperText={errors.password?.message}
-                  fullWidth
-                />
-                
-                <Button type="submit" variant="contained" color="primary">
-                  Ajouter l'utilisateur
+          <Paper elevation={0} className="mt-6 rounded-lg overflow-hidden">
+            <Box className="p-6">
+              {/* Header */}
+              <div className="flex justify-between items-center border-b pb-6 mb-6">
+                <div>
+                  <Typography variant="h4" className="font-semibold text-gray-900">
+                    Gestion du Personnel
+                  </Typography>
+                  <Typography variant="body2" className="text-gray-500 mt-1">
+                    Gérez les membres de votre entreprise
+                  </Typography>
+                </div>
+                <Button
+                  onClick={functionopen}
+                  variant="contained"
+                  startIcon={<PersonAddIcon />}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  Ajouter un membre
                 </Button>
-              </Stack>
-            </form>
-          </DialogContent>
-          }
-          
-        </Dialog>
-      </Card>
-    </>
-    ;
+              </div>
+
+              {/* Grid of Personnel Cards */}
+              <Grid container spacing={3}>
+                {getUs.map((post: any) => (
+                  <Grid item xs={12} sm={6} md={4} key={post.id}>
+                    <Link to={`/entreprise/personnel/modif/${post.uuid}`}>
+                      <MainCard 
+                        className="transition-all duration-200 hover:shadow-md"
+                        sx={{ height: '100%' }}
+                        content={false}
+                      >
+                        <ListItem alignItems="flex-start" className="h-full">
+                          <ListItemAvatar>
+                            <Avatar {...stringAvatar(`${post.last_name} ${post.first_name}`)} />
+                          </ListItemAvatar>
+                          <ListItemText
+                            primary={
+                              <Typography variant="subtitle1" className="font-medium">
+                                {post.last_name} {post.first_name}
+                              </Typography>
+                            }
+                            secondary={
+                              <Fragment>
+                                <div className="space-y-1 mt-1">
+                                  <Typography variant="body2" color="text.secondary">
+                                    Tél : {post.numero}
+                                  </Typography>
+                                  <Typography variant="body2" color="text.secondary">
+                                    Email : {post.email_user}
+                                  </Typography>
+                                  <div className="mt-2">
+                                    <Chip
+                                      label={
+                                        post.role === 1 ? "Admin" :
+                                        post.role === 2 ? "Superviseur" :
+                                        post.role === 3 ? "Caissier(e)" : "Visiteur"
+                                      }
+                                      variant="outlined"
+                                      color={post.role === 1 ? "primary" : post.role === 2 ? "primary" : "info"}
+                                      size="small"
+                                    />
+                                  </div>
+                                </div>
+                              </Fragment>
+                            }
+                          />
+                        </ListItem>
+                      </MainCard>
+                    </Link>
+                  </Grid>
+                ))}
+              </Grid>
+
+              {/* Pagination */}
+              <Box className="flex justify-center mt-6">
+                <Pagination
+                  count={totalPages}
+                  page={currentPage}
+                  onChange={handlePageChange}
+                  color="primary"
+                  size="large"
+                />
+              </Box>
+            </Box>
+          </Paper>
+
+          {/* Add Member Dialog */}
+          <Dialog 
+            open={open} 
+            onClose={closeopen} 
+            fullWidth 
+            maxWidth="sm"
+            PaperProps={{
+              elevation: 0,
+              className: "rounded-lg"
+            }}
+          >
+            <DialogTitle className="flex justify-between items-center border-b pb-3">
+              <Typography variant="h6" className="font-semibold">
+                Ajouter un nouveau membre
+              </Typography>
+              <IconButton onClick={closeopen} size="small">
+                <CloseIcon />
+              </IconButton>
+            </DialogTitle>
+
+            {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
+              <M_Abonnement />
+            ) : (
+              <DialogContent className="mt-4">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                  <MyTextField
+                    label="Prénom"
+                    {...register("last_name", { required: "Ce champ est obligatoire" })}
+                    error={!!errors.last_name}
+                    helperText={errors.last_name?.message}
+                    fullWidth
+                  />
+
+                  <MyTextField
+                    label="Nom"
+                    {...register("first_name", { required: "Ce champ est obligatoire" })}
+                    error={!!errors.first_name}
+                    helperText={errors.first_name?.message}
+                    fullWidth
+                  />
+
+                  <MyTextField
+                    label="Téléphone"
+                    {...register("numero", { required: "Ce champ est obligatoire" })}
+                    error={!!errors.numero}
+                    helperText={errors.numero?.message}
+                    inputProps={{
+                      pattern: "^[+]?\\d*$",
+                      maxLength: 15,
+                    }}
+                    fullWidth
+                  />
+
+                  <MyTextField
+                    label="Email"
+                    type="email"
+                    {...register("email_user", { required: "Ce champ est obligatoire" })}
+                    error={!!errors.email_user}
+                    helperText={errors.email_user?.message}
+                    fullWidth
+                  />
+
+                  <MyTextField
+                    label="Mot de passe"
+                    type="password"
+                    {...register("password", { required: "Ce champ est obligatoire" })}
+                    error={!!errors.password}
+                    helperText={errors.password?.message}
+                    fullWidth
+                  />
+
+                  <div className="pt-4 flex justify-end space-x-3">
+                    <Button onClick={closeopen} variant="outlined">
+                      Annuler
+                    </Button>
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      Ajouter
+                    </Button>
+                  </div>
+                </form>
+              </DialogContent>
+            )}
+          </Dialog>
+        </div>
+      </div>
+    );
   }
 
   return null;

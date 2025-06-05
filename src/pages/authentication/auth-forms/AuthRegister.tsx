@@ -1,12 +1,21 @@
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import Button from "@mui/material/Button";
-import { Card, FormControl, InputLabel, MenuItem, Select, Stack, TextField } from "@mui/material";
-import { useCreateUser } from "../../../usePerso/fonction.user";
-import countryList from "react-select-country-list";
-import toast from "react-hot-toast";
+import { FC } from 'react';
+import { useForm } from 'react-hook-form';
+import { 
+  Button, 
+  Card, 
+  FormControl, 
+  FormHelperText,
+  InputLabel, 
+  MenuItem, 
+  Select, 
+  Stack, 
+  TextField 
+} from '@mui/material';
+import { useCreateUser } from '../../../usePerso/fonction.user';
+import countryList from 'react-select-country-list';
+import toast from 'react-hot-toast';
 
-type FormType = {
+interface RegisterFormData {
   username: string;
   first_name: string;
   last_name: string;
@@ -15,131 +24,220 @@ type FormType = {
   password: string;
   passwordConfirm: string;
   pays: string;
-};
+}
 
-export default function AuthRegister() {
+const AuthRegister: FC = () => {
   const { create } = useCreateUser();
-  const options = countryList().getData();
+  const countryOptions = countryList().getData();
 
   const {
     register,
     handleSubmit,
     watch,
     reset,
-    formState: { errors },
-  } = useForm<FormType>();
+    formState: { errors, isSubmitting }
+  } = useForm<RegisterFormData>({
+    defaultValues: {
+      username: '',
+      first_name: '',
+      last_name: '',
+      email: '',
+      numero: '',
+      password: '',
+      passwordConfirm: '',
+      pays: ''
+    }
+  });
 
-  const password = watch("password");
+  const password = watch('password');
 
-  let toastId: string | undefined;
-
-  const handle = () => {
-    toastId = toast.loading("Chargement pour vous envoyer un email ...");
-    setTimeout(() => {
-      if (toastId) {
-        toast.dismiss(toastId);
-      }
-    }, 6500);
-  };
-
-  useEffect(() => {
-    return () => {
-      if (toastId) {
-        toast.dismiss(toastId);
-      }
-    };
-  }, []);
-
-  const onSubmit = (data: FormType) => {
-    create(data);
-    reset();
-    // toast.success("Inscription réussie !");
+  const onSubmit = async (data: RegisterFormData) => {
+    const toastId = toast.loading('Création du compte en cours...');
+    try {
+      await create(data);
+      toast.success('Inscription réussie ! Vérifiez votre email.', { id: toastId });
+      reset();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Erreur lors de l\'inscription',
+        { id: toastId }
+      );
+    }
   };
 
   return (
-    <Card variant="outlined" sx={{ boxShadow: 0, bgcolor: "transparent" }}>
-      <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={handleSubmit(onSubmit)}>
-        <Stack spacing={2} margin={2}>
+    <Card 
+      variant="outlined" 
+      sx={{ 
+        boxShadow: 0, 
+        bgcolor: 'transparent',
+        '& .MuiTextField-root': { mb: 2 }
+      }}
+    >
+      <form onSubmit={handleSubmit(onSubmit)} className="p-4">
+        <Stack spacing={2}>
           <TextField
             label="Nom"
-            variant="outlined"
-            {...register("last_name", { required: "Ce champ est obligatoire" })}
             error={!!errors.last_name}
-            helperText={errors.last_name?.message}
+            helperText={errors.last_name?.message || ''}
+            {...register('last_name', { 
+              required: 'Le nom est requis',
+              minLength: { value: 2, message: 'Le nom doit contenir au moins 2 caractères' }
+            })}
+            fullWidth
+            InputProps={{
+              sx: {
+                '&:hover fieldset': {
+                  borderColor: 'primary.main',
+                },
+              },
+            }}
           />
 
           <TextField
             label="Prénom"
-            variant="outlined"
-            {...register("first_name", { required: "Ce champ est obligatoire" })}
             error={!!errors.first_name}
-            helperText={errors.first_name?.message}
+            helperText={errors.first_name?.message || ''}
+            {...register('first_name', { 
+              required: 'Le prénom est requis',
+              minLength: { value: 2, message: 'Le prénom doit contenir au moins 2 caractères' }
+            })}
+            fullWidth
+            InputProps={{
+              sx: {
+                '&:hover fieldset': {
+                  borderColor: 'primary.main',
+                },
+              },
+            }}
           />
 
           <TextField
             label="Email"
             type="email"
-            variant="outlined"
-            {...register("email", {
-              required: "L'email est obligatoire",
-              pattern: { value: /^\S+@\S+$/i, message: "Format d'email invalide" },
-            })}
             error={!!errors.email}
-            helperText={errors.email?.message}
+            helperText={errors.email?.message || ''}
+            {...register('email', {
+              required: 'L\'email est requis',
+              pattern: { 
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, 
+                message: 'Adresse email invalide' 
+              }
+            })}
+            fullWidth
+            InputProps={{
+              sx: {
+                '&:hover fieldset': {
+                  borderColor: 'primary.main',
+                },
+              },
+            }}
           />
 
           <TextField
-            label="Numéro"
-            variant="outlined"
-            {...register("numero", {
-              required: "Le numéro est obligatoire",
-              pattern: { value: /^[+]?[0-9]{5,15}$/, message: "Format de numéro invalide" },
-            })}
+            label="Numéro de téléphone"
             error={!!errors.numero}
-            helperText={errors.numero?.message}
+            helperText={errors.numero?.message || ''}
+            {...register('numero', {
+              required: 'Le numéro est requis',
+              pattern: { 
+                value: /^[+]?[0-9]{8,15}$/, 
+                message: 'Format de numéro invalide' 
+              }
+            })}
+            fullWidth
+            InputProps={{
+              sx: {
+                '&:hover fieldset': {
+                  borderColor: 'primary.main',
+                },
+              },
+            }}
           />
 
           <FormControl fullWidth error={!!errors.pays}>
-            <InputLabel>Votre pays</InputLabel>
-            <Select {...register("pays", { required: "Veuillez sélectionner un pays" })}>
-              {options.map((option) => (
+            <InputLabel>Pays</InputLabel>
+            <Select
+              {...register('pays', { required: 'Le pays est requis' })}
+              label="Pays"
+            >
+              {countryOptions.map((option) => (
                 <MenuItem key={option.value} value={option.label}>
                   {option.label}
                 </MenuItem>
               ))}
             </Select>
-            {errors.pays && <p style={{ color: "red", fontSize: "12px" }}>{errors.pays.message}</p>}
+            {errors.pays && (
+              <FormHelperText error>{errors.pays.message}</FormHelperText>
+            )}
           </FormControl>
 
           <TextField
             label="Mot de passe"
             type="password"
-            variant="outlined"
-            {...register("password", {
-              required: "Le mot de passe est obligatoire",
-              minLength: { value: 6, message: "Doit contenir au moins 6 caractères" },
-            })}
             error={!!errors.password}
-            helperText={errors.password?.message}
+            helperText={errors.password?.message || ''}
+            {...register('password', {
+              required: 'Le mot de passe est requis',
+              minLength: { 
+                value: 8, 
+                message: 'Le mot de passe doit contenir au moins 8 caractères' 
+              },
+              pattern: {
+                value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+                message: 'Le mot de passe doit contenir au moins une majuscule, une minuscule et un chiffre'
+              }
+            })}
+            fullWidth
+            InputProps={{
+              sx: {
+                '&:hover fieldset': {
+                  borderColor: 'primary.main',
+                },
+              },
+            }}
           />
 
           <TextField
             label="Confirmer le mot de passe"
             type="password"
-            variant="outlined"
-            {...register("passwordConfirm", {
-              required: "La confirmation est obligatoire",
-              validate: (value) => value === password || "Les mots de passe ne correspondent pas",
-            })}
             error={!!errors.passwordConfirm}
-            helperText={errors.passwordConfirm?.message}
+            helperText={errors.passwordConfirm?.message || ''}
+            {...register('passwordConfirm', {
+              required: 'La confirmation du mot de passe est requise',
+              validate: value => 
+                value === password || 'Les mots de passe ne correspondent pas'
+            })}
+            fullWidth
+            InputProps={{
+              sx: {
+                '&:hover fieldset': {
+                  borderColor: 'primary.main',
+                },
+              },
+            }}
           />
 
-          <Button type="submit" color="success" variant="outlined" onClick={handle}>
-            Inscription
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            disabled={isSubmitting}
+            sx={{
+              py: 1.5,
+              textTransform: 'none',
+              fontWeight: 600,
+              '&:hover': {
+                backgroundColor: 'primary.dark',
+              },
+            }}
+          >
+            {isSubmitting ? 'Inscription en cours...' : 'S\'inscrire'}
           </Button>
         </Stack>
       </form>
     </Card>
   );
-}
+};
+
+export default AuthRegister;

@@ -1,4 +1,20 @@
-import { Autocomplete, Box, Button, Grid, Modal, Pagination, Paper, Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
+import { 
+  Autocomplete, 
+  Box, 
+  Button, 
+  Modal, 
+  Pagination, 
+  Paper, 
+  Skeleton, 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableContainer, 
+  TableHead, 
+  TableRow, 
+  TextField, 
+  Typography,
+} from '@mui/material';
 import { UuType } from '../../../../typescript/Account'
 import CardClientSortie from './CardClientSortie';
 import MyTextField from '../../../../_components/Input/MyTextField';
@@ -6,9 +22,10 @@ import { connect } from '../../../../_services/account.service';
 import { ChangeEvent, FormEvent, SyntheticEvent, useEffect, useState } from 'react';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import QuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import CloseIcon from '@mui/icons-material/Close';
 import { RecupType, SortieType } from '../../../../typescript/DataType';
 import { useCreateSortie, useFetchAllSortie, useGetAllEntre } from '../../../../usePerso/fonction.entre';
-import { Money } from '../../../../_components/icons/Money';
 import { useFetchEntreprise, useFetchUser, useUnClient } from '../../../../usePerso/fonction.user';
 import { useStoreUuid } from '../../../../usePerso/store';
 import { formatNumberWithSpaces, isLicenceExpired } from '../../../../usePerso/fonctionPerso';
@@ -16,6 +33,19 @@ import Fact from '../../../factureCard/Fact';
 import { useStoreCart } from '../../../../usePerso/cart_store';
 import { TypeText } from '../../../sortie/Sortie';
 import { format } from 'date-fns';
+
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: '90%',
+  maxWidth: '600px',
+  bgcolor: 'background.paper',
+  borderRadius: '8px',
+  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+  p: 4,
+};
 
 export default function ClientSortie(uuid: UuType) {
   const top = {
@@ -175,11 +205,6 @@ export default function ClientSortie(uuid: UuType) {
     );
   });
   
-    // Calcul du nombre total de pages en fonction des résultats filtrés
-    // const filteredBoutiques = entresEntreprise?.filter((item) => {
-    //   return selectedDate ? item.date === selectedDate : true;
-    // });
-  
     // Inverser les boutiques pour que les plus récentes apparaissent en premier
     const reversedBoutiques = filteredBoutiques?.slice().sort((a: RecupType, b: RecupType) => {
       if (a.id === undefined) return 1;
@@ -276,385 +301,326 @@ export default function ClientSortie(uuid: UuType) {
 
       if (entresEntreprise) {
         return (
-          <>
-
-          <main
-            className="m-5 p-5 gap-10 xl:items-start"
-            style={{
-              maxWidth: "1920px",
-              margin: "auto",
-            }}
-          >
-
-            <section className="invoice__preview bg-white p-5 rounded-2xl border-4 border-blue-300">
-              <div className="bg-white p-5 rounded shadow">
-                <div className="flex flex-col justify-center">
-                  
-                  <article className="md:grid grid-cols-2 gap-10">
-                    <div className="flex flex-col">
-                          
-                      <Typography variant="h5">
-                        Numero de la facture
+          <div className="min-h-screen bg-gray-50">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <Paper elevation={0} className="rounded-lg overflow-hidden">
+                <div className="p-6 space-y-6">
+                  {/* Header Section */}
+                  <div className="flex justify-between items-center border-b pb-6">
+                    <div>
+                      <Typography variant="h4" className="font-semibold text-gray-900">
+                        Gestion des Ventes
                       </Typography>
-                      <MyTextField 
-                      type="text"
-                      name="numeroFac"
-                      placeholder="Numero de la facture"
-                      autoComplete="off"
-                      // value={bankName}
-                      onChange={onChan}
-                      />
+                      <Typography variant="body2" className="text-gray-500 mt-1">
+                        Client : {unClient.nom}
+                      </Typography>
                     </div>
-                  </article>
-
-                  {/* This is our table form */}
-                  <article>
-                    <div className="mb-5">
-                      <Button 
-                        variant="outlined" 
+                    <div className="flex space-x-3">
+                      <Button
+                        variant="contained"
                         onClick={() => {
                           handleSaveSorties();
                           handleOnClick();
                         }}
-                        className="bg-green-500 text-white font-bold mt-5 py-2 px-8 rounded hover:bg-green-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-green-400">
-                          Facture
+                        startIcon={<ReceiptIcon />}
+                        className="bg-blue-600 hover:bg-blue-700"
+                      >
+                        Créer Facture
                       </Button>
-
-                      <Button variant="outlined" onClick={handleOpenClick} className="bg-red-500 mx-3 text-white font-bold mt-5 py-2 px-8 rounded hover:bg-red-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-red-400">
-                        Off.
+                      <Button
+                        variant="outlined"
+                        onClick={handleOpenClick}
+                        startIcon={<CloseIcon />}
+                        className="border-red-500 text-red-500 hover:bg-red-50"
+                      >
+                        Annuler
                       </Button>
-
-                      <Button variant="contained" color="primary" onClick={toggleModal} className="bg-indigo-500 mx-3 text-white font-bold mt-5 py-2 px-8 rounded hover:bg-indigo-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-indigo-400">
-                        Remise
-                      </Button>
-
-                      <Button variant="contained" color="primary" onClick={toggleModalPay} className="bg-orange-500 mx-3 text-white font-bold mt-5 py-2 px-8 rounded hover:bg-orange-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-orange-400">
-                        Payer
-                      </Button>               
-
-                      {/* Modal */}
-                      <Modal open={isModalOpen} onClose={toggleModal}>
-                        <Box
-                          sx={{
-                            position: "absolute",
-                            top: "50%",
-                            left: "50%",
-                            transform: "translate(-50%, -50%)",
-                            bgcolor: "background.paper",
-                            boxShadow: 24,
-                            p: 4,
-                            borderRadius: 2,
-                            minWidth: 300,
-                          }}
-                        >
-                          <h2>Ajouter une remise</h2>
-                          <TextField
-                            label="Montant fixe (ex: 1500 ou 85.45)"
-                            variant="outlined"
-                            fullWidth
-                            margin="normal"
-                            value={fixedDiscount}
-                            onChange={(e) => setFixedDiscount(normalizeInput(e.target.value))}
-                          />
-                          <TextField
-                            label="Pourcentage (ex: 2% ou 5%)"
-                            variant="outlined"
-                            fullWidth
-                            margin="normal"
-                            value={percentageDiscount}
-                            onChange={(e) => setPercentageDiscount(normalizeInput(e.target.value))}
-                          />
-                          <div className="flex justify-end mt-4">
-                            <Button variant="outlined" onClick={toggleModal} sx={{ mr: 2 }}>
-                              Annuler
-                            </Button>
-                            <Button variant="contained" color="primary" onClick={handleApplyDiscount}>
-                              Appliquer
-                            </Button>
-                          </div>
-                        </Box>
-                      </Modal>
-
-                      {/* Modal Payer */}
-                      <Modal open={isModalOpenPay} onClose={toggleModalPay}>
-                        <Box
-                          sx={{
-                            position: "absolute",
-                            top: "50%",
-                            left: "50%",
-                            transform: "translate(-50%, -50%)",
-                            bgcolor: "background.paper",
-                            boxShadow: 24,
-                            p: 4,
-                            borderRadius: 2,
-                            minWidth: 300,
-                          }}
-                        >
-                          <h2>Ajouter le montant payer</h2>
-                          <TextField
-                            label="Montant fixe (ex: 1500 ou 85.45)"
-                            variant="outlined"
-                            fullWidth
-                            margin="normal"
-                            value={payDiscount}
-                            onChange={(e) => setPayDiscount(normalizeInput(e.target.value))}
-                          />
-                          
-                          <div className="flex justify-end mt-4">
-                            <Button variant="outlined" onClick={toggleModalPay} sx={{ mr: 2 }}>
-                              Annuler
-                            </Button>
-                            <Button variant="contained" color="primary" onClick={handleApplyPayer}>
-                              Appliquer
-                            </Button>
-                          </div>
-                        </Box>
-                      </Modal>
-
-                    </div>                
-                    
-                    <div className="flex justify-center mt-4">
-
-                    
-                      <>                
-                        
-                        <Grid item className='mx-2'>
-                          <TextField
-                            className='bg-sky-300'
-                            label="Date de début"
-                            type="date"
-                            value={selectedStartDate}
-                            onChange={handleStartDateChange}
-                            InputLabelProps={{ shrink: true }}
-                          />
-                        </Grid>
-
-                        <Grid item>
-                          <TextField
-                            className='bg-sky-300'
-                            label="Date de fin"
-                            type="date"
-                            value={selectedEndDate}
-                            onChange={handleEndDateChange}
-                            InputLabelProps={{ shrink: true }}
-                          />
-                        </Grid>
-                        {unUser.role === 1 &&                        
-                          <Typography variant="h4" className='mx-2'>
-                            Somme total = {formatNumberWithSpaces(totalPrice)} <LocalAtmIcon color="primary" fontSize='medium' />
-                          </Typography>
-                        }
-                      </>
-                    
-
-                                     
-                      {/* <Grid item>
-                        <Typography variant="h5" className='mx-2'>
-                          Chiffre d'affaire = {formatNumberWithSpaces(totalPrice)} <LocalAtmIcon fontSize='medium' color="primary" />
-                        </Typography>
-                        <Typography variant="h5" className='mx-2'>
-                          Qte = {formatNumberWithSpaces(totalQte)} <QuantityLimitsIcon fontSize='medium' color="primary" />
-                        </Typography>
-                      </Grid> */}
-                                   
-                      
                     </div>
+                  </div>
 
-                    
-                    <form onSubmit={onSubmit}>
-                      <div className="my-2">
-                        <Autocomplete
-                          id="free-solo-demo"
-                          freeSolo
-                          options={entres}
-                          getOptionLabel={(option) => (typeof option === 'string' ? option : `${option.categorie_libelle} (${option.libelle}) [${option.qte}]`  || '')}
-                          onChange={handleAutoCompleteChange}
-                          renderInput={(params) => <TextField {...params} label="Designation" />}
-                        />
-                        
-                      </div>
-                      <div className="md:grid grid-cols-3 gap-10">
-                        {/* <div className="my-2">
-                          <Typography variant="h5" className="mb-2">
-                            Designation 
+                  {/* Main Form Section */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <TextField
+                      fullWidth
+                      label="Numéro de Facture"
+                      name="numeroFac"
+                      variant="outlined"
+                      onChange={onChan}
+                      className="bg-white"
+                    />
+                    <TextField
+                      fullWidth
+                      label="Notes"
+                      name="notes"
+                      multiline
+                      rows={1}
+                      variant="outlined"
+                      onChange={onChan}
+                      className="bg-white"
+                    />
+                  </div>
+
+                  {/* Actions Section */}
+                  <div className="flex flex-wrap gap-4">
+                    <Button
+                      variant="contained"
+                      onClick={toggleModal}
+                      startIcon={<LocalAtmIcon />}
+                      className="bg-indigo-600 hover:bg-indigo-700"
+                    >
+                      Appliquer Remise
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={toggleModalPay}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      Enregistrer Paiement
+                    </Button>
+                  </div>
+
+                  {/* Date Filter Section */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white p-4 rounded-lg shadow-sm">
+                    <TextField
+                      fullWidth
+                      label="Date de début"
+                      type="date"
+                      value={selectedStartDate}
+                      onChange={handleStartDateChange}
+                      InputLabelProps={{ shrink: true }}
+                      className="bg-white"
+                    />
+                    <TextField
+                      fullWidth
+                      label="Date de fin"
+                      type="date"
+                      value={selectedEndDate}
+                      onChange={handleEndDateChange}
+                      InputLabelProps={{ shrink: true }}
+                      className="bg-white"
+                    />
+                    {unUser.role === 1 && (
+                      <Paper elevation={0} className="p-4 bg-blue-50 rounded-lg">
+                        <div className="flex items-center space-x-2">
+                          <LocalAtmIcon color="primary" />
+                          <Typography variant="h6" className="text-gray-900">
+                            Total : {formatNumberWithSpaces(totalPrice)} F
                           </Typography>
-                          <Select
-                            required
-                            options={ent} // Ici, vous pouvez également filtrer si besoin
-                            value={selectedOption}
-                            onChange={handleChange}
-                            placeholder="Designation"
-                            isClearable
-                            getOptionLabel={(option: any) =>
-                              `${option.categorie_libelle} (${option.libelle}) [${option.qte}]`
-                            }
-                            getOptionValue={(option: any) => option.uuid.toString()}
+                        </div>
+                      </Paper>
+                    )}
+                  </div>
+
+                  {/* New Sale Form */}
+                  <Paper elevation={0} className="p-6 bg-white rounded-lg">
+                    <form onSubmit={onSubmit} className="space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="col-span-1">
+                          <Autocomplete
+                            freeSolo
+                            options={entres}
+                            getOptionLabel={(option) => (typeof option === 'string' ? option : `${option.categorie_libelle} (${option.libelle}) [${option.qte}]` || '')}
+                            onChange={handleAutoCompleteChange}
+                            renderInput={(params) => (
+                              <TextField 
+                                {...params} 
+                                label="Désignation" 
+                                className="bg-white"
+                              />
+                            )}
                           />
-                        </div> */}
-                        <div className="flex flex-col">
-                          <Typography variant="h5" className="mb-2">
-                            Quantite <QuantityLimitsIcon fontSize="large" />
-                          </Typography>
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-2">
+                            <QuantityLimitsIcon color="primary" fontSize="small" />
+                            <Typography variant="subtitle2">Quantité</Typography>
+                          </div>
                           <MyTextField
                             required
                             type="number"
                             name="qte"
                             value={formValues.qte}
-                            id="quantity"
-                            placeholder="Quantity"
                             onChange={onChange}
+                            className="bg-white"
                           />
                         </div>
 
-                        <div className="flex flex-col">
-                          <Typography variant="h5" className="mb-2">
-                            Prix Unitaire <LocalAtmIcon fontSize="large" />
-                          </Typography>
-                          {formValues.is_prix ? 
-                            <MyTextField
-                              disabled
-                              variant="outlined"
-                              type="number"
-                              inputProps={{
-                                step: '0.01',
-                                min: '0',
-                                max: '9999999999.99',
-                              }}
-                              name="pu"
-                              onChange={onChange}
-                              value={formValues.pu}
-                              sx={{
-                                '& .MuiFormLabel-asterisk': {
-                                  color: 'red',
-                                },
-                              }}
-                            /> 
-                            : 
-                            <MyTextField
-                              disabled={formValues.is_prix}
-                              variant="outlined"
-                              type="number"
-                              inputProps={{
-                                step: '0.01',
-                                min: '0',
-                                max: '9999999999.99',
-                              }}
-                              name="pu"
-                              onChange={onChange}
-                              value={formValues.pu}
-                              sx={{
-                                '& .MuiFormLabel-asterisk': {
-                                  color: 'red',
-                                },
-                              }}
-                            />
-                          }
-                          
-                        </div>
-
-                        <div className="flex flex-col">
-                          <label htmlFor="amount">
-                            Somme <Money size={40} className="inline" />
-                          </label>
-                          <p>{amount}</p>
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-2">
+                            <LocalAtmIcon color="primary" fontSize="small" />
+                            <Typography variant="subtitle2">Prix Unitaire</Typography>
+                          </div>
+                          <MyTextField
+                            required
+                            type="number"
+                            name="pu"
+                            value={formValues.pu}
+                            onChange={onChange}
+                            disabled={formValues.is_prix}
+                            className="bg-white"
+                          />
                         </div>
                       </div>
 
-                      {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
-                        <Typography variant="h5" color="error" sx={{ mt: 1 }}>
-                          L'abonnement de cet Entreprise a expiré !
+                      <div className="flex items-center justify-between">
+                        <Typography variant="h6" className="text-gray-700">
+                          Montant Total : {formatNumberWithSpaces(amount)} F
                         </Typography>
-                      ) : (
-                        <button
-                          type="submit"
-                          className="bg-blue-500 mb-5 text-white font-bold mt-2 py-2 px-8 rounded hover:bg-blue-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-blue-400"
-                        >
-                          Ajouter
-                        </button>
-                      )}                   
+
+                        {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
+                          <Typography variant="subtitle1" color="error">
+                            L'abonnement de cette entreprise a expiré
+                          </Typography>
+                        ) : (
+                          <Button
+                            type="submit"
+                            variant="contained"
+                            className="bg-blue-600 hover:bg-blue-700"
+                          >
+                            Ajouter la vente
+                          </Button>
+                        )}
+                      </div>
                     </form>
-                    <TableContainer component={Paper} className='mt-3'>
-                      <Table sx={{ minWidth: 700 }} aria-label="spanning table">
-                        <TableHead>
-                          
+                  </Paper>
+
+                  {/* Sales Table */}
+                  <TableContainer component={Paper} elevation={0}>
+                    <Table>
+                      <TableHead>
+                        <TableRow sx={{ backgroundColor: '#f8fafc' }}>
+                          <TableCell>Image</TableCell>
+                          <TableCell>Date</TableCell>
+                          <TableCell>Référence</TableCell>
+                          <TableCell>Désignation</TableCell>
+                          <TableCell align="right">Quantité</TableCell>
+                          <TableCell align="right">Prix Unitaire</TableCell>
+                          <TableCell align="right">Total</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {displayedBoutiques?.length > 0 ? (
+                          displayedBoutiques?.map((row, index) => (
+                            <CardClientSortie key={index} row={row} />
+                          ))
+                        ) : (
                           <TableRow>
-                            <TableCell>Image</TableCell>
-                            <TableCell>Date</TableCell>
-                            <TableCell>Ref</TableCell>
-                            <TableCell>Designation</TableCell>
-                            <TableCell align="right">Quantite</TableCell>
-                            <TableCell align="right">Prix Unitaire</TableCell>
-                            <TableCell align="right">Somme</TableCell>
+                            <TableCell colSpan={7} align="center" className="py-8">
+                              <Typography variant="body1" className="text-gray-500">
+                                Aucune vente enregistrée
+                              </Typography>
+                            </TableCell>
                           </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {displayedBoutiques?.length > 0 ? 
-                          
-                          displayedBoutiques?.map((row, index) => {                       
-                              return <CardClientSortie key={index} row={row} />
-                            })
-                            : "Pas de vente !"
-                          }
-                    
-                        </TableBody>
-                      </Table>
-                      
-                    </TableContainer>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
 
-                    {/* Composant de pagination */}
-                    <div className="flex justify-center mt-4">
-                      <Pagination
-                        count={totalPages}
-                        page={currentPage}
-                        onChange={handlePageChange}
-                        color="primary"
-                      />
-                    </div>
-                  </article>
-
-                  <Grid item>
-                    <Typography variant="h5">Ajouter une note</Typography>
-                  </Grid>
-                  <textarea
-                    name="notes"
-                    className="mt-2"
-                    cols={30}
-                    rows={10}
-                    placeholder="Ajouter une note pour plus de details pour ce facture"
-                    maxLength={500}
-                    // value={notes}
-                    onChange={onChan}
-                  ></textarea>
+                  {/* Pagination */}
+                  <div className="flex justify-center">
+                    <Pagination
+                      count={totalPages}
+                      page={currentPage}
+                      onChange={handlePageChange}
+                      color="primary"
+                      size="large"
+                    />
+                  </div>
                 </div>
-              </div>
-              
-            </section>
+              </Paper>
 
-          </main>      
-          <div className='py-8'>
-            {/* <FactureCard /> */}
-            
-            {(showInvoice && entreprise) && (
-            <Fact               
-            clientName={unClient.nom}
-            clientAddress={unClient.adresse}
-            clientCoordonne={unClient.coordonne}
-            invoiceNumber={unClient.numero}
-            invoiceDate={itemDate}
-            numeroFac={texte.numeroFac}
-            notes={texte.notes}
-            post={entreprise}
-            discountedTotal={discountedTotal}
-            payerTotal={payerTotal}
-            />
-          )}
+              {/* Modals */}
+              <Modal open={isModalOpen} onClose={toggleModal}>
+                <Box sx={style}>
+                  <Typography variant="h6" className="mb-4">
+                    Appliquer une remise
+                  </Typography>
+                  <div className="space-y-4">
+                    <TextField
+                      fullWidth
+                      label="Montant fixe"
+                      variant="outlined"
+                      value={fixedDiscount}
+                      onChange={(e) => setFixedDiscount(normalizeInput(e.target.value))}
+                      helperText="Ex: 1500 ou 85.45"
+                    />
+                    <TextField
+                      fullWidth
+                      label="Pourcentage"
+                      variant="outlined"
+                      value={percentageDiscount}
+                      onChange={(e) => setPercentageDiscount(normalizeInput(e.target.value))}
+                      helperText="Ex: 2% ou 5%"
+                    />
+                    <div className="flex justify-end space-x-3 pt-4">
+                      <Button variant="outlined" onClick={toggleModal}>
+                        Annuler
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleApplyDiscount}
+                      >
+                        Appliquer
+                      </Button>
+                    </div>
+                  </div>
+                </Box>
+              </Modal>
 
+              <Modal open={isModalOpenPay} onClose={toggleModalPay}>
+                <Box sx={style}>
+                  <Typography variant="h6" className="mb-4">
+                    Enregistrer le paiement
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    label="Montant payé"
+                    variant="outlined"
+                    value={payDiscount}
+                    onChange={(e) => setPayDiscount(normalizeInput(e.target.value))}
+                    helperText="Ex: 1500 ou 85.45"
+                    className="mb-4"
+                  />
+                  <div className="flex justify-end space-x-3">
+                    <Button variant="outlined" onClick={toggleModalPay}>
+                      Annuler
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={handleApplyPayer}
+                    >
+                      Confirmer
+                    </Button>
+                  </div>
+                </Box>
+              </Modal>
+
+              {/* Invoice Preview */}
+              {(showInvoice && entreprise) && (
+                <div className="mt-6">
+                  <Fact               
+                    clientName={unClient.nom}
+                    clientAddress={unClient.adresse}
+                    clientCoordonne={unClient.coordonne}
+                    invoiceNumber={unClient.numero}
+                    invoiceDate={itemDate}
+                    numeroFac={texte.numeroFac}
+                    notes={texte.notes}
+                    post={entreprise}
+                    discountedTotal={discountedTotal}
+                    payerTotal={payerTotal}
+                  />
+                </div>
+              )}
+            </div>
           </div>
-          </>
         );
       }
     } else {
-      return <Typography variant="h6" className='mx-2'>
+      return <Typography variant="h6" className="text-gray-700 p-4">
         Celui-ci est un fournisseur 
       </Typography>
     }

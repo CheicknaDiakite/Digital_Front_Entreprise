@@ -1,28 +1,13 @@
-import { UserPlusIcon } from "@heroicons/react/24/solid";
 import {
-  Card,
-  CardHeader,
-  CardContent,
   Typography,
   Button,
-  CardActions,
-  // Tabs,
-  // Tab,
   IconButton,
   Dialog,
   DialogContent,
   DialogTitle,
   Pagination,
-  Stack,
   Box,
   Skeleton,
-  // TableContainer,
-  // TableCell,
-  // TableRow,
-  // Table,
-  // TableHead,
-  // TableBody,
-  // Paper,
   FormControl,
   InputLabel,
   Select,
@@ -33,53 +18,39 @@ import {
   ListItemText,
   Chip,
   Grid,
-  // TextField,
+  Paper
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import { ChangeEvent, Fragment, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
-// import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useAllClients, useCreateClient, useFetchEntreprise } from "../../../usePerso/fonction.user";
 import { connect } from "../../../_services/account.service";
 import Nav from "../../../_components/Button/Nav";
 import MyTextField from "../../../_components/Input/MyTextField";
-// import { format } from "date-fns";
 import { useStoreUuid } from "../../../usePerso/store";
 import { ClienType } from "../../../typescript/UserType";
 import M_Abonnement from "../../../_components/Card/M_Abonnement";
 import { isLicenceExpired, stringAvatar } from "../../../usePerso/fonctionPerso";
 import MainCard from "../../../components/MainCard";
 import { useForm } from "react-hook-form";
-
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import FilterListIcon from '@mui/icons-material/FilterList';
 
 export default function Client() {
-
-  const uuid = useStoreUuid((state) => state.selectedId)
-  const {unEntreprise} = useFetchEntreprise(uuid!)
-
+  const uuid = useStoreUuid((state) => state.selectedId);
+  const { unEntreprise } = useFetchEntreprise(uuid!);
   const { register, handleSubmit, reset, formState: { errors } } = useForm<ClienType>();
-  
-  
-  // const [open, openchange] = useState(false);
-  // const functionopen = () => {
-  //   openchange(true);
-  // };
-  // const closeopen = () => {
-  //   openchange(false);
-  // };
-
   const [open, setOpen] = useState(false);
     
   const functionopen = () => setOpen(true);
   const closeopen = () => {
-    reset(); // Réinitialise le formulaire à la fermeture
+    reset();
     setOpen(false);
   };
 
   const { getClients: getUser, isLoading, isError } = useAllClients(uuid!);
-
   const [currentPage, setCurrentPage] = useState(1);
-   const itemsPerPage = 25; // Nombre d'éléments par page
+  const itemsPerPage = 25;
 
    const reversedclient = getUser?.slice().sort((a: ClienType, b: ClienType) => {
     if (a.id === undefined) return 1;
@@ -88,277 +59,166 @@ export default function Client() {
   });
 
   const [filter, setFilter] = useState<1 | 2 | 3>(3);
-  // const [startDate, setStartDate] = useState<string>(''); // Date de début
-  // const [endDate, setEndDate] = useState<string>(''); // Date de fin
 
   const filteredClient = reversedclient?.filter((historyRow) => {
-    // Filtrage par type
-    
-    const typeFilter = filter === 3 || historyRow.role === filter;
-    // console.log("testing 11 ..", typeFilter)
-    // Filtrage par date
-    // const rowDate = new Date(historyRow.date ?? new Date());
-    // const isAfterStartDate = startDate ? rowDate >= new Date(startDate) : true;
-    // const isBeforeEndDate = endDate ? rowDate <= new Date(endDate) : true;
-
-    return typeFilter;
+    return filter === 3 || historyRow.role === filter;
   });
 
-   // Calcul du nombre total de pages
    const totalPages = Math.ceil(filteredClient.length / itemsPerPage);
- 
-   // Récupération des éléments à afficher sur la page courante
    const clientEntreprise = filteredClient.slice(
      (currentPage - 1) * itemsPerPage,
      currentPage * itemsPerPage
    );
    
-   // Gestion du changement de page
    const handlePageChange = (_: ChangeEvent<unknown>, page: number) => {
      setCurrentPage(page);
    };
   
   const { createClient } = useCreateClient();
 
-  // const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-  //   formValues["user_id"]= connect,
-  //   formValues["entreprise_id"]= uuid!,
-
-  //   createClient(formValues);
-
-  //   // Réinitialisation des champs du formulaire
-  //   setFormValues({
-  //     nom: "",
-  //     email: "",
-  //     adresse: "",
-  //     coordonne: "",
-  //     numero: 0,
-  //     role: 0,
-  //   });
-
-  //   // Fermez le dialogue (si nécessaire)
-  //   closeopen();
-    
-  // };
   const onSubmit = (data: ClienType) => {
     data.user_id = connect;
     data.entreprise_id = uuid!;
-
     createClient(data);
     closeopen();
   };
 
   if (isLoading) {
-    return <Box sx={{ width: 300 }}>
-    <Skeleton />
-    <Skeleton animation="wave" />
-    <Skeleton animation={false} />
+    return (
+      <Box className="p-4">
+        <Skeleton variant="rectangular" height={200} className="mb-4" />
+        <Skeleton variant="rectangular" height={100} className="mb-2" />
+        <Skeleton variant="rectangular" height={100} />
   </Box>
+    );
   }
 
   if (isError) {
-    window.location.reload();
-    return <div>Error ...</div>
+    return (
+      <Box className="p-4">
+        <Typography variant="h6" color="error">
+          Une erreur est survenue lors du chargement des données
+        </Typography>
+      </Box>
+    );
   }
 
   if (getUser) {
-    return <>    
+    return (
+      <div className="min-h-screen bg-gray-50 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <Nav />
 
-      <Card>
-        {/* <CardHeader
-          title={
-            <>
-              <Typography variant="h5" color="textPrimary">
-                Listes des clients ou fournisseurs de cette entreprise
+          <Paper elevation={0} className="mt-6 rounded-lg overflow-hidden">
+            <Box className="p-6">
+              {/* Header */}
+              <div className="flex justify-between items-center border-b pb-6 mb-6">
+                <div>
+                  <Typography variant="h4" className="font-semibold text-gray-900">
+                    Gestion des Clients et Fournisseurs
               </Typography>
-              <Typography color="textSecondary">
-                information sur les clients ou fournisseurs
+                  <Typography variant="body2" className="text-gray-500 mt-1">
+                    Gérez vos relations commerciales
               </Typography>
-            </>
-          }
-          action={
-            <Button onClick={functionopen} variant="outlined">
-              <UserPlusIcon /> Ajouter client/fournisseur
-            </Button>
-          }
-        /> */}
-        <CardHeader className="mx-8"
-          title={
-            <Box>
-              <Typography variant="h5" color="textPrimary">
-                Listes des clients ou fournisseurs de cette entreprise
-              </Typography>
-              <Typography color="textSecondary">
-                Information sur les clients ou fournisseurs
-              </Typography>
-            </Box>
-          }
-          action={
+                </div>
             <Button
               onClick={functionopen}
-              variant="outlined"
-              startIcon={<UserPlusIcon />}
-              className="rounded border-x-1 animate-border-rotate"
+                  variant="contained"
+                  startIcon={<PersonAddIcon />}
+                  className="bg-blue-600 hover:bg-blue-700"
             >
-             Ajouter client/fournisseur
+                  Ajouter un contact
             </Button>
-          }
-        />
-        
-        <CardContent>
-          {/* <Tabs value="all">
-            {TABS.map(({ label, value }) => (
-              <Tab key={value} label={label} value={value} />
-            ))}
-          </Tabs> */}
+              </div>
 
-          <Box className="flex justify-center mt-4" sx={{ marginBottom: 2, display: 'flex', alignItems: 'center' }}>
+              {/* Filters */}
+              <Paper elevation={0} className="p-4 mb-6 bg-gray-50 rounded-lg">
+                <div className="flex items-center space-x-2 mb-4">
+                  <FilterListIcon className="text-gray-500" />
+                  <Typography variant="subtitle1" className="font-medium text-gray-700">
+                    Filtrer par type
+                  </Typography>
+                </div>
+                <div className="flex flex-wrap gap-2">
             <Button
               variant={filter === 3 ? 'contained' : 'outlined'}
               onClick={() => setFilter(3)}
-              sx={{ marginRight: 1 }}
+                    size="small"
+                    className={filter === 3 ? 'bg-blue-600' : ''}
             >
               Tous
             </Button>
             <Button
               variant={filter === 1 ? 'contained' : 'outlined'}
               onClick={() => setFilter(1)}
-              sx={{ marginRight: 1 }}
+                    size="small"
+                    className={filter === 1 ? 'bg-blue-600' : ''}
             >
-              Client
+                    Clients
             </Button>
             <Button
               variant={filter === 2 ? 'contained' : 'outlined'}
               onClick={() => setFilter(2)}
-              sx={{ marginRight: 1 }}
+                    size="small"
+                    className={filter === 2 ? 'bg-blue-600' : ''}
             >
-              Fournisseur
+                    Fournisseurs
             </Button>            
-
-            {/* Recherche par date */}
-            {/* <Box sx={{ marginLeft: 2, display: 'flex', gap: 2 }}>
-              <TextField
-                label="Date début"
-                className='bg-blue-200'
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                InputLabelProps={{ shrink: true }}
-              />
-              <TextField
-                label="Date fin"
-                type="date"
-                className='bg-blue-200'
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                InputLabelProps={{ shrink: true }}
-              />
-            </Box> */}
-          </Box>
+                </div>
+              </Paper>
           
-          {/* <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 700 }} aria-label="spanning table">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Nom</TableCell>
-                  <TableCell>Adresse</TableCell>
-                  <TableCell>Telephone</TableCell>
-                  <TableCell>Role</TableCell>
-                  <TableCell>
-                    
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {clientEntreprise.map((post: any, index) => {
-                const validDate = post.date ?? new Date();
-                return <Fragment key={index} >
-                  <TableRow>            
-                      
-                    <TableCell>                      
-                      {format(new Date(validDate), 'dd/MM/yyyy')}
-                    </TableCell>
-                    
-                    <TableCell>
-                      {post.nom}                        
-                    </TableCell>
-                    <TableCell >{post.adresse}</TableCell>
-                    <TableCell >{post.numero}</TableCell>
-                    <TableCell >
-                      {post.role===1 ? "Client" :
-                        post.role===2 ? "Fournisseur" :
-                        "Client/Fournisseur"
-                      }
-                    </TableCell>        
-                    <TableCell>
-                    <Link to={`/entreprise/client/info/${post.uuid}`}>
-                      <Stack direction="row" spacing={2}>
-                       
-                        <VisibilityIcon color="info" fontSize="medium" />
-                      </Stack>
-                    </Link>
-                    </TableCell>        
-                  </TableRow>
-                </Fragment>
-                })}
-              </TableBody>
-            </Table>
-          </TableContainer> */}
-          
-          <Grid container spacing={2}>
+              {/* Grid of Client Cards */}
+              <Grid container spacing={3}>
             {clientEntreprise.map((post: any) => (
               <Grid item xs={12} sm={6} md={4} key={post.id}> 
               <Link to={`/entreprise/client/info/${post.uuid}`}>
-                <MainCard className="my-3" sx={{ mb: 1 }} content={false}>
-                  <ListItem alignItems="flex-start">
+                      <MainCard 
+                        className="transition-all duration-200 hover:shadow-md"
+                        sx={{ height: '100%' }}
+                        content={false}
+                      >
+                        <ListItem alignItems="flex-start" className="h-full">
                     <ListItemAvatar>
-                      <Avatar {...stringAvatar(`${post.nom}`)} />
+                            <Avatar {...stringAvatar(post.nom)} />
                     </ListItemAvatar>
                     <ListItemText
-                      primary={post.nom}
+                            primary={
+                              <Typography variant="subtitle1" className="font-medium">
+                                {post.nom}
+                              </Typography>
+                            }
                       secondary={
                         <Fragment>
-                          <Typography component="span" variant="body2" color="text.primary">
-                            {"Tel : "} {post.numero}
+                                <div className="space-y-1 mt-1">
+                                  <Typography variant="body2" color="text.secondary">
+                                    Tél : {post.numero}
                           </Typography>
-                          <br />
-                          <Typography component="span" variant="body2" color="text.primary">
-                            {"Email : "} {post.email}
+                                  <Typography variant="body2" color="text.secondary">
+                                    Email : {post.email}
                           </Typography>
-                          <br />
-                          <Typography component="span" variant="body2" color="text.primary">
-                            {"Adresse : "} {post.adresse}
+                                  <Typography variant="body2" color="text.secondary">
+                                    Adresse : {post.adresse}
                           </Typography>
-                          <br />
-                          <Typography component="span" variant="body2" color="text.primary">
-                            {"Coordonner : "} {post.coordonne}
-                          </Typography>
-                          <br />
-                          <Typography component="span" variant="body2" color="text.primary">
-                            {"Etat de compte : "} 
-                            {/* <Link to={`/entreprise/client/info/${post.uuid}`}> */}
+                                  <div className="mt-2">
                               <Chip
-                                label={post.role === 1 ? "Client" : post.role === 2 ? "Fournisseur" : "Client/Fournisseur"}
+                                      label={
+                                        post.role === 1 ? "Client" :
+                                        post.role === 2 ? "Fournisseur" :
+                                        "Client/Fournisseur"
+                                      }
                                 variant="outlined"
-                                color={post.role === 1 ? "primary" : post.role === 2 ? "info" : "success"}
-                                sx={{ ml: "auto" }}
-                              />
-                            {/* </Link> */}
-                          </Typography>
+                                      color={
+                                        post.role === 1 ? "primary" :
+                                        post.role === 2 ? "secondary" :
+                                        "default"
+                                      }
+                                      size="small"
+                                    />
+                                  </div>
+                                </div>
                         </Fragment>
                       }
                     />
-                    {/* <Link to={`/entreprise/client/info/${post.uuid}`}>
-                      <Chip
-                        label={post.role === 1 ? "Client" : post.role === 2 ? "Fournisseur" : "Client/Fournisseur"}
-                        variant="outlined"
-                        color={post.role === 1 ? "primary" : post.role === 2 ? "info" : "success"}
-                        sx={{ ml: "auto" }}
-                      />
-                    </Link> */}
                   </ListItem>
                 </MainCard>
               </Link>             
@@ -366,54 +226,62 @@ export default function Client() {
             ))}
           </Grid>
 
-        </CardContent>
-
-        <CardActions sx={{ justifyContent: "center" }}>
+              {/* Pagination */}
+              <Box className="flex justify-center mt-6">
           <Pagination
             count={totalPages}
             page={currentPage}
             onChange={handlePageChange}
             color="primary"
+                  size="large"
           />
-        </CardActions>
+              </Box>
+            </Box>
+          </Paper>
 
-        <Dialog open={open} onClose={closeopen} fullWidth maxWidth="xs">
-          <DialogTitle>
-            Ajout des clients ou fournisseurs 
-            <IconButton onClick={closeopen} style={{float: "right"}}>
-              <CloseIcon color="primary"></CloseIcon>
+          {/* Add Client/Supplier Dialog */}
+          <Dialog 
+            open={open} 
+            onClose={closeopen} 
+            fullWidth 
+            maxWidth="sm"
+            PaperProps={{
+              elevation: 0,
+              className: "rounded-lg"
+            }}
+          >
+            <DialogTitle className="flex justify-between items-center border-b pb-3">
+              <Typography variant="h6" className="font-semibold">
+                Ajouter un nouveau contact
+              </Typography>
+              <IconButton onClick={closeopen} size="small">
+                <CloseIcon />
             </IconButton>            
           </DialogTitle>
           
           {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
           <M_Abonnement />  
-          )
-            :        
-               
-          <DialogContent>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <Stack spacing={2}  margin={2}>
-                
-                {/* <MyTextField 
-                label="Nom complet"
-                name="nom"
-                onChange={onChange}
-                value={formValues.nom}
-                fullWidth
-                /> */}
+            ) : (
+              <DialogContent className="mt-4">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <MyTextField                                              
                   label="Nom complet"
                   {...register("nom", { required: "Ce champ est obligatoire" })}
                   error={!!errors.nom}
                   helperText={errors.nom?.message}
+                    fullWidth
                 />
 
                 <MyTextField                                              
-                  label="Numero"
-                  type="number"
+                    label="Téléphone"
                   {...register("numero")}
                   error={!!errors.numero}
                   helperText={errors.numero?.message}
+                    inputProps={{
+                      pattern: "^[+]?\\d*$",
+                      maxLength: 15,
+                    }}
+                    fullWidth
                 />
                 
                 <MyTextField 
@@ -422,6 +290,7 @@ export default function Client() {
                   {...register("email")}
                   error={!!errors.email}
                   helperText={errors.email?.message}
+                    fullWidth
                 />
 
                 <MyTextField                                              
@@ -429,27 +298,26 @@ export default function Client() {
                   {...register("adresse")}
                   error={!!errors.adresse}
                   helperText={errors.adresse?.message}
+                    fullWidth
                 />
                 
                 <MyTextField                                              
-                  label="Coordonne"
+                    label="Coordonnées supplémentaires"
                   {...register("coordonne")}
                   error={!!errors.coordonne}
                   helperText={errors.coordonne?.message}
+                    fullWidth
+                    multiline
+                    rows={2}
                 />
 
-                <FormControl fullWidth margin="normal">
-                  <InputLabel id="role-label">Type</InputLabel>
+                  <FormControl fullWidth>
+                    <InputLabel id="role-label">Type de contact</InputLabel>
                   <Select
                     labelId="role-label"
-                    id="role-select"
-                    // name="role"
-                    // value={formValues.role || 0}
-                    // onChange={onSelectChange}
+                      label="Type de contact"
                     {...register("role", { required: "Ce champ est obligatoire" })}
                     error={!!errors.role}
-                    // helperText={errors.role?.message}
-                    label="Role"
                   >
                     <MenuItem value={1}>Client</MenuItem>
                     <MenuItem value={2}>Fournisseur</MenuItem>
@@ -457,21 +325,25 @@ export default function Client() {
                   </Select>
                 </FormControl>
                 
-                <Button type="submit" variant="contained" color="primary" >
+                  <div className="pt-4 flex justify-end space-x-3">
+                    <Button onClick={closeopen} variant="outlined">
+                      Annuler
+                    </Button>
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
                   Ajouter
                 </Button>
-              </Stack>
+                  </div>
             </form>
           </DialogContent>
-        
-          }
-          
+            )}
         </Dialog>
-        
-      </Card>
-      
-    </>
-    ;
+        </div>
+      </div>
+    );
   }
 
   return null;

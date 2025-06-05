@@ -1,245 +1,298 @@
 import { ChangeEvent, FormEvent, useState } from 'react';
-import MainCard from '../../../../../components/MainCard'
-import { Alert, Box, Button, CircularProgress, Dialog, DialogTitle, FormControl, Grid, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, TextField, Typography } from '@mui/material'
+import { 
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  FormControl,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  SelectChangeEvent,
+  Stack,
+  TextField,
+  Typography,
+  Tooltip,
+  Fade
+} from '@mui/material';
 import { connect } from '../../../../../_services/account.service';
 import { useDeleteEntreprise, useFetchEntreprise, useUpdateEntreprise } from '../../../../../usePerso/fonction.user';
 import countryList from 'react-select-country-list';
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
+import CloseIcon from '@mui/icons-material/Close';
+import ImageIcon from '@mui/icons-material/Image';
+import KeyIcon from '@mui/icons-material/Key';
 import { useStoreUuid } from '../../../../../usePerso/store';
+import { BASE } from '../../../../../_services/caller.service';
+import img from '../../../../../../public/icon-192x192.png';
 
 export default function ModifEntreprise() {
-    const uuid = useStoreUuid((state) => state.selectedId)
-    const {unEntreprise, setUnEntreprise, isLoading, isError} = useFetchEntreprise(uuid!)
-    
-    unEntreprise["user_id"] = connect
-    const {deleteEntreprise} = useDeleteEntreprise()
+  const uuid = useStoreUuid((state) => state.selectedId);
+  const { unEntreprise, setUnEntreprise, isLoading, isError } = useFetchEntreprise(uuid!);
+  const { deleteEntreprise } = useDeleteEntreprise();
+  const { updateEntreprise } = useUpdateEntreprise();
+  const [open, setOpen] = useState(false);
+  const [image, setImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>('');
+  const options = countryList().getData();
 
-    const handleDelete = () => {
-      const confirmation = window.confirm("Vous êtes sûr de vouloir supprimer ?");
-      if (confirmation) {
-        // Appel de la fonction de suppression
-        deleteEntreprise(unEntreprise);
-      }
-    };
-    const {updateEntreprise} = useUpdateEntreprise()
-
-    const [open, setOpen] = useState(false);
-
-    const handleClickOpen = () => {
-      setOpen(true);
-    };
-
-    const handleClose = () => {
-      setOpen(false);
-    };
-
-    const options = countryList().getData();
-
-    const [image, setImage] = useState<File | null>(null);
-
-    const onChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setUnEntreprise({
-          ...unEntreprise,
-          [name]: value,
-        });
-      };
-    
-      const onSelectChange = (e: SelectChangeEvent<string>) => {
-        setUnEntreprise({
-          ...unEntreprise,
-          [e.target.name]: e.target.value,
-        });
-      };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setImage(e.target.files[0]);
+  const handleDelete = () => {
+    const confirmation = window.confirm("Êtes-vous sûr de vouloir supprimer cette entreprise ?");
+    if (confirmation) {
+      deleteEntreprise({ ...unEntreprise, user_id: connect });
     }
   };
 
-    const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-  
-      unEntreprise["user_id"]= connect
-      unEntreprise["image"]= image
-      // formValues["user_id"]= connect
-      // formValues["user_id"]= connect
-  
-      updateEntreprise(unEntreprise)
-    };
-    const onSubmitAbon = (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-  
-      unEntreprise["user_id"]= connect
-      // unEntreprise["image"]= image
-      // formValues["user_id"]= connect
-      // formValues["user_id"]= connect
-      
-      updateEntreprise(unEntreprise)
-      
-    };
+  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setUnEntreprise({ ...unEntreprise, [name]: value });
+  };
 
-    if (isLoading) {
-      return (
-        <Box sx={{ display: 'flex' }}>
-          <CircularProgress />
-        </Box>
-      );
+  const onSelectChange = (e: SelectChangeEvent<string>) => {
+    setUnEntreprise({ ...unEntreprise, [e.target.name]: e.target.value });
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setImage(file);
+      setPreviewUrl(URL.createObjectURL(file));
     }
+  };
 
-    if (isError) {
-      return (
-        <Stack sx={{ width: '100%' }} spacing={2}>        
-          <Alert severity="error">Probleme de connexion !</Alert>
-        </Stack>
-      );
-    }
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    updateEntreprise({ ...unEntreprise, user_id: connect, image });
+  };
 
-    if (unEntreprise) {
-      return <>
+  const onSubmitAbon = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    updateEntreprise({ ...unEntreprise, user_id: connect });
+    setOpen(false);
+  };
 
-      <Button size="small" className='rounded-full shadow-md shadow-red-800/50' onClick={handleDelete}>
-        <DeleteIcon fontSize='small' />
-      </Button>
-      <Grid container rowSpacing={4.5} justifyContent="center" alignItems="center" columnSpacing={2.75}>
-        <Grid item xs={12} md={5} lg={6}>        
-            <MainCard sx={{ mt: 2 }} content={false} title="Modification de l'entreprise">
-                <Typography variant="h5" color="primary" className='mx-5'>
-                  L'identifiant de l'entreprise = {unEntreprise.ref}
+  if (isLoading) {
+    return (
+      <Box className="flex items-center justify-center p-8">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Alert 
+        severity="error" 
+        className="m-4"
+        action={
+          <Button color="inherit" size="small" onClick={() => window.location.reload()}>
+            Réessayer
+          </Button>
+        }
+      >
+        Problème de connexion ! Veuillez réessayer.
+      </Alert>
+    );
+  }
+
+  if (!unEntreprise) return null;
+
+  const url = unEntreprise.image ? BASE(unEntreprise.image) : img;
+
+  return (
+    <div className="max-w-4xl mx-auto p-4">
+      <div className="mb-6 flex items-center justify-between">
+        <Typography variant="h4" className="font-semibold text-gray-900">
+          Paramètres de l'entreprise
+        </Typography>
+
+        <Tooltip title="Supprimer l'entreprise" arrow TransitionComponent={Fade}>
+          <IconButton 
+            onClick={handleDelete}
+            className="bg-white hover:bg-red-50 text-red-600 shadow-sm"
+          >
+            <DeleteIcon />
+          </IconButton>
+        </Tooltip>
+      </div>
+
+      <Paper elevation={0} className="border rounded-lg overflow-hidden">
+        <form onSubmit={onSubmit}>
+          <div className="p-6 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Typography variant="subtitle2" className="mb-4 text-gray-600">
+                  Informations générales
                 </Typography>
-                <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmit}>
-                <Stack spacing={2} margin={2}>
-  
-                <TextField 
-                    variant="outlined" 
-                    type='file'
-                    label='image' 
-                    // name='image' 
-                    // value={unEntreprise.nom} 
-                    onChange={handleImageChange}
-                    InputLabelProps={{
-                    shrink: true, // Force le label à rester au-dessus du champ
-                    }}
-                ></TextField>
-                <TextField 
-                    variant="outlined" 
-                    label='Nom' 
-                    name='nom' 
-                    value={unEntreprise.nom} 
+
+                <Stack spacing={3}>
+                  <TextField
+                    fullWidth
+                    label="Identifiant"
+                    value={unEntreprise.ref}
+                    disabled
+                    className="bg-gray-50"
+                  />
+
+                  <TextField
+                    fullWidth
+                    label="Nom de l'entreprise"
+                    name="nom"
+                    value={unEntreprise.nom}
                     onChange={onChange}
-                    InputLabelProps={{
-                    shrink: true, // Force le label à rester au-dessus du champ
-                    }}
-                ></TextField>
-                <TextField 
-                    variant="outlined" 
-                    label='coordonne' 
-                    name='coordonne' 
-                    value={unEntreprise.coordonne} 
-                    onChange={onChange}
-                    InputLabelProps={{
-                    shrink: true, // Force le label à rester au-dessus du champ
-                    }}
-                ></TextField>
-                <TextField
-                    variant="outlined"
-                    label='Email'
-                    name='email'
-                    value={unEntreprise.email} 
-                    onChange={onChange}
-                    InputLabelProps={{
-                    shrink: true, // Force le label à rester au-dessus du champ
-                    }}
-                ></TextField>
-                <TextField 
-                    variant="outlined"
-                    label='Adresse'
-                    name='adresse' 
-                    value={unEntreprise.adresse}
-                    onChange={onChange}
-                    InputLabelProps={{
-                    shrink: true, // Force le label à rester au-dessus du champ
-                    }}
-                ></TextField>
-                <TextField 
-                    variant="outlined"
+                    required
+                  />
+
+                  <TextField
+                    fullWidth
                     label="Type d'entreprise"
-                    name='libelle' 
+                    name="libelle"
                     value={unEntreprise.libelle}
                     onChange={onChange}
-                    InputLabelProps={{
-                    shrink: true, // Force le label à rester au-dessus du champ
-                    }}
-                ></TextField>
-                <TextField 
-                    variant="outlined"
-                    label='Numéro'
-                    name='numero' 
-                    value={unEntreprise.numero} 
-                    onChange={onChange}
-                    InputLabelProps={{
-                    shrink: true, // Force le label à rester au-dessus du champ
-                    }}
-                ></TextField>
-                <FormControl fullWidth className='mb-4'>
-                    <InputLabel id="select-pays-label">Pays = {unEntreprise.pays}</InputLabel>
+                    required
+                  />
+
+                  <FormControl fullWidth>
+                    <InputLabel>Pays</InputLabel>
                     <Select
-                    labelId="select-pays-label"
-                    value={unEntreprise.pays}
-                    onChange={onSelectChange}
-                    name='pays'
-                    placeholder="Choisir un pays"
+                      value={unEntreprise.pays}
+                      onChange={onSelectChange}
+                      name="pays"
+                      label="Pays"
                     >
-                    {options.map((option) => (
+                      {options.map((option) => (
                         <MenuItem key={option.value} value={option.label}>
-                        {option.label}
+                          {option.label}
                         </MenuItem>
-                    ))}
+                      ))}
                     </Select>
-                </FormControl>
-                
-                <Button type="submit" color="success" variant="outlined" >Envoyer</Button>
-                <Button variant="outlined" onClick={handleClickOpen}>
-                  Code d'abonnement
-                </Button>
-  
+                  </FormControl>
                 </Stack>
-                </form>
-  
-                <Dialog
-                open={open}
-                onClose={handleClose}
-                
-          >
-            <DialogTitle>Code d'abonnement</DialogTitle>
-              <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmitAbon}>
-                <Stack spacing={2} margin={2}>
-                      
-                <TextField 
-                  variant="outlined"
-                  label="Code d'abonnement"
-                  name='code' 
-                  // value={unEntreprise.code} 
-                  onChange={onChange}
-                  InputLabelProps={{
-                  shrink: true, // Force le label à rester au-dessus du champ
-                  }}
-                ></TextField>
-                
-                {/* <Button onClick={handleClose}>Cancel</Button> */}
-                <Button type="submit">Envoyer</Button>
-                
+              </div>
+
+              <div>
+                <Typography variant="subtitle2" className="mb-4 text-gray-600">
+                  Contact et Image
+                </Typography>
+
+                <Stack spacing={3}>
+                  <div className="space-y-4">
+                    <Box className="w-full aspect-video rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50">
+                      {(previewUrl || url) && (
+                        <img 
+                          src={previewUrl || url} 
+                          alt={unEntreprise.nom} 
+                          className="max-h-full object-contain"
+                        />
+                      )}
+                    </Box>
+                    <TextField
+                      fullWidth
+                      type="file"
+                      onChange={handleImageChange}
+                      InputLabelProps={{ shrink: true }}
+                      InputProps={{
+                        startAdornment: <ImageIcon className="mr-2 text-gray-400" />,
+                      }}
+                    />
+                  </div>
+
+                  <TextField
+                    fullWidth
+                    label="Email"
+                    name="email"
+                    type="email"
+                    value={unEntreprise.email}
+                    onChange={onChange}
+                  />
+
+                  <TextField
+                    fullWidth
+                    label="Numéro de téléphone"
+                    name="numero"
+                    value={unEntreprise.numero}
+                    onChange={onChange}
+                  />
+
+                  <TextField
+                    fullWidth
+                    label="Adresse"
+                    name="adresse"
+                    value={unEntreprise.adresse}
+                    onChange={onChange}
+                    multiline
+                    rows={2}
+                  />
                 </Stack>
-              </form>
-          </Dialog>
-                
-            </MainCard>
-            
-        </Grid>    
-      </Grid>
-    </>
-    }
-    
-  
+              </div>
+            </div>
+          </div>
+
+          <div className="px-6 py-4 bg-gray-50 border-t flex justify-between items-center">
+            <Button
+              variant="outlined"
+              startIcon={<KeyIcon />}
+              onClick={() => setOpen(true)}
+            >
+              Code d'abonnement
+            </Button>
+
+            <Button
+              type="submit"
+              variant="contained"
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              Enregistrer les modifications
+            </Button>
+          </div>
+        </form>
+      </Paper>
+
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          elevation: 0,
+          className: "rounded-lg"
+        }}
+      >
+        <DialogTitle className="flex justify-between items-center border-b pb-3">
+          <Typography variant="h6">Code d'abonnement</Typography>
+          <IconButton onClick={() => setOpen(false)} size="small">
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent className="mt-4">
+          <form onSubmit={onSubmitAbon} className="space-y-4">
+            <TextField
+              fullWidth
+              label="Code d'abonnement"
+              name="code"
+              onChange={onChange}
+              required
+              autoFocus
+            />
+
+            <div className="pt-4 border-t flex justify-end">
+              <Button
+                type="submit"
+                variant="contained"
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                Valider
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
 }

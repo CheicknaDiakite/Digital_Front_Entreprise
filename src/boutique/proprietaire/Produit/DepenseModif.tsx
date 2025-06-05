@@ -1,34 +1,51 @@
-import Nav from '../../../_components/Button/Nav'
-import { Button, Card, CardContent, DialogContent, DialogTitle, Stack, TextField } from '@mui/material'
-import PdfViewer from '../../../usePerso/PdfFile'
-import { useParams } from 'react-router-dom'
+import {
+  Typography,
+  Button,
+  Paper,
+  Box,
+  IconButton,
+  TextField,
+  Grid,
+  Alert,
+  InputAdornment,
+  Divider,
+} from '@mui/material';
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
-import { useDeleteDepense, useFetchDepense, useUpdateDepense } from '../../../usePerso/fonction.entre'
-import { connect } from '../../../_services/account.service'
-import { ChangeEvent, FormEvent, useState } from 'react'
-import { BASE } from '../../../_services/caller.service'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import SaveIcon from '@mui/icons-material/Save';
+import LocalAtmIcon from '@mui/icons-material/LocalAtm';
+import DescriptionIcon from '@mui/icons-material/Description';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import DateRangeIcon from '@mui/icons-material/DateRange';
+import { Link, useParams } from 'react-router-dom';
+import { ChangeEvent, FormEvent, useState } from 'react';
+import { useDeleteDepense, useFetchDepense, useUpdateDepense } from '../../../usePerso/fonction.entre';
+import { connect } from '../../../_services/account.service';
+import { BASE } from '../../../_services/caller.service';
 import { useFetchUser } from '../../../usePerso/fonction.user';
+import Nav from '../../../_components/Button/Nav';
+import PdfViewer from '../../../usePerso/PdfFile';
 
 export default function DepenseModif() {
-  const {uuid} = useParams()
-  const {unDepense, setUnDepense} = useFetchDepense(uuid!)
-  const {updateDepense} = useUpdateDepense()
-  const {deleteDepense} = useDeleteDepense()
+  const {uuid} = useParams();
+  const {unDepense, setUnDepense} = useFetchDepense(uuid!);
+  const {updateDepense} = useUpdateDepense();
+  const {deleteDepense} = useDeleteDepense();
+  const {unUser} = useFetchUser(connect);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [image, setImage] = useState<File | null>(null);
+
+  unDepense["user_id"] = connect;
+  const url = BASE(unDepense.facture ? unDepense.facture : '');
+
   const handleDelete = () => {
-    const confirmation = window.confirm("Vous êtes sûr de vouloir supprimer ?");
-    if (confirmation) {
-      // Appel de la fonction de suppression
-      deleteDepense(unDepense);
-    }
+    setShowConfirm(true);
   };
 
-  const {unUser} = useFetchUser(connect)
-
-  unDepense["user_id"] = connect
-
-  let url = BASE(unDepense.facture ? unDepense.facture : '')
-  
-  const [image, setImage] = useState<File | null>(null);
+  const confirmDelete = () => {
+    deleteDepense(unDepense);
+    setShowConfirm(false);
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -43,97 +60,208 @@ export default function DepenseModif() {
       [name]: value,
     });
   };
+
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // const validSlug = slug || '';
-
-    unDepense["user_id"] = connect
-    unDepense["facture"] = image
-    updateDepense(unDepense)
+    unDepense["user_id"] = connect;
+    unDepense["facture"] = image;
+    updateDepense(unDepense);
   };
-  return <>
-  <Nav>
-  {unUser.role === 1 &&   
-    <Button size="small" className='rounded-full shadow-md shadow-red-800/50' onClick={handleDelete}>
-      <DeleteIcon fontSize='small' />
-    </Button>
-  }
-  </Nav>
 
-  <Card sx={{ minWidth: 275 }}>
-    <CardContent>
-      
-      <div className='flex justify-center items-center flex-col'>
-
-      <DialogTitle>Entre Modif</DialogTitle>
-      <DialogContent>
-        {/* <DialogContentText>Categorie</DialogContentText> */}
-        <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmit}>
-        <Stack spacing={2} margin={2}>
-
-          <TextField 
-          variant="outlined" 
-          value={unDepense.libelle} 
-          label="LIBELLE" 
-          name='libelle' 
-          onChange={onChange}
-          InputLabelProps={{
-            shrink: true, // Force le label à rester au-dessus du champ
-          }}
-          ></TextField>
-
-          <TextField 
-          variant="outlined" 
-          value={unDepense.somme} 
-          label="Somme" 
-          name='somme' 
-          onChange={onChange}
-          InputLabelProps={{
-            shrink: true, // Force le label à rester au-dessus du champ
-          }}
-          ></TextField>
-
-          <TextField 
-          variant="outlined" 
-          value={unDepense.date} 
-          label={unDepense.date}
-          type='date' 
-          name='date' 
-          onChange={onChange}
-          InputLabelProps={{
-            shrink: true, // Force le label à rester au-dessus du champ
-          }}
-          ></TextField>
-
-          <TextField 
-            variant="outlined" 
-            type='file'
-            label='Facture' 
-            // name='image' 
-            // value={unBoutique.nom} 
-            onChange={handleImageChange}
-            InputLabelProps={{
-              shrink: true, // Force le label à rester au-dessus du champ
-            }}
-            ></TextField>
-
-          {unDepense.facture &&          
-          <div>
-            <a href={url} color="success">Afficher un PDF</a>
-            <PdfViewer fileUrl={url} />
+  return (
+    <div className="min-h-screen bg-gray-50 py-6">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Nav>
+          <div className="flex items-center space-x-2">
+            <Link to="/entreprise/depense">
+              <IconButton size="small" className="hover:bg-gray-100">
+                <ArrowBackIcon />
+              </IconButton>
+            </Link>
+            {unUser.role === 1 && (
+              <IconButton 
+                onClick={handleDelete}
+                size="small"
+                className="text-red-600 hover:bg-red-50"
+              >
+                <DeleteIcon />
+              </IconButton>
+            )}
           </div>
-          }
+        </Nav>
 
-          {(unUser.role === 1 || unUser.role === 2) &&           
-            <Button type="submit" color="success" variant="outlined">Modifier</Button>
-          }
+        {showConfirm && (
+          <Alert 
+            severity="warning" 
+            className="mt-4"
+            action={
+              <div className="space-x-2">
+                <Button color="inherit" size="small" onClick={() => setShowConfirm(false)}>
+                  Annuler
+                </Button>
+                <Button color="error" size="small" onClick={confirmDelete}>
+                  Confirmer
+                </Button>
+              </div>
+            }
+          >
+            Êtes-vous sûr de vouloir supprimer cette dépense ?
+          </Alert>
+        )}
 
-        </Stack>
-      </form>
-      </DialogContent>
+        <Paper elevation={0} className="mt-6 rounded-lg overflow-hidden">
+          <Box className="p-6">
+            {/* Header */}
+            <div className="border-b pb-4 mb-6">
+              <Typography variant="h4" className="font-semibold text-gray-900">
+                Modification de la Dépense
+              </Typography>
+              <Typography variant="body2" className="text-gray-500 mt-1">
+                Modifiez les informations de la dépense
+              </Typography>
+            </div>
+
+            <form onSubmit={onSubmit} className="space-y-6">
+              <Grid container spacing={4}>
+                <Grid item xs={12} md={6}>
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2 text-gray-700 mb-2">
+                      <DescriptionIcon fontSize="small" />
+                      <Typography variant="subtitle2">Informations de base</Typography>
+                    </div>
+
+                    <TextField
+                      fullWidth
+                      label="Libellé"
+                      name="libelle"
+                      value={unDepense.libelle}
+                      onChange={onChange}
+                      variant="outlined"
+                      className="bg-white"
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <DescriptionIcon className="text-gray-400" />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+
+                    <TextField
+                      fullWidth
+                      label="Montant"
+                      name="somme"
+                      type="number"
+                      value={unDepense.somme}
+                      onChange={onChange}
+                      variant="outlined"
+                      className="bg-white"
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <LocalAtmIcon className="text-gray-400" />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+
+                    <TextField
+                      fullWidth
+                      label="Date"
+                      name="date"
+                      type="date"
+                      value={unDepense.date}
+                      onChange={onChange}
+                      variant="outlined"
+                      className="bg-white"
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <DateRangeIcon className="text-gray-400" />
+                          </InputAdornment>
+                        ),
+                      }}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                    />
+                  </div>
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2 text-gray-700 mb-2">
+                      <ReceiptIcon fontSize="small" />
+                      <Typography variant="subtitle2">Facture</Typography>
+                    </div>
+
+                    <TextField
+                      fullWidth
+                      type="file"
+                      label="Nouvelle facture"
+                      onChange={handleImageChange}
+                      variant="outlined"
+                      className="bg-white"
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <ReceiptIcon className="text-gray-400" />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+
+                    {unDepense.facture && (
+                      <Paper elevation={0} className="p-4 bg-gray-50 border rounded-lg">
+                        <Typography variant="subtitle2" className="text-gray-700 mb-2">
+                          Facture actuelle
+                        </Typography>
+                        <div className="max-h-[400px] overflow-auto">
+                          <PdfViewer fileUrl={url} />
+                        </div>
+                        <div className="mt-2">
+                          <a 
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 flex items-center space-x-1"
+                          >
+                            <ReceiptIcon fontSize="small" />
+                            <span>Voir en plein écran</span>
+                          </a>
+                        </div>
+                      </Paper>
+                    )}
+                  </div>
+                </Grid>
+              </Grid>
+
+              <Divider className="my-6" />
+
+              <div className="flex justify-end space-x-3">
+                <Link to="/entreprise/depense">
+                  <Button variant="outlined">
+                    Annuler
+                  </Button>
+                </Link>
+                {(unUser.role === 1 || unUser.role === 2) && (
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    startIcon={<SaveIcon />}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    Enregistrer les modifications
+                  </Button>
+                )}
+              </div>
+            </form>
+          </Box>
+        </Paper>
       </div>
-    </CardContent>
-  </Card>
-</>
+    </div>
+  );
 }

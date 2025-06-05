@@ -13,119 +13,186 @@ import {
   IconButton,
   DialogContent,
   Stack,
+  Box,
+  DialogActions
 } from "@mui/material";
-import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import {
-  BarChart as PresentationChartBarIcon, // Utilisation de BarChart à la place de PresentationChartBarIcon
+  BarChart as DashboardIcon,
   Category as CategoryIcon,
   AddCircle as AddCircleIcon,
   ExitToApp as ExitToAppIcon,
   AccountCircle as UserCircleIcon,
   PowerSettingsNew as PowerIcon,
+  ExpandLess,
+  ExpandMore,
 } from "@mui/icons-material";
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import DescriptionIcon from '@mui/icons-material/Description';
+import AddBusinessIcon from '@mui/icons-material/AddBusiness';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import CloseIcon from "@mui/icons-material/Close";
 import { Link } from "react-router-dom";
-import {connect} from "../../../../../_services/account.service";
+import { connect } from "../../../../../_services/account.service";
 import { useAddAvis, useFetchEntreprise, useFetchUser, useGetUserEntreprises } from "../../../../../usePerso/fonction.user";
 import { logout } from "../../../../../usePerso/fonctionPerso";
 import { useStoreUuid } from "../../../../../usePerso/store";
-import backgroundImage from "../../../../../../public/icon-192x192.png";
 import { BASE } from "../../../../../_services/caller.service";
 import MyTextField from "../../../../../_components/Input/MyTextField";
-import CloseIcon from "@mui/icons-material/Close";
-import AddBusinessIcon from '@mui/icons-material/AddBusiness';
 import { AvisType } from "../../../../../typescript/UserType";
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import Example from "../../../../../boutique/Ct";
 
+// Types
+interface NavItemProps {
+  icon: React.ReactNode;
+  label: string;
+  onClick?: () => void;
+  to?: string;
+  bgColor?: string;
+  isExpanded?: boolean;
+}
+
+interface FeedbackDialogProps {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (e: FormEvent<HTMLFormElement>) => void;
+  values: AvisType;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+}
+
+// Components
+const NavItem: React.FC<NavItemProps> = ({ icon, label, onClick, to, bgColor, isExpanded }) => {
+  const content = (
+    <ListItem 
+      button 
+      onClick={onClick}
+      sx={{
+        borderRadius: 1,
+        mb: 0.5,
+        '&:hover': {
+          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        },
+      }}
+    >
+      <ListItemIcon sx={{ minWidth: 40 }}>
+        {icon}
+      </ListItemIcon>
+      <Typography 
+        className={`${bgColor} px-2 py-1 rounded transition-colors duration-200`}
+      >
+        {label}
+      </Typography>
+      {isExpanded !== undefined && (
+        isExpanded ? <ExpandLess /> : <ExpandMore />
+      )}
+    </ListItem>
+  );
+
+  return to ? <Link to={to} className="block">{content}</Link> : content;
+};
+
+const FeedbackDialog: React.FC<FeedbackDialogProps> = ({ open, onClose, onSubmit, values, onChange }) => (
+  <Dialog 
+    open={open} 
+    onClose={onClose}
+    maxWidth="sm"
+    fullWidth
+  >
+    <DialogTitle>
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Typography variant="h6">Donnez votre avis</Typography>
+        <IconButton onClick={onClose} size="small">
+          <CloseIcon />
+        </IconButton>
+      </Box>
+    </DialogTitle>
+    <form onSubmit={onSubmit}>
+      <DialogContent>
+        <Stack spacing={3}>
+          <MyTextField
+            label="Titre"
+            name="libelle"
+            value={values.libelle}
+            onChange={onChange}
+            required
+          />
+          <MyTextField
+            label="Description"
+            name="description"
+            value={values.description}
+            onChange={onChange}
+            multiline
+            rows={4}
+            required
+          />
+        </Stack>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} color="inherit">
+          Annuler
+        </Button>
+        <Button type="submit" variant="contained" color="primary">
+          Envoyer
+        </Button>
+      </DialogActions>
+    </form>
+  </Dialog>
+);
+
 const NavSide: React.FC = () => {
-  const [open, setOpen] = useState<number>(0); // Typing `open` as number
-  const {unUser} = useFetchUser(connect)
-  const uuid = useStoreUuid((state) => state.selectedId)
-  const {unEntreprise} = useFetchEntreprise(uuid!)
+  const [expandedSection, setExpandedSection] = useState<number>(0);
+  const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
+  const [helpDialogOpen, setHelpDialogOpen] = useState(false);
 
-  const {userEntreprises} = useGetUserEntreprises(connect)
-  const addId = useStoreUuid(state => state.addId)
+  const { unUser } = useFetchUser(connect);
+  const uuid = useStoreUuid((state) => state.selectedId);
+  const { unEntreprise } = useFetchEntreprise(uuid!);
+  const { userEntreprises } = useGetUserEntreprises(connect);
+  const addId = useStoreUuid(state => state.addId);
+  const { createAvis } = useAddAvis();
 
-  const url = unEntreprise.image ? BASE(unEntreprise.image) : backgroundImage;
-  const urlEntre = unEntreprise.image ? BASE(unEntreprise.image) : url;
-  // const navigate = useNavigate();
-
-  const handleOpen = (value: number): void => {
-    setOpen(open === value ? 0 : value);
-  };
-
-  // const handleGoHome = () => {
-  //   navigate('/entreprise');
-  //   localStorage.removeItem('entreprise-uuid')
-  //   window.location.reload();
-  // };
-
-  // Pour avis
-
-  const [openA, openchange] = useState(false);
-  const functionopen = () => {
-    openchange(true);
-  };
-  const closeopen = () => {
-    openchange(false);
-  };
-
-  const [openO, openchangeO] = useState(false);
-  const functionopenO = () => {
-    openchangeO(true);
-  };
-  const closeopenO = () => {
-    openchangeO(false);
-  };
-
-  const {createAvis} = useAddAvis()
   const [avisValues, setAvisValues] = useState<AvisType>({
     libelle: "",
     description: "",
     user_id: "",
   });
 
-  const onChangeAvis = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setAvisValues({
-      ...avisValues,
-      [name]: value,
-    });
+  const handleSectionExpand = (section: number): void => {
+    setExpandedSection(expandedSection === section ? 0 : section);
   };
 
-  const onSubmitAvis = (e: FormEvent<HTMLFormElement>) => {
+  const handleAvisChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setAvisValues(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handleAvisSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    avisValues["user_id"]= connect,
-    
-    createAvis(avisValues);
-
-    setAvisValues({
-      libelle: "",
-      description: "",
-      user_id: "",
-    })
-    closeopen();
-    
+    createAvis({
+      ...avisValues,
+      user_id: connect,
+    });
+    setAvisValues({ libelle: "", description: "", user_id: "" });
+    setFeedbackDialogOpen(false);
   };
+
+  const logoUrl = unEntreprise.image ? BASE(unEntreprise.image) : "/icon-192x192.png";
 
   return (
-    <Card sx={{ height: "calc(100vh - 2rem)", maxWidth: "20rem", p: 2, boxShadow: 3 }}
-    style={{
-      background: `linear-gradient(rgba(128, 128, 128, 0.7), rgba(128, 128, 128, 0.7)), url(${url}) center center`, 
-      backgroundSize: 'cover', // Peut être 'cover' ou 'contain' selon votre besoin
-      backgroundPosition: 'center',
-      backgroundRepeat: 'no-repeat',
-    }}
+    <Card 
+      sx={{ 
+        height: "calc(100vh - 2rem)", 
+        maxWidth: "20rem", 
+        p: 2, 
+        boxShadow: 3,
+        background: `linear-gradient(rgba(128, 128, 128, 0.7), rgba(128, 128, 128, 0.7)), url(${logoUrl}) center/cover no-repeat`,
+      }}
     >
-      {/* <Link to={"#"} onClick={handleGoHome}> */}
-      
-      {/* <Button onClick={handleGoHome}> */}
-      <CardContent className="border border-indigo-600 bg-sky-500/30 flex items-center gap-2 p-2 rounded border-dashed animate-border-rotate">
+      <CardContent className="border border-indigo-600 bg-sky-500/30 flex items-center gap-2 p-2 rounded border-dashed">
         <img
-          src={urlEntre}
-          alt="brand"
+          src={logoUrl}
+          alt={unEntreprise.nom}
           className="h-8 w-8 object-contain rounded-full"
         />
         <Typography variant="h5" color="text.primary">
@@ -133,180 +200,110 @@ const NavSide: React.FC = () => {
         </Typography>
       </CardContent>
 
-      {/* </Button> */}
-      {/* </Link> */}
-
       <List>
-        <ListItem button onClick={() => handleOpen(5)} selected={open === 5}>
-          <ListItemIcon>
-            <AddBusinessIcon color="primary" fontSize="small" />
-          </ListItemIcon>
-          <Typography             
-            className="text-white bg-gray-500 bg-opacity-100 px-2 py-1 rounded"
-          >
-            Entreprise(s)
-          </Typography>
-          {open === 5 ? <ExpandLess /> : <ExpandMore />}
-        </ListItem>
+        <NavItem
+          icon={<AddBusinessIcon color="primary" />}
+          label="Entreprise(s)"
+          onClick={() => handleSectionExpand(5)}
+          bgColor="text-white bg-gray-500"
+          isExpanded={expandedSection === 5}
+        />
 
-        <Collapse in={open === 5} timeout="auto" unmountOnExit>
+        <Collapse in={expandedSection === 5} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
-
-          {userEntreprises?.map((post: any) => {
-            return <Link 
-            to={`/entreprise`}
-            className="block"
-            onClick={() => addId(post.uuid)}
-            >
-            <ListItem button>
-              <ListItemIcon>
-                {/* <CategoryIcon color="inherit" fontSize="small" /> */}
-              </ListItemIcon>
-              <Typography 
-                className="text-black bg-white bg-opacity-100 px-2 py-1 rounded border animate-border-rotate"
-              >
-                {post.nom}
-              </Typography>
-            </ListItem>
-          </Link>
-          })}
-            
+            {userEntreprises?.map((entreprise) => (
+              <NavItem
+                key={entreprise.uuid}
+                icon={null}
+                label={entreprise.nom}
+                onClick={() => addId(entreprise.uuid!)}
+                to="/entreprise"
+                bgColor="text-black bg-white"
+              />
+            ))}
           </List>
         </Collapse>
 
-        {uuid && <>        
-        <ListItem button onClick={() => handleOpen(1)} selected={open === 1}>
-          <ListItemIcon>
-            <PresentationChartBarIcon color="primary" fontSize="small" />
-          </ListItemIcon>
-          <Typography 
-            
-            className="text-white bg-gray-900 bg-opacity-100 px-2 py-1 rounded"
-          >
-            Accueil
-          </Typography>
-          {open === 1 ? <ExpandLess /> : <ExpandMore />}
-        </ListItem>
-        </>}
-        {(unUser.role === 1 || unUser.role === 2 || unUser.role === 3 ) && <>
-        
-        <Collapse in={open === 1} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
-          {(unUser.role === 1 || unUser.role === 2) && 
-          
-            <Link to="/categorie">
-              <ListItem button>
-                <ListItemIcon>
-                  <CategoryIcon color="inherit" fontSize="small" />
-                </ListItemIcon>
-                <Typography 
-                  className="text-black bg-white bg-opacity-100 px-2 py-1 rounded"
-                >
-                  Article
-                </Typography>
-              </ListItem>
-            </Link>
-          }
-            {(unUser.role === 1 || unUser.role === 2) &&             
-            <Link to="/entre">
-              <ListItem>
-                <ListItemIcon>
-                  <AddCircleIcon color="success" fontSize="small" />
-                </ListItemIcon>
-                <Typography 
-                className="text-white bg-green-500 bg-opacity-100 px-2 py-1 rounded"
-                >
-                  Entrer (Achat)
-                </Typography>
-              </ListItem>
-            </Link>
-            }
+        {uuid && (
+          <>
+            <NavItem
+              icon={<DashboardIcon color="primary" />}
+              label="Accueil"
+              onClick={() => handleSectionExpand(1)}
+              bgColor="text-white bg-gray-900"
+              isExpanded={expandedSection === 1}
+            />
 
-            <Link to="/sortie">
-              <ListItem>
-                <ListItemIcon>
-                  <ExitToAppIcon color="error" fontSize="small" />
-                </ListItemIcon>
-                <Typography 
-                className="text-white bg-red-500 bg-opacity-100 px-2 py-1 rounded"
-                >
-                  Sortie (Vente)
-                </Typography>
-              </ListItem>
-            </Link>
+            {(unUser.role === 1 || unUser.role === 2 || unUser.role === 3) && (
+              <Collapse in={expandedSection === 1} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  {(unUser.role === 1 || unUser.role === 2) && (
+                    <>
+                      <NavItem
+                        icon={<CategoryIcon />}
+                        label="Article"
+                        to="/categorie"
+                        bgColor="text-black bg-white"
+                      />
+                      <NavItem
+                        icon={<AddCircleIcon color="success" />}
+                        label="Entrer (Achat)"
+                        to="/entre"
+                        bgColor="text-white bg-green-500"
+                      />
+                    </>
+                  )}
+                  <NavItem
+                    icon={<ExitToAppIcon color="error" />}
+                    label="Sortie (Vente)"
+                    to="/sortie"
+                    bgColor="text-white bg-red-500"
+                  />
+                  <NavItem
+                    icon={<ExitToAppIcon color="error" />}
+                    label="Remise Facture"
+                    to="/sortie/remise"
+                    bgColor="text-white bg-red-400"
+                  />
+                </List>
+              </Collapse>
+            )}
+          </>
+        )}
 
-            <Link to="/sortie/remise">
-              <ListItem>
-                <ListItemIcon>
-                  <ExitToAppIcon color="error" fontSize="small" />
-                </ListItemIcon>
-                <Typography 
-                className="text-white bg-red-400 bg-opacity-100 px-2 py-1 rounded"
-                >
-                  Remise Facture
-                </Typography>
-              </ListItem>
-            </Link>
-
-          </List>
-        </Collapse>
-        </>       
-        }
         {((unUser.role === 1 || unUser.role === 2) && uuid) && 
         <>        
         {/* Inventaier Par moi */}
-        <ListItem button onClick={() => handleOpen(2)} selected={open === 2}>
-          <ListItemIcon>
-            <HistoryEduIcon color="primary" fontSize="small" />
-          </ListItemIcon>
-          <Typography 
-          className="text-white bg-gray-900 bg-opacity-100 px-2 py-1 rounded"
-          >
-            Inventaire
-          </Typography>
-          {open === 2 ? <ExpandLess /> : <ExpandMore />}
-        </ListItem>
-        <Collapse in={open === 2} timeout="auto" unmountOnExit>
+        <NavItem
+          icon={<HistoryEduIcon color="primary" />}
+          label="Inventaire"
+          onClick={() => handleSectionExpand(2)}
+          bgColor="text-white bg-gray-900"
+          isExpanded={expandedSection === 2}
+        />
+        <Collapse in={expandedSection === 2} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
 
-            <Link to="/entreprise/inventaire/sortie">
-              <ListItem button>
-                <ListItemIcon>
-                  {/* <CategoryIcon /> */}
-                </ListItemIcon>
-                <Typography 
-                  className="text-white bg-gray-500 bg-opacity-100 px-2 py-1 rounded"
-                >
-                  Sortie
-                </Typography>
-              </ListItem>
-            </Link>
+            <NavItem
+              icon={null}
+              label="Sortie"
+              to="/entreprise/inventaire/sortie"
+              bgColor="text-white bg-gray-500"
+            />
 
-            <Link to="/entreprise/inventaire/entrer">
-              <ListItem button>
-                <ListItemIcon>
-                  {/* <CategoryIcon /> */}
-                </ListItemIcon>
-                <Typography 
-                  className="text-white bg-gray-500 bg-opacity-100 px-2 py-1 rounded"
-                >
-                  Entrer
-                </Typography>
-              </ListItem>
-            </Link>
+            <NavItem
+              icon={null}
+              label="Entrer"
+              to="/entreprise/inventaire/entrer"
+              bgColor="text-white bg-gray-500"
+            />
                       
-            <Link to="/entreprise/inventaire/EtaDesProduits">
-              <ListItem>
-                <ListItemIcon>
-                  {/* <AddCircleIcon /> */}
-                </ListItemIcon>
-                <Typography 
-                  className="text-white bg-gray-500 bg-opacity-100 px-2 py-1 rounded"
-                >
-                  Etat des produits
-                </Typography>
-              </ListItem>
-            </Link>
+            <NavItem
+              icon={null}
+              label="Etat des produits"
+              to="/entreprise/inventaire/EtaDesProduits"
+              bgColor="text-white bg-gray-500"
+            />
           
           </List>
         </Collapse>
@@ -316,44 +313,28 @@ const NavSide: React.FC = () => {
         {(unUser.role === 1 && uuid) && 
         <>
         {/*  */}
-        <ListItem button onClick={() => handleOpen(3)} selected={open === 3}>
-          <ListItemIcon>
-            <HistoryEduIcon color="primary" fontSize="small" />
-          </ListItemIcon>
-          <Typography 
-            className="text-white bg-gray-900 bg-opacity-100 px-2 py-1 rounded"
-          >
-            Historique
-          </Typography>
-          {open === 3 ? <ExpandLess /> : <ExpandMore />}
-        </ListItem>
-        <Collapse in={open === 3} timeout="auto" unmountOnExit>
+        <NavItem
+          icon={<HistoryEduIcon color="primary" />}
+          label="Historique"
+          onClick={() => handleSectionExpand(3)}
+          bgColor="text-white bg-gray-900"
+          isExpanded={expandedSection === 3}
+        />
+        <Collapse in={expandedSection === 3} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
-            <Link to="/entreprise/historique">
-              <ListItem button>
-                <ListItemIcon>
-                  {/* <CategoryIcon /> */}
-                </ListItemIcon>
-                <Typography
-                className="text-white bg-gray-500 bg-opacity-100 px-2 py-1 rounded" 
-                >
-                  Historique d'entrer et sortie
-                </Typography>
-              </ListItem>
-            </Link>
+            <NavItem
+              icon={null}
+              label="Historique d'entrer et sortie"
+              to="/entreprise/historique"
+              bgColor="text-white bg-gray-500"
+            />
                       
-            <Link to="/entreprise/historique/sppression">
-              <ListItem>
-                <ListItemIcon>
-                  {/* <AddCircleIcon /> */}
-                </ListItemIcon>
-                <Typography 
-                className="text-white bg-gray-500 bg-opacity-100 px-2 py-1 rounded"
-                >
-                  Historique des suppressions
-                </Typography>
-              </ListItem>
-            </Link>
+            <NavItem
+              icon={null}
+              label="Historique des suppressions"
+              to="/entreprise/historique/sppression"
+              bgColor="text-white bg-gray-500"
+            />
           
           </List>
         </Collapse>
@@ -362,149 +343,86 @@ const NavSide: React.FC = () => {
 
         {(unUser.role === 1 && unUser.is_superuser ) && <>
         
-        <Link to="/user/admin">
-          <ListItem button>
-            <ListItemIcon>
-              <UserCircleIcon color="primary" fontSize="small" />
-            </ListItemIcon>
-            <Typography 
-            className="text-white bg-blue-900 bg-opacity-100 px-2 py-1 rounded"
-            >
-              Les Admin
-            </Typography>
-          </ListItem>
-        </Link>
+        <NavItem
+          icon={<UserCircleIcon color="primary" />}
+          label="Les Admin"
+          to="/user/admin"
+          bgColor="text-white bg-blue-900"
+        />
         
-        <Link to="/user/avis">        
-          <ListItem button>
-            <ListItemIcon>
-              <UserCircleIcon color="primary" fontSize="small" />
-            </ListItemIcon>
-            <Typography 
-            className="text-white bg-blue-900 bg-opacity-100 px-2 py-1 rounded"
-            >
-              Les Avis
-            </Typography>
-          </ListItem>
-        </Link>
+        <NavItem
+          icon={<UserCircleIcon color="primary" />}
+          label="Les Avis"
+          to="/user/avis"
+          bgColor="text-white bg-blue-900"
+        />
         </>
         }
 
         {(unUser.role === 1 && unUser.is_cabinet ) && <>        
-        <Link to="/user/mesInscrit">
-          <ListItem button>
-            <ListItemIcon>
-              <UserCircleIcon color="primary" fontSize="small" />
-            </ListItemIcon>
-            <Typography 
-            className="text-white bg-blue-900 bg-opacity-100 px-2 py-1 rounded"
-            >
-              Mes inscrits
-            </Typography>
-          </ListItem>
-        </Link>
+        <NavItem
+          icon={<UserCircleIcon color="primary" />}
+          label="Mes inscrits"
+          to="/user/mesInscrit"
+          bgColor="text-white bg-blue-900"
+        />
         </>
         }
         
-        <Link to="https://documentation.gest-stocks.com">
-          <ListItem >
-            <ListItemIcon>
-              <DescriptionIcon color="primary" fontSize="small" />
-            </ListItemIcon>
-            <Typography 
-            className="text-white bg-sky-900 bg-opacity-100 px-2 py-1 rounded"
-            >
-              Documentation
-            </Typography>
-          </ListItem>
-        </Link>
+        <NavItem
+          icon={<DescriptionIcon color="primary" />}
+          label="Documentation"
+          to="https://documentation.gest-stocks.com"
+          bgColor="text-white bg-sky-900"
+        />
 
-        <ListItem button onClick={functionopen}>
-          <ListItemIcon>
-            <HelpOutlineIcon color="primary" fontSize="small" />
-          </ListItemIcon>
-          <Typography 
-          className="text-white bg-sky-900 bg-opacity-100 px-2 py-1 rounded"
-          >
-            Que pensez-vous ?
-          </Typography>
-        </ListItem>
+        <NavItem
+          icon={<HelpOutlineIcon color="primary" />}
+          label="Que pensez-vous ?"
+          onClick={() => setFeedbackDialogOpen(true)}
+          bgColor="text-white bg-sky-900"
+        />
 
         {(unUser.role === 1 || unUser.role === 2) &&        
-          <ListItem button onClick={functionopenO}>
-            <ListItemIcon>
-              <HelpOutlineIcon color="primary" fontSize="small" />
-            </ListItemIcon>
-            <Typography 
-            className="text-white bg-sky-900 bg-opacity-100 px-2 py-1 rounded"
-            >
-              Abonnement ?
-            </Typography>
-          </ListItem>
+          <NavItem
+            icon={<HelpOutlineIcon color="primary" />}
+            label="Abonnement ?"
+            onClick={() => setHelpDialogOpen(true)}
+            bgColor="text-white bg-sky-900"
+          />
         }
 
-
-        <ListItem button onClick={logout}>
-          <ListItemIcon>
-            <PowerIcon color="error" fontSize="small" />
-          </ListItemIcon>
-          <Typography 
-          className="text-white bg-red-600 bg-opacity-100 px-2 py-1 rounded"
-          >
-            Déconnexion
-          </Typography>
-        </ListItem>
+        <NavItem
+          icon={<PowerIcon color="error" />}
+          label="Déconnexion"
+          onClick={logout}
+          bgColor="text-white bg-red-600"
+        />
         
       </List>
 
-      <Dialog open={openA} onClose={closeopen} fullWidth maxWidth="xs">
-          <DialogTitle>
-            Que pensez-vous de Gest-Stocks ?
-            <IconButton onClick={closeopen} style={{float: "right"}}>
-              <CloseIcon color="primary"></CloseIcon>
-            </IconButton>            
-          </DialogTitle>
-                 
-               
-          <DialogContent>
-            <form onSubmit={onSubmitAvis}>
-              <Stack spacing={2}  margin={2}>
-                
-                <MyTextField 
-                label="Titre"
-                name="libelle"
-                onChange={onChangeAvis}
-                value={avisValues.libelle}
-                fullWidth
-                />
-                <MyTextField 
-                variant="outlined"
-                label="Description"
-                name="description"
-                multiline
-                rows={4} // Nombre de lignes visibles
-                onChange={onChangeAvis}
-                value={avisValues.description}
-                fullWidth
-                />
-                
-                <Button type="submit" variant="contained" color="primary" >
-                  Envoyer
-                </Button>
-              </Stack>
-            </form>
-          </DialogContent>
-        
-      </Dialog>
+      <FeedbackDialog
+        open={feedbackDialogOpen}
+        onClose={() => setFeedbackDialogOpen(false)}
+        onSubmit={handleAvisSubmit}
+        values={avisValues}
+        onChange={handleAvisChange}
+      />
 
-      <Dialog open={openO} onClose={closeopenO} fullWidth maxWidth="sm">
+      <Dialog
+        open={helpDialogOpen}
+        onClose={() => setHelpDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
         <DialogTitle>
-          Abonnement de votre entreprise !
-          <IconButton onClick={closeopenO} style={{float: "right"}}>
-            <CloseIcon color="primary"></CloseIcon>
-          </IconButton>            
-        </DialogTitle>                
-              
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Typography variant="h6">Aide</Typography>
+            <IconButton onClick={() => setHelpDialogOpen(false)} size="small">
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        </DialogTitle>
         <DialogContent>
           <Example />
         </DialogContent>

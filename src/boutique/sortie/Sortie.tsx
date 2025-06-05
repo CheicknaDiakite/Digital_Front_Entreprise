@@ -1,4 +1,4 @@
-import { Box, Button, Grid, Modal, Pagination, Paper, Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material";
+import { Box, Button, Modal, Pagination, Paper, Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material";
 import { ChangeEvent, FormEvent, Fragment, SyntheticEvent, useEffect, useState } from "react";
 import { RecupType, SortieType } from "../../typescript/DataType";
 import { connect } from "../../_services/account.service";
@@ -10,7 +10,6 @@ import TableSortie from "./TableSortie";
 import QuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
 import { useFetchEntreprise, useFetchUser } from "../../usePerso/fonction.user";
 import Nav from "../../_components/Button/Nav";
-import MyTextField from "../../_components/Input/MyTextField";
 import { useStoreUuid } from "../../usePerso/store";
 import { formatNumberWithSpaces } from "../../usePerso/fonctionPerso";
 import { SingleValue } from 'react-select';
@@ -33,13 +32,12 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 400,
+  width: '90%',
+  maxWidth: '600px',
   bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  pt: 2,
-  px: 4,
-  pb: 3,
+  borderRadius: '8px',
+  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+  p: 4,
 };
 
 function ChildModal() {
@@ -432,322 +430,132 @@ export default function Sortie() {
 
       if (sortiesEntreprise) {        
         return (
-          <>
-          <main
-            className="m-5 p-5 gap-10 xl:items-start"
-            style={{
-              maxWidth: "1920px",
-              margin: "auto",
-            }}
-          >
-            <div className='py-2'>
+          <div className="min-h-screen bg-gray-50">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <div className="mb-8">
               <Nav />
             </div>
 
-            <section className="invoice__preview bg-white p-5 rounded-2xl border-4 border-blue-300">
-              <div className="bg-white p-5 rounded shadow">
-                <div className="flex flex-col justify-center">
-                  
-                  <article className="md:grid grid-cols-2 gap-10">
-                  <div className="flex flex-col">
-                        
-                        <Typography variant="h5">
-                          Numero de la facture
+              <Paper elevation={0} className="rounded-lg overflow-hidden">
+                <div className="p-6 space-y-6">
+                  {/* Header Section */}
+                  <div className="flex justify-between items-center border-b pb-6">
+                    <Typography variant="h4" className="font-semibold text-gray-900">
+                      Gestion des Sorties
                         </Typography>
-                        <MyTextField 
-                        type="text"
-                        name="numeroFac"
-                        placeholder="Numero de la facture"
-                        autoComplete="off"
-                        // value={bankName}
-                        onChange={onChan}
-                        />
-                      </div>
-
-                    <div className="flex flex-col">
-                      <Typography variant="h5" className='mb-2'>
-                        Nom du client
-                      </Typography>
-                      <MyTextField 
-                        type="text"
-                        name="clientName"
-                        id="clientName"
-                        placeholder="Nom du client"
-                        autoComplete="off"
-                        onChange={onChan}
-                      />
-                    </div>
-
-                  </article>
-
-                  <article className="md:grid grid-cols-3 gap-10 mt-5">
-                    <div className="flex flex-col">
-                      <Typography variant="h5" className='mb-2'>
-                        Numero du client
-                      </Typography>
-                      <MyTextField 
-                        type="number"
-                        name="invoiceNumber"
-                        id="invoiceNumber"
-                        placeholder="Numero du client"
-                        autoComplete="off"
-                        onChange={onChan}
-                      />
-                    </div>
-
-                    <div className="flex flex-col">
-                      <Typography variant="h5" className='mb-2'>
-                        Date de la facture
-                      </Typography>
-                      <MyTextField 
-                        type="date"
-                        name="invoiceDate"
-                        id="invoiceDate"
-                        placeholder="Date de la facture"
-                        autoComplete="off"
-                        onChange={onChan}
-                      />
-                    </div>
-                  </article>
-
-                  {/* This is our table form */}
-                  <article>
-                    <div className="mb-5">
+                    <div className="flex space-x-3">
                       <Button 
-                      variant="outlined" 
+                        variant="contained"
+                        color="primary"
                       onClick={() => {
                         handleSaveSorties();
                         handleOnClick();
                       }}
-                      className="bg-green-500 text-white font-bold mt-5 py-2 px-8 rounded hover:bg-green-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-green-400">
-                        Facture
-                      </Button>
-
-                      <Button variant="outlined" onClick={handleOpenClick} className="bg-red-500 mx-3 text-white font-bold mt-5 py-2 px-8 rounded hover:bg-red-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-red-400">
-                        Off.
-                      </Button>
-                      
-                      <Button variant="contained" color="primary" onClick={toggleModal} className="bg-indigo-500 mx-3 text-white font-bold mt-5 py-2 px-8 rounded hover:bg-indigo-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-indigo-400">
-                        Remise
-                      </Button>
-
-                      <Button variant="contained" color="primary" onClick={toggleModalPay} className="bg-orange-500 mx-3 text-white font-bold mt-5 py-2 px-8 rounded hover:bg-orange-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-orange-400">
-                        Payer
-                      </Button> 
-
-                      <Button variant="contained" color="primary" onClick={handleOpen} className="bg-sky-500 mx-3 text-white font-bold mt-5 py-2 px-8 rounded hover:bg-sky-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-sky-400">
-                        R_Facture
-                      </Button>
-
-                      <Modal
-                        open={openF}
-                        onClose={handleClose}
-                        aria-labelledby="parent-modal-title"
-                        aria-describedby="parent-modal-description"
+                        className="bg-blue-600 hover:bg-blue-700"
                       >
-                        <Box sx={{ ...style, width: 400 }}>
-                          <h2 id="parent-modal-title">Il y a eu une remise sur ce facture ?</h2>
-                          <p id="parent-modal-description">
-                            Verifier avant de Confirmer
-                          </p>
-                          <TableContainer
-                            component={Paper}
-                            sx={{
-                              width: '100%',
-                              maxWidth: '100%',
-                              margin: '0 auto',
-                              padding: '1rem',
-                              boxSizing: 'border-box',
-                            }}
-                          >
-                            <Table
-                              sx={{
-                                minWidth: 700,
-                                '@media (max-width: 768px)': {
-                                  minWidth: '100%', // S'ajuste pour les petits écrans
-                                  fontSize: '0.8rem',
-                                },
-                              }}
-                              aria-label="spanning table"
-                            >
-                              <TableHead>
-                                <TableRow>
-                                  {/* <TableCell>Date</TableCell> */}
-                                  <TableCell>Designation</TableCell>
-                                  <TableCell align="right">Quantite</TableCell>
-                                  <TableCell align="right">Prix unitaire</TableCell>
-                                  <TableCell align="right">Somme</TableCell>
-                                </TableRow>
-                              </TableHead>
-                              <TableBody>
-                                {selectSorties.map((post, index) => (
-                                  <TableRow key={index}>
-                                    {/* <TableCell>
-                                      {format(new Date(post.date), 'dd/MM/yyyy')}
-                                    </TableCell> */}
-                                    <TableCell>
-                                      {post.ref} {" - "}
-                                      {post.categorie_libelle}
-                                    </TableCell>
-                                    <TableCell align="right">{post.qte}</TableCell>
-                                    <TableCell align="right">{formatNumberWithSpaces(post.pu)}</TableCell>
-                                    <TableCell align="right">{formatNumberWithSpaces(post.prix_total)}</TableCell>
-                                  </TableRow>
-                                ))}
-                                <TableRow>
-                                  <TableCell rowSpan={3} />
-                                  <TableCell colSpan={2} align="right" sx={{ fontWeight: 'bold' }}>
-                                    Prix
-                                  </TableCell>
-                                  <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-                                    {formatNumberWithSpaces(total)}
-                                  </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell colSpan={2} align="right" sx={{ fontWeight: 'bold' }}>
-                                    Remise
-                                  </TableCell>
-                                  <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-                                    {formatNumberWithSpaces(total - discountedTotal)}
-                                  </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell colSpan={2} align="right" sx={{ fontWeight: 'bold' }}>
-                                    Total
-                                  </TableCell>
-                                  <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-                                    {formatNumberWithSpaces(discountedTotal)}
-                                  </TableCell>
-                                </TableRow>
-                              </TableBody>
-                            </Table>
-                          </TableContainer>
-                          <ChildModal />
-                        </Box>
-                      </Modal>                  
+                        Créer Facture
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        onClick={handleOpenClick}
+                        className="border-red-500 text-red-500 hover:bg-red-50"
+                      >
+                        Annuler
+                      </Button>
+                    </div>
+                  </div>
 
-                      {/* Modal */}
-                      <Modal open={isModalOpen} onClose={toggleModal}>
-                        <Box
-                          sx={{
-                            position: "absolute",
-                            top: "50%",
-                            left: "50%",
-                            transform: "translate(-50%, -50%)",
-                            bgcolor: "background.paper",
-                            boxShadow: 24,
-                            p: 4,
-                            borderRadius: 2,
-                            minWidth: 300,
-                          }}
-                        >
-                          <h2>Ajouter une remise</h2>
+                  {/* Main Form Section */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <TextField
-                            label="Montant fixe (ex: 1500 ou 85.45)"
+                      fullWidth
+                      label="Numéro de Facture"
+                      name="numeroFac"
                             variant="outlined"
-                            fullWidth
-                            margin="normal"
-                            value={fixedDiscount}
-                            onChange={(e) => setFixedDiscount(normalizeInput(e.target.value))}
+                      onChange={onChan}
+                      className="bg-white"
                           />
                           <TextField
-                            label="Pourcentage (ex: 2% ou 5%)"
+                      fullWidth
+                      label="Nom du Client"
+                      name="clientName"
                             variant="outlined"
-                            fullWidth
-                            margin="normal"
-                            value={percentageDiscount}
-                            onChange={(e) => setPercentageDiscount(normalizeInput(e.target.value))}
-                          />
-                          <div className="flex justify-end mt-4">
-                            <Button variant="outlined" onClick={toggleModal} sx={{ mr: 2 }}>
-                              Annuler
-                            </Button>
-                            <Button variant="contained" color="primary" onClick={handleApplyDiscount}>
-                              Appliquer
-                            </Button>
+                      onChange={onChan}
+                      className="bg-white"
+                    />
                           </div>
-                        </Box>
-                      </Modal>
 
-                      {/* Modal Payer */}
-                      <Modal open={isModalOpenPay} onClose={toggleModalPay}>
-                        <Box
-                          sx={{
-                            position: "absolute",
-                            top: "50%",
-                            left: "50%",
-                            transform: "translate(-50%, -50%)",
-                            bgcolor: "background.paper",
-                            boxShadow: 24,
-                            p: 4,
-                            borderRadius: 2,
-                            minWidth: 300,
-                          }}
-                        >
-                          <h2>Ajouter le montant payer</h2>
-                          <TextField
-                            label="Montant fixe (ex: 1500 ou 85.45)"
-                            variant="outlined"
-                            fullWidth
-                            margin="normal"
-                            value={payDiscount}
-                            onChange={(e) => setPayDiscount(normalizeInput(e.target.value))}
-                          />
-                          
-                          <div className="flex justify-end mt-4">
-                            <Button variant="outlined" onClick={toggleModalPay} sx={{ mr: 2 }}>
-                              Annuler
+                  {/* Actions Section */}
+                  <div className="flex flex-wrap gap-4 mt-6">
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={toggleModal}
+                      startIcon={<LocalAtmIcon />}
+                      className="bg-indigo-600 hover:bg-indigo-700"
+                    >
+                      Appliquer Remise
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={toggleModalPay}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      Paiement
                             </Button>
-                            <Button variant="contained" color="primary" onClick={handleApplyPayer}>
-                              Appliquer
+                    <Button
+                      variant="contained"
+                      onClick={handleOpen}
+                      className="bg-purple-600 hover:bg-purple-700"
+                    >
+                      Remise Facture
                             </Button>
-                          </div>
-                        </Box>
-                      </Modal>
-
                     </div>                
                     
-                    <div className="flex justify-center mt-4">
-
-                    {(unUser.role === 1 || unUser.role === 2) && 
-                      <>                
-                        <Grid item className='mx-2'>
+                  {/* Date Filter Section */}
+                  {(unUser.role === 1 || unUser.role === 2) && (
+                    <div className="flex flex-wrap gap-4 items-center bg-white p-4 rounded-lg shadow-sm">
                           <TextField
-                            className='bg-sky-300'
                             label="Date de début"
                             type="date"
                             value={selectedStartDate}
                             onChange={handleStartDateChange}
                             InputLabelProps={{ shrink: true }}
+                        className="bg-white"
                           />
-                        </Grid>
-
-                        <Grid item>
                           <TextField
-                            className='bg-sky-300'
                             label="Date de fin"
                             type="date"
                             value={selectedEndDate}
                             onChange={handleEndDateChange}
                             InputLabelProps={{ shrink: true }}
-                          />
-                        </Grid>
-                      </>
-                    }
-
-                    {unUser.role === 1 &&                 
-                      <Grid item>
-                        <Typography variant="h5" className='mx-2'>
-                          Chiffre d'affaire = {formatNumberWithSpaces(totalPrice)} <LocalAtmIcon fontSize='medium' color="primary" />
-                        </Typography>
-                        <Typography variant="h5" className='mx-2'>
-                          Qte = {formatNumberWithSpaces(totalQte)} <QuantityLimitsIcon fontSize='medium' color="primary" />
-                        </Typography>
-                      </Grid>
-                    }               
-                      
+                        className="bg-white"
+                      />
                     </div>
-                    
+                  )}
+
+                  {/* Statistics Section */}
+                  {unUser.role === 1 && (
+                    <Paper elevation={1} className="p-4 bg-blue-50">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="flex items-center space-x-2">
+                          <LocalAtmIcon color="primary" />
+                          <Typography variant="h6">
+                            CA: {formatNumberWithSpaces(totalPrice)}
+                          </Typography>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <QuantityLimitsIcon color="primary" />
+                          <Typography variant="h6">
+                            Qté: {formatNumberWithSpaces(totalQte)}
+                          </Typography>
+                        </div>
+                      </div>
+                    </Paper>
+                  )}
+
+                  {/* Table Section */}
+                  <div className="mt-6">
                     <TableSortie 
                     onSubmit={onSubmit}
                     onChange={onChange}
@@ -767,42 +575,42 @@ export default function Sortie() {
                     open={open}
                     handleScanResult={handleScanResult}
                     closeopen={closeopen}
-                    
                     />
+                  </div>
 
-                    {/* Composant de pagination */}
-                    <div className="flex justify-center mt-4">
+                  {/* Pagination */}
+                  <div className="flex justify-center mt-6">
                       <Pagination
                         count={totalPages}
                         page={currentPage}
                         onChange={handlePageChange}
                         color="primary"
+                      size="large"
                       />
                     </div>
-                  </article>
 
-                  <Grid item>
-                    <Typography variant="h5">Ajouter une note</Typography>
-                  </Grid>
-                  <textarea
+                  {/* Notes Section */}
+                  <div className="mt-6">
+                    <Typography variant="h6" className="mb-2">
+                      Notes additionnelles
+                    </Typography>
+                    <TextField
+                      fullWidth
+                      multiline
+                      rows={4}
                     name="notes"
-                    className="mt-2"
-                    cols={30}
-                    rows={10}
-                    placeholder="Ajouter une note pour plus de details pour ce facture"
-                    maxLength={500}
-                    // value={notes}
+                      placeholder="Ajouter des notes ou commentaires pour cette facture..."
+                      variant="outlined"
                     onChange={onChan}
-                  ></textarea>
+                      className="bg-white"
+                    />
+                  </div>
                 </div>
-              </div>
-              
-            </section>
+              </Paper>
 
-          </main>      
-          <div className='py-8'>
-            {/* <FactureCard /> */}
-            {(showInvoice && entreprise) && (
+              {/* Invoice Preview Section */}
+              {showInvoice && entreprise && (
+                <div className="mt-8">
               <Fact               
               clientName={clientInfo.clientName || texte.clientName}
               clientAddress={clientInfo.clientAddress || texte.clientAddress}
@@ -816,12 +624,233 @@ export default function Sortie() {
               discountedTotal={discountedTotal}
               payerTotal={payerTotal}
               />
-            )
-            
-            }
+                </div>
+              )}
+
+              {/* Modals */}
+              <Modal open={isModalOpen} onClose={toggleModal}>
+                <Box sx={style}>
+                  <Typography variant="h6" className="mb-4">
+                    Appliquer une remise
+                  </Typography>
+                  <div className="space-y-4">
+                    <TextField
+                      fullWidth
+                      label="Montant fixe"
+                      variant="outlined"
+                      value={fixedDiscount}
+                      onChange={(e) => setFixedDiscount(normalizeInput(e.target.value))}
+                      helperText="Ex: 1500 ou 85.45"
+                    />
+                    <TextField
+                      fullWidth
+                      label="Pourcentage"
+                      variant="outlined"
+                      value={percentageDiscount}
+                      onChange={(e) => setPercentageDiscount(normalizeInput(e.target.value))}
+                      helperText="Ex: 2% ou 5%"
+                    />
+                    <div className="flex justify-end space-x-3 pt-4">
+                      <Button variant="outlined" onClick={toggleModal}>
+                        Annuler
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleApplyDiscount}
+                      >
+                        Appliquer
+                      </Button>
+                    </div>
+                  </div>
+                </Box>
+              </Modal>
+
+              <Modal open={isModalOpenPay} onClose={toggleModalPay}>
+                <Box sx={style}>
+                  <Typography variant="h6" className="mb-4">
+                    Enregistrer le paiement
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    label="Montant payé"
+                    variant="outlined"
+                    value={payDiscount}
+                    onChange={(e) => setPayDiscount(normalizeInput(e.target.value))}
+                    helperText="Ex: 1500 ou 85.45"
+                    className="mb-4"
+                  />
+                  <div className="flex justify-end space-x-3">
+                    <Button variant="outlined" onClick={toggleModalPay}>
+                      Annuler
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={handleApplyPayer}
+                    >
+                      Confirmer
+                    </Button>
+                  </div>
+                </Box>
+              </Modal>
+
+              {/* Confirmation Modal */}
+              <Modal
+                open={openF}
+                onClose={handleClose}
+                aria-labelledby="confirmation-modal-title"
+                aria-describedby="confirmation-modal-description"
+              >
+                <Box sx={{
+                  ...style,
+                  width: '90%',
+                  maxWidth: '800px',
+                  maxHeight: '90vh',
+                  overflow: 'auto',
+                }}>
+                  <div className="space-y-6">
+                    {/* Header */}
+                    <div className="border-b pb-4">
+                      <Typography
+                        id="confirmation-modal-title"
+                        variant="h5"
+                        component="h2"
+                        className="font-semibold text-gray-900"
+                      >
+                        Confirmation de Remise
+                      </Typography>
+                      <Typography
+                        id="confirmation-modal-description"
+                        variant="subtitle1"
+                        className="text-gray-600 mt-1"
+                      >
+                        Veuillez vérifier les détails de la remise avant de confirmer
+                      </Typography>
+                    </div>
+
+                    {/* Table Container */}
+                    <TableContainer
+                      component={Paper}
+                      elevation={0}
+                      sx={{
+                        backgroundColor: 'transparent',
+                        '& .MuiTable-root': {
+                          borderCollapse: 'separate',
+                          borderSpacing: '0 4px',
+                        },
+                      }}
+                    >
+                      <Table
+                        sx={{
+                          minWidth: '100%',
+                          '& .MuiTableCell-root': {
+                            borderBottom: 'none',
+                            padding: '16px',
+                          },
+                          '& .MuiTableRow-root': {
+                            backgroundColor: '#fff',
+                            '&:hover': {
+                              backgroundColor: '#f8fafc',
+                            },
+                          },
+                          '& .MuiTableHead-root .MuiTableRow-root': {
+                            backgroundColor: '#f1f5f9',
+                          },
+                        }}
+                      >
+                        <TableHead>
+                          <TableRow>
+                            <TableCell className="font-semibold">Désignation</TableCell>
+                            <TableCell align="right" className="font-semibold">Quantité</TableCell>
+                            <TableCell align="right" className="font-semibold">Prix unitaire</TableCell>
+                            <TableCell align="right" className="font-semibold">Total</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {selectSorties.map((post, index) => (
+                            <TableRow key={index}>
+                              <TableCell className="text-gray-900">
+                                <div className="flex flex-col">
+                                  <span className="font-medium">{post.ref}</span>
+                                  <span className="text-gray-500 text-sm">{post.categorie_libelle}</span>
+                                </div>
+                              </TableCell>
+                              <TableCell align="right">{post.qte}</TableCell>
+                              <TableCell align="right">{formatNumberWithSpaces(post.pu)} F</TableCell>
+                              <TableCell align="right" className="font-medium">
+                                {formatNumberWithSpaces(post.prix_total)} F
+                              </TableCell>
+                            </TableRow>
+                          ))}
+
+                          {/* Summary Rows */}
+                          <TableRow sx={{ backgroundColor: '#f8fafc !important' }}>
+                            <TableCell rowSpan={3} />
+                            <TableCell
+                              colSpan={2}
+                              align="right"
+                              sx={{ color: '#64748b', fontWeight: 600 }}
+                            >
+                              Prix Total
+                            </TableCell>
+                            <TableCell
+                              align="right"
+                              sx={{ color: '#0f172a', fontWeight: 600 }}
+                            >
+                              {formatNumberWithSpaces(total)} F
+                            </TableCell>
+                          </TableRow>
+                          <TableRow sx={{ backgroundColor: '#f8fafc !important' }}>
+                            <TableCell
+                              colSpan={2}
+                              align="right"
+                              sx={{ color: '#64748b', fontWeight: 600 }}
+                            >
+                              Remise Appliquée
+                            </TableCell>
+                            <TableCell
+                              align="right"
+                              sx={{ color: '#dc2626', fontWeight: 600 }}
+                            >
+                              - {formatNumberWithSpaces(total - discountedTotal)} F
+                            </TableCell>
+                          </TableRow>
+                          <TableRow sx={{ backgroundColor: '#f8fafc !important' }}>
+                            <TableCell
+                              colSpan={2}
+                              align="right"
+                              sx={{ color: '#64748b', fontWeight: 600 }}
+                            >
+                              Montant Final
+                            </TableCell>
+                            <TableCell
+                              align="right"
+                              sx={{ color: '#059669', fontWeight: 600, fontSize: '1.1em' }}
+                            >
+                              {formatNumberWithSpaces(discountedTotal)} F
+                            </TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+
+                    {/* Actions */}
+                    <div className="flex justify-end space-x-3 pt-4 border-t">
+                      <Button
+                        variant="outlined"
+                        onClick={handleClose}
+                        className="text-gray-600 border-gray-300 hover:bg-gray-50"
+                      >
+                        Annuler
+                      </Button>
+                      <ChildModal />
+                    </div>
+                  </div>
+                </Box>
+              </Modal> 
+            </div>
           </div>
-      
-          </>
         );
       }
 }

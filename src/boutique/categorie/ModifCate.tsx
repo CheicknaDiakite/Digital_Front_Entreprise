@@ -1,24 +1,37 @@
 import { useParams } from 'react-router-dom'
-import { Button, Card, CardContent, DialogContent, DialogTitle, Stack, TextField, Typography } from '@mui/material';
+import { 
+  Button,
+  IconButton, 
+  Paper,
+  Typography,
+  Tooltip,
+  Fade,
+  Box
+} from '@mui/material';
 import { ChangeEvent, FormEvent, useState } from 'react';
 import { connect } from '../../_services/account.service';
 import { RouteParams } from '../../typescript/DataType';
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ImageIcon from '@mui/icons-material/Image';
 import { useDeleteCategorie, useFetchCategorie, useUpdateCategorie } from '../../usePerso/fonction.categorie';
 import Nav from '../../_components/Button/Nav';
 import MyTextField from '../../_components/Input/MyTextField';
+import { BASE } from '../../_services/caller.service';
+import img from '../../../public/icon-192x192.png';
+
 export default function ModifCate() {
-  const {slug} = useParams<RouteParams>()
+  const { slug } = useParams<RouteParams>()
   
   // const {unCategorie, setCategorie, updateCategorie, deleteCategorie} = useCategorie(slug!)
-  const {unCategorie, setUnCategorie} = useFetchCategorie(slug!)
-  const {updateCategorie} = useUpdateCategorie()
-  const {deleteCategorie} = useDeleteCategorie()
+  const { unCategorie, setUnCategorie } = useFetchCategorie(slug!)
+  unCategorie["user_id"] = connect
+  const { updateCategorie } = useUpdateCategorie()
+  const { deleteCategorie } = useDeleteCategorie()
 
   const handleDelete = () => {
-    const confirmation = window.confirm("Vous êtes sûr de vouloir supprimer ?");
+    const confirmation = window.confirm("Êtes-vous sûr de vouloir supprimer cet article ?");
     if (confirmation) {
-      // Appel de la fonction de suppression
       deleteCategorie(unCategorie);
     }
   };
@@ -32,68 +45,112 @@ export default function ModifCate() {
   };
 
   const [image, setImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>('');
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setImage(e.target.files[0]);
+      const file = e.target.files[0];
+      setImage(file);
+      setPreviewUrl(URL.createObjectURL(file));
     }
   };
   
-  unCategorie["user_id"] = connect
-  
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    unCategorie["user_id"] = connect
-    unCategorie["image"] = image
-
-    updateCategorie(unCategorie)
+    unCategorie.user_id = connect;
+    unCategorie.image = image || unCategorie.image;
+    updateCategorie(unCategorie);
   };
 
-  return (
-    <>
-      <Nav>
-        <Button size="small" className='rounded-full shadow-md shadow-red-800/50' onClick={handleDelete}>
-          <DeleteIcon fontSize='small' />
-        </Button>
-      </Nav>
-      
-      <Card sx={{ minWidth: 275 }}>
-        <CardContent >
-          <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-            Modification de la categorie
-          </Typography>
-          <div className='flex justify-center items-center flex-col'>
-            <DialogTitle>Categorie</DialogTitle>
-            <DialogContent>
-              {/* <DialogContentText>Categorie</DialogContentText> */}
-              <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmit}>
-              <Stack spacing={2} margin={2}>
-                <TextField 
-                  variant="outlined" 
-                  name='libelle' 
-                  value={unCategorie.libelle} 
-                  onChange={onChange}
-                ></TextField>
+  const url = unCategorie.image ? BASE(unCategorie.image) : img;
 
-                <MyTextField 
-                  label={"Image"}
-                  name={"image"}
-                  type='file'
-                  onChange={handleImageChange}
-                  InputLabelProps={{
-                    shrink: true, // Force le label à rester au-dessus du champ
-                  }}
-                />
-                <Button type="submit" color="success" variant="outlined">Modifier</Button>
-              </Stack>
-              </form>
-            </DialogContent>
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Nav />
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-6 flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <Tooltip title="Retour" arrow TransitionComponent={Fade}>
+              <IconButton 
+                onClick={() => window.history.back()}
+                className="bg-white hover:bg-gray-50 shadow-sm"
+              >
+                <ArrowBackIcon />
+              </IconButton>
+            </Tooltip>
+            <Typography variant="h4" className="font-semibold text-gray-900">
+              Modifier l'article
+            </Typography>
           </div>
-        </CardContent>
-        
-      </Card>
-      
-    </>
+
+          <Tooltip title="Supprimer" arrow TransitionComponent={Fade}>
+            <IconButton 
+              onClick={handleDelete}
+              className="bg-white hover:bg-red-50 text-red-600 shadow-sm"
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
+        </div>
+
+        <Paper elevation={0} className="border rounded-lg overflow-hidden">
+          <form onSubmit={onSubmit}>
+            <div className="p-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Typography variant="subtitle2" className="mb-2 text-gray-600">
+                    Informations de l'article
+                  </Typography>
+                  <MyTextField
+                    fullWidth
+                    label="Nom de l'article"
+                    name="libelle"
+                    value={unCategorie.libelle}
+                    onChange={onChange}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Typography variant="subtitle2" className="mb-2 text-gray-600">
+                    Image de l'article
+                  </Typography>
+                  <div className="space-y-4">
+                    <Box className="w-full aspect-video rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50">
+                      {(previewUrl || url) && (
+                        <img 
+                          src={previewUrl || url} 
+                          alt={unCategorie.libelle} 
+                          className="max-h-full object-contain"
+                        />
+                      )}
+                    </Box>
+                    <MyTextField
+                      fullWidth
+                      type="file"
+                      onChange={handleImageChange}
+                      InputLabelProps={{ shrink: true }}
+                      InputProps={{
+                        startAdornment: <ImageIcon className="mr-2 text-gray-400" />,
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="px-6 py-4 bg-gray-50 border-t flex justify-end">
+              <Button
+                type="submit"
+                variant="contained"
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                Enregistrer les modifications
+              </Button>
+            </div>
+          </form>
+        </Paper>
+      </div>
+    </div>
   )
 }

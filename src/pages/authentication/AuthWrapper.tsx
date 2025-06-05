@@ -1,26 +1,77 @@
-import PropTypes from 'prop-types';
-
-// material-ui
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
+import { FC } from 'react';
+import { Grid, Box, Typography } from '@mui/material';
 import { TypeAnimation } from 'react-type-animation';
-
-// project import
 import AuthFooter from '../../components/cards/AuthFooter';
 import Logo from '../../components/logo';
 import AuthCard from './AuthCard';
-
-// assets
 import AuthBackground from '../../assets/images/auth/AuthBackground';
 import { ChildrenProps } from '../../typescript/Account';
 
-// ==============================|| AUTHENTICATION - WRAPPER ||============================== //
+const CONTACT_MESSAGES = [
+  "En cas de besoin, contacter : +223 91 15 48 34",
+  "En cas de souci, contacter : Pour plus d'information",
+  "En cas de problème, contacter : +223 91 15 48 34",
+  "En cas de question, contacter : Pour plus d'information"
+] as const;
 
-export default function AuthWrapper({ children }: ChildrenProps) {
+const ContactAnimation: FC = () => (
+  <Box 
+    sx={{ 
+      display: 'flex', 
+      justifyContent: 'center',
+      mx: 5,
+      typography: {
+        fontSize: { xs: '1.25rem', sm: '1.5rem' },
+        fontWeight: 800
+      }
+    }}
+  >
+    <Typography
+      component="span"
+      sx={{
+        backgroundImage: 'linear-gradient(to right, #60A5FA, #86EFAC)',
+        backgroundClip: 'text',
+        color: 'transparent',
+        borderRadius: 1,
+        border: 2,
+        borderColor: 'primary.main',
+        px: 2,
+        py: 1,
+        animation: 'border-rotate 3s linear infinite',
+        '@keyframes border-rotate': {
+          '0%': {
+            borderColor: '#60A5FA'
+          },
+          '50%': {
+            borderColor: '#86EFAC'
+          },
+          '100%': {
+            borderColor: '#60A5FA'
+          }
+        }
+      }}
+    >
+      <TypeAnimation
+        sequence={CONTACT_MESSAGES.map(msg => [msg, 1000]).flat()}
+        wrapper="span"
+        speed={50}
+        style={{ display: 'inline-block' }}
+        repeat={Infinity}
+      />
+    </Typography>
+  </Box>
+);
+
+const AuthWrapper: FC<ChildrenProps> = ({ children }) => {
   return (
     <Box sx={{ minHeight: '100vh' }}>
       <AuthBackground />
-      <Grid container direction="column" justifyContent="flex-end" sx={{ minHeight: '100vh' }}>
+      <Grid 
+        container 
+        direction="column" 
+        justifyContent="flex-end" 
+        sx={{ minHeight: '100vh' }}
+      >
         <Grid item xs={12} sx={{ ml: 3, mt: 3 }}>
           <Logo />
         </Grid>
@@ -31,32 +82,15 @@ export default function AuthWrapper({ children }: ChildrenProps) {
             container
             justifyContent="center"
             alignItems="center"
-            sx={{ minHeight: { xs: 'calc(100vh - 210px)', sm: 'calc(100vh - 134px)', md: 'calc(100vh - 112px)' } }}
+            sx={{ 
+              minHeight: { 
+                xs: 'calc(100vh - 210px)', 
+                sm: 'calc(100vh - 134px)', 
+                md: 'calc(100vh - 112px)' 
+              } 
+            }}
           >
-            
-            <div className="flex justify-center mx-5 text-2xl font-extrabold">
-              <span 
-              className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-300 rounded border-2 animate-border-rotate"
-              >
-                <TypeAnimation
-                  sequence={[
-                    "En cas de besoin, contacter : +223 91 15 48 34",
-                    1000,
-                    "En cas de souci, contacter : Pour plus d'information",
-                    1000,
-                    "En cas de problème, contacter : +223 91 15 48 34",
-                    1000,
-                    "En cas de question, contacter : Pour plus d'information",
-                    1000,
-                  ]}
-                  wrapper="span"
-                  speed={50}
-                  style={{ display: 'inline-block' }}
-                  repeat={Infinity}
-                />
-              </span>
-            </div>
-
+            <ContactAnimation />
             <Grid item>
               <AuthCard>{children}</AuthCard>
             </Grid>
@@ -68,6 +102,6 @@ export default function AuthWrapper({ children }: ChildrenProps) {
       </Grid>
     </Box>
   );
-}
+};
 
-AuthWrapper.propTypes = { children: PropTypes.node };
+export default AuthWrapper;

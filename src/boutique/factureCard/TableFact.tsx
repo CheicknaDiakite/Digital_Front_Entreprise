@@ -7,109 +7,224 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Typography,
 } from '@mui/material';
 import { formatNumberWithSpaces } from '../../usePerso/fonctionPerso'
 
 interface TableFactProps {
   list: { 
     categorie_libelle: string;
-     qte: number;
-     pu: number;
-     prix_total: number;
-     date: string;
-     ref: string;
-    }[];
+    qte: number;
+    pu: number;
+    prix_total: number;
+    date: string;
+    ref: string;
+  }[];
   total: number;
   discountedTotal: number;
   payerTotal: number;
 }
 
 const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, payerTotal }) => {
-  // Exemple de fonction pour formater les nombres avec des espaces
-  // const formatNumberWithSpaces = (num: number): string =>
-  //   num.toLocaleString('fr-FR', { minimumFractionDigits: 2 });
-  const resteAPayer = (total - ((total - discountedTotal) + (total - payerTotal)))
+  const resteAPayer = (total - ((total - discountedTotal) + (total - payerTotal)));
 
   return (
     <TableContainer
       component={Paper}
+      elevation={0}
       sx={{
-        width: '100%',
-        maxWidth: '100%',
-        margin: '0 auto',
-        padding: '1rem',
-        boxSizing: 'border-box',
+        backgroundColor: 'transparent',
+        marginBottom: '2rem',
       }}
     >
-      <Table
-        sx={{
-          minWidth: 700,
-          '@media (max-width: 768px)': {
-            minWidth: '100%', // S'ajuste pour les petits écrans
-            fontSize: '0.8rem',
-          },
-        }}
-        aria-label="spanning table"
-      >
+      <Table>
+        {/* Table Header */}
         <TableHead>
-          <TableRow>
-            {/* <TableCell>Date</TableCell> */}
-            <TableCell>Designation</TableCell>
-            <TableCell align="right">Quantite</TableCell>
-            <TableCell align="right">Prix unitaire</TableCell>
-            <TableCell align="right">Somme</TableCell>
+          <TableRow sx={{ backgroundColor: '#f8fafc' }}>
+            <TableCell 
+              sx={{ 
+                fontWeight: 600,
+                color: '#475569',
+                borderBottom: '2px solid #e2e8f0',
+                padding: '16px',
+              }}
+            >
+              Désignation
+            </TableCell>
+            <TableCell 
+              align="right"
+              sx={{ 
+                fontWeight: 600,
+                color: '#475569',
+                borderBottom: '2px solid #e2e8f0',
+                padding: '16px',
+              }}
+            >
+              Quantité
+            </TableCell>
+            <TableCell 
+              align="right"
+              sx={{ 
+                fontWeight: 600,
+                color: '#475569',
+                borderBottom: '2px solid #e2e8f0',
+                padding: '16px',
+              }}
+            >
+              Prix unitaire
+            </TableCell>
+            <TableCell 
+              align="right"
+              sx={{ 
+                fontWeight: 600,
+                color: '#475569',
+                borderBottom: '2px solid #e2e8f0',
+                padding: '16px',
+              }}
+            >
+              Total
+            </TableCell>
           </TableRow>
         </TableHead>
+
+        {/* Table Body */}
         <TableBody>
           {list.map((post, index) => (
-            <TableRow key={index}>
-              {/* <TableCell>
-                {format(new Date(post.date), 'dd/MM/yyyy')}
-              </TableCell> */}
-              <TableCell>
-                {post.ref} {" - "}
-                {post.categorie_libelle}
+            <TableRow 
+              key={index}
+              sx={{
+                '&:hover': { backgroundColor: '#f8fafc' },
+                transition: 'background-color 0.2s',
+              }}
+            >
+              <TableCell sx={{ padding: '16px' }}>
+                <div className="space-y-1">
+                  <Typography variant="body2" className="font-medium text-gray-900">
+                    {post.ref}
+                  </Typography>
+                  <Typography variant="body2" className="text-gray-500">
+                    {post.categorie_libelle}
+                  </Typography>
+                </div>
               </TableCell>
-              <TableCell align="right">{post.qte}</TableCell>
-              <TableCell align="right">{formatNumberWithSpaces(post.pu)}</TableCell>
-              <TableCell align="right">{formatNumberWithSpaces(post.prix_total)}</TableCell>
+              <TableCell align="right" sx={{ padding: '16px' }}>
+                {post.qte}
+              </TableCell>
+              <TableCell align="right" sx={{ padding: '16px' }}>
+                {formatNumberWithSpaces(post.pu)} F
+              </TableCell>
+              <TableCell align="right" sx={{ padding: '16px', fontWeight: 500 }}>
+                {formatNumberWithSpaces(post.prix_total)} F
+              </TableCell>
             </TableRow>
           ))}
+
+          {/* Summary Rows */}
           <TableRow>
-            <TableCell rowSpan={3} />
-            <TableCell colSpan={2} align="right" sx={{ fontWeight: 'bold' }}>
-              Prix
+            <TableCell rowSpan={4} />
+            <TableCell 
+              colSpan={2} 
+              align="right"
+              sx={{ 
+                padding: '16px',
+                color: '#64748b',
+                fontWeight: 600,
+                border: 'none',
+              }}
+            >
+              Sous-total
             </TableCell>
-            <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-              {formatNumberWithSpaces(total)}
+            <TableCell 
+              align="right"
+              sx={{ 
+                padding: '16px',
+                fontWeight: 600,
+                color: '#0f172a',
+                border: 'none',
+              }}
+            >
+              {formatNumberWithSpaces(total)} F
             </TableCell>
           </TableRow>
+
           <TableRow>
-            <TableCell colSpan={2} align="right" sx={{ fontWeight: 'bold' }}>
+            <TableCell 
+              colSpan={2} 
+              align="right"
+              sx={{ 
+                padding: '16px',
+                color: '#64748b',
+                fontWeight: 600,
+                border: 'none',
+              }}
+            >
               Remise
             </TableCell>
-            <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-              {formatNumberWithSpaces(total - discountedTotal)}
+            <TableCell 
+              align="right"
+              sx={{ 
+                padding: '16px',
+                fontWeight: 600,
+                color: '#dc2626',
+                border: 'none',
+              }}
+            >
+              - {formatNumberWithSpaces(total - discountedTotal)} F
             </TableCell>
           </TableRow>
-          {(total - payerTotal) ? 
+
+          {(total - payerTotal) > 0 && (
             <TableRow>
-              <TableCell colSpan={2} align="right" sx={{ fontWeight: 'bold' }}>
-                Montant Payer 
+              <TableCell 
+                colSpan={2} 
+                align="right"
+                sx={{ 
+                  padding: '16px',
+                  color: '#64748b',
+                  fontWeight: 600,
+                  border: 'none',
+                }}
+              >
+                Montant Payé
               </TableCell>
-              <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-                {formatNumberWithSpaces(total - payerTotal)}
+              <TableCell 
+                align="right"
+                sx={{ 
+                  padding: '16px',
+                  fontWeight: 600,
+                  color: '#059669',
+                  border: 'none',
+                }}
+              >
+                {formatNumberWithSpaces(total - payerTotal)} F
               </TableCell>
             </TableRow>
-          : 
-          ""}
-          
+          )}
+
           <TableRow>
-            <TableCell colSpan={2} align="right" sx={{ fontWeight: 'bold' }}>
-              Total {(total - payerTotal) ? "(Restant) :" : ":"}
+            <TableCell 
+              colSpan={2} 
+              align="right"
+              sx={{ 
+                padding: '16px',
+                color: '#64748b',
+                fontWeight: 600,
+                borderTop: '2px solid #e2e8f0',
+              }}
+            >
+              {(total - payerTotal) > 0 ? "Reste à Payer" : "Total à Payer"}
             </TableCell>
-            <TableCell align="right" sx={{ fontWeight: 'bold' }}>
-              {formatNumberWithSpaces(resteAPayer)}
+            <TableCell 
+              align="right"
+              sx={{ 
+                padding: '16px',
+                fontWeight: 700,
+                fontSize: '1.1rem',
+                color: '#0f172a',
+                borderTop: '2px solid #e2e8f0',
+              }}
+            >
+              {formatNumberWithSpaces(resteAPayer)} F
             </TableCell>
           </TableRow>
         </TableBody>

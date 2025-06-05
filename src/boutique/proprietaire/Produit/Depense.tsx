@@ -1,14 +1,32 @@
-import { ChangeEvent, FormEvent, useRef, useState } from 'react';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
+import { ChangeEvent, FormEvent, useState } from 'react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  IconButton,
+  Pagination,
+  TextField,
+  Typography,
+  Box,
+  InputAdornment,
+  Card,
+  CardContent,
+  Alert,
+} from '@mui/material';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
-import { Button, Dialog, DialogContent, DialogTitle, Grid, IconButton, Pagination, Stack, TextField, Typography } from '@mui/material';
-import CloseIcon from "@mui/icons-material/Close"
+import CloseIcon from "@mui/icons-material/Close";
+import AddIcon from '@mui/icons-material/Add';
+import DateRangeIcon from '@mui/icons-material/DateRange';
+import ReceiptIcon from '@mui/icons-material/Receipt';
 import { connect } from '../../../_services/account.service';
 import { DepenseType } from '../../../typescript/DataType';
 import { useCreateDepense, useGetAllDepense } from '../../../usePerso/fonction.entre';
@@ -21,73 +39,46 @@ import M_Abonnement from '../../../_components/Card/M_Abonnement';
 import { useFetchEntreprise } from '../../../usePerso/fonction.user';
 
 export default function Depense() {
-
-  const {ajoutDepense} = useCreateDepense()
-  // const {souscategories} = useFetchAllSousCate(top)
-  const uuid = useStoreUuid((state) => state.selectedId)
+  const {ajoutDepense} = useCreateDepense();
+  const uuid = useStoreUuid((state) => state.selectedId);
+  const {unEntreprise} = useFetchEntreprise(uuid!);
+  const {depensesEntreprise, isLoading, isError} = useGetAllDepense(connect, uuid!);
   
-  const {unEntreprise} = useFetchEntreprise(uuid!)
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 25;
 
-  // const {produitsEntreprise, isLoading, isError} = useGetAllProduit(connect)
-  const {depensesEntreprise, isLoading, isError} = useGetAllDepense(connect, uuid!)
-
-  const componentRef = useRef<HTMLDivElement>(null);
-  
-   // État pour la page courante et les éléments par page
-   const [currentPage, setCurrentPage] = useState(1);
-   const itemsPerPage = 25; // Nombre d'éléments par page
-
-   // États pour les dates de recherche
   const [selectedStartDate, setSelectedStartDate] = useState<string>('');
   const [selectedEndDate, setSelectedEndDate] = useState<string>('');
 
-  // Filtrage entre les deux dates sélectionnées
   const filteredDepenses = depensesEntreprise?.filter((item) => {
-    if (!item.date) {
-      return false; // Ignore les éléments sans date valide
-    }
-  
+    if (!item.date) return false;
     const itemDate = new Date(item.date).getTime();
     const startDate = selectedStartDate ? new Date(selectedStartDate).getTime() : null;
     const endDate = selectedEndDate ? new Date(selectedEndDate).getTime() : null;
-  
-    return (
-      (startDate === null || itemDate >= startDate) &&
-      (endDate === null || itemDate <= endDate)
-    );
+    return (startDate === null || itemDate >= startDate) && (endDate === null || itemDate <= endDate);
   });
 
-   const reversedDepenses = filteredDepenses?.slice().sort((a: DepenseType, b: DepenseType) => {
+  const reversedDepenses = filteredDepenses?.slice().sort((a: DepenseType, b: DepenseType) => {
     if (a.id === undefined) return 1;
     if (b.id === undefined) return -1;
     return b.id - a.id;
   });
  
-   // Calcul du nombre total de pages
-   const totalPages = Math.ceil(reversedDepenses.length / itemsPerPage);     
- 
-   // Récupération des éléments à afficher sur la page courante
-   const depensesBoutic = reversedDepenses.slice(
-     (currentPage - 1) * itemsPerPage,
-     currentPage * itemsPerPage
-   );
+  const totalPages = Math.ceil((reversedDepenses?.length || 0) / itemsPerPage);     
+  const depensesBoutic = reversedDepenses?.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
-  //  const totalMontant = depensesBoutic?.reduce((acc, depense) => {
-  //   return acc + (depense.somme || 0); // Utiliser 0 si montant est undefined
-  //   }, 0);
   const totalMontant = depensesBoutic?.reduce((acc, depense) => {
-    // Convertir la somme en nombre ou utiliser 0 si elle est invalide
     const somme = depense.somme ? parseFloat(String(depense.somme)) : 0;
     return acc + somme;
   }, 0);
-  
 
-   // Gestion du changement de page
-   const handlePageChange = (_: ChangeEvent<unknown>, page: number) => {
-     setCurrentPage(page);
-   };
+  const handlePageChange = (_: ChangeEvent<unknown>, page: number) => {
+    setCurrentPage(page);
+  };
 
-   // Gestion du changement des dates
   const handleStartDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedStartDate(event.target.value);
     setCurrentPage(1);
@@ -98,28 +89,12 @@ export default function Depense() {
     setCurrentPage(1);
   };
 
-  const [open, openchange]= useState(false);
-  const functionopen = () => {
-    openchange(true)
-  }
-  const closeopen = () => {
-    openchange(false)
-  }
-
+  const [open, setOpen] = useState(false);
   const [formValues, setFormValues] = useState<DepenseType>({
     libelle: '',
     date: '',
     somme: 0,
   });
-
-  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormValues({
-      ...formValues,
-      [name]: value,
-    });
-  };
-
   const [image, setImage] = useState<File | null>(null);
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -130,200 +105,267 @@ export default function Depense() {
   
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // const validSlug = slug || '';
-
-    formValues["user_id"] = connect
-    formValues["facture"] = image
-    formValues["entreprise_id"] = uuid!
+    formValues["user_id"] = connect;
+    formValues["facture"] = image;
+    formValues["entreprise_id"] = uuid!;
     
-    // formValues["categorie_slug"] = validSlug
-    
-    ajoutDepense(formValues)
-
-    setFormValues({
-      libelle: '',
-      date: '',
-      somme: 0,
-    })
-    closeopen();
+    ajoutDepense(formValues);
+    setFormValues({ libelle: '', date: '', somme: 0 });
+    setOpen(false);
   };
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return (
+      <Box className="p-8">
+        <Card elevation={0}>
+          <CardContent>
+            <div className="animate-pulse space-y-4">
+              <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+              <div className="h-10 bg-gray-200 rounded"></div>
+              <div className="space-y-3">
+                <div className="h-4 bg-gray-200 rounded"></div>
+                <div className="h-4 bg-gray-200 rounded"></div>
+                <div className="h-4 bg-gray-200 rounded"></div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </Box>
+    );
   }
 
   if (isError) {
-    return <div>Error fetching data</div>
+    return (
+      <Box className="p-8">
+        <Alert severity="error">
+          Une erreur est survenue lors du chargement des données
+        </Alert>
+      </Box>
+    );
   }
 
   if (depensesEntreprise) {
-
     return (
-      <>  
-      <Nav /> 
-      {/* <ReactToPrint
-        trigger={() => (
+      <div className="min-h-screen bg-gray-50 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Nav />
           
-          <Grid container>
-            <Grid >
-              <button className="bg-green-500 ml-5 text-white font-bold py-2 px-8 rounded hover:bg-green-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-green-400">
-                Print / Download
-              </button>
-            </Grid>
-                                
-          </Grid> 
-        ) 
-        }
-        content={() => componentRef.current}
-      />  */}
-      <Grid className='py-2'>
-        <Typography variant="h5">
-          <Button variant="outlined" className="rounded border-x-1 animate-border-rotate" onClick={functionopen}>Ajout des Depenses</Button>
-        </Typography>
-      </Grid>
-      <div className="flex justify-center mt-4">
-        <Pagination
-          count={totalPages}
-          page={currentPage}
-          onChange={handlePageChange}
-          color="primary"
-        />
-        
-        
-          <Grid item className='mx-2'>
-            <TextField
-              className='bg-sky-300'
-              label="Date de début"
-              type="date"
-              value={selectedStartDate}
-              onChange={handleStartDateChange}
-              InputLabelProps={{ shrink: true }}
-            />
-          </Grid>
-          <Grid item>
-            <TextField
-              className='bg-sky-300'
-              label="Date de fin"
-              type="date"
-              value={selectedEndDate}
-              onChange={handleEndDateChange}
-              InputLabelProps={{ shrink: true }}
-            />
-          </Grid>
-             
-        <Typography variant="h4" className='mx-2'>
-          Somme total = {formatNumberWithSpaces(totalMontant)} <LocalAtmIcon color="primary" fontSize='medium' />
-        </Typography>
+          <Paper elevation={0} className="mt-6 rounded-lg overflow-hidden">
+            <Box className="p-6">
+              {/* Header */}
+              <div className="flex justify-between items-center border-b pb-6 mb-6">
+                <div>
+                  <Typography variant="h4" className="font-semibold text-gray-900">
+                    Gestion des Dépenses
+                  </Typography>
+                  <Typography variant="body2" className="text-gray-500 mt-1">
+                    Gérez les dépenses de votre entreprise
+                  </Typography>
+                </div>
+                <Button
+                  onClick={() => setOpen(true)}
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  Ajouter une dépense
+                </Button>
+              </div>
+
+              {/* Filters and Summary */}
+              <div className="mb-6 space-y-4">
+                <Grid container spacing={3} alignItems="center">
+                  <Grid item xs={12} sm={6} md={4}>
+                    <TextField
+                      fullWidth
+                      label="Date de début"
+                      type="date"
+                      value={selectedStartDate}
+                      onChange={handleStartDateChange}
+                      InputLabelProps={{ shrink: true }}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <DateRangeIcon className="text-gray-400" />
+                          </InputAdornment>
+                        ),
+                      }}
+                      className="bg-white"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={4}>
+                    <TextField
+                      fullWidth
+                      label="Date de fin"
+                      type="date"
+                      value={selectedEndDate}
+                      onChange={handleEndDateChange}
+                      InputLabelProps={{ shrink: true }}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <DateRangeIcon className="text-gray-400" />
+                          </InputAdornment>
+                        ),
+                      }}
+                      className="bg-white"
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <Paper elevation={0} className="p-4 bg-blue-50 border border-blue-100 rounded-lg">
+                      <Typography variant="subtitle2" className="text-blue-900 mb-1">
+                        Total des dépenses
+                      </Typography>
+                      <Typography variant="h4" className="text-blue-700 flex items-center">
+                        {formatNumberWithSpaces(totalMontant)}
+                        <LocalAtmIcon className="ml-2" />
+                      </Typography>
+                    </Paper>
+                  </Grid>
+                </Grid>
+              </div>
+
+              {/* Table */}
+              <TableContainer component={Paper} elevation={0} className="border">
+                <Table>
+                  <TableHead className="bg-gray-50">
+                    <TableRow>
+                      <TableCell className="font-medium">Date</TableCell>
+                      <TableCell className="font-medium">Libellé</TableCell>
+                      <TableCell className="font-medium">Montant</TableCell>
+                      <TableCell className="font-medium">Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {depensesBoutic?.length > 0 ? (
+                      depensesBoutic.map((row, index) => (
+                        <CardDepense key={index} row={row} />
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={4} align="center" className="py-8 text-gray-500">
+                          Aucune dépense enregistrée
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+
+              {/* Pagination */}
+              <div className="flex justify-center mt-6">
+                <Pagination
+                  count={totalPages}
+                  page={currentPage}
+                  onChange={handlePageChange}
+                  color="primary"
+                  size="large"
+                />
+              </div>
+            </Box>
+          </Paper>
+
+          {/* Add Expense Modal */}
+          <Dialog 
+            open={open} 
+            onClose={() => setOpen(false)}
+            fullWidth 
+            maxWidth="sm"
+            PaperProps={{
+              elevation: 0,
+              className: "rounded-lg"
+            }}
+          >
+            <DialogTitle className="flex justify-between items-center border-b pb-3">
+              <Typography variant="h6" className="font-semibold">
+                Ajouter une dépense
+              </Typography>
+              <IconButton onClick={() => setOpen(false)} size="small">
+                <CloseIcon />
+              </IconButton>
+            </DialogTitle>
+
+            {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
+              <M_Abonnement />
+            ) : (
+              <DialogContent className="mt-4">
+                <form onSubmit={onSubmit} className="space-y-4">
+                  <MyTextField
+                    required
+                    fullWidth
+                    label="Libellé"
+                    name="libelle"
+                    onChange={(e) => setFormValues({...formValues, libelle: e.target.value})}
+                    value={formValues.libelle}
+                    className="bg-white"
+                  />
+
+                  <MyTextField
+                    required
+                    fullWidth
+                    type="date"
+                    label="Date"
+                    name="date"
+                    onChange={(e) => setFormValues({...formValues, date: e.target.value})}
+                    value={formValues.date}
+                    InputLabelProps={{ shrink: true }}
+                    className="bg-white"
+                  />
+
+                  <MyTextField
+                    required
+                    fullWidth
+                    type="number"
+                    label="Montant"
+                    name="somme"
+                    onChange={(e) => setFormValues({...formValues, somme: parseFloat(e.target.value)})}
+                    value={formValues.somme}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <LocalAtmIcon className="text-gray-400" />
+                        </InputAdornment>
+                      ),
+                    }}
+                    className="bg-white"
+                  />
+
+                  <MyTextField
+                    fullWidth
+                    type="file"
+                    label="Facture"
+                    onChange={handleImageChange}
+                    InputLabelProps={{ shrink: true }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <ReceiptIcon className="text-gray-400" />
+                        </InputAdornment>
+                      ),
+                    }}
+                    className="bg-white"
+                  />
+
+                  <div className="flex justify-end space-x-2 pt-4">
+                    <Button onClick={() => setOpen(false)} variant="outlined">
+                      Annuler
+                    </Button>
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      Ajouter
+                    </Button>
+                  </div>
+                </form>
+              </DialogContent>
+            )}
+          </Dialog>
+        </div>
       </div>
-      {/* Modal */}
-      <Dialog open={open} onClose={closeopen} fullWidth maxWidth="xs">
-        <DialogTitle>Ajout des depenses<IconButton onClick={closeopen} style={{float: "right"}}><CloseIcon color="primary"></CloseIcon></IconButton> </DialogTitle>
-        
-        {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
-        <M_Abonnement />  
-        )
-          :        
-        <DialogContent>
-          
-          <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmit}>
-            <Stack spacing={2} margin={2}>
-  
-              <MyTextField required
-                variant="outlined" 
-                label="libelle" 
-                name='libelle' 
-                onChange={onChange}
-                sx={{
-                  "& .MuiFormLabel-asterisk": {
-                    color: "red", // Personnalise la couleur de l'étoile en rouge
-                  },
-                }}
-              />
-
-              <MyTextField required
-                variant="outlined" 
-                type='date' 
-                label="date" 
-                name='date' 
-                onChange={onChange}
-                InputLabelProps={{
-                  shrink: true, // Force le label à rester au-dessus du champ
-                }}
-                sx={{
-                  "& .MuiFormLabel-asterisk": {
-                    color: "red", // Personnalise la couleur de l'étoile en rouge
-                  },
-                }}
-              />
-
-              <MyTextField
-                required
-                variant="outlined"
-                type="number"
-                inputProps={{
-                  step: "0.01", // Décimales à deux chiffres
-                  min: "0", // Pas de valeurs négatives
-                  max: "9999999999.99", // Correspond à max_digits=10 dans Django
-                }}
-                label="Somme"
-                name="somme"
-                onChange={onChange}
-                sx={{
-                  "& .MuiFormLabel-asterisk": {
-                    color: "red",
-                  },
-                }}
-              />
-              
-              <MyTextField 
-                label={"facture"}
-                name={"facture"}
-                type='file'
-                onChange={handleImageChange}
-                InputLabelProps={{
-                  shrink: true, // Force le label à rester au-dessus du champ
-                }}
-              />
-              
-              <Button type="submit" color="success" variant="outlined">Ajouter</Button>
-            </Stack>
-          </form>
-        </DialogContent>
-        }
-        
-      </Dialog>
-  
-      <TableContainer ref={componentRef} component={Paper} className='mt-3'>
-        <Table sx={{ minWidth: 700 }} aria-label="spanning table">
-          <TableHead>
-            <TableRow>
-              <TableCell align="center" colSpan={3}>
-                Depense
-              </TableCell>
-              {/* <TableCell align="right">Prix</TableCell> */}
-            </TableRow>
-            <TableRow>
-              <TableCell>Date</TableCell>
-              <TableCell>Libelles</TableCell>
-              <TableCell>Somme</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {depensesBoutic?.length > 0 ? 
-            
-              depensesBoutic?.map((row, index) => {  
-                         
-                return <CardDepense key={index} row={row} />
-              
-              })
-              : "Pas de Depense"
-            }
-           
-          </TableBody>
-        </Table>
-      </TableContainer>
-      </>
     );
   }
+
+  return null;
 }

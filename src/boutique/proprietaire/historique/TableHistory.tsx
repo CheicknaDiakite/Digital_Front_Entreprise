@@ -1,235 +1,257 @@
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import Collapse from '@mui/material/Collapse';
-import IconButton from '@mui/material/IconButton';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Typography from '@mui/material/Typography';
-import Paper from '@mui/material/Paper';
+import { useState } from 'react';
+import {
+  Box,
+  Button,
+  Collapse,
+  IconButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+  Paper,
+  Alert,
+  CircularProgress,
+  Pagination,
+  TextField,
+  Stack
+} from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import { format } from 'date-fns';
 import { useHistoriqueEntreprise } from '../../../usePerso/fonction.user';
 import { connect } from '../../../_services/account.service';
-import { useState } from 'react';
-import { Alert, Button, CircularProgress, Pagination, Stack, TextField } from '@mui/material';
-import { format } from 'date-fns';
 import { EntrepriseType } from '../../../typescript/Account';
 import Nav from '../../../_components/Button/Nav';
 import { formatNumberWithSpaces } from '../../../usePerso/fonctionPerso';
 
-function Row(props: { row: EntrepriseType }) {
-  const { row } = props;
+// Types
+interface HistoryRowProps {
+  row: EntrepriseType;
+}
+
+type FilterType = 'all' | 'entrer' | 'sortie';
+
+// Components
+const LoadingSpinner = () => (
+  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
+    <CircularProgress />
+  </Box>
+);
+
+const ErrorMessage = () => (
+  <Stack sx={{ width: '100%', padding: 2 }} spacing={2}>
+    <Alert severity="error">Une erreur est survenue lors de la récupération des données.</Alert>
+  </Stack>
+);
+
+const FilterButtons = ({ currentFilter, onFilterChange }: { currentFilter: FilterType, onFilterChange: (filter: FilterType) => void }) => (
+  <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+    <Button
+      variant={currentFilter === 'entrer' ? 'contained' : 'outlined'}
+      onClick={() => onFilterChange('entrer')}
+      color="primary"
+    >
+      Entrées
+    </Button>
+    <Button
+      variant={currentFilter === 'sortie' ? 'contained' : 'outlined'}
+      onClick={() => onFilterChange('sortie')}
+      color="primary"
+    >
+      Sorties
+    </Button>
+    <Button
+      variant={currentFilter === 'all' ? 'contained' : 'outlined'}
+      onClick={() => onFilterChange('all')}
+      color="primary"
+    >
+      Tous
+    </Button>
+  </Box>
+);
+
+const DateFilters = ({ startDate, endDate, onStartDateChange, onEndDateChange }: {
+  startDate: string;
+  endDate: string;
+  onStartDateChange: (date: string) => void;
+  onEndDateChange: (date: string) => void;
+}) => (
+  <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
+    <TextField
+      label="Date de début"
+      type="date"
+      value={startDate}
+      onChange={(e) => onStartDateChange(e.target.value)}
+      InputLabelProps={{ shrink: true }}
+      className="bg-white"
+      fullWidth
+    />
+    <TextField
+      label="Date de fin"
+      type="date"
+      value={endDate}
+      onChange={(e) => onEndDateChange(e.target.value)}
+      InputLabelProps={{ shrink: true }}
+      className="bg-white"
+      fullWidth
+    />
+  </Box>
+);
+
+const HistoryRow = ({ row }: HistoryRowProps) => {
   const [open, setOpen] = useState(false);
+  const [filter, setFilter] = useState<FilterType>('all');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 50;
 
-  const [filter, setFilter] = useState<'all' | 'entrer' | 'sortie'>('all');
-  const [startDate, setStartDate] = useState<string>(''); // Date de début
-  const [endDate, setEndDate] = useState<string>(''); // Date de fin
-  const [currentPage, setCurrentPage] = useState<number>(1); // Page actuelle
-  const rowsPerPage = 50; // Nombre de lignes par page
-
-  // Fonction pour filtrer par type et par date
   const filteredHistorique = row.historique?.filter((historyRow) => {
-    // Filtrage par type
     const typeFilter = filter === 'all' || historyRow.type === filter;
-
-    // Filtrage par date
     const rowDate = new Date(historyRow.date ?? new Date());
     const isAfterStartDate = startDate ? rowDate >= new Date(startDate) : true;
     const isBeforeEndDate = endDate ? rowDate <= new Date(endDate) : true;
-
     return typeFilter && isAfterStartDate && isBeforeEndDate;
   });
 
-  // Pagination : calcul des données à afficher sur la page courante
   const totalPages = Math.ceil((filteredHistorique?.length ?? 0) / rowsPerPage);
-  
   const paginatedHistorique = filteredHistorique?.slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
 
-  // Gestion du changement de page
-  const handlePageChange = (_event: React.ChangeEvent<unknown>, page: number) => {
-    setCurrentPage(page);
-  };
-
   return (
-    <React.Fragment>
+    <>
       <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
         <TableCell>
           <IconButton
-            aria-label="expand row"
+            aria-label={open ? 'Réduire les détails' : 'Voir les détails'}
             size="small"
             onClick={() => setOpen(!open)}
           >
-            {open ? (
-              <KeyboardArrowUpIcon color="primary" />
-            ) : (
-              <KeyboardArrowDownIcon color="primary" />
-            )}
+            {open ? <KeyboardArrowUpIcon color="primary" /> : <KeyboardArrowDownIcon color="primary" />}
           </IconButton>
         </TableCell>
-        <TableCell component="th" scope="row">
-          {row.nom}
-        </TableCell>
+        <TableCell>{row.nom}</TableCell>
         <TableCell align="right">{row.adresse}</TableCell>
         <TableCell align="right">{row.numero}</TableCell>
         <TableCell align="right">{row.email}</TableCell>
-        {/* <TableCell align="right">#</TableCell> */}
       </TableRow>
+
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
-              <Typography variant="h6" gutterBottom component="div">
-                History
-                <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-700/10">
-                  {filteredHistorique?.length}
-                </span>
-              </Typography>
+              <div className="flex justify-between items-center mb-4">
+                <Typography variant="h6" component="h3">
+                  Historique
+                  <span className="ml-2 px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+                    {filteredHistorique?.length ?? 0}
+                  </span>
+                </Typography>
+              </div>
 
-              {/* Recherche par type et date */}
-              <Box sx={{ marginBottom: 2, display: 'flex', alignItems: 'center' }}>
-                <Button
-                  variant={filter === 'entrer' ? 'contained' : 'outlined'}
-                  onClick={() => setFilter('entrer')}
-                  sx={{ marginRight: 1 }}
-                >
-                  Entrer
-                </Button>
-                <Button
-                  variant={filter === 'sortie' ? 'contained' : 'outlined'}
-                  onClick={() => setFilter('sortie')}
-                  sx={{ marginRight: 1 }}
-                >
-                  Sortie
-                </Button>
-                <Button
-                  variant={filter === 'all' ? 'contained' : 'outlined'}
-                  onClick={() => setFilter('all')}
-                >
-                  Tous
-                </Button>
+              <FilterButtons currentFilter={filter} onFilterChange={setFilter} />
+              <DateFilters
+                startDate={startDate}
+                endDate={endDate}
+                onStartDateChange={setStartDate}
+                onEndDateChange={setEndDate}
+              />
 
-                {/* Recherche par date */}
-                <Box sx={{ marginLeft: 2, display: 'flex', gap: 2 }}>
-                  <TextField
-                    label="Date début"
-                    className='bg-blue-200'
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    InputLabelProps={{ shrink: true }}
-                  />
-                  <TextField
-                    label="Date fin"
-                    type="date"
-                    className='bg-blue-200'
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    InputLabelProps={{ shrink: true }}
-                  />
-                </Box>
-              </Box>
-
-              <Table size="small" aria-label="purchases">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Date</TableCell>
-                    <TableCell>Type</TableCell>
-                    <TableCell align="right">Quantite</TableCell>
-                    <TableCell align="right">Prix unitaire (P.V)</TableCell>
-                    <TableCell align="right">Libelle</TableCell>
-                    <TableCell align="right">Categorie</TableCell>
-                    <TableCell align="right">Action</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {paginatedHistorique?.map((historyRow, index) => {
-                    const validDate = historyRow.date ?? new Date();
-                    return (
-                      <TableRow key={index}>
-                        <TableCell component="th" scope="row">
-                          {format(new Date(validDate), 'dd/MM/yyyy HH:mm:ss')}
+              <TableContainer component={Paper} elevation={0}>
+                <Table size="small" aria-label="historique des transactions">
+                  <TableHead>
+                    <TableRow sx={{ backgroundColor: '#f8fafc' }}>
+                      <TableCell>Date</TableCell>
+                      <TableCell>Type</TableCell>
+                      <TableCell align="right">Quantité</TableCell>
+                      <TableCell align="right">Prix unitaire</TableCell>
+                      <TableCell align="right">Libellé</TableCell>
+                      <TableCell align="right">Catégorie</TableCell>
+                      <TableCell align="right">Action</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {paginatedHistorique?.map((historyRow, index) => (
+                      <TableRow key={index} hover>
+                        <TableCell>
+                          {format(new Date(historyRow.date ?? new Date()), 'dd/MM/yyyy HH:mm:ss')}
                         </TableCell>
-                        <TableCell>{historyRow.type}</TableCell>
+                        <TableCell>
+                          <span className={`px-2 py-1 rounded-full text-sm ${
+                            historyRow.type === 'entrer' 
+                              ? 'bg-green-50 text-green-700' 
+                              : 'bg-blue-50 text-blue-700'
+                          }`}>
+                            {historyRow.type}
+                          </span>
+                        </TableCell>
                         <TableCell align="right">{historyRow.qte}</TableCell>
                         <TableCell align="right">{formatNumberWithSpaces(historyRow.pu)}</TableCell>
                         <TableCell align="right">{historyRow.libelle}</TableCell>
                         <TableCell align="right">{historyRow.categorie}</TableCell>
                         <TableCell align="right">{historyRow.action}</TableCell>
                       </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
 
-              {/* Pagination */}
-              <Pagination
-                count={totalPages}
-                page={currentPage}
-                onChange={handlePageChange}
-                color="primary"
-                sx={{ marginTop: 2 }}
-              />
+              {totalPages > 1 && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                  <Pagination
+                    count={totalPages}
+                    page={currentPage}
+                    onChange={(_, page) => setCurrentPage(page)}
+                    color="primary"
+                    size="large"
+                  />
+                </Box>
+              )}
             </Box>
           </Collapse>
         </TableCell>
       </TableRow>
-    </React.Fragment>
+    </>
   );
-}
-
-
+};
 
 export default function TableHistory() {
-  const {historique, isLoading, isError} = useHistoriqueEntreprise(connect)
+  const { historique, isLoading, isError } = useHistoriqueEntreprise(connect);
 
-  if (isLoading) {
-    return (
-      <Box sx={{ display: 'flex' }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
+  if (isLoading) return <LoadingSpinner />;
+  if (isError) return <ErrorMessage />;
+  if (!historique) return null;
 
-  if (isError) {
-    return (
-      <Stack sx={{ width: '100%' }} spacing={2}>        
-        <Alert severity="error">Probleme de connexion !</Alert>
-      </Stack>
-    );
-  }
-
-  if (historique) {
-
-    return (<>
-      <Nav />
-      <TableContainer component={Paper}>
-        <Table aria-label="collapsible table">
-          <TableHead>
-            <TableRow>
-              <TableCell />
-              <TableCell>Nom de l'entreprise</TableCell>
-              <TableCell align="right">Adresse</TableCell>
-              <TableCell align="right">Telephone&nbsp;(TEL)</TableCell>
-              <TableCell align="right">Email</TableCell>
-              {/* <TableCell align="right">####&nbsp;(g)</TableCell> */}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {historique.map((row, index) => (
-              <Row key={index} row={row} />
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </>
-    );
-  }
-  
+  return (
+    <div className="min-h-screen bg-gray-50 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Nav />
+        <Paper elevation={0} className="mt-6">
+          <TableContainer>
+            <Table aria-label="tableau des entreprises">
+              <TableHead>
+                <TableRow sx={{ backgroundColor: '#f8fafc' }}>
+                  <TableCell />
+                  <TableCell>Nom de l'entreprise</TableCell>
+                  <TableCell align="right">Adresse</TableCell>
+                  <TableCell align="right">Téléphone</TableCell>
+                  <TableCell align="right">Email</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {historique.map((row, index) => (
+                  <HistoryRow key={`${row.nom}-${index}`} row={row} />
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
+      </div>
+    </div>
+  );
 }

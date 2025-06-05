@@ -1,72 +1,139 @@
-import { Alert, Box, CircularProgress, Grid, Stack, Typography } from '@mui/material'
-// import { formatNumberWithSpaces } from '../../../../../usePerso/fonctionPerso';
+import { 
+  Alert, 
+  Box, 
+  CircularProgress, 
+  Container,
+  Grid, 
+  Paper,
+  Typography,
+  Button
+} from '@mui/material';
 import { useFetchEntreprise, useStockEntreprise } from '../../../../../usePerso/fonction.user';
 import { connect } from '../../../../../_services/account.service';
-import AnalyticEcommerce from '../../../../../components/cards/statistics/AnalyticEcommerce';
 import { useStoreUuid } from '../../../../../usePerso/store';
 import { Link } from 'react-router-dom';
-  
-export default function EtatProduit() {
-  const uuid = useStoreUuid((state) => state.selectedId)
-  const {unEntreprise} = useFetchEntreprise(uuid!)
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import InventoryIcon from '@mui/icons-material/Inventory';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 
-  const {stockEntreprise, isLoading, isError} = useStockEntreprise(unEntreprise.uuid!, connect)
+export default function EtatProduit() {
+  const uuid = useStoreUuid((state) => state.selectedId);
+  const { unEntreprise } = useFetchEntreprise(uuid!);
+  const { stockEntreprise, isLoading, isError } = useStockEntreprise(unEntreprise.uuid!, connect);
 
   if (isLoading) {
-    return <Box sx={{ display: 'flex' }}>
-      <CircularProgress />
-    </Box>
+    return (
+      <Box className="flex items-center justify-center p-8">
+        <CircularProgress />
+      </Box>
+    );
   }
 
   if (isError) {
-    return <Stack sx={{ width: '100%' }} spacing={2}>        
-      <Alert severity="error">Probleme de connexion !</Alert>
-    </Stack>
+    return (
+      <Alert 
+        severity="error" 
+        className="m-4"
+        action={
+          <Button color="inherit" size="small" onClick={() => window.location.reload()}>
+            Réessayer
+          </Button>
+        }
+      >
+        Problème de connexion ! Veuillez réessayer.
+      </Alert>
+    );
   }
 
-  if (stockEntreprise) {
-    return <>
-    <Grid container rowSpacing={4.5} columnSpacing={2.75}>
-      
-      <Grid container alignItems="center" justifyContent="center" className='pt-5 mt-5'>
-        {/* <Grid item>
-          <Typography variant="h5">Les infos de l'entreprise</Typography>
-        </Grid> */}
-        <Grid 
-        className='box-decoration-clone bg-linear-to-t from-indigo-700 to-red-600 px-2 mx-5 text-white bg-zinc-500/50 flex items-center gap-2 p-2 rounded border-x-2 animate-border-rotate' 
-        item>
-          <Typography 
-          variant="h5"
-          >
-            Les infos de l'entreprise
-          </Typography>
-        </Grid>
-      <Grid />
-        
+  if (!stockEntreprise) return null;
+
+  const stats = [
+    {
+      title: "Quantités sorties",
+      value: stockEntreprise.somme_sortie_qte,
+      icon: <TrendingDownIcon className="text-red-600" />,
+      link: null,
+      bgClass: "from-red-50 to-red-100",
+      iconBgClass: "bg-red-100",
+      textClass: "text-red-600"
+    },
+    {
+      title: "Quantités en stock",
+      value: stockEntreprise.somme_entrer_qte,
+      icon: <InventoryIcon className="text-green-600" />,
+      link: null,
+      bgClass: "from-green-50 to-green-100",
+      iconBgClass: "bg-green-100",
+      textClass: "text-green-600"
+    },
+    {
+      title: "Sorties effectuées",
+      value: stockEntreprise.nombre_sortie,
+      icon: <ShoppingCartIcon className="text-blue-600" />,
+      link: "/sortie",
+      bgClass: "from-blue-50 to-blue-100",
+      iconBgClass: "bg-blue-100",
+      textClass: "text-blue-600"
+    },
+    {
+      title: "Entrées effectuées",
+      value: stockEntreprise.nombre_entrer,
+      icon: <TrendingUpIcon className="text-indigo-600" />,
+      link: "/entre",
+      bgClass: "from-indigo-50 to-indigo-100",
+      iconBgClass: "bg-indigo-100",
+      textClass: "text-indigo-600"
+    }
+  ];
+
+  return (
+    <Container maxWidth="lg" className="py-8">
+      <div className="mb-6">
+        <Typography variant="h4" className="font-semibold text-gray-900 mb-2">
+          Statistiques de l'entreprise
+        </Typography>
+        <Typography variant="body1" className="text-gray-500">
+          Vue d'ensemble des mouvements de stock
+        </Typography>
+      </div>
+
+      <Grid container spacing={3}>
+        {stats.map((stat, index) => {
+          const StatContent = () => (
+            <Paper 
+              elevation={0} 
+              className={`border rounded-lg overflow-hidden h-full transition-all duration-200 hover:shadow-md bg-gradient-to-br ${stat.bgClass}`}
+            >
+              <Box className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <Typography variant="h6" className="font-medium text-gray-900">
+                    {stat.title}
+                  </Typography>
+                  <div className={`p-2 rounded-full ${stat.iconBgClass}`}>
+                    {stat.icon}
+                  </div>
+                </div>
+                <Typography variant="h4" className={`font-semibold ${stat.textClass}`}>
+                  {stat.value}
+                </Typography>
+              </Box>
+            </Paper>
+          );
+
+          return (
+            <Grid item xs={12} sm={6} md={3} key={index}>
+              {stat.link ? (
+                <Link to={stat.link} className="block h-full no-underline">
+                  <StatContent />
+                </Link>
+              ) : (
+                <StatContent />
+              )}
+            </Grid>
+          );
+        })}
       </Grid>
-  
-      <Grid item xs={12} sm={6} md={4} lg={3}>
-        <AnalyticEcommerce title="La somme des quantités sorties" count={stockEntreprise.somme_sortie_qte} className="bg-green-100" />
-      </Grid>
-      
-      <Grid item xs={12} sm={6} md={4} lg={3}>
-        <AnalyticEcommerce title="La somme des quantités restants" count={stockEntreprise.somme_entrer_qte} className="bg-green-100" />
-      </Grid>
-  
-      <Grid item xs={12} sm={6} md={4} lg={3}>
-        <Link to="/sortie">      
-          <AnalyticEcommerce title="Le nombre de sortie effectuer" count={stockEntreprise.nombre_sortie} className="bg-blue-100" />
-        </Link>
-      </Grid>
-      
-      <Grid item xs={12} sm={6} md={4} lg={3}>
-        <Link to="/entre">    
-          <AnalyticEcommerce title="Le nombre d'entrer effectuer" count={stockEntreprise.nombre_entrer} className="bg-blue-100" />
-        </Link>
-      </Grid>
-    </Grid>
-    </>
-  }
-    
-  
+    </Container>
+  );
 }
