@@ -1,4 +1,4 @@
-import { Box, Button, Modal, Pagination, Paper, Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material";
+import { Box, Button, Modal, Pagination, Paper, Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography, Grid } from "@mui/material";
 import { ChangeEvent, FormEvent, Fragment, SyntheticEvent, useEffect, useState } from "react";
 import { RecupType, SortieType } from "../../typescript/DataType";
 import { connect } from "../../_services/account.service";
@@ -14,6 +14,7 @@ import { useStoreUuid } from "../../usePerso/store";
 import { formatNumberWithSpaces } from "../../usePerso/fonctionPerso";
 import { SingleValue } from 'react-select';
 import { format } from "date-fns";
+import './mobile-sortie.css';
 
  
 export type TypeText = {
@@ -73,7 +74,7 @@ function ChildModal() {
           </p> */}
           <Button onClick={handleClose}>Oui</Button>
         </Box>
-      </Modal>
+      </Modal>s
     </Fragment>
   );
 }
@@ -82,8 +83,21 @@ export default function Sortie() {
   
   const entreprise_uuid = useStoreUuid((state) => state.selectedId)
   const {unUser} = useFetchUser(connect)
+  const [isMobile, setIsMobile] = useState(false);
   
   const [showInvoice, setShowInvoice] = useState(false); // État pour afficher ou masquer la section de facture
+
+  // Détection mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleOnClick = () => {
     setShowInvoice(true); // Affiche la section de facture lorsque le bouton est cliqué
@@ -108,7 +122,7 @@ export default function Sortie() {
   
   const {ajoutSortie} = useCreateSortie()
   
-  const itemsPerPage = 25; // Nombre d'éléments par page
+  const itemsPerPage = isMobile ? 10 : 25; // Nombre d'éléments par page
 
   // État pour la page courante et les éléments par page
   const [currentPage, setCurrentPage] = useState(1);
@@ -416,49 +430,104 @@ export default function Sortie() {
         };
       // fin
       if (isLoading) {
-        return <Box sx={{ width: 300 }}>
-        <Skeleton />
-        <Skeleton animation="wave" />
-        <Skeleton animation={false} />
-      </Box>
+        return (
+          <Box className={`${isMobile ? 'mobile-p-4' : 'w-300'}`}>
+            <Skeleton className="mobile-loading" />
+            <Skeleton animation="wave" className="mobile-loading" />
+            <Skeleton animation={false} className="mobile-loading" />
+          </Box>
+        );
       }
 
       if (isError) {
         window.location.reload();
-        return <div>Error ...</div>
+        return (
+          <div className={`${isMobile ? 'mobile-p-4' : ''}`}>
+            <Typography variant="h6" color="error" className="mobile-alert">
+              Error ...
+            </Typography>
+          </div>
+        );
       }
 
       if (sortiesEntreprise) {        
         return (
-          <div className="min-h-screen bg-gray-50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-              <div className="mb-8">
-              <Nav />
-            </div>
+          <div className={`min-h-screen ${isMobile ? '' : ''}`}>
+            <div className={`${isMobile ? 'px-4 py-6' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'}`}>
+              <div className={`${isMobile ? 'mobile-m-4' : 'mb-8'}`}>
+                <Nav />
+              </div>
 
-              <Paper elevation={0} className="rounded-lg overflow-hidden">
-                <div className="p-6 space-y-6">
+              <Paper 
+                elevation={0} 
+                className={`${isMobile ? 'mobile-header-container' : 'rounded-lg overflow-hidden'}`}
+                sx={isMobile ? {
+                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7))',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: '20px'
+                } : {}}
+              >
+                <div className={`${isMobile ? 'mobile-p-4' : 'p-6'} space-y-6`}>
                   {/* Header Section */}
-                  <div className="flex justify-between items-center border-b pb-6">
-                    <Typography variant="h4" className="font-semibold text-gray-900">
+                  <div className={`${isMobile ? 'flex flex-col space-y-4' : 'flex justify-between items-center'} border-b pb-6`}>
+                    <Typography 
+                      variant={isMobile ? "h5" : "h4"} 
+                      className={`${isMobile ? 'mobile-title' : 'font-semibold text-gray-900'}`}
+                      sx={isMobile ? {
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                        fontWeight: 700,
+                        textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                      } : {}}
+                    >
                       Gestion des Sorties
-                        </Typography>
-                    <div className="flex space-x-3">
+                    </Typography>
+                    <div className={`${isMobile ? 'mobile-action-buttons' : 'flex space-x-3'}`}>
                       <Button 
                         variant="contained"
                         color="primary"
-                      onClick={() => {
-                        handleSaveSorties();
-                        handleOnClick();
-                      }}
-                        className="bg-blue-600 hover:bg-blue-700"
+                        onClick={() => {
+                          handleSaveSorties();
+                          handleOnClick();
+                        }}
+                        className={`${isMobile ? 'mobile-button mobile-button-primary' : 'bg-blue-600 hover:bg-blue-700'}`}
+                        sx={isMobile ? {
+                          borderRadius: '12px',
+                          fontWeight: 600,
+                          textTransform: 'none',
+                          transition: 'all 0.3s ease',
+                          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                          background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                          '&:hover': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
+                            background: 'linear-gradient(135deg, #1d4ed8, #1e40af)'
+                          }
+                        } : {}}
                       >
                         Créer Facture
                       </Button>
                       <Button
                         variant="outlined"
                         onClick={handleOpenClick}
-                        className="border-red-500 text-red-500 hover:bg-red-50"
+                        className={`${isMobile ? 'mobile-button mobile-button-danger' : 'border-red-500 text-red-500 hover:bg-red-50'}`}
+                        sx={isMobile ? {
+                          borderRadius: '12px',
+                          fontWeight: 600,
+                          textTransform: 'none',
+                          transition: 'all 0.3s ease',
+                          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                          background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                          color: 'white',
+                          '&:hover': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
+                            background: 'linear-gradient(135deg, #dc2626, #b91c1c)'
+                          }
+                        } : {}}
                       >
                         Annuler
                       </Button>
@@ -466,87 +535,241 @@ export default function Sortie() {
                   </div>
 
                   {/* Main Form Section */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <TextField
-                      fullWidth
-                      label="Numéro de Facture"
-                      name="numeroFac"
-                            variant="outlined"
-                      onChange={onChan}
-                      className="bg-white"
-                          />
-                          <TextField
-                      fullWidth
-                      label="Nom du Client"
-                      name="clientName"
-                            variant="outlined"
-                      onChange={onChan}
-                      className="bg-white"
-                    />
-                          </div>
+                  <div className={`${isMobile ? 'mobile-form-section' : 'grid grid-cols-1 md:grid-cols-2 gap-6'}`}>
+                    <Grid 
+                      container 
+                      spacing={isMobile ? 2 : 3} 
+                      className={isMobile ? 'mobile-grid' : ''}
+                      sx={{
+                        '& .MuiGrid-item': {
+                          padding: isMobile ? '8px' : '12px'
+                        }
+                      }}
+                    >
+                      <Grid item xs={12} md={6}>
+                        <TextField
+                          fullWidth
+                          label="Numéro de Facture"
+                          name="numeroFac"
+                          variant="outlined"
+                          onChange={onChan}
+                          className={`${isMobile ? 'mobile-form-field' : 'bg-white'}`}
+                          sx={isMobile ? {
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: '12px',
+                              background: 'rgba(255, 255, 255, 0.8)',
+                              backdropFilter: 'blur(10px)',
+                              transition: 'all 0.3s ease',
+                              '&:focus-within': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                              }
+                            }
+                          } : {}}
+                        />
+                      </Grid>
+                      
+                      <Grid item xs={12} md={6}>
+                        <TextField
+                          fullWidth
+                          label="Nom du Client"
+                          name="clientName"
+                          variant="outlined"
+                          onChange={onChan}
+                          className={`${isMobile ? 'mobile-form-field' : 'bg-white'}`}
+                          sx={isMobile ? {
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: '12px',
+                              background: 'rgba(255, 255, 255, 0.8)',
+                              backdropFilter: 'blur(10px)',
+                              transition: 'all 0.3s ease',
+                              '&:focus-within': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                              }
+                            }
+                          } : {}}
+                        />
+                      </Grid>
+
+                      <Grid item xs={12} md={6}>
+                        <TextField
+                          fullWidth
+                          label="Numero du Client"
+                          name="invoiceNumber"
+                          variant="outlined"
+                          onChange={onChan}
+                          className={`${isMobile ? 'mobile-form-field' : 'bg-white'}`}
+                          sx={isMobile ? {
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: '12px',
+                              background: 'rgba(255, 255, 255, 0.8)',
+                              backdropFilter: 'blur(10px)',
+                              transition: 'all 0.3s ease',
+                              '&:focus-within': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                              }
+                            }
+                          } : {}}
+                        />
+                      </Grid>
+
+                    </Grid>
+                  </div>
 
                   {/* Actions Section */}
-                  <div className="flex flex-wrap gap-4 mt-6">
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={toggleModal}
-                      startIcon={<LocalAtmIcon />}
-                      className="bg-indigo-600 hover:bg-indigo-700"
-                    >
-                      Appliquer Remise
-                    </Button>
-                    <Button
-                      variant="contained"
-                      onClick={toggleModalPay}
-                      className="bg-green-600 hover:bg-green-700"
-                    >
-                      Paiement
-                            </Button>
-                    <Button
-                      variant="contained"
-                      onClick={handleOpen}
-                      className="bg-purple-600 hover:bg-purple-700"
-                    >
-                      Remise Facture
-                            </Button>
-                    </div>                
-                    
+                  <div className={`${isMobile ? 'mobile-actions-section' : 'flex flex-wrap gap-4 mt-6'}`}>
+                    <div className={`${isMobile ? 'mobile-action-buttons' : 'flex flex-wrap gap-4'}`}>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={toggleModal}
+                        startIcon={<LocalAtmIcon />}
+                        className={`${isMobile ? 'mobile-button mobile-button-warning' : 'bg-indigo-600 hover:bg-indigo-700'}`}
+                        sx={isMobile ? {
+                          borderRadius: '12px',
+                          fontWeight: 600,
+                          textTransform: 'none',
+                          transition: 'all 0.3s ease',
+                          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                          background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                          '&:hover': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
+                            background: 'linear-gradient(135deg, #d97706, #b45309)'
+                          }
+                        } : {}}
+                      >
+                        Appliquer Remise
+                      </Button>
+                      <Button
+                        variant="contained"
+                        onClick={toggleModalPay}
+                        className={`${isMobile ? 'mobile-button mobile-button-success' : 'bg-green-600 hover:bg-green-700'}`}
+                        sx={isMobile ? {
+                          borderRadius: '12px',
+                          fontWeight: 600,
+                          textTransform: 'none',
+                          transition: 'all 0.3s ease',
+                          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                          background: 'linear-gradient(135deg, #10b981, #059669)',
+                          '&:hover': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
+                            background: 'linear-gradient(135deg, #059669, #047857)'
+                          }
+                        } : {}}
+                      >
+                        Paiement
+                      </Button>
+                      <Button
+                        variant="contained"
+                        onClick={handleOpen}
+                        className={`${isMobile ? 'mobile-button mobile-button-primary' : 'bg-purple-600 hover:bg-purple-700'}`}
+                        sx={isMobile ? {
+                          borderRadius: '12px',
+                          fontWeight: 600,
+                          textTransform: 'none',
+                          transition: 'all 0.3s ease',
+                          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                          background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                          '&:hover': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
+                            background: 'linear-gradient(135deg, #1d4ed8, #1e40af)'
+                          }
+                        } : {}}
+                      >
+                        Remise Facture
+                      </Button>
+                    </div>
+                  </div>                
+                  
                   {/* Date Filter Section */}
                   {(unUser.role === 1 || unUser.role === 2) && (
-                    <div className="flex flex-wrap gap-4 items-center bg-white p-4 rounded-lg shadow-sm">
+                    <div className={`${isMobile ? 'mobile-filters-section' : 'flex flex-wrap gap-4 items-center bg-white p-4 rounded-lg shadow-sm'}`}>
+                      <Grid 
+                        container 
+                        spacing={isMobile ? 2 : 3} 
+                        className={isMobile ? 'mobile-grid' : ''}
+                      >
+                        <Grid item xs={12} md={6}>
                           <TextField
                             label="Date de début"
                             type="date"
                             value={selectedStartDate}
                             onChange={handleStartDateChange}
                             InputLabelProps={{ shrink: true }}
-                        className="bg-white"
+                            className={`${isMobile ? 'mobile-date-field' : 'bg-white'}`}
+                            sx={isMobile ? {
+                              '& .MuiOutlinedInput-root': {
+                                borderRadius: '12px',
+                                background: 'rgba(255, 255, 255, 0.8)',
+                                backdropFilter: 'blur(10px)',
+                                transition: 'all 0.3s ease',
+                                '&:focus-within': {
+                                  transform: 'translateY(-2px)',
+                                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                                }
+                              }
+                            } : {}}
                           />
+                        </Grid>
+                        <Grid item xs={12} md={6}>
                           <TextField
                             label="Date de fin"
                             type="date"
                             value={selectedEndDate}
                             onChange={handleEndDateChange}
                             InputLabelProps={{ shrink: true }}
-                        className="bg-white"
-                      />
+                            className={`${isMobile ? 'mobile-date-field' : 'bg-white'}`}
+                            sx={isMobile ? {
+                              '& .MuiOutlinedInput-root': {
+                                borderRadius: '12px',
+                                background: 'rgba(255, 255, 255, 0.8)',
+                                backdropFilter: 'blur(10px)',
+                                transition: 'all 0.3s ease',
+                                '&:focus-within': {
+                                  transform: 'translateY(-2px)',
+                                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                                }
+                              }
+                            } : {}}
+                          />
+                        </Grid>
+                      </Grid>
                     </div>
                   )}
 
                   {/* Statistics Section */}
                   {unUser.role === 1 && (
-                    <Paper elevation={1} className="p-4 bg-blue-50">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Paper 
+                      elevation={1} 
+                      className={`${isMobile ? 'mobile-stats-card' : 'p-4 bg-blue-50'}`}
+                      sx={isMobile ? {
+                        borderRadius: '16px',
+                        backdropFilter: 'blur(10px)',
+                        background: 'rgba(255, 255, 255, 0.95)',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        transition: 'all 0.3s ease',
+                        animation: 'scaleIn 0.6s ease-out',
+                        '&:hover': {
+                          transform: 'translateY(-4px)',
+                          boxShadow: '0 12px 24px rgba(0, 0, 0, 0.1)'
+                        }
+                      } : {}}
+                    >
+                      <div className={`${isMobile ? 'grid grid-cols-1 gap-4' : 'grid grid-cols-1 md:grid-cols-2 gap-4'}`}>
                         <div className="flex items-center space-x-2">
-                          <LocalAtmIcon color="primary" />
-                          <Typography variant="h6">
+                          <LocalAtmIcon className={`${isMobile ? 'mobile-stats-icon' : ''}`} color="primary" />
+                          <Typography variant={isMobile ? "h6" : "h6"}>
                             CA: {formatNumberWithSpaces(totalPrice)}
                           </Typography>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <QuantityLimitsIcon color="primary" />
-                          <Typography variant="h6">
+                          <QuantityLimitsIcon className={`${isMobile ? 'mobile-stats-icon' : ''}`} color="primary" />
+                          <Typography variant={isMobile ? "h6" : "h6"}>
                             Qté: {formatNumberWithSpaces(totalQte)}
                           </Typography>
                         </div>
@@ -555,7 +778,7 @@ export default function Sortie() {
                   )}
 
                   {/* Table Section */}
-                  <div className="mt-6">
+                  <div className={`${isMobile ? 'mobile-m-4' : 'mt-6'}`}>
                     <TableSortie 
                     onSubmit={onSubmit}
                     onChange={onChange}
@@ -579,30 +802,48 @@ export default function Sortie() {
                   </div>
 
                   {/* Pagination */}
-                  <div className="flex justify-center mt-6">
-                      <Pagination
-                        count={totalPages}
-                        page={currentPage}
-                        onChange={handlePageChange}
-                        color="primary"
-                      size="large"
-                      />
-                    </div>
+                  <div className={`${isMobile ? 'mobile-pagination' : 'flex justify-center mt-6'}`}>
+                    <Pagination
+                      count={totalPages}
+                      page={currentPage}
+                      onChange={handlePageChange}
+                      color="primary"
+                      size={isMobile ? "medium" : "large"}
+                      sx={isMobile ? {
+                        '& .MuiPaginationItem-root': {
+                          borderRadius: '8px',
+                          margin: '0 2px'
+                        }
+                      } : {}}
+                    />
+                  </div>
 
                   {/* Notes Section */}
-                  <div className="mt-6">
-                    <Typography variant="h6" className="mb-2">
+                  <div className={`${isMobile ? 'mobile-notes-section' : 'mt-6'}`}>
+                    <Typography variant={isMobile ? "h6" : "h6"} className="mb-2">
                       Notes additionnelles
                     </Typography>
                     <TextField
                       fullWidth
                       multiline
-                      rows={4}
-                    name="notes"
+                      rows={isMobile ? 3 : 4}
+                      name="notes"
                       placeholder="Ajouter des notes ou commentaires pour cette facture..."
                       variant="outlined"
-                    onChange={onChan}
-                      className="bg-white"
+                      onChange={onChan}
+                      className={`${isMobile ? 'mobile-form-field' : 'bg-white'}`}
+                      sx={isMobile ? {
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: '12px',
+                          background: 'rgba(255, 255, 255, 0.8)',
+                          backdropFilter: 'blur(10px)',
+                          transition: 'all 0.3s ease',
+                          '&:focus-within': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                          }
+                        }
+                      } : {}}
                     />
                   </div>
                 </div>
@@ -610,26 +851,36 @@ export default function Sortie() {
 
               {/* Invoice Preview Section */}
               {showInvoice && entreprise && (
-                <div className="mt-8">
-              <Fact               
-              clientName={clientInfo.clientName || texte.clientName}
-              clientAddress={clientInfo.clientAddress || texte.clientAddress}
-              clientCoordonne={clientInfo.clientCoordonne || texte.clientCoordonne}
-              invoiceNumber={clientInfo.clientNumero || texte.invoiceNumber}
-              invoiceDate={texte.invoiceDate || itemDate}
-              numeroFac={texte.numeroFac}
-              dueDate={texte.dueDate}
-              notes={texte.notes}
-              post={entreprise}
-              discountedTotal={discountedTotal}
-              payerTotal={payerTotal}
-              />
+                <div className={`${isMobile ? 'mobile-preview-section' : 'mt-8'}`}>
+                  <Fact               
+                  clientName={clientInfo.clientName || texte.clientName}
+                  clientAddress={clientInfo.clientAddress || texte.clientAddress}
+                  clientCoordonne={clientInfo.clientCoordonne || texte.clientCoordonne}
+                  invoiceNumber={clientInfo.clientNumero || texte.invoiceNumber}
+                  invoiceDate={texte.invoiceDate || itemDate}
+                  numeroFac={texte.numeroFac}
+                  dueDate={texte.dueDate}
+                  notes={texte.notes}
+                  post={entreprise}
+                  discountedTotal={discountedTotal}
+                  payerTotal={payerTotal}
+                  />
                 </div>
               )}
 
               {/* Modals */}
               <Modal open={isModalOpen} onClose={toggleModal}>
-                <Box sx={style}>
+                <Box 
+                  sx={isMobile ? {
+                    ...style,
+                    borderRadius: '20px',
+                    background: 'rgba(255, 255, 255, 0.95)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    animation: 'bounceIn 0.6s ease-out'
+                  } : style}
+                  className={isMobile ? 'mobile-modal' : ''}
+                >
                   <Typography variant="h6" className="mb-4">
                     Appliquer une remise
                   </Typography>
@@ -641,6 +892,19 @@ export default function Sortie() {
                       value={fixedDiscount}
                       onChange={(e) => setFixedDiscount(normalizeInput(e.target.value))}
                       helperText="Ex: 1500 ou 85.45"
+                      className={isMobile ? 'mobile-form-field' : ''}
+                      sx={isMobile ? {
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: '12px',
+                          background: 'rgba(255, 255, 255, 0.8)',
+                          backdropFilter: 'blur(10px)',
+                          transition: 'all 0.3s ease',
+                          '&:focus-within': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                          }
+                        }
+                      } : {}}
                     />
                     <TextField
                       fullWidth
@@ -649,15 +913,57 @@ export default function Sortie() {
                       value={percentageDiscount}
                       onChange={(e) => setPercentageDiscount(normalizeInput(e.target.value))}
                       helperText="Ex: 2% ou 5%"
+                      className={isMobile ? 'mobile-form-field' : ''}
+                      sx={isMobile ? {
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: '12px',
+                          background: 'rgba(255, 255, 255, 0.8)',
+                          backdropFilter: 'blur(10px)',
+                          transition: 'all 0.3s ease',
+                          '&:focus-within': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                          }
+                        }
+                      } : {}}
                     />
-                    <div className="flex justify-end space-x-3 pt-4">
-                      <Button variant="outlined" onClick={toggleModal}>
+                    <div className={`${isMobile ? 'mobile-action-buttons' : 'flex justify-end space-x-3 pt-4'}`}>
+                      <Button 
+                        variant="outlined" 
+                        onClick={toggleModal}
+                        className={isMobile ? 'mobile-button' : ''}
+                        sx={isMobile ? {
+                          borderRadius: '12px',
+                          fontWeight: 600,
+                          textTransform: 'none',
+                          transition: 'all 0.3s ease',
+                          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                          '&:hover': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)'
+                          }
+                        } : {}}
+                      >
                         Annuler
                       </Button>
                       <Button
                         variant="contained"
                         color="primary"
                         onClick={handleApplyDiscount}
+                        className={`${isMobile ? 'mobile-button mobile-button-primary' : ''}`}
+                        sx={isMobile ? {
+                          borderRadius: '12px',
+                          fontWeight: 600,
+                          textTransform: 'none',
+                          transition: 'all 0.3s ease',
+                          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                          background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                          '&:hover': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
+                            background: 'linear-gradient(135deg, #1d4ed8, #1e40af)'
+                          }
+                        } : {}}
                       >
                         Appliquer
                       </Button>
@@ -667,7 +973,17 @@ export default function Sortie() {
               </Modal>
 
               <Modal open={isModalOpenPay} onClose={toggleModalPay}>
-                <Box sx={style}>
+                <Box 
+                  sx={isMobile ? {
+                    ...style,
+                    borderRadius: '20px',
+                    background: 'rgba(255, 255, 255, 0.95)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    animation: 'bounceIn 0.6s ease-out'
+                  } : style}
+                  className={isMobile ? 'mobile-modal' : ''}
+                >
                   <Typography variant="h6" className="mb-4">
                     Enregistrer le paiement
                   </Typography>
@@ -678,16 +994,57 @@ export default function Sortie() {
                     value={payDiscount}
                     onChange={(e) => setPayDiscount(normalizeInput(e.target.value))}
                     helperText="Ex: 1500 ou 85.45"
-                    className="mb-4"
+                    className={`${isMobile ? 'mobile-form-field mb-4' : 'mb-4'}`}
+                    sx={isMobile ? {
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '12px',
+                        background: 'rgba(255, 255, 255, 0.8)',
+                        backdropFilter: 'blur(10px)',
+                        transition: 'all 0.3s ease',
+                        '&:focus-within': {
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                        }
+                      }
+                    } : {}}
                   />
-                  <div className="flex justify-end space-x-3">
-                    <Button variant="outlined" onClick={toggleModalPay}>
+                  <div className={`${isMobile ? 'mobile-action-buttons' : 'flex justify-end space-x-3'}`}>
+                    <Button 
+                      variant="outlined" 
+                      onClick={toggleModalPay}
+                      className={isMobile ? 'mobile-button' : ''}
+                      sx={isMobile ? {
+                        borderRadius: '12px',
+                        fontWeight: 600,
+                        textTransform: 'none',
+                        transition: 'all 0.3s ease',
+                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                        '&:hover': {
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)'
+                        }
+                      } : {}}
+                    >
                       Annuler
                     </Button>
                     <Button
                       variant="contained"
                       color="primary"
                       onClick={handleApplyPayer}
+                      className={`${isMobile ? 'mobile-button mobile-button-success' : ''}`}
+                      sx={isMobile ? {
+                        borderRadius: '12px',
+                        fontWeight: 600,
+                        textTransform: 'none',
+                        transition: 'all 0.3s ease',
+                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                        background: 'linear-gradient(135deg, #10b981, #059669)',
+                        '&:hover': {
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
+                          background: 'linear-gradient(135deg, #059669, #047857)'
+                        }
+                      } : {}}
                     >
                       Confirmer
                     </Button>
@@ -708,10 +1065,19 @@ export default function Sortie() {
                   maxWidth: '800px',
                   maxHeight: '90vh',
                   overflow: 'auto',
-                }}>
+                  ...(isMobile && {
+                    borderRadius: '20px',
+                    background: 'rgba(255, 255, 255, 0.95)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    animation: 'bounceIn 0.6s ease-out'
+                  })
+                }}
+                className={isMobile ? 'mobile-confirmation-section' : ''}
+              >
                   <div className="space-y-6">
                     {/* Header */}
-                    <div className="border-b pb-4">
+                    <div className={`${isMobile ? 'mobile-modal-header' : 'border-b pb-4'}`}>
                       <Typography
                         id="confirmation-modal-title"
                         variant="h5"
@@ -733,12 +1099,20 @@ export default function Sortie() {
                     <TableContainer
                       component={Paper}
                       elevation={0}
+                      className={isMobile ? 'mobile-table-container' : ''}
                       sx={{
                         backgroundColor: 'transparent',
                         '& .MuiTable-root': {
                           borderCollapse: 'separate',
                           borderSpacing: '0 4px',
                         },
+                        ...(isMobile && {
+                          borderRadius: '16px',
+                          overflow: 'hidden',
+                          background: 'rgba(255, 255, 255, 0.95)',
+                          backdropFilter: 'blur(10px)',
+                          border: '1px solid rgba(255, 255, 255, 0.2)'
+                        })
                       }}
                     >
                       <Table
@@ -760,32 +1134,32 @@ export default function Sortie() {
                         }}
                       >
                         <TableHead>
-                          <TableRow>
-                            <TableCell className="font-semibold">Désignation</TableCell>
-                            <TableCell align="right" className="font-semibold">Quantité</TableCell>
-                            <TableCell align="right" className="font-semibold">Prix unitaire</TableCell>
-                            <TableCell align="right" className="font-semibold">Total</TableCell>
+                          <TableRow className={isMobile ? 'mobile-table-header' : ''}>
+                            <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} font-semibold`}>Désignation</TableCell>
+                            <TableCell align="right" className={`${isMobile ? 'mobile-table-cell' : ''} font-semibold`}>Quantité</TableCell>
+                            <TableCell align="right" className={`${isMobile ? 'mobile-table-cell' : ''} font-semibold`}>Prix unitaire</TableCell>
+                            <TableCell align="right" className={`${isMobile ? 'mobile-table-cell' : ''} font-semibold`}>Total</TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
                           {selectSorties.map((post, index) => (
                             <TableRow key={index}>
-                              <TableCell className="text-gray-900">
+                              <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} text-gray-900`}>
                                 <div className="flex flex-col">
                                   <span className="font-medium">{post.ref}</span>
                                   <span className="text-gray-500 text-sm">{post.categorie_libelle}</span>
                                 </div>
                               </TableCell>
-                              <TableCell align="right">{post.qte}</TableCell>
-                              <TableCell align="right">{formatNumberWithSpaces(post.pu)} F</TableCell>
-                              <TableCell align="right" className="font-medium">
+                              <TableCell align="right" className={isMobile ? 'mobile-table-cell' : ''}>{post.qte}</TableCell>
+                              <TableCell align="right" className={isMobile ? 'mobile-table-cell' : ''}>{formatNumberWithSpaces(post.pu)} F</TableCell>
+                              <TableCell align="right" className={`${isMobile ? 'mobile-table-cell' : ''} font-medium`}>
                                 {formatNumberWithSpaces(post.prix_total)} F
                               </TableCell>
                             </TableRow>
                           ))}
 
                           {/* Summary Rows */}
-                          <TableRow sx={{ backgroundColor: '#f8fafc !important' }}>
+                          <TableRow className={isMobile ? 'mobile-total-row' : ''} sx={{ backgroundColor: '#f8fafc !important' }}>
                             <TableCell rowSpan={3} />
                             <TableCell
                               colSpan={2}
@@ -801,7 +1175,7 @@ export default function Sortie() {
                               {formatNumberWithSpaces(total)} F
                             </TableCell>
                           </TableRow>
-                          <TableRow sx={{ backgroundColor: '#f8fafc !important' }}>
+                          <TableRow className={isMobile ? 'mobile-total-row' : ''} sx={{ backgroundColor: '#f8fafc !important' }}>
                             <TableCell
                               colSpan={2}
                               align="right"
@@ -816,7 +1190,7 @@ export default function Sortie() {
                               - {formatNumberWithSpaces(total - discountedTotal)} F
                             </TableCell>
                           </TableRow>
-                          <TableRow sx={{ backgroundColor: '#f8fafc !important' }}>
+                          <TableRow className={isMobile ? 'mobile-total-row' : ''} sx={{ backgroundColor: '#f8fafc !important' }}>
                             <TableCell
                               colSpan={2}
                               align="right"
@@ -836,11 +1210,22 @@ export default function Sortie() {
                     </TableContainer>
 
                     {/* Actions */}
-                    <div className="flex justify-end space-x-3 pt-4 border-t">
+                    <div className={`${isMobile ? 'mobile-action-buttons' : 'flex justify-end space-x-3'} pt-4 border-t`}>
                       <Button
                         variant="outlined"
                         onClick={handleClose}
-                        className="text-gray-600 border-gray-300 hover:bg-gray-50"
+                        className={`${isMobile ? 'mobile-button' : 'text-gray-600 border-gray-300 hover:bg-gray-50'}`}
+                        sx={isMobile ? {
+                          borderRadius: '12px',
+                          fontWeight: 600,
+                          textTransform: 'none',
+                          transition: 'all 0.3s ease',
+                          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                          '&:hover': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)'
+                          }
+                        } : {}}
                       >
                         Annuler
                       </Button>

@@ -123,13 +123,15 @@ import BusinessIcon from '@mui/icons-material/Business';
                 <Typography variant="subtitle2">Coordonnées</Typography>
               </div>
               <MyTextField 
-              fullWidth
-              variant="outlined"
-              name="coordonne"
-              onChange={onChange}
-              value={unClient.coordonne}
-              placeholder="Coordonnées supplémentaires"
-              className="bg-white"
+                fullWidth
+                multiline
+                rows={4}
+                variant="outlined"
+                name="coordonne"
+                onChange={onChange}
+                value={unClient.coordonne}
+                placeholder="Coordonnées supplémentaires"
+                className="bg-white"
               />
             </div>
   

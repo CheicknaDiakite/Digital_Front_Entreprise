@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import { DataSlugType, DataType, DepenseType, EntreType, RecupType, SortieType, TypeSlug } from "../typescript/DataType";
+import { DataSlugType, DataType, DepenseType, DepenseSumType, EntreType, RecupType, SortieType, TypeSlug } from "../typescript/DataType";
 import { depenseService, entrerService, sortieService } from "../_services";
 import { foncError } from "./fonctionPerso";
 import { EntreFormType } from "../typescript/FormType";
@@ -87,6 +87,30 @@ export function useGetAllDepense(slug: string, uuid: string) {
       }, [us]);
 
     return { depensesEntreprise, setDepense, isLoading, isError };
+}
+
+export function useGetSumDepense(slug: string, uuid: string) {
+  const [depensesSum, setSum] = useState<DepenseSumType[]>([]);
+
+  const {data: us, isLoading, isError} = useQuery({
+    queryKey: ["depens", slug],
+    queryFn: () =>
+      depenseService.getSumDepense(slug, uuid).then((res) => {
+        if (res.data.etat === true) {
+          return res.data.donnee;
+        } else {
+          toast.error(res.data.message);
+        }
+      }),
+  });
+
+  useEffect(() => {
+      if (us) {
+          setSum(us);
+      }
+    }, [us]);
+
+  return { depensesSum, setSum, isLoading, isError };
 }
 
 export function useCreateDepense() {

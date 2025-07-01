@@ -28,27 +28,29 @@ const ContactAnimation: FC = () => (
   >
     <Typography
       component="span"
+      className='rounded border-x-2 animate-border-rotate'
+      variant="h5"
       sx={{
         backgroundImage: 'linear-gradient(to right, #60A5FA, #86EFAC)',
         backgroundClip: 'text',
-        color: 'transparent',
-        borderRadius: 1,
-        border: 2,
-        borderColor: 'primary.main',
+        // color: 'transparent',
+        // borderRadius: 1,
+        // border: 2,
+        // borderColor: 'primary.main',
         px: 2,
         py: 1,
-        animation: 'border-rotate 3s linear infinite',
-        '@keyframes border-rotate': {
-          '0%': {
-            borderColor: '#60A5FA'
-          },
-          '50%': {
-            borderColor: '#86EFAC'
-          },
-          '100%': {
-            borderColor: '#60A5FA'
-          }
-        }
+        // animation: 'border-rotate 3s linear infinite',
+        // '@keyframes border-rotate': {
+        //   '0%': {
+        //     borderColor: '#60A5FA'
+        //   },
+        //   '50%': {
+        //     borderColor: '#86EFAC'
+        //   },
+        //   '100%': {
+        //     borderColor: '#60A5FA'
+        //   }
+        // }
       }}
     >
       <TypeAnimation

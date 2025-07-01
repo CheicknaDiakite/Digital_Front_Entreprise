@@ -10,7 +10,7 @@ export default defineConfig({
         manifest: {
             name: 'Gest Stocks',
             short_name: 'Gest Stocks',
-            description: 'Meilleur logiciel pour votre gestion de stock',
+            description: 'Meilleur application pour votre gestion de stock',
             theme_color: '#ffffff',
             start_url: '/',
             icons: [
@@ -29,20 +29,33 @@ export default defineConfig({
         workbox: {
             globPatterns: ['**/*{js,css,html,ico,png,svg}'],
             maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB par exemple
-            runtimeCaching: [{
-                urlPattern: /^https:\/\/diakitedigital\.com\/.*/i,
-                handler: 'CacheFirst',
-                options: {
-                    cacheName: 'diakitedigital',
-                    expiration: {
-                        maxEntries: 10,
-                        maxAgeSeconds: 60
-                    },
-                    cacheableResponse: {
-                        statuses: [0, 200]
+            runtimeCaching: [
+                {
+                    urlPattern: /^https:\/\/diakitedigital\.com\/.*/i,
+                    handler: 'CacheFirst',
+                    options: {
+                        cacheName: 'diakitedigital',
+                        expiration: {
+                            maxEntries: 10,
+                            maxAgeSeconds: 60
+                        },
+                        cacheableResponse: {
+                            statuses: [0, 200]
+                        }
                     }
+                },
+                {
+                    urlPattern: /^https?:\/\/.*\.(?:png|jpg|jpeg|svg|gif)$/,
+                    handler: 'CacheFirst',
+                    options: {
+                        cacheName: 'images',
+                        expiration: {
+                            maxEntries: 60,
+                            maxAgeSeconds: 30 * 24 * 60 * 60, // 30 jours
+                        },
+                    },
                 }
-            }]
+            ]
         }
     })],
     build: {

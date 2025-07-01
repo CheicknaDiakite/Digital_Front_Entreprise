@@ -25,7 +25,7 @@ import AddIcon from '@mui/icons-material/Add';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 import DescriptionIcon from '@mui/icons-material/Description';
-import { ChangeEvent, FormEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, useState, useEffect } from 'react';
 import { connect } from '../../../../_services/account.service';
 import { useCreateFacSortie, useGetAllFacSortie } from '../../../../usePerso/fonction.facture';
 import CardFacSortie from './CardFacSortie';
@@ -37,16 +37,30 @@ import { RecupType } from '../../../../typescript/DataType';
 import M_Abonnement from '../../../../_components/Card/M_Abonnement';
 import { isLicenceExpired } from '../../../../usePerso/fonctionPerso';
 import { useFetchEntreprise } from '../../../../usePerso/fonction.user';
+import '../mobile-produit.css';
 
 export default function FacSortie() {
   const uuid = useStoreUuid((state) => state.selectedId)
   const {unEntreprise} = useFetchEntreprise(uuid!)
+  const [isMobile, setIsMobile] = useState(false);
 
   const {ajoutFacSortie} = useCreateFacSortie()
   const {facSortiesUtilisateur, isLoading, isError} = useGetAllFacSortie(connect, uuid!)
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 25;
+  const itemsPerPage = isMobile ? 10 : 25;
+
+  // Détection mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const [selectedStartDate, setSelectedStartDate] = useState<string>('');
   const [selectedEndDate, setSelectedEndDate] = useState<string>('');
@@ -134,10 +148,10 @@ export default function FacSortie() {
 
   if (isLoading) {
     return (
-      <Box sx={{ width: '100%', padding: 3 }}>
-        <Skeleton height={60} />
-        <Skeleton height={40} />
-        <Skeleton height={400} />
+      <Box sx={{ width: '100%', padding: isMobile ? 2 : 3 }}>
+        <Skeleton height={60} className={isMobile ? 'mobile-loading' : ''} />
+        <Skeleton height={40} className={isMobile ? 'mobile-loading' : ''} />
+        <Skeleton height={400} className={isMobile ? 'mobile-loading' : ''} />
       </Box>
     );
   }
@@ -149,12 +163,23 @@ export default function FacSortie() {
 
   if (facSortiesUtilisateur) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className={`min-h-screen ${isMobile ? '' : ''}`}>
         <Nav />
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mb-8 flex justify-between items-center">
-            <Typography variant="h4" className="font-semibold text-gray-900">
+        <div className={`${isMobile ? 'px-4 py-6' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'}`}>
+          <div className={`${isMobile ? 'mobile-header-container' : 'mb-8 flex justify-between items-center'}`}>
+            <Typography 
+              variant={isMobile ? "h5" : "h4"} 
+              className={`${isMobile ? 'mobile-title' : 'font-semibold text-gray-900'}`}
+              sx={isMobile ? {
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                fontWeight: 700,
+                textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+              } : {}}
+            >
               Factures de Sortie
             </Typography>
             <Tooltip title="Ajouter une facture" arrow TransitionComponent={Fade}>
@@ -162,20 +187,55 @@ export default function FacSortie() {
                 variant="contained"
                 startIcon={<AddIcon />}
                 onClick={functionopen}
-                className="bg-blue-600 hover:bg-blue-700"
+                className={`${isMobile ? 'mobile-button mobile-button-primary' : 'bg-blue-600 hover:bg-blue-700'}`}
+                sx={isMobile ? {
+                  borderRadius: '12px',
+                  fontWeight: 600,
+                  textTransform: 'none',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                  background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
+                    background: 'linear-gradient(135deg, #1d4ed8, #1e40af)'
+                  }
+                } : {}}
               >
                 Nouvelle Facture
               </Button>
             </Tooltip>
           </div>
 
-          <Paper elevation={0} className="mb-6 p-4 border rounded-lg">
-            <Grid container spacing={3} alignItems="center">
+          <Paper 
+            elevation={0} 
+            className={`${isMobile ? 'mobile-filters-section' : 'mb-6 p-4 border rounded-lg'}`}
+            sx={isMobile ? {
+              background: 'rgba(255, 255, 255, 0.9)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: '16px',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              padding: '16px',
+              marginBottom: '16px',
+              animation: 'slideInUp 0.6s ease-out'
+            } : {}}
+          >
+            <Grid 
+              container 
+              spacing={isMobile ? 2 : 3} 
+              alignItems="center"
+              className={isMobile ? 'mobile-grid' : ''}
+              sx={{
+                '& .MuiGrid-item': {
+                  padding: isMobile ? '8px' : '12px'
+                }
+              }}
+            >
               <Grid item xs={12} md={6}>
-                <Typography variant="subtitle2" className="mb-2 text-gray-700">
+                <Typography variant="subtitle2" className={`${isMobile ? 'mb-2 text-gray-700' : 'mb-2 text-gray-700'}`}>
                   Filtrer par période
                 </Typography>
-                <Grid container spacing={2}>
+                <Grid container spacing={isMobile ? 1 : 2}>
                   <Grid item xs={6}>
                     <TextField
                       fullWidth
@@ -184,7 +244,19 @@ export default function FacSortie() {
                       value={selectedStartDate}
                       onChange={handleStartDateChange}
                       InputLabelProps={{ shrink: true }}
-                      className="bg-white"
+                      className={`${isMobile ? 'mobile-date-field' : 'bg-white'}`}
+                      sx={isMobile ? {
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: '12px',
+                          background: 'rgba(255, 255, 255, 0.8)',
+                          backdropFilter: 'blur(10px)',
+                          transition: 'all 0.3s ease',
+                          '&:focus-within': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                          }
+                        }
+                      } : {}}
                     />
                   </Grid>
                   <Grid item xs={6}>
@@ -195,7 +267,19 @@ export default function FacSortie() {
                       value={selectedEndDate}
                       onChange={handleEndDateChange}
                       InputLabelProps={{ shrink: true }}
-                      className="bg-white"
+                      className={`${isMobile ? 'mobile-date-field' : 'bg-white'}`}
+                      sx={isMobile ? {
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: '12px',
+                          background: 'rgba(255, 255, 255, 0.8)',
+                          backdropFilter: 'blur(10px)',
+                          transition: 'all 0.3s ease',
+                          '&:focus-within': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                          }
+                        }
+                      } : {}}
                     />
                   </Grid>
                 </Grid>
@@ -206,7 +290,14 @@ export default function FacSortie() {
                   page={currentPage}
                   onChange={handlePageChange}
                   color="primary"
-                  className="mt-4 md:mt-0"
+                  size={isMobile ? "medium" : "large"}
+                  className={`${isMobile ? 'mobile-pagination' : 'mt-4 md:mt-0'}`}
+                  sx={isMobile ? {
+                    '& .MuiPaginationItem-root': {
+                      borderRadius: '8px',
+                      margin: '0 2px'
+                    }
+                  } : {}}
                 />
               </Grid>
             </Grid>
@@ -219,10 +310,17 @@ export default function FacSortie() {
             maxWidth="sm"
             PaperProps={{
               elevation: 0,
-              className: "rounded-lg"
+              className: isMobile ? "mobile-modal" : "rounded-lg",
+              sx: isMobile ? {
+                borderRadius: '20px',
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                animation: 'bounceIn 0.6s ease-out'
+              } : {}
             }}
           >
-            <DialogTitle className="flex justify-between items-center border-b pb-3">
+            <DialogTitle className={`${isMobile ? 'mobile-modal-header' : 'flex justify-between items-center'} border-b pb-3`}>
               <Typography variant="h6">Ajouter une facture de sortie</Typography>
               <IconButton onClick={closeopen} size="small">
                 <CloseIcon />
@@ -232,7 +330,7 @@ export default function FacSortie() {
             {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
               <M_Abonnement />  
             ) : (        
-              <DialogContent className="mt-4">              
+              <DialogContent className={`${isMobile ? 'mobile-p-4' : 'mt-4'}`}>              
                 <form onSubmit={onSubmit} className="space-y-4 p-2">
                   <MyTextField
                     required
@@ -240,9 +338,22 @@ export default function FacSortie() {
                     label="Libellé"
                     name="libelle"
                     onChange={onChange}
+                    className={`${isMobile ? 'mobile-form-field' : ''}`}
                     InputProps={{
                       startAdornment: <DescriptionIcon className="mr-2 text-gray-400" />,
                     }}
+                    sx={isMobile ? {
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '12px',
+                        background: 'rgba(255, 255, 255, 0.8)',
+                        backdropFilter: 'blur(10px)',
+                        transition: 'all 0.3s ease',
+                        '&:focus-within': {
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                        }
+                      }
+                    } : {}}
                   />
                   
                   <MyTextField
@@ -251,9 +362,22 @@ export default function FacSortie() {
                     label="Référence"
                     name="ref"
                     onChange={onChange}
+                    className={`${isMobile ? 'mobile-form-field' : ''}`}
                     InputProps={{
                       startAdornment: <ReceiptIcon className="mr-2 text-gray-400" />,
                     }}
+                    sx={isMobile ? {
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '12px',
+                        background: 'rgba(255, 255, 255, 0.8)',
+                        backdropFilter: 'blur(10px)',
+                        transition: 'all 0.3s ease',
+                        '&:focus-within': {
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                        }
+                      }
+                    } : {}}
                   />
                   
                   <MyTextField
@@ -264,9 +388,22 @@ export default function FacSortie() {
                     type="date"
                     onChange={onChange}
                     InputLabelProps={{ shrink: true }}
+                    className={`${isMobile ? 'mobile-date-field' : ''}`}
                     InputProps={{
                       startAdornment: <DateRangeIcon className="mr-2 text-gray-400" />,
                     }}
+                    sx={isMobile ? {
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '12px',
+                        background: 'rgba(255, 255, 255, 0.8)',
+                        backdropFilter: 'blur(10px)',
+                        transition: 'all 0.3s ease',
+                        '&:focus-within': {
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                        }
+                      }
+                    } : {}}
                   />
                   
                   <MyTextField 
@@ -276,16 +413,44 @@ export default function FacSortie() {
                     type="file"
                     onChange={handleImageChange}
                     InputLabelProps={{ shrink: true }}
+                    className={`${isMobile ? 'mobile-file-field' : ''}`}
                     InputProps={{
                       startAdornment: <ReceiptIcon className="mr-2 text-gray-400" />,
                     }}
+                    sx={isMobile ? {
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '12px',
+                        background: 'rgba(255, 255, 255, 0.8)',
+                        backdropFilter: 'blur(10px)',
+                        transition: 'all 0.3s ease',
+                        border: '2px dashed rgba(59, 130, 246, 0.3)',
+                        '&:focus-within': {
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                          borderColor: 'rgba(59, 130, 246, 0.6)'
+                        }
+                      }
+                    } : {}}
                   />
                   
-                  <div className="pt-4 border-t flex justify-end">
+                  <div className={`${isMobile ? 'mobile-action-buttons' : 'pt-4 border-t flex justify-end'}`}>
                     <Button
                       type="submit"
                       variant="contained"
-                      className="bg-blue-600 hover:bg-blue-700"
+                      className={`${isMobile ? 'mobile-button mobile-button-primary' : 'bg-blue-600 hover:bg-blue-700'}`}
+                      sx={isMobile ? {
+                        borderRadius: '12px',
+                        fontWeight: 600,
+                        textTransform: 'none',
+                        transition: 'all 0.3s ease',
+                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                        background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                        '&:hover': {
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
+                          background: 'linear-gradient(135deg, #1d4ed8, #1e40af)'
+                        }
+                      } : {}}
                     >
                       Enregistrer
                     </Button>
@@ -295,14 +460,26 @@ export default function FacSortie() {
             )}
           </Dialog>
       
-          <TableContainer component={Paper} elevation={0} className="border rounded-lg">
+          <TableContainer 
+            component={Paper} 
+            elevation={0} 
+            className={`${isMobile ? 'mobile-table-container' : 'border rounded-lg'}`}
+            sx={isMobile ? {
+              borderRadius: '16px',
+              overflow: 'hidden',
+              background: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              marginTop: '16px'
+            } : {}}
+          >
             <Table>
-              <TableHead className="bg-gray-50">
+              <TableHead className={isMobile ? 'mobile-table-header' : 'bg-gray-50'}>
                 <TableRow>
-                  <TableCell className="font-semibold">Date</TableCell>
-                  <TableCell className="font-semibold">Libellé</TableCell>
-                  <TableCell className="font-semibold">Référence</TableCell>
-                  <TableCell className="font-semibold">Actions</TableCell>
+                  <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} font-semibold`}>Date</TableCell>
+                  <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} font-semibold`}>Libellé</TableCell>
+                  <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} font-semibold`}>Référence</TableCell>
+                  <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} font-semibold`}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -312,7 +489,7 @@ export default function FacSortie() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={4} align="center" className="py-8 text-gray-500">
+                    <TableCell colSpan={4} align="center" className={`${isMobile ? 'mobile-empty-card py-8' : 'py-8'} text-gray-500`}>
                       Aucune facture de sortie disponible
                     </TableCell>
                   </TableRow>

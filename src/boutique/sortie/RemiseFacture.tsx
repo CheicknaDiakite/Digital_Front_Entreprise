@@ -15,6 +15,8 @@ import {
   TextField, 
   Typography,
   IconButton,
+  Stack,
+  Tooltip,
 } from '@mui/material';
 import { ChangeEvent, Fragment, useState } from 'react';
 import CardTableSortie from './CardTableSortie';
@@ -27,19 +29,19 @@ import { useStoreCart } from '../../usePerso/cart_store';
 import { formatNumberWithSpaces } from '../../usePerso/fonctionPerso';
 import { connect } from '../../_services/account.service';
 import CloseIcon from '@mui/icons-material/Close';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 
-const style = {
+// Styles
+const modalStyle = {
   position: 'absolute',
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: 400,
   bgcolor: 'background.paper',
-  border: '2px solid #000',
+  borderRadius: 2,
   boxShadow: 24,
-  pt: 2,
-  px: 4,
-  pb: 3,
+  p: 4,
 };
 
 function ChildModal() {
@@ -68,7 +70,7 @@ function ChildModal() {
         aria-labelledby="child-modal-title"
         aria-describedby="child-modal-description"
       >
-        <Box sx={{ ...style, width: 200 }}>
+        <Box sx={{ ...modalStyle, width: 200 }}>
           <h1 id="child-modal-title">Annuler la remise</h1>
           {/* <p id="child-modal-description">
             Lorem ipsum, dolor sit amet consectetur adipisicing elit.
@@ -80,58 +82,55 @@ function ChildModal() {
   );
 }
 
-// Types
-// interface ConfirmationModalProps {
-//   open: boolean;
-//   onClose: () => void;
-//   onConfirm: () => void;
-//   selectedItems: number;
-// }
-
 // Components
 const LoadingState = () => (
-  <Box className="p-6">
-    <Skeleton variant="rectangular" height={100} className="mb-4" />
-    <Skeleton variant="rectangular" height={400} />
+  <Box sx={{ p: 3 }}>
+    <Skeleton variant="rectangular" height={100} sx={{ mb: 2, borderRadius: 1 }} />
+    <Skeleton variant="rectangular" height={400} sx={{ borderRadius: 1 }} />
   </Box>
 );
 
 const ErrorState = () => (
-  <Box className="p-6">
-    <Typography variant="h6" color="error" align="center">
+  <Box sx={{ p: 3, textAlign: 'center' }}>
+    <Typography variant="h6" color="error">
       Une erreur est survenue. Veuillez rafraîchir la page.
     </Typography>
   </Box>
 );
 
-// const ConfirmationModal = ({ open, onClose, onConfirm, selectedItems }: ConfirmationModalProps) => (
+// const ConfirmationModal = ({ open, onClose, onConfirm, selectedItems }: { 
+//   open: boolean; 
+//   onClose: () => void; 
+//   onConfirm: () => void; 
+//   selectedItems: number;
+// }) => (
 //   <Modal
 //     open={open}
 //     onClose={onClose}
 //     aria-labelledby="confirmation-modal-title"
 //   >
-//     <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl p-6 w-[400px]">
-//       <div className="flex justify-between items-center mb-4">
+//     <Box sx={modalStyle}>
+//       <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
 //         <Typography variant="h6" id="confirmation-modal-title">
 //           Confirmation de remise
 //         </Typography>
 //         <IconButton onClick={onClose} size="small">
 //           <CloseIcon />
 //         </IconButton>
-//       </div>
+//       </Stack>
       
-//       <Typography variant="body1" className="mb-6">
+//       <Typography variant="body1" sx={{ mb: 3 }}>
 //         Voulez-vous vraiment annuler la remise sur {selectedItems} facture(s) ?
 //       </Typography>
 
-//       <div className="flex justify-end gap-3">
+//       <Stack direction="row" spacing={2} justifyContent="flex-end">
 //         <Button onClick={onClose} variant="outlined">
 //           Annuler
 //         </Button>
 //         <Button onClick={onConfirm} variant="contained" color="primary">
 //           Confirmer
 //         </Button>
-//       </div>
+//       </Stack>
 //     </Box>
 //   </Modal>
 // );
@@ -282,7 +281,7 @@ export default function RemiseFacture() {
                 aria-labelledby="parent-modal-title"
                 aria-describedby="parent-modal-description"
             >
-                <Box sx={{ ...style, width: 400 }}>
+                <Box sx={{ ...modalStyle, width: 400 }}>
                     <div className="flex justify-between items-center mb-4">
                         <h2 id="parent-modal-title">Vous voulez annuler la remise sur cette facture ?</h2>
                         <IconButton onClick={() => setIsModalOpen(false)} size="small">
@@ -378,12 +377,14 @@ export default function RemiseFacture() {
             </Grid>
     
             <Grid item xs={12} sm={6} className="py-2 mx-2">
-                <Typography variant="h5">
-                Nombre de remise sur facture : 
-                <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-700/10">
-                    {sortedList.length}
-                </span>
-                </Typography>
+                <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 2 }}>
+                    <Tooltip title="Nombre de remise sur facture">
+                        <LocalOfferIcon color="primary" />
+                    </Tooltip>
+                    <Typography variant="body1">
+                        {sortedList.length}
+                    </Typography>
+                </Stack>
             </Grid>
             </div>  
         

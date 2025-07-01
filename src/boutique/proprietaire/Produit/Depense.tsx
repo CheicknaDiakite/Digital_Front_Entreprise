@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -37,15 +37,30 @@ import { useStoreUuid } from '../../../usePerso/store';
 import { formatNumberWithSpaces, isLicenceExpired } from '../../../usePerso/fonctionPerso';
 import M_Abonnement from '../../../_components/Card/M_Abonnement';
 import { useFetchEntreprise } from '../../../usePerso/fonction.user';
+import Chart_Dep from '../../../_components/Chart/Chart_Dep';
+import './mobile-produit.css';
 
 export default function Depense() {
   const {ajoutDepense} = useCreateDepense();
   const uuid = useStoreUuid((state) => state.selectedId);
   const {unEntreprise} = useFetchEntreprise(uuid!);
   const {depensesEntreprise, isLoading, isError} = useGetAllDepense(connect, uuid!);
+  const [isMobile, setIsMobile] = useState(false);
   
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 25;
+  const itemsPerPage = isMobile ? 10 : 25;
+
+  // Détection mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const [selectedStartDate, setSelectedStartDate] = useState<string>('');
   const [selectedEndDate, setSelectedEndDate] = useState<string>('');
@@ -116,10 +131,10 @@ export default function Depense() {
 
   if (isLoading) {
     return (
-      <Box className="p-8">
-        <Card elevation={0}>
+      <Box className={`${isMobile ? 'mobile-p-4' : 'p-8'}`}>
+        <Card elevation={0} className={isMobile ? 'mobile-header-container' : ''}>
           <CardContent>
-            <div className="animate-pulse space-y-4">
+            <div className={`${isMobile ? 'mobile-loading' : 'animate-pulse'} space-y-4`}>
               <div className="h-4 bg-gray-200 rounded w-1/4"></div>
               <div className="h-10 bg-gray-200 rounded"></div>
               <div className="space-y-3">
@@ -136,8 +151,8 @@ export default function Depense() {
 
   if (isError) {
     return (
-      <Box className="p-8">
-        <Alert severity="error">
+      <Box className={`${isMobile ? 'mobile-p-4' : 'p-8'}`}>
+        <Alert severity="error" className={isMobile ? 'mobile-alert' : ''}>
           Une erreur est survenue lors du chargement des données
         </Alert>
       </Box>
@@ -146,19 +161,42 @@ export default function Depense() {
 
   if (depensesEntreprise) {
     return (
-      <div className="min-h-screen bg-gray-50 py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className={`min-h-screen ${isMobile ? '' : '' } py-6`}>
+        <div className={`${isMobile ? 'px-4' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'}`}>
           <Nav />
-          
-          <Paper elevation={0} className="mt-6 rounded-lg overflow-hidden">
-            <Box className="p-6">
+          <div className={isMobile ? 'mobile-chart-section' : ''}>
+            <Chart_Dep />
+          </div>
+          <Paper 
+            elevation={0} 
+            className={`${isMobile ? 'mobile-header-container' : 'mt-6 rounded-lg overflow-hidden'}`}
+            sx={isMobile ? {
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7))',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '20px',
+              marginTop: '24px'
+            } : {}}
+          >
+            <Box className={`${isMobile ? 'mobile-p-4' : 'p-6'}`}>
               {/* Header */}
-              <div className="flex justify-between items-center border-b pb-6 mb-6">
+              <div className={`${isMobile ? 'flex flex-col space-y-4' : 'flex justify-between items-center'} border-b pb-6 mb-6`}>
                 <div>
-                  <Typography variant="h4" className="font-semibold text-gray-900">
+                  <Typography 
+                    variant={isMobile ? "h5" : "h4"} 
+                    className={`${isMobile ? 'mobile-title' : 'font-semibold text-gray-900'}`}
+                    sx={isMobile ? {
+                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text',
+                      fontWeight: 700,
+                      textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                    } : {}}
+                  >
                     Gestion des Dépenses
                   </Typography>
-                  <Typography variant="body2" className="text-gray-500 mt-1">
+                  <Typography variant="body2" className={`${isMobile ? 'text-gray-600 mt-2' : 'text-gray-500 mt-1'}`}>
                     Gérez les dépenses de votre entreprise
                   </Typography>
                 </div>
@@ -166,15 +204,38 @@ export default function Depense() {
                   onClick={() => setOpen(true)}
                   variant="contained"
                   startIcon={<AddIcon />}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className={`${isMobile ? 'mobile-button mobile-button-primary' : 'bg-blue-600 hover:bg-blue-700'}`}
+                  sx={isMobile ? {
+                    borderRadius: '12px',
+                    fontWeight: 600,
+                    textTransform: 'none',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                    background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                    '&:hover': {
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
+                      background: 'linear-gradient(135deg, #1d4ed8, #1e40af)'
+                    }
+                  } : {}}
                 >
                   Ajouter une dépense
                 </Button>
               </div>
 
               {/* Filters and Summary */}
-              <div className="mb-6 space-y-4">
-                <Grid container spacing={3} alignItems="center">
+              <div className={`${isMobile ? 'mobile-filters-section' : 'mb-6 space-y-4'}`}>
+                <Grid 
+                  container 
+                  spacing={isMobile ? 2 : 3} 
+                  alignItems="center"
+                  className={isMobile ? 'mobile-grid' : ''}
+                  sx={{
+                    '& .MuiGrid-item': {
+                      padding: isMobile ? '8px' : '12px'
+                    }
+                  }}
+                >
                   <Grid item xs={12} sm={6} md={4}>
                     <TextField
                       fullWidth
@@ -190,7 +251,19 @@ export default function Depense() {
                           </InputAdornment>
                         ),
                       }}
-                      className="bg-white"
+                      className={`${isMobile ? 'mobile-date-field' : 'bg-white'}`}
+                      sx={isMobile ? {
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: '12px',
+                          background: 'rgba(255, 255, 255, 0.8)',
+                          backdropFilter: 'blur(10px)',
+                          transition: 'all 0.3s ease',
+                          '&:focus-within': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                          }
+                        }
+                      } : {}}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6} md={4}>
@@ -208,17 +281,44 @@ export default function Depense() {
                           </InputAdornment>
                         ),
                       }}
-                      className="bg-white"
+                      className={`${isMobile ? 'mobile-date-field' : 'bg-white'}`}
+                      sx={isMobile ? {
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: '12px',
+                          background: 'rgba(255, 255, 255, 0.8)',
+                          backdropFilter: 'blur(10px)',
+                          transition: 'all 0.3s ease',
+                          '&:focus-within': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                          }
+                        }
+                      } : {}}
                     />
                   </Grid>
                   <Grid item xs={12} md={4}>
-                    <Paper elevation={0} className="p-4 bg-blue-50 border border-blue-100 rounded-lg">
+                    <Paper 
+                      elevation={0} 
+                      className={`${isMobile ? 'mobile-stats-card' : 'p-4 bg-blue-50 border border-blue-100 rounded-lg'}`}
+                      sx={isMobile ? {
+                        borderRadius: '16px',
+                        backdropFilter: 'blur(10px)',
+                        background: 'rgba(255, 255, 255, 0.95)',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        transition: 'all 0.3s ease',
+                        animation: 'scaleIn 0.6s ease-out',
+                        '&:hover': {
+                          transform: 'translateY(-4px)',
+                          boxShadow: '0 12px 24px rgba(0, 0, 0, 0.1)'
+                        }
+                      } : {}}
+                    >
                       <Typography variant="subtitle2" className="text-blue-900 mb-1">
                         Total des dépenses
                       </Typography>
-                      <Typography variant="h4" className="text-blue-700 flex items-center">
+                      <Typography variant={isMobile ? "h5" : "h4"} className="text-blue-700 flex items-center">
                         {formatNumberWithSpaces(totalMontant)}
-                        <LocalAtmIcon className="ml-2" />
+                        <LocalAtmIcon className={`${isMobile ? 'mobile-stats-icon' : ''} ml-2`} />
                       </Typography>
                     </Paper>
                   </Grid>
@@ -226,14 +326,26 @@ export default function Depense() {
               </div>
 
               {/* Table */}
-              <TableContainer component={Paper} elevation={0} className="border">
+              <TableContainer 
+                component={Paper} 
+                elevation={0} 
+                className={`${isMobile ? 'mobile-table-container' : 'border'}`}
+                sx={isMobile ? {
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  background: 'rgba(255, 255, 255, 0.95)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  marginTop: '16px'
+                } : {}}
+              >
                 <Table>
-                  <TableHead className="bg-gray-50">
+                  <TableHead className={isMobile ? 'mobile-table-header' : 'bg-gray-50'}>
                     <TableRow>
-                      <TableCell className="font-medium">Date</TableCell>
-                      <TableCell className="font-medium">Libellé</TableCell>
-                      <TableCell className="font-medium">Montant</TableCell>
-                      <TableCell className="font-medium">Actions</TableCell>
+                      <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} font-medium`}>Date</TableCell>
+                      <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} font-medium`}>Libellé</TableCell>
+                      <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} font-medium`}>Montant</TableCell>
+                      <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} font-medium`}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -243,7 +355,7 @@ export default function Depense() {
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={4} align="center" className="py-8 text-gray-500">
+                        <TableCell colSpan={4} align="center" className={`${isMobile ? 'mobile-empty-card py-8' : 'py-8'} text-gray-500`}>
                           Aucune dépense enregistrée
                         </TableCell>
                       </TableRow>
@@ -253,13 +365,19 @@ export default function Depense() {
               </TableContainer>
 
               {/* Pagination */}
-              <div className="flex justify-center mt-6">
+              <div className={`${isMobile ? 'mobile-pagination' : 'flex justify-center mt-6'}`}>
                 <Pagination
                   count={totalPages}
                   page={currentPage}
                   onChange={handlePageChange}
                   color="primary"
-                  size="large"
+                  size={isMobile ? "medium" : "large"}
+                  sx={isMobile ? {
+                    '& .MuiPaginationItem-root': {
+                      borderRadius: '8px',
+                      margin: '0 2px'
+                    }
+                  } : {}}
                 />
               </div>
             </Box>
@@ -273,10 +391,17 @@ export default function Depense() {
             maxWidth="sm"
             PaperProps={{
               elevation: 0,
-              className: "rounded-lg"
+              className: isMobile ? "mobile-modal" : "rounded-lg",
+              sx: isMobile ? {
+                borderRadius: '20px',
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                animation: 'bounceIn 0.6s ease-out'
+              } : {}
             }}
           >
-            <DialogTitle className="flex justify-between items-center border-b pb-3">
+            <DialogTitle className={`${isMobile ? 'mobile-modal-header' : 'flex justify-between items-center'} border-b pb-3`}>
               <Typography variant="h6" className="font-semibold">
                 Ajouter une dépense
               </Typography>
@@ -288,7 +413,7 @@ export default function Depense() {
             {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
               <M_Abonnement />
             ) : (
-              <DialogContent className="mt-4">
+              <DialogContent className={`${isMobile ? 'mobile-p-4' : 'mt-4'}`}>
                 <form onSubmit={onSubmit} className="space-y-4">
                   <MyTextField
                     required
@@ -297,7 +422,19 @@ export default function Depense() {
                     name="libelle"
                     onChange={(e) => setFormValues({...formValues, libelle: e.target.value})}
                     value={formValues.libelle}
-                    className="bg-white"
+                    className={`${isMobile ? 'mobile-form-field' : 'bg-white'}`}
+                    sx={isMobile ? {
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '12px',
+                        background: 'rgba(255, 255, 255, 0.8)',
+                        backdropFilter: 'blur(10px)',
+                        transition: 'all 0.3s ease',
+                        '&:focus-within': {
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                        }
+                      }
+                    } : {}}
                   />
 
                   <MyTextField
@@ -309,7 +446,19 @@ export default function Depense() {
                     onChange={(e) => setFormValues({...formValues, date: e.target.value})}
                     value={formValues.date}
                     InputLabelProps={{ shrink: true }}
-                    className="bg-white"
+                    className={`${isMobile ? 'mobile-date-field' : 'bg-white'}`}
+                    sx={isMobile ? {
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '12px',
+                        background: 'rgba(255, 255, 255, 0.8)',
+                        backdropFilter: 'blur(10px)',
+                        transition: 'all 0.3s ease',
+                        '&:focus-within': {
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                        }
+                      }
+                    } : {}}
                   />
 
                   <MyTextField
@@ -327,7 +476,19 @@ export default function Depense() {
                         </InputAdornment>
                       ),
                     }}
-                    className="bg-white"
+                    className={`${isMobile ? 'mobile-form-field' : 'bg-white'}`}
+                    sx={isMobile ? {
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '12px',
+                        background: 'rgba(255, 255, 255, 0.8)',
+                        backdropFilter: 'blur(10px)',
+                        transition: 'all 0.3s ease',
+                        '&:focus-within': {
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                        }
+                      }
+                    } : {}}
                   />
 
                   <MyTextField
@@ -343,17 +504,59 @@ export default function Depense() {
                         </InputAdornment>
                       ),
                     }}
-                    className="bg-white"
+                    className={`${isMobile ? 'mobile-file-field' : 'bg-white'}`}
+                    sx={isMobile ? {
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '12px',
+                        background: 'rgba(255, 255, 255, 0.8)',
+                        backdropFilter: 'blur(10px)',
+                        transition: 'all 0.3s ease',
+                        border: '2px dashed rgba(59, 130, 246, 0.3)',
+                        '&:focus-within': {
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                          borderColor: 'rgba(59, 130, 246, 0.6)'
+                        }
+                      }
+                    } : {}}
                   />
 
-                  <div className="flex justify-end space-x-2 pt-4">
-                    <Button onClick={() => setOpen(false)} variant="outlined">
+                  <div className={`${isMobile ? 'mobile-action-buttons' : 'flex justify-end space-x-2'} pt-4`}>
+                    <Button 
+                      onClick={() => setOpen(false)} 
+                      variant="outlined"
+                      className={isMobile ? 'mobile-button' : ''}
+                      sx={isMobile ? {
+                        borderRadius: '12px',
+                        fontWeight: 600,
+                        textTransform: 'none',
+                        transition: 'all 0.3s ease',
+                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                        '&:hover': {
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)'
+                        }
+                      } : {}}
+                    >
                       Annuler
                     </Button>
                     <Button
                       type="submit"
                       variant="contained"
-                      className="bg-blue-600 hover:bg-blue-700"
+                      className={`${isMobile ? 'mobile-button mobile-button-primary' : 'bg-blue-600 hover:bg-blue-700'}`}
+                      sx={isMobile ? {
+                        borderRadius: '12px',
+                        fontWeight: 600,
+                        textTransform: 'none',
+                        transition: 'all 0.3s ease',
+                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                        background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                        '&:hover': {
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
+                          background: 'linear-gradient(135deg, #1d4ed8, #1e40af)'
+                        }
+                      } : {}}
                     >
                       Ajouter
                     </Button>

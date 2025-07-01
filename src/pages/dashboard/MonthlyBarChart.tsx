@@ -50,21 +50,15 @@ interface ChartProps {
 export default function MonthlyBarChart({ details }: ChartProps) {
   const theme = useTheme();
 
-  const { primary, secondary } = theme.palette.text;
-  const info = theme.palette.info.light;
-
-  // const [series] = useState([
-  //   {
-  //     data: [80, 95, 70, 42, 65, 55, 78]
-  //   }
-  // ]);
+  const { secondary } = theme.palette.text;
+  const primary = theme.palette.primary.main;
 
   const [options, setOptions] = useState(barChartOptions);
 
   useEffect(() => {
     setOptions((prevState) => ({
       ...prevState,
-      colors: [info],
+      colors: [primary],
       xaxis: {
         labels: {
           style: {
@@ -73,7 +67,7 @@ export default function MonthlyBarChart({ details }: ChartProps) {
         }
       }
     }));
-  }, [primary, info, secondary]);
+  }, [primary, secondary]);
   
   // Mappez les données pour le graphique
   const chartData = details.map((post) => ({

@@ -150,6 +150,24 @@ const stockEntreprise = async (entreprise_id: string, user_id: string) => {
     
 }
 
+const sortieUserEntreprise = async (entreprise_id: string) => {
+    
+    try {
+        const response = await Axios.get(`entreprise/api_count_sortie_par_utilisateur/${entreprise_id}`,
+            {                         
+                headers: {
+                    'Authorization': `${token_1}`
+                },
+                withCredentials: true
+            });
+        return response;
+    } catch (error) {
+        // console.error("Error fetching user profile:", error);
+        throw error;
+    }
+       
+}
+
 const stockCateSemaine = async (entreprise_id: string) => {
     
     try {
@@ -250,5 +268,6 @@ export const entrepriseService = {
     allEntreprise, getEntreprise, addEntreprise,
     updateEntreprise, deleteEntreprise, allUserEntreprise, 
     getEntrepriseUsers, getUserEntreprises, removeUserEntreprise,
-    stockEntreprise, stockCateSemaine, historiqueEntreprise, historySuppEntreprise
+    stockEntreprise, stockCateSemaine, historiqueEntreprise, historySuppEntreprise,
+    sortieUserEntreprise,
 }

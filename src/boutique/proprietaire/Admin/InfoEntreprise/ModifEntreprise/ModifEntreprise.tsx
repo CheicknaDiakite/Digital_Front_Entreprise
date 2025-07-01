@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, useState, useEffect } from 'react';
 import { 
   Alert,
   Box,
@@ -17,6 +17,7 @@ import {
   Stack,
   TextField,
   Typography,
+  alpha,
   Tooltip,
   Fade
 } from '@mui/material';
@@ -30,6 +31,7 @@ import KeyIcon from '@mui/icons-material/Key';
 import { useStoreUuid } from '../../../../../usePerso/store';
 import { BASE } from '../../../../../_services/caller.service';
 import img from '../../../../../../public/icon-192x192.png';
+import '../../mobile-admin.css';
 
 export default function ModifEntreprise() {
   const uuid = useStoreUuid((state) => state.selectedId);
@@ -39,7 +41,19 @@ export default function ModifEntreprise() {
   const [open, setOpen] = useState(false);
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [isMobile, setIsMobile] = useState(false);
   const options = countryList().getData();
+  console.log("kk", unEntreprise)
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleDelete = () => {
     const confirmation = window.confirm("Êtes-vous sûr de vouloir supprimer cette entreprise ?");
@@ -105,139 +119,176 @@ export default function ModifEntreprise() {
   const url = unEntreprise.image ? BASE(unEntreprise.image) : img;
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <div className="mb-6 flex items-center justify-between">
-        <Typography variant="h4" className="font-semibold text-gray-900">
+    <div className={`max-w-4xl mx-auto p-4 ${isMobile ? 'mobile-modif-container' : ''}`}>
+      <div className={`mb-6 flex items-center justify-between ${isMobile ? 'mobile-modif-header' : ''}`}>
+        <Typography variant="h4" className={`font-semibold text-gray-900 ${isMobile ? 'mobile-modif-title' : ''}`}>
           Paramètres de l'entreprise
         </Typography>
 
         <Tooltip title="Supprimer l'entreprise" arrow TransitionComponent={Fade}>
           <IconButton 
             onClick={handleDelete}
-            className="bg-white hover:bg-red-50 text-red-600 shadow-sm"
+            className={`bg-white hover:bg-red-50 text-red-600 shadow-sm ${isMobile ? 'mobile-action-button' : ''}`}
           >
             <DeleteIcon />
           </IconButton>
         </Tooltip>
+        
       </div>
 
-      <Paper elevation={0} className="border rounded-lg overflow-hidden">
+      <Paper elevation={0} className={`border rounded-lg overflow-hidden ${isMobile ? 'mobile-modif-paper' : ''}`}>
         <form onSubmit={onSubmit}>
-          <div className="p-6 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <Typography variant="subtitle2" className="mb-4 text-gray-600">
+          <div className={`p-6 space-y-6 ${isMobile ? 'mobile-modif-form' : ''}`}>
+            <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 ${isMobile ? 'mobile-responsive-grid' : ''}`}>
+              <div className={isMobile ? 'mobile-modif-section' : ''}>
+                <Typography variant="subtitle2" className={`mb-4 text-gray-600 ${isMobile ? 'mobile-modif-section-title' : ''}`}>
                   Informations générales
                 </Typography>
 
-                <Stack spacing={3}>
-                  <TextField
-                    fullWidth
-                    label="Identifiant"
-                    value={unEntreprise.ref}
-                    disabled
-                    className="bg-gray-50"
-                  />
+                <Stack spacing={3} className={isMobile ? 'mobile-responsive-stack' : ''}>
+                  <Typography 
+                    variant="h6" 
+                    color="primary" 
+                    gutterBottom
+                    className={isMobile ? 'mobile-text-center mobile-text-lg mobile-font-medium' : ''}
+                    sx={{
+                      mb: 3,
+                      fontWeight: 'medium',
+                      textAlign: 'center',
+                      backgroundColor: alpha('#1976d2', 0.1),
+                      p: 2,
+                      borderRadius: 1
+                    }}
+                  >
+                    Identifiant de l'entreprise : {unEntreprise.ref}
+                  </Typography>
 
-                  <TextField
-                    fullWidth
-                    label="Nom de l'entreprise"
-                    name="nom"
-                    value={unEntreprise.nom}
-                    onChange={onChange}
-                    required
-                  />
+                  <div className={isMobile ? '' : ''}>
+                    <TextField
+                      fullWidth
+                      label="Nom de l'entreprise"
+                      name="nom"
+                      value={unEntreprise.nom}
+                      onChange={onChange}
+                      required
+                    />
+                  </div>
 
-                  <TextField
-                    fullWidth
-                    label="Type d'entreprise"
-                    name="libelle"
-                    value={unEntreprise.libelle}
-                    onChange={onChange}
-                    required
-                  />
+                  <div className={isMobile ? '' : ''}>
+                    <TextField
+                      fullWidth
+                      label="Type d'entreprise"
+                      name="libelle"
+                      value={unEntreprise.libelle}
+                      onChange={onChange}
+                      required
+                    />
+                  </div>
 
-                  <FormControl fullWidth>
-                    <InputLabel>Pays</InputLabel>
-                    <Select
-                      value={unEntreprise.pays}
-                      onChange={onSelectChange}
-                      name="pays"
-                      label="Pays"
-                    >
-                      {options.map((option) => (
-                        <MenuItem key={option.value} value={option.label}>
-                          {option.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
+                  <div className={isMobile ? '' : ''}>
+                    <FormControl fullWidth>
+                      <InputLabel>Pays</InputLabel>
+                      <Select
+                        value={unEntreprise.pays}
+                        onChange={onSelectChange}
+                        name="pays"
+                        label="Pays"
+                      >
+                        {options.map((option) => (
+                          <MenuItem key={option.value} value={option.label}>
+                            {option.label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </div>
                 </Stack>
               </div>
 
-              <div>
-                <Typography variant="subtitle2" className="mb-4 text-gray-600">
+              <div className={isMobile ? 'mobile-modif-section' : ''}>
+                <Typography variant="subtitle2" className={`mb-4 text-gray-600 ${isMobile ? 'mobile-modif-section-title' : ''}`}>
                   Contact et Image
                 </Typography>
 
-                <Stack spacing={3}>
+                <Stack spacing={3} className={isMobile ? 'mobile-responsive-stack' : ''}>
                   <div className="space-y-4">
-                    <Box className="w-full aspect-video rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50">
+                    <Box className={`w-full aspect-video rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50 ${isMobile ? 'mobile-modif-image-container' : ''}`}>
                       {(previewUrl || url) && (
                         <img 
                           src={previewUrl || url} 
                           alt={unEntreprise.nom} 
-                          className="max-h-full object-contain"
+                          className={`max-h-full object-contain ${isMobile ? 'mobile-modif-image' : ''}`}
                         />
                       )}
                     </Box>
+                    <div className={isMobile ? '' : ''}>
+                      <TextField
+                        fullWidth
+                        type="file"
+                        onChange={handleImageChange}
+                        InputLabelProps={{ shrink: true }}
+                        InputProps={{
+                          startAdornment: <ImageIcon className="mr-2 text-gray-400" />,
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className={isMobile ? '' : ''}>
                     <TextField
                       fullWidth
-                      type="file"
-                      onChange={handleImageChange}
-                      InputLabelProps={{ shrink: true }}
-                      InputProps={{
-                        startAdornment: <ImageIcon className="mr-2 text-gray-400" />,
-                      }}
+                      label="Email"
+                      name="email"
+                      type="email"
+                      value={unEntreprise.email}
+                      onChange={onChange}
                     />
                   </div>
 
-                  <TextField
-                    fullWidth
-                    label="Email"
-                    name="email"
-                    type="email"
-                    value={unEntreprise.email}
-                    onChange={onChange}
-                  />
+                  <div className={isMobile ? '' : ''}>
+                    <TextField
+                      fullWidth
+                      label="Numéro de téléphone"
+                      name="numero"
+                      value={unEntreprise.numero}
+                      onChange={onChange}
+                    />
+                  </div>
 
-                  <TextField
-                    fullWidth
-                    label="Numéro de téléphone"
-                    name="numero"
-                    value={unEntreprise.numero}
-                    onChange={onChange}
-                  />
+                  <div className={isMobile ? '' : ''}>
+                    <TextField
+                      fullWidth
+                      label="Adresse"
+                      name="adresse"
+                      value={unEntreprise.adresse}
+                      onChange={onChange}
+                      multiline
+                      rows={2}
+                    />
+                  </div>
 
-                  <TextField
-                    fullWidth
-                    label="Adresse"
-                    name="adresse"
-                    value={unEntreprise.adresse}
-                    onChange={onChange}
-                    multiline
-                    rows={2}
-                  />
+                  <div className={isMobile ? '' : ''}>
+                    <TextField
+                      fullWidth
+                      label="Coordonne"
+                      name="coordonne"
+                      value={unEntreprise.coordonne}
+                      onChange={onChange}
+                      multiline
+                      rows={2}
+                    />
+                  </div>
                 </Stack>
               </div>
             </div>
           </div>
 
-          <div className="px-6 py-4 bg-gray-50 border-t flex justify-between items-center">
+          <div className={`px-6 py-4 bg-gray-50 border-t flex justify-between items-center ${isMobile ? 'mobile-modif-actions' : ''}`}>
             <Button
               variant="outlined"
               startIcon={<KeyIcon />}
               onClick={() => setOpen(true)}
+              className={isMobile ? 'mobile-modif-button secondary' : ''}
             >
               Code d'abonnement
             </Button>
@@ -245,7 +296,7 @@ export default function ModifEntreprise() {
             <Button
               type="submit"
               variant="contained"
-              className="bg-blue-600 hover:bg-blue-700"
+              className={`bg-blue-600 hover:bg-blue-700 ${isMobile ? 'mobile-modif-button primary' : ''}`}
             >
               Enregistrer les modifications
             </Button>
@@ -260,17 +311,17 @@ export default function ModifEntreprise() {
         fullWidth
         PaperProps={{
           elevation: 0,
-          className: "rounded-lg"
+          className: `rounded-lg ${isMobile ? 'mobile-modif-dialog' : ''}`
         }}
       >
-        <DialogTitle className="flex justify-between items-center border-b pb-3">
+        <DialogTitle className={`flex justify-between items-center border-b pb-3 ${isMobile ? 'mobile-modif-dialog-title' : ''}`}>
           <Typography variant="h6">Code d'abonnement</Typography>
           <IconButton onClick={() => setOpen(false)} size="small">
             <CloseIcon />
           </IconButton>
         </DialogTitle>
 
-        <DialogContent className="mt-4">
+        <DialogContent className={`mt-4 ${isMobile ? 'mobile-modif-dialog-content' : ''}`}>
           <form onSubmit={onSubmitAbon} className="space-y-4">
             <TextField
               fullWidth
@@ -281,11 +332,11 @@ export default function ModifEntreprise() {
               autoFocus
             />
 
-            <div className="pt-4 border-t flex justify-end">
+            <div className={`pt-4 border-t flex justify-end ${isMobile ? 'mobile-modif-dialog-actions' : ''}`}>
               <Button
                 type="submit"
                 variant="contained"
-                className="bg-blue-600 hover:bg-blue-700"
+                className={`bg-blue-600 hover:bg-blue-700 ${isMobile ? 'mobile-modif-button primary' : ''}`}
               >
                 Valider
               </Button>

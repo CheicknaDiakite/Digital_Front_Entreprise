@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import { FormType, FormValueType } from "../typescript/FormType";
 import { useNavigate } from "react-router-dom";
 
-import { DataType, RecupType, StockType, TypeEntreprise, TypeSlug } from "../typescript/DataType";
+import { DataType, RecupType, SortieUserType, StockType, TypeEntreprise, TypeSlug } from "../typescript/DataType";
 import { foncError } from "./fonctionPerso";
 import { AvisType, ClienType, UnUserType, UserType, UtilisateurType } from "../typescript/UserType";
 import { entrepriseService } from "../_services/entreprise.service";
@@ -706,6 +706,37 @@ export function useStockEntreprise(entreprise_id: string, user_id: string) {
   }, [us]);
 
   return { stockEntreprise, setStockEntreprise, isLoading, isError };
+}
+
+export function useSortieUserEntreprise(entreprise_id: string) {
+  
+  const [sortiesUser, setSortiesUser] = useState<SortieUserType>({
+    user_id: '',
+    total_nombre_vente: [],
+    total_par_utilisateur: [],
+    mensuel_par_utilisateur: []
+  });
+
+  const { data: us, isLoading, isError } = useQuery({
+    queryKey: ["SortiesUser", entreprise_id],
+    queryFn: () =>
+      entrepriseService.sortieUserEntreprise(entreprise_id).then((res) => {
+        if (res.data.etat === true) {
+          return res.data.donnee;
+        } else {
+          // throw new Error("Les identifiants sont incorrects");
+          // toast.error(res.data.message);
+        }
+      }),
+  });
+
+  useEffect(() => {
+    if (us) {
+      setSortiesUser(us);
+    }
+  }, [us]);
+
+  return { sortiesUser, setSortiesUser, isLoading, isError };
 }
 
 export function useStockSemaine(entreprise_id: string) {

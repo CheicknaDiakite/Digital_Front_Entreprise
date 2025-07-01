@@ -42,6 +42,7 @@
     "react-to-print": "^2.15.1",
     "react-toastify": "^10.0.5",
     "react-type-animation": "^3.2.0",
+    "recharts": "^2.15.3",
     "serve": "^14.2.3",
     "styled-components": "^6.1.14",
     "uuidv4": "^6.2.13",

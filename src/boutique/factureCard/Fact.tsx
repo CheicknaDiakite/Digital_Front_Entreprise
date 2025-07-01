@@ -20,8 +20,7 @@ import { Paper } from '@mui/material';
 export default function Fact({clientName, invoiceNumber, invoiceDate, notes, numeroFac, post, discountedTotal, payerTotal}: RecupType | any) {
   // let url = BASE(post.image);
   
-    const url = post.image ? BASE(post.image) : backgroundImage;
-  
+  const url = post.image ? BASE(post.image) : backgroundImage;
   
   const selectedIds = useStoreCart(state => state.selectedIds)
   const reset = useStoreCart(state => state.reset)
@@ -52,15 +51,15 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
   }, [amount, price, quantity, setAmount]);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-[1200px] mx-auto px-4">
+    <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
+      <div className="max-w-full sm:max-w-[1200px] mx-auto px-2 sm:px-4">
         <Paper elevation={0} className="bg-white rounded-lg overflow-hidden">
-          <div className="p-6">
+          <div className="p-2 sm:p-6">
             {/* Actions Bar */}
-            <div className="flex items-center justify-end space-x-4 mb-6">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-4 mb-4 sm:mb-6">
               <button 
                 onClick={() => reset()}
-                className="inline-flex items-center px-4 py-2 border border-red-500 text-red-500 rounded-md hover:bg-red-50 transition-colors duration-200"
+                className="inline-flex items-center justify-center px-3 py-2 border border-red-500 text-red-500 rounded-md hover:bg-red-50 transition-colors duration-200 text-sm sm:text-base"
               >
                 <RemoveIcon className="w-5 h-5 mr-2" />
                 <span>Annuler</span>
@@ -68,7 +67,7 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
               
               <ReactToPrint
                 trigger={() => (
-                  <button className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200">
+                  <button className="inline-flex items-center justify-center px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200 text-sm sm:text-base">
                     <PrintIcon className="w-5 h-5 mr-2" />
                     <span>Imprimer / Télécharger</span>
                   </button>
@@ -80,7 +79,7 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
             {/* Invoice Content */}
             <div 
               ref={componentRef} 
-              className="bg-white p-8 rounded-lg shadow-sm border border-gray-100 print-container"
+              className="bg-white p-2 sm:p-8 rounded-lg shadow-sm border border-gray-100 print-container"
             >
               <Header
               // orderNumber={orderNumber}
@@ -96,15 +95,17 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
               invoiceNumber={invoiceNumber}
               />
 
-              <TableFact
-              list={selectSorties}
-              total={totalPrix}
-              discountedTotal={discountedTotal}
-              payerTotal={payerTotal}
-              />
+              <div className="overflow-x-auto w-full">
+                <TableFact
+                  list={selectSorties}
+                  total={totalPrix}
+                  discountedTotal={discountedTotal}
+                  payerTotal={payerTotal}
+                />
+              </div>
 
               <Notes 
-              notes={notes}
+                notes={notes}
               />
 
             </div>

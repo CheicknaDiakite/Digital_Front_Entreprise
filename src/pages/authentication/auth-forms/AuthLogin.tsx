@@ -48,7 +48,7 @@ const AuthLogin: FC = () => {
       })(),
       {
         loading: 'Connexion en cours...',
-        success: ' ',  // Message vide mais requis
+        success: () => '',
         error: (err) => err instanceof Error ? err.message : 'Erreur lors de la connexion'
       }
     );

@@ -81,6 +81,11 @@ export type DepenseType = {
     entreprise_id?: string;
 }
 
+export type DepenseSumType = {
+    mois: string;
+    total: number;
+}
+
 export type TypeAll = {
     all: string;
 }
@@ -153,6 +158,26 @@ export type StockType = {
     sorties_par_mois?: StokcWeekType[]
     details_sortie_par_mois?: DetailsParMois
     details_entrer_par_mois?: DetailsParMois
+}
+
+export type SortieUserType = {
+    user_id?: string;
+    total_nombre_vente: Array<{
+        created_by__id: number | null;
+        created_by__username: string | null;
+        total: number;
+    }>;
+    total_par_utilisateur: Array<{
+        username: string | null;
+        total_qte: number;
+    }>;
+    mensuel_par_utilisateur: Array<{
+        month: string;
+        details: Array<{
+            username: string | null;
+            total_qte: number;
+        }>;
+    }>;
 }
 
 

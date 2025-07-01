@@ -471,6 +471,24 @@ const getAllDepense = async (slug: string, uuid: string) => {
 /**
  * Ajout d'un depense
  */
+
+const getSumDepense = async (slug: string, uuid: string) => {
+    try {
+        const response = await Axios.get(`entreprise/depense/get_depenses_somme/${slug}/${uuid}`,
+            {                         
+                headers: {
+                    'Authorization': `${token_1}`
+                },
+                withCredentials: true
+            });
+        return response;
+    } catch (error) {
+        console.error("Error fetching entreprises:", error);
+        throw error;
+    }
+    
+}
+
 const addDepense = async (data: DepenseType) => {
     try {
         const response = await Axios.post('entreprise/depense/add',
@@ -531,7 +549,7 @@ const deleteDepense = async (categorie: DepenseType) => {
 
 // Décaraltion des esrvices pour import
 export const depenseService = {
-    allDepense, getDepense, addDepense, updateDepense, deleteDepense, getAllDepense
+    allDepense, getDepense, addDepense, updateDepense, deleteDepense, getAllDepense, getSumDepense
 }
 
 

@@ -14,6 +14,7 @@ const Bienvenue: FC = () => {
     >
       <Typography
         component="span"
+        variant="h5"
         sx={{
           backgroundImage: 'linear-gradient(to right, #93C5FD, #86EFAC)',
           backgroundClip: 'text',

@@ -64,7 +64,7 @@ export const UserModif: FC = () => {
   };
 
   return (
-    <Box className="min-h-screen bg-gray-100 py-8">
+    <Box className="min-h-screen py-8">
       <Nav>
         <Button
           size="small"

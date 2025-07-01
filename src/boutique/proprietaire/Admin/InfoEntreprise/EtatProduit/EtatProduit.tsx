@@ -16,11 +16,25 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
+import { useState, useEffect } from 'react';
+import '../../mobile-admin.css';
 
 export default function EtatProduit() {
   const uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise } = useFetchEntreprise(uuid!);
   const { stockEntreprise, isLoading, isError } = useStockEntreprise(unEntreprise.uuid!, connect);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   if (isLoading) {
     return (
@@ -88,33 +102,33 @@ export default function EtatProduit() {
   ];
 
   return (
-    <Container maxWidth="lg" className="py-8">
-      <div className="mb-6">
-        <Typography variant="h4" className="font-semibold text-gray-900 mb-2">
+    <Container maxWidth="lg" className={`py-8 ${isMobile ? 'mobile-stats-container' : ''}`}>
+      <div className={`mb-6 ${isMobile ? 'mobile-animate-in' : ''}`}>
+        <Typography variant="h4" className={`font-semibold text-gray-900 mb-2 ${isMobile ? 'mobile-stats-title' : ''}`}>
           Statistiques de l'entreprise
         </Typography>
-        <Typography variant="body1" className="text-gray-500">
+        <Typography variant="body1" className={`text-gray-500 ${isMobile ? 'mobile-stats-subtitle' : ''}`}>
           Vue d'ensemble des mouvements de stock
         </Typography>
       </div>
 
-      <Grid container spacing={3}>
+      <Grid container spacing={3} className={isMobile ? 'mobile-stats-grid' : ''}>
         {stats.map((stat, index) => {
           const StatContent = () => (
             <Paper 
               elevation={0} 
-              className={`border rounded-lg overflow-hidden h-full transition-all duration-200 hover:shadow-md bg-gradient-to-br ${stat.bgClass}`}
+              className={`border rounded-lg overflow-hidden h-full transition-all duration-200 hover:shadow-md bg-gradient-to-br ${stat.bgClass} ${isMobile ? 'mobile-stat-card' : ''}`}
             >
-              <Box className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <Typography variant="h6" className="font-medium text-gray-900">
+              <Box className={`p-6 ${isMobile ? 'mobile-responsive-stack' : ''}`}>
+                <div className={`flex items-center justify-between mb-4 ${isMobile ? 'mobile-stat-header' : ''}`}>
+                  <Typography variant="h6" className={`font-medium text-gray-900 ${isMobile ? 'mobile-stat-title' : ''}`}>
                     {stat.title}
                   </Typography>
-                  <div className={`p-2 rounded-full ${stat.iconBgClass}`}>
+                  <div className={`p-2 rounded-full ${stat.iconBgClass} ${isMobile ? 'mobile-stat-icon' : ''}`}>
                     {stat.icon}
                   </div>
                 </div>
-                <Typography variant="h4" className={`font-semibold ${stat.textClass}`}>
+                <Typography variant="h4" className={`font-semibold ${stat.textClass} ${isMobile ? 'mobile-stat-value' : ''}`}>
                   {stat.value}
                 </Typography>
               </Box>
@@ -122,7 +136,7 @@ export default function EtatProduit() {
           );
 
           return (
-            <Grid item xs={12} sm={6} md={3} key={index}>
+            <Grid item xs={12} sm={6} md={3} key={index} className={isMobile ? 'mobile-animate-in' : ''}>
               {stat.link ? (
                 <Link to={stat.link} className="block h-full no-underline">
                   <StatContent />

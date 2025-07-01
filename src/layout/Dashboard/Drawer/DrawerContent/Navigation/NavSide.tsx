@@ -304,6 +304,13 @@ const NavSide: React.FC = () => {
               to="/entreprise/inventaire/EtaDesProduits"
               bgColor="text-white bg-gray-500"
             />
+            
+            <NavItem
+              icon={null}
+              label="Etat des utilisateurs"
+              to="/entreprise/inventaire/VenteUsers"
+              bgColor="text-white bg-gray-500"
+            />
           
           </List>
         </Collapse>

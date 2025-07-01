@@ -20,10 +20,10 @@ const Nav: FC<NavProps> = ({ children }) => {
 
   return (
     <CardActions className='flex justify-center'>
-      <Button size="small" className='rounded-full shadow-md shadow-indigo-500/50' onClick={handleGoBack}>
+      <Button size="small" className='rounded-full shadow-md shadow-blue-500/50' onClick={handleGoBack}>
         <ReturnIcon fontSize='small' />
       </Button>
-      <Button size="small" className='rounded-full shadow-md shadow-indigo-500/50' onClick={handleGoHome}>
+      <Button size="small" className='rounded-full shadow-md shadow-blue-500/50' onClick={handleGoHome}>
         <HomeIcon fontSize='small' />
       </Button>
       {children}

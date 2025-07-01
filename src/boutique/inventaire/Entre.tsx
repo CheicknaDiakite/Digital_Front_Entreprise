@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, SyntheticEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, SyntheticEvent, useState, useEffect } from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -19,7 +19,8 @@ import {
   Skeleton, 
   TextField, 
   Typography,
-  InputAdornment
+  InputAdornment,
+  Grid
 } from '@mui/material';
 import { connect } from '../../_services/account.service';
 import { RecupType } from '../../typescript/DataType';
@@ -36,6 +37,7 @@ import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 import InventoryIcon from '@mui/icons-material/Inventory';
+import './mobile-entre.css';
 
 export default function Entre() {
   const uuid = useStoreUuid((state) => state.selectedId);
@@ -45,13 +47,26 @@ export default function Entre() {
   const [ajout_terminer, setTerminer] = useState(false);
   const [is_sortie, setSortie] = useState(true);
   const [is_prix, setPrix] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Détection mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const Ajout_Terminer = () => setTerminer(!ajout_terminer);
   const Is_Sortie = () => setSortie(!is_sortie);
   const Is_Prix = () => setPrix(!is_prix);
   
   const {entresEntreprise, isLoading, isError} = useGetAllEntre(connect, uuid!);
-  const itemsPerPage = 25;
+  const itemsPerPage = isMobile ? 10 : 25;
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedStartDate, setSelectedStartDate] = useState<string>('');
   const [selectedEndDate, setSelectedEndDate] = useState<string>('');
@@ -173,18 +188,18 @@ export default function Entre() {
 
   if (isLoading) {
     return (
-      <Box className="p-4">
-        <Skeleton variant="rectangular" height={200} className="mb-4" />
-        <Skeleton variant="rectangular" height={100} className="mb-2" />
-        <Skeleton variant="rectangular" height={100} />
+      <Box className={`${isMobile ? 'mobile-p-4' : 'p-4'}`}>
+        <Skeleton variant="rectangular" height={isMobile ? 150 : 200} className="mb-4 mobile-loading" />
+        <Skeleton variant="rectangular" height={isMobile ? 80 : 100} className="mb-2 mobile-loading" />
+        <Skeleton variant="rectangular" height={isMobile ? 80 : 100} className="mobile-loading" />
       </Box>
     );
   }
 
   if (isError) {
     return (
-      <Box className="p-4">
-        <Typography variant="h6" color="error">
+      <Box className={`${isMobile ? 'mobile-p-4' : 'p-4'}`}>
+        <Typography variant={isMobile ? "h6" : "h6"} color="error" className="mobile-alert">
           Une erreur est survenue lors du chargement des données
         </Typography>
       </Box>
@@ -197,19 +212,42 @@ export default function Entre() {
     ); 
 
     return (
-      <div className="min-h-screen bg-gray-50 py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className={`min-h-screen ${isMobile ? '' : ''} py-6`}
+      
+      >
+        <div className={`${isMobile ? 'px-4' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'}`}>
           <Nav />
 
-          <Paper elevation={0} className="mt-6 rounded-lg overflow-hidden">
-            <Box className="p-6">
+          <Paper 
+            elevation={0} 
+            className={`${isMobile ? 'mobile-header-container' : 'mt-6 rounded-lg overflow-hidden'}`}
+            sx={isMobile ? {
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7))',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '20px',
+              marginTop: '24px'
+            } : {}}
+          >
+            <Box className={`${isMobile ? 'mobile-p-4' : 'p-6'}`}>
               {/* Header */}
-              <div className="flex justify-between items-center border-b pb-6 mb-6">
+              <div className={`${isMobile ? 'flex flex-col space-y-4' : 'flex justify-between items-center'} border-b pb-6 mb-6`}>
                 <div>
-                  <Typography variant="h4" className="font-semibold text-gray-900">
+                  <Typography 
+                    variant={isMobile ? "h5" : "h4"} 
+                    className={`${isMobile ? 'mobile-title' : 'font-semibold text-gray-900'}`}
+                    sx={isMobile ? {
+                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text',
+                      fontWeight: 700,
+                      textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                    } : {}}
+                  >
                     Gestion des Entrées
                   </Typography>
-                  <Typography variant="body2" className="text-gray-500 mt-1">
+                  <Typography variant="body2" className={`${isMobile ? 'text-gray-600 mt-2' : 'text-gray-500 mt-1'}`}>
                     Gérez votre inventaire et vos approvisionnements
                   </Typography>
                 </div>
@@ -217,94 +255,191 @@ export default function Entre() {
                   onClick={functionopen}
                   variant="contained"
                   startIcon={<AddIcon />}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className={`${isMobile ? 'mobile-button' : 'bg-blue-600 hover:bg-blue-700'}`}
+                  sx={isMobile ? {
+                    borderRadius: '12px',
+                    fontWeight: 600,
+                    textTransform: 'none',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                    background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                    '&:hover': {
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
+                      background: 'linear-gradient(135deg, #1d4ed8, #1e40af)'
+                    }
+                  } : {
+                    background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+                    color: 'white',
+                    boxShadow: '0 3px 5px 2px rgba(33, 203, 243, .3)',
+                  }}
                 >
                   Nouvelle Entrée
                 </Button>
               </div>
 
               {/* Search and Filters */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <TextField
-                  fullWidth
-                  placeholder="Rechercher par libellé ou référence"
-                  variant="outlined"
-                  value={searchTerm}
-                  onChange={handleSearchChange}
-                  className="bg-white"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon className="text-gray-400" />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
+              <Grid 
+                container 
+                spacing={isMobile ? 2 : 3} 
+                className={isMobile ? 'mobile-grid' : ''}
+                sx={{
+                  '& .MuiGrid-item': {
+                    padding: isMobile ? '8px' : '12px'
+                  }
+                }}
+              >
+                <Grid item xs={12} md={6} lg={3}>
+                  <TextField
+                    fullWidth
+                    placeholder="Rechercher par libellé ou référence"
+                    variant="outlined"
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    className={`${isMobile ? 'mobile-search-container' : 'bg-white'}`}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <SearchIcon className="text-gray-400" />
+                        </InputAdornment>
+                      ),
+                    }}
+                    sx={isMobile ? {
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '16px',
+                        background: 'rgba(255, 255, 255, 0.9)',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        transition: 'all 0.3s ease',
+                        '&:focus-within': {
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.1)'
+                        }
+                      }
+                    } : {}}
+                  />
+                </Grid>
                 
-                <TextField
-                  fullWidth
-                  label="Date de début"
-                  type="date"
-                  value={selectedStartDate}
-                  onChange={handleStartDateChange}
-                  InputLabelProps={{ shrink: true }}
-                  className="bg-white"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <DateRangeIcon className="text-gray-400" />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
+                <Grid item xs={12} md={6} lg={3}>
+                  <TextField
+                    fullWidth
+                    label="Date de début"
+                    type="date"
+                    value={selectedStartDate}
+                    onChange={handleStartDateChange}
+                    InputLabelProps={{ shrink: true }}
+                    className={`${isMobile ? 'mobile-date-field' : 'bg-white'}`}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <DateRangeIcon className="text-gray-400" />
+                        </InputAdornment>
+                      ),
+                    }}
+                    sx={isMobile ? {
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '12px',
+                        background: 'rgba(255, 255, 255, 0.8)',
+                        backdropFilter: 'blur(10px)',
+                        transition: 'all 0.3s ease',
+                        '&:focus-within': {
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                        }
+                      }
+                    } : {}}
+                  />
+                </Grid>
 
-                <TextField
-                  fullWidth
-                  label="Date de fin"
-                  type="date"
-                  value={selectedEndDate}
-                  onChange={handleEndDateChange}
-                  InputLabelProps={{ shrink: true }}
-                  className="bg-white"
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <DateRangeIcon className="text-gray-400" />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
+                <Grid item xs={12} md={6} lg={3}>
+                  <TextField
+                    fullWidth
+                    label="Date de fin"
+                    type="date"
+                    value={selectedEndDate}
+                    onChange={handleEndDateChange}
+                    InputLabelProps={{ shrink: true }}
+                    className={`${isMobile ? 'mobile-date-field' : 'bg-white'}`}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <DateRangeIcon className="text-gray-400" />
+                        </InputAdornment>
+                      ),
+                    }}
+                    sx={isMobile ? {
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '12px',
+                        background: 'rgba(255, 255, 255, 0.8)',
+                        backdropFilter: 'blur(10px)',
+                        transition: 'all 0.3s ease',
+                        '&:focus-within': {
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                        }
+                      }
+                    } : {}}
+                  />
+                </Grid>
 
-                <Paper elevation={0} className="p-4 bg-blue-50 rounded-lg flex items-center justify-between">
-                  <div>
-                    <Typography variant="subtitle2" className="text-gray-600">
-                      Total Entrées
-                    </Typography>
-                    <Typography variant="h6" className="text-gray-900">
-                      {filteredBoutiques.length}
-                    </Typography>
-                  </div>
-                  <InventoryIcon className="text-blue-500" />
-                </Paper>
-              </div>
+                <Grid item xs={12} md={6} lg={3}>
+                  <Paper 
+                    elevation={0} 
+                    className={`${isMobile ? 'mobile-stats-card' : 'p-4 bg-blue-50 rounded-lg'} flex items-center justify-between`}
+                    sx={isMobile ? {
+                      borderRadius: '16px',
+                      backdropFilter: 'blur(10px)',
+                      background: 'rgba(255, 255, 255, 0.95)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      transition: 'all 0.3s ease',
+                      animation: 'scaleIn 0.6s ease-out',
+                      '&:hover': {
+                        transform: 'translateY(-4px)',
+                        boxShadow: '0 12px 24px rgba(0, 0, 0, 0.1)'
+                      }
+                    } : {}}
+                  >
+                    <div>
+                      <Typography variant="subtitle2" className="text-gray-600">
+                        Total Entrées
+                      </Typography>
+                      <Typography variant="h6" className="text-gray-900">
+                        {filteredBoutiques.length}
+                      </Typography>
+                    </div>
+                    <InventoryIcon className={`${isMobile ? 'mobile-stats-icon' : 'text-blue-500'}`} />
+                  </Paper>
+                </Grid>
+              </Grid>
 
               {/* Table */}
-              <Paper elevation={0} className="overflow-hidden rounded-lg">
+              <Paper 
+                elevation={0} 
+                className={`${isMobile ? 'mobile-table-container' : 'overflow-hidden rounded-lg'}`}
+                sx={isMobile ? {
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  background: 'rgba(255, 255, 255, 0.95)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  marginTop: '16px'
+                } : {}}
+              >
                 <TableContainer>
-                  <Table sx={{ minWidth: 700 }}>
+                  <Table sx={{ minWidth: isMobile ? 600 : 700 }}>
                     <TableHead>
-                      <TableRow sx={{ backgroundColor: '#f8fafc' }}>
-                        <TableCell>Image</TableCell>
-                        <TableCell>Référence</TableCell>
-                        <TableCell>Date</TableCell>
-                        <TableCell>Fournisseurs</TableCell>
-                        <TableCell>Désignations</TableCell>
-                        <TableCell align="right">Quantité</TableCell>
-                        <TableCell align="right">Prix Unitaire (vente)</TableCell>
+                      <TableRow className={isMobile ? 'mobile-table-header' : ''} sx={isMobile ? { backgroundColor: 'rgba(59, 130, 246, 0.1)' } : { backgroundColor: '#f8fafc' }}>
+                        <TableCell className={isMobile ? 'mobile-table-cell' : ''}>Image</TableCell>
+                        <TableCell className={isMobile ? 'mobile-table-cell' : ''}>Référence</TableCell>
+                        <TableCell className={isMobile ? 'mobile-table-cell' : ''}>Date</TableCell>
+                        <TableCell className={isMobile ? 'mobile-table-cell' : ''}>Fournisseurs</TableCell>
+                        <TableCell className={isMobile ? 'mobile-table-cell' : ''}>Désignations</TableCell>
+                        <TableCell align="right" className={isMobile ? 'mobile-table-cell' : ''}>Quantité</TableCell>
+                        <TableCell align="right" className={isMobile ? 'mobile-table-cell' : ''}>Prix Unitaire (vente)</TableCell>
                         {unUser.role === 1 && (
                           <>              
-                            <TableCell align="right">Prix Unitaire (achat)</TableCell>
-                            <TableCell align="right">Total</TableCell>
+                            <TableCell align="right" className={isMobile ? 'mobile-table-cell' : ''}>Prix Unitaire (achat)</TableCell>
+                            <TableCell align="right" className={isMobile ? 'mobile-table-cell' : ''}>Total</TableCell>
                           </>
                         )}
                       </TableRow>
@@ -316,7 +451,7 @@ export default function Entre() {
                         ))
                       ) : (
                         <TableRow>
-                          <TableCell colSpan={9} align="center" className="py-8">
+                          <TableCell colSpan={9} align="center" className={`${isMobile ? 'mobile-empty-card py-8' : 'py-8'}`}>
                             <Typography variant="body1" className="text-gray-500">
                               Aucune entrée enregistrée
                             </Typography>
@@ -326,7 +461,7 @@ export default function Entre() {
 
                       {unUser.role === 1 && filteredBoutiques?.length > 0 && (
                         <>
-                          <TableRow>
+                          <TableRow className={isMobile ? 'mobile-total-row' : ''}>
                             <TableCell colSpan={5} />
                             <TableCell align="right" className="font-medium">Total Quantité:</TableCell>
                             <TableCell align="right" className="font-medium">{totalQte}</TableCell>
@@ -343,13 +478,19 @@ export default function Entre() {
               </Paper>
 
               {/* Pagination */}
-              <Box className="flex justify-center mt-6">
+              <Box className={`${isMobile ? 'mobile-pagination' : 'flex justify-center mt-6'}`}>
                 <Pagination
                   count={totalPages}
                   page={currentPage}
                   onChange={handlePageChange}
                   color="primary"
-                  size="large"
+                  size={isMobile ? "medium" : "large"}
+                  sx={isMobile ? {
+                    '& .MuiPaginationItem-root': {
+                      borderRadius: '8px',
+                      margin: '0 2px'
+                    }
+                  } : {}}
                 />
               </Box>
             </Box>
@@ -363,10 +504,15 @@ export default function Entre() {
             maxWidth="sm"
             PaperProps={{
               elevation: 0,
-              className: "rounded-lg"
+              className: isMobile ? "mobile-dialog" : "rounded-lg",
+              sx: isMobile ? {
+                borderRadius: '20px',
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(10px)'
+              } : {}
             }}
           >
-            <DialogTitle className="flex justify-between items-center border-b pb-3">
+            <DialogTitle className={`${isMobile ? 'mobile-glass' : 'flex justify-between items-center'} border-b pb-3`}>
               <Typography variant="h6" className="font-semibold">
                 Nouvelle Entrée
               </Typography>
@@ -378,7 +524,7 @@ export default function Entre() {
             {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
               <M_Abonnement />
             ) : (
-              <DialogContent className="mt-4">
+              <DialogContent className={`${isMobile ? 'mobile-p-4' : 'mt-4'}`}>
                 <AjoutEntreForm
                   onSubmit={onSubmit}
                   formValues={formValues}

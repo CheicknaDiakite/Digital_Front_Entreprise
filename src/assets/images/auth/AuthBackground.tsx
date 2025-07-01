@@ -1,25 +1,38 @@
 // material-ui
 import Box from '@mui/material/Box';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import backgroundImage from '../../../../public/assets/img/img.jpg'
 
 // ==============================|| AUTH BLUR BACK SVG ||============================== //
 
 export default function AuthBackground() {
-  
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   return (
     <Box
     sx={{
+      // position: 'fixed',
+      // display: 'flex',
+      // alignItems: 'center',
+      // justifyContent: 'center',
+      // width: '100%',
+      // height: '100vh',
+      // filter: 'blur(5px)',
+      // zIndex: -1,
+      // overflow: 'hidden', // Pour s'assurer que l'image n'a pas de débordement
       position: 'fixed',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'center',
+      justifyContent: 'flex-start',
       width: '100%',
       height: '100vh',
-      filter: 'blur(5px)',
+      filter: 'blur(1px)',
       zIndex: -1,
-      overflow: 'hidden', // Pour s'assurer que l'image n'a pas de débordement
+      overflow: 'hidden',
     }}
     >
-      <svg width="100%" height="calc(100vh - 175px)" viewBox="0 0 405 809" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* <svg width="100%" height="calc(100vh - 175px)" viewBox="0 0 405 809" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g transform="translate(0.000000,300.000000) scale(0.100000,-0.100000)"
             fill="#000000" stroke="none">
             <path d="M1020 2505 c0 -3 9 -24 20 -46 31 -60 94 -117 168 -152 l67 -32 235
@@ -138,7 +151,15 @@ export default function AuthBackground() {
             <path d="M1980 577 c0 -26 4 -46 9 -43 4 3 6 18 3 32 -4 20 1 31 19 45 l24 19
             -27 -2 c-26 -2 -28 -5 -28 -51z"/>
             </g>
-      </svg>
+      </svg> */}
+      <img 
+        src={backgroundImage} 
+        style={{ 
+          width: isMobile ? '100%' : '50%', 
+          height: '100%', 
+          objectFit: 'cover' 
+        }} 
+      />
     </Box>
   );
 }

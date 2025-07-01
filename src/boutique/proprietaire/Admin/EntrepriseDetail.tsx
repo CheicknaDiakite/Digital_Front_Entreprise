@@ -11,7 +11,7 @@ import {
 import InfoIcon from '@mui/icons-material/Info';
 import GroupIcon from '@mui/icons-material/Group';
 import SettingsIcon from '@mui/icons-material/Settings';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFetchEntreprise } from '../../../usePerso/fonction.user';
 import Nav from '../../../_components/Button/Nav';
 import { a11yProps } from '../../../usePerso/fonctionPerso';
@@ -20,14 +20,24 @@ import EtatProduit from './InfoEntreprise/EtatProduit/EtatProduit';
 import InfoUsers from './InfoEntreprise/InfoUsers/InfoUsers';
 import ModifEntreprise from './InfoEntreprise/ModifEntreprise/ModifEntreprise';
 import { useStoreUuid } from '../../../usePerso/store';
-import backgroundImage from '../../../../public/icon-192x192.png';
-import { BASE } from '../../../_services/caller.service';
+import './mobile-admin.css';
 
 export default function EntrepriseDetail() {
   const uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise, isLoading, isError } = useFetchEntreprise(uuid!);
-  const url = unEntreprise.image ? BASE(unEntreprise.image) : backgroundImage;
   const [value, setValue] = React.useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -61,31 +71,31 @@ export default function EntrepriseDetail() {
 
   if (unEntreprise) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className={` ${isMobile ? 'mobile-admin-container' : ''}`}>
         <Nav />
         
         <Box 
-          className="relative"
-          sx={{
-            '&::before': {
-              content: '""',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundImage: `url(${url})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
-              opacity: 0.15,
-              zIndex: 0,
-            }
-          }}
+          className={`relative ${isMobile ? 'mobile-animate-in' : ''}`}
+          // sx={{
+          //   '&::before': {
+          //     content: '""',
+          //     position: 'absolute',
+          //     top: 0,
+          //     left: 0,
+          //     right: 0,
+          //     bottom: 0,
+          //     backgroundImage: `url(${url})`,
+          //     backgroundSize: 'cover',
+          //     backgroundPosition: 'center',
+          //     backgroundRepeat: 'no-repeat',
+          //     opacity: isMobile ? 0.1 : 0.15,
+          //     zIndex: 0,
+          //   }
+          // }}
         >
           <Container maxWidth="xl" className="relative z-10">
-            <Paper elevation={0} className="border rounded-lg overflow-hidden">
-              <Box className="border-b bg-white/80 backdrop-blur-sm">
+            <Paper elevation={0} className={`border rounded-lg overflow-hidden ${isMobile ? 'mobile-modif-paper' : ''}`}>
+              <Box className={`border-b bg-white/80 backdrop-blur-sm ${isMobile ? 'mobile-admin-tabs' : ''}`}>
                 <Tabs 
                   value={value} 
                   onChange={handleChange} 
@@ -93,33 +103,33 @@ export default function EntrepriseDetail() {
                   scrollButtons="auto"
                   allowScrollButtonsMobile
                   aria-label="enterprise tabs"
-                  className="min-h-[48px]"
+                  className={`min-h-[48px] ${isMobile ? 'mobile-admin-tabs' : ''}`}
                 >
                   <Tab 
                     label="Informations" 
                     icon={<InfoIcon />} 
                     iconPosition="start"
                     {...a11yProps(0)} 
-                    className="min-h-[48px]"
+                    className={`min-h-[48px] ${isMobile ? 'mobile-admin-tab' : ''}`}
                   />
                   <Tab 
                     label="Utilisateurs" 
                     icon={<GroupIcon />} 
                     iconPosition="start"
                     {...a11yProps(1)} 
-                    className="min-h-[48px]"
+                    className={`min-h-[48px] ${isMobile ? 'mobile-admin-tab' : ''}`}
                   />
                   <Tab 
                     label="Paramètres" 
                     icon={<SettingsIcon />} 
                     iconPosition="start"
                     {...a11yProps(2)} 
-                    className="min-h-[48px]"
+                    className={`min-h-[48px] ${isMobile ? 'mobile-admin-tab' : ''}`}
                   />
                 </Tabs>
               </Box>
 
-              <Box className="bg-white/95 backdrop-blur-sm">
+              <Box className={`bg-white/95 backdrop-blur-sm ${isMobile ? 'mobile-fade-in' : ''}`}>
                 <CustomTabPanel value={value} index={0}>
                   <EtatProduit />
                 </CustomTabPanel>

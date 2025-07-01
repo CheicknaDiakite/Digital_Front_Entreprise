@@ -69,7 +69,7 @@ export default function ModifProduitEntre() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-6">
+    <div className="min-h-screen py-6">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <Nav>
           <div className="flex items-center space-x-2">

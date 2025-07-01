@@ -8,7 +8,7 @@ import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import ImageIcon from '@mui/icons-material/Image';
 // project import
-import { Alert, Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Paper, Skeleton, TextField, Tooltip, Fade } from '@mui/material';
+import { Alert, Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Paper, Skeleton, TextField, Tooltip, Fade, alpha, useTheme, useMediaQuery } from '@mui/material';
 import { ChangeEvent, useState } from 'react';
 import { connect } from '../../_services/account.service';
 import { Link } from 'react-router-dom';
@@ -24,6 +24,7 @@ import { BASE } from '../../_services/caller.service';
 import img from '../../../public/icon-192x192.png'
 import M_Abonnement from '../../_components/Card/M_Abonnement';
 import { useForm } from 'react-hook-form';
+import './mobile-shadows.css';
 
 // ===============================|| SHADOW BOX ||=============================== //
 interface ShadowBoxProps {
@@ -31,22 +32,57 @@ interface ShadowBoxProps {
 }
 
 function ShadowBox({ shadow }: ShadowBoxProps) {
-  
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   // let url = BASE(shadow.image);
   const url = shadow.image ? BASE(shadow.image) : img;
   return (
-    <Paper elevation={0} className="relative p-4 rounded-lg transition-all duration-200 hover:shadow-md border-x-2 animate-border-rotate">
+    <Paper 
+      elevation={isMobile ? 2 : 0} 
+      className={`relative p-4 rounded-lg transition-all duration-200 hover:shadow-md border-x-2 animate-border-rotate mobile-shadow-card mobile-hover-effect ${isMobile ? 'mobile-glass' : ''}`}
+      sx={{
+        borderRadius: isMobile ? '20px' : '8px',
+        minHeight: { xs: '140px', sm: '160px' }
+      }}
+    >
       <Link to={`/categorie/sous/${shadow.uuid}`} className="block">
         <div className="flex flex-col items-center space-y-3 p-2">
-          <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center">
-            <img src={url} alt={shadow.libelle} className="w-16 h-16 object-contain" />
-          </div>
+          <Box
+            className="mobile-article-image"
+            sx={{
+              width: { xs: 60, sm: 80 },
+              height: { xs: 60, sm: 80 },
+              borderRadius: '50%',
+              overflow: 'hidden',
+              boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.2)}`,
+              border: `2px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+            }}
+          >
+            <img 
+              src={url} 
+              alt={shadow.libelle} 
+              className="w-full h-full object-cover"
+            />
+          </Box>
           <div className="text-center">
-            <Typography variant="subtitle1" className="font-medium text-gray-900">
+            <Typography 
+              variant="subtitle1" 
+              className="font-medium text-gray-900"
+              sx={{ 
+                fontSize: { xs: '0.9rem', sm: '1rem' },
+                fontWeight: 600
+              }}
+            >
               {shadow.libelle}
             </Typography>
-            <Typography variant="body2" className="text-gray-500">
-              {shadow.sous_categorie_count} sous-catégories
+            <Typography 
+              variant="body2" 
+              className="text-gray-500"
+              sx={{ 
+                fontSize: { xs: '0.8rem', sm: '0.875rem' }
+              }}
+            >
+              {shadow.sous_categorie_count}
             </Typography>
           </div>
         </div>
@@ -55,7 +91,13 @@ function ShadowBox({ shadow }: ShadowBoxProps) {
       <div className="absolute top-2 right-2">
         <Tooltip title="Modifier" arrow TransitionComponent={Fade}>
           <Link to={`/categorie/modif/${shadow.slug}`}>
-            <IconButton size="small" className="bg-white hover:bg-gray-50 shadow-sm">
+            <IconButton 
+              size="small" 
+              className={`bg-white hover:bg-gray-50 shadow-sm mobile-edit-button ${isMobile ? 'mobile-glass' : ''}`}
+              sx={{
+                borderRadius: isMobile ? '12px' : '4px'
+              }}
+            >
               <EditIcon fontSize="small" className="text-blue-600" />
             </IconButton>
           </Link>
@@ -66,6 +108,9 @@ function ShadowBox({ shadow }: ShadowBoxProps) {
 }
 
 export default function ComponentShadow() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  
   const uuid = useStoreUuid((state) => state.selectedId);
 
   const { unEntreprise } = useFetchEntreprise(uuid!);
@@ -107,11 +152,16 @@ export default function ComponentShadow() {
 
   if (isLoading) {
     return (
-      <Box sx={{ width: '100%', padding: 3 }}>
-        <Grid container spacing={3}>
+      <Box sx={{ width: '100%', padding: { xs: 2, sm: 3 } }} className="mobile-loading">
+        <Grid container spacing={isMobile ? 2 : 3}>
           {[1, 2, 3, 4, 5, 6].map((item) => (
             <Grid item xs={6} sm={4} md={3} lg={2} key={item}>
-              <Skeleton variant="rectangular" height={160} className="rounded-lg" />
+              <Skeleton 
+                variant="rectangular" 
+                height={isMobile ? 140 : 160} 
+                className="rounded-lg"
+                sx={{ borderRadius: isMobile ? '20px' : '8px' }}
+              />
             </Grid>
           ))}
         </Grid>
@@ -123,9 +173,15 @@ export default function ComponentShadow() {
     return (
       <Alert 
         severity="error" 
-        className="m-4"
+        className={`m-4 ${isMobile ? 'mobile-alert' : ''}`}
+        sx={{ borderRadius: isMobile ? '16px' : '4px' }}
         action={
-          <Button color="inherit" size="small" onClick={() => window.location.reload()}>
+          <Button 
+            color="inherit" 
+            size="small" 
+            onClick={() => window.location.reload()}
+            className={isMobile ? 'mobile-button' : ''}
+          >
             Réessayer
           </Button>
         }
@@ -141,11 +197,18 @@ export default function ComponentShadow() {
     );
 
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className={`min-h-screen ${isMobile ? '' : ''}`}>
         <Nav />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <Typography variant="h4" className="font-semibold text-gray-900">
+          <div className={`mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 ${isMobile ? 'mobile-header-container' : ''}`}>
+            <Typography 
+              variant="h4" 
+              className={`font-semibold text-gray-900 ${isMobile ? 'mobile-title' : ''}`}
+              sx={{ 
+                fontSize: { xs: '1.75rem', sm: '2rem' },
+                textAlign: isMobile ? 'center' : 'left'
+              }}
+            >
               Articles
             </Typography>
             
@@ -156,35 +219,78 @@ export default function ComponentShadow() {
                 fullWidth
                 value={searchTerm}
                 onChange={handleSearchChange}
-                className="bg-white"
+                className={`bg-white ${isMobile ? 'mobile-search-container' : ''}`}
                 InputProps={{
                   startAdornment: <SearchIcon className="mr-2 text-gray-400" />,
                 }}
                 size="small"
+                sx={{
+                  borderRadius: isMobile ? '16px' : '4px',
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: isMobile ? '16px' : '4px',
+                  }
+                }}
               />
               
               <Button
                 variant="contained"
                 onClick={functionopen}
                 startIcon={<AddIcon />}
-                className="bg-blue-600 hover:bg-blue-700 whitespace-nowrap"
+                className={`bg-blue-600 hover:bg-blue-700 whitespace-nowrap ${isMobile ? 'mobile-button' : ''}`}
+                sx={{
+                  borderRadius: isMobile ? '12px' : '4px',
+                  fontWeight: isMobile ? 600 : 400
+                }}
               >
                 Nouvel Article
               </Button>
             </div>
           </div>
 
-          <Grid container spacing={3}>
+          <Grid 
+            container 
+            spacing={isMobile ? 2 : 3} 
+            className={isMobile ? '' : ''}
+            sx={{
+              '& .MuiGrid-item': {
+                padding: { xs: '6px', sm: '12px' }
+              }
+            }}
+          >
             {filteredCategories && filteredCategories.length > 0 ? (
               filteredCategories.map((post, index) => (
-                <Grid key={index} item xs={6} sm={4} md={3} lg={2}>
+                <Grid 
+                  key={index} 
+                  item 
+                  xs={6} 
+                  sm={4} 
+                  md={3} 
+                  lg={2}
+                  className={`mobile-stagger-${(index % 6) + 1}`}
+                  sx={{
+                    animationDelay: `${index * 0.1}s`
+                  }}
+                >
                   <ShadowBox shadow={post} />
                 </Grid>
               ))
             ) : (
               <Grid item xs={12}>
-                <Paper elevation={0} className="p-8 text-center border rounded-lg">
-                  <Typography variant="body1" className="text-gray-500">
+                <Paper 
+                  elevation={0} 
+                  className={`p-8 text-center border rounded-lg ${isMobile ? 'mobile-empty-card' : ''}`}
+                  sx={{ 
+                    borderRadius: isMobile ? '16px' : '8px',
+                    padding: { xs: '24px', sm: '32px' }
+                  }}
+                >
+                  <Typography 
+                    variant="body1" 
+                    className="text-gray-500"
+                    sx={{ 
+                      fontSize: { xs: '0.9rem', sm: '1rem' }
+                    }}
+                  >
                     Aucun article trouvé
                   </Typography>
                 </Paper>
@@ -199,12 +305,32 @@ export default function ComponentShadow() {
             maxWidth="xs"
             PaperProps={{
               elevation: 0,
-              className: "rounded-lg"
+              className: `rounded-lg ${isMobile ? 'mobile-dialog' : ''}`,
+              sx: {
+                borderRadius: isMobile ? '20px' : '8px'
+              }
             }}
           >
-            <DialogTitle className="flex justify-between items-center border-b pb-3">
-              <Typography variant="h6">Nouvel Article</Typography>
-              <IconButton onClick={closeopen} size="small">
+            <DialogTitle 
+              className={`flex justify-between items-center border-b pb-3 ${isMobile ? 'mobile-glass' : ''}`}
+              sx={{
+                borderRadius: isMobile ? '20px 20px 0 0' : '8px 8px 0 0'
+              }}
+            >
+              <Typography 
+                variant="h6"
+                sx={{ 
+                  fontSize: { xs: '1.1rem', sm: '1.25rem' },
+                  fontWeight: 600
+                }}
+              >
+                Nouvel Article
+              </Typography>
+              <IconButton 
+                onClick={closeopen} 
+                size="small"
+                className={isMobile ? 'mobile-edit-button' : ''}
+              >
                 <CloseIcon />
               </IconButton>
             </DialogTitle>
@@ -220,6 +346,12 @@ export default function ComponentShadow() {
                     {...register("libelle", { required: "Ce champ est obligatoire" })}
                     error={!!errors.libelle}
                     helperText={errors.libelle?.message}
+                    className={isMobile ? 'mobile-form-field' : ''}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: isMobile ? '12px' : '4px',
+                      }
+                    }}
                   />
 
                   <MyTextField
@@ -231,13 +363,23 @@ export default function ComponentShadow() {
                     InputProps={{
                       startAdornment: <ImageIcon className="mr-2 text-gray-400" />,
                     }}
+                    className={isMobile ? 'mobile-form-field' : ''}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: isMobile ? '12px' : '4px',
+                      }
+                    }}
                   />
 
                   <div className="pt-4 border-t flex justify-end">
                     <Button
                       type="submit"
                       variant="contained"
-                      className="bg-blue-600 hover:bg-blue-700"
+                      className={`bg-blue-600 hover:bg-blue-700 ${isMobile ? 'mobile-button' : ''}`}
+                      sx={{
+                        borderRadius: isMobile ? '12px' : '4px',
+                        fontWeight: isMobile ? 600 : 400
+                      }}
                     >
                       Enregistrer
                     </Button>

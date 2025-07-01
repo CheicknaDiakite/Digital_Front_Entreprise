@@ -34,132 +34,153 @@ import EntrerInventaire from '../../boutique/proprietaire/historique/inventaire/
 import EtaVente from '../../boutique/categorie/eta/EtaVente'
 import Avis from '../../boutique/proprietaire/users/Avis'
 import EtaProduits from '../../boutique/categorie/eta/EtaProduits'
+import VenteUsers from '../../boutique/categorie/eta/VenteUsers'
 import RemiseFacture from '../../boutique/sortie/RemiseFacture'
 import MesInscrit from '../../boutique/proprietaire/users/MesInscrit'
+import backgroundImage from '../../../public/assets/img/img.jpg'
 import { notClick } from '../../usePerso/fonctionPerso'
+import { Box } from '@mui/material'
+import { useStoreUuid } from '../../usePerso/store'
+import { useFetchEntreprise } from '../../usePerso/fonction.user'
+import { BASE } from '../../_services/caller.service'
 
 
 export default function PublicRouter() {
   notClick()
-  return (<div className='bg-zinc-200'>
 
-    <Routes>
-      <Route element={<Dashboard />}>
-      <Route index element={ <Entreprise />} />
-        {/* <Route index element={ <DashboardDefault />} /> */}
-        
-        <Route path='entreprise'>
-          <Route index element={<DashboardDefault />} />
-          <Route path='Avis' element={<Facture />} />
-          <Route path='PreFacture' element={<Facture />} />
-          <Route path='EtaDeVente' element={<EtaVente />} />
-          <Route path='inventaire/EtaDesProduits' element={<EtaProduits />} />
+  const uuid = useStoreUuid((state) => state.selectedId);
+  const { unEntreprise } = useFetchEntreprise(uuid!);
+  const url = unEntreprise.image ? BASE(unEntreprise.image) : backgroundImage;
+  
+  return (
+    <Box 
+      className='bg-red-200'
+      sx={{
+        background: `linear-gradient(rgba(128, 128, 128, 0.7), rgba(128, 128, 128, 0.7)), url(${url})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+        padding: { xs: '16px', sm: '24px', md: '32px' }
+      }}
+    >
+      <Routes>
+        <Route element={<Dashboard />}>
+        <Route index element={ <Entreprise />} />
+          {/* <Route index element={ <DashboardDefault />} /> */}
           
-          <Route element={<ProtectedRoute requiredRole={[1, 2]} redirectPath="/" />}>          
-            <Route path='detail' element={<EntrepriseDetail />} />
-            <Route path='historique' element={<TableHistory />} />
-            <Route path='inventaire/sortie' element={<SortieInventaire />} />
-            <Route path='inventaire/entrer' element={<EntrerInventaire />} />
-            <Route path='historique/sppression' element={<HistoriqueSupp />} />
-          </Route>
-
-          <Route path='depense'>
-            <Route index element={<Depense />} />
-            <Route path=':uuid' element={<DepenseModif />} />
-          </Route>
-
-          <Route path='personnel' >
-
-            <Route element={<ProtectedRoute requiredRole={1} redirectPath="/" />}>
-              <Route index element={<Personnel />} />
-              <Route path='modif/:uuid' element={<PersonnelModif />} />
-            </Route>      
-
-          </Route>
-
-          <Route path='produit'>
-            {/* <Route index element={<Produit />} /> */}
+          <Route path='entreprise'>
+            <Route index element={<DashboardDefault />} />
+            <Route path='Avis' element={<Facture />} />
+            <Route path='PreFacture' element={<Facture />} />
+            <Route path='EtaDeVente' element={<EtaVente />} />
+            <Route path='inventaire/EtaDesProduits' element={<EtaProduits />} />
+            <Route path='inventaire/VenteUsers' element={<VenteUsers />} />
             
-              <Route element={<ProtectedRoute requiredRole={[1, 2]} redirectPath="/" />}>
-                <Route path='entre'>
-                  <Route index element={<FacEntre />} />
-                  <Route path='modif/:uuid' element={<ModifProduitEntre />} />
-                </Route>
-              </Route>
-
-              <Route element={<ProtectedRoute requiredRole={[1, 2, 3]} redirectPath="/" />}>
-                <Route path='sortie'>
-                  <Route index element={<FacSortie />} />
-                  <Route path='modif/:uuid' element={<ModifProduitSortie />} />
-                </Route>
-              </Route>
-            
-            <Route path='modif/:slug' element={<ModifEntre />} />
-          </Route>
-
-          <Route path='client' >
-            {/* <Route element={<ProtectedRoute requiredRole={1} redirectPath="/" />}> */}
-              <Route index element={<Client />} />
-            {/* </Route> */}
-            <Route path='info/:uuid' element={<ClientInfo />} />
-          </Route>
-
-          <Route path='utilisateur'>
-            <Route element={<ProtectedRoute requiredRole={1} redirectPath="/" />}>
-              <Route path="admin" element={<Users />} />
-              <Route path='admin/modif/:uuid' element={<UserModif />} />
+            <Route element={<ProtectedRoute requiredRole={[1, 2]} redirectPath="/" />}>          
+              <Route path='detail' element={<EntrepriseDetail />} />
+              <Route path='historique' element={<TableHistory />} />
+              <Route path='inventaire/sortie' element={<SortieInventaire />} />
+              <Route path='inventaire/entrer' element={<EntrerInventaire />} />
+              <Route path='historique/sppression' element={<HistoriqueSupp />} />
             </Route>
 
-            <Route path='modif/:uuid' element={<Admin />} />
-          </Route>
-        </Route>
-        
-        <Route element={<ProtectedRoute requiredRole={[1, 2]} redirectPath="/" />}>        
-          <Route path='categorie' >
-            <Route index element={<ComponentShadow />} />
-            <Route path=':slug' element={<Sortie />} />
-            <Route path='modif/:slug' element={<ModifCate />} /> 
-
-            <Route path='sous'>
-              <Route path=':uuid'  element={<SousCat />} />
-              <Route path='modif/:slug'  element={<ModifSousCate />} />
+            <Route path='depense'>
+              <Route index element={<Depense />} />
+              <Route path=':uuid' element={<DepenseModif />} />
             </Route>
 
-            <Route path='info/:uuid'  element={<Info />} />
-                    
+            <Route path='personnel' >
+
+              <Route element={<ProtectedRoute requiredRole={1} redirectPath="/" />}>
+                <Route index element={<Personnel />} />
+                <Route path='modif/:uuid' element={<PersonnelModif />} />
+              </Route>      
+
+            </Route>
+
+            <Route path='produit'>
+              {/* <Route index element={<Produit />} /> */}
+              
+                <Route element={<ProtectedRoute requiredRole={[1, 2]} redirectPath="/" />}>
+                  <Route path='entre'>
+                    <Route index element={<FacEntre />} />
+                    <Route path='modif/:uuid' element={<ModifProduitEntre />} />
+                  </Route>
+                </Route>
+
+                <Route element={<ProtectedRoute requiredRole={[1, 2, 3]} redirectPath="/" />}>
+                  <Route path='sortie'>
+                    <Route index element={<FacSortie />} />
+                    <Route path='modif/:uuid' element={<ModifProduitSortie />} />
+                  </Route>
+                </Route>
+              
+              <Route path='modif/:slug' element={<ModifEntre />} />
+            </Route>
+
+            <Route path='client' >
+              {/* <Route element={<ProtectedRoute requiredRole={1} redirectPath="/" />}> */}
+                <Route index element={<Client />} />
+              {/* </Route> */}
+              <Route path='info/:uuid' element={<ClientInfo />} />
+            </Route>
+
+            <Route path='utilisateur'>
+              <Route element={<ProtectedRoute requiredRole={1} redirectPath="/" />}>
+                <Route path="admin" element={<Users />} />
+                <Route path='admin/modif/:uuid' element={<UserModif />} />
+              </Route>
+
+              <Route path='modif/:uuid' element={<Admin />} />
+            </Route>
           </Route>
-        </Route>
-
-        <Route path='entre'>
-          <Route index element={<Entre />} />
-          <Route path='modif/:uuid' element={<ModifEntre />} />
-        </Route>
-
-        <Route path='sortie' >
-          <Route index element={<Sortie />} />
           
-          <Route path='remise' element={<RemiseFacture />} />
-          <Route path='entreprise/:uuid' element={<Sortie />} />
-          {/* <Route path='entreprise' element={<EseSortie />} /> */}
-          <Route path='modif/:uuid' element={<ModifSortie />} />
-        </Route>
+          <Route element={<ProtectedRoute requiredRole={[1, 2]} redirectPath="/" />}>        
+            <Route path='categorie' >
+              <Route index element={<ComponentShadow />} />
+              <Route path=':slug' element={<Sortie />} />
+              <Route path='modif/:slug' element={<ModifCate />} /> 
 
-        <Route path='user'>
+              <Route path='sous'>
+                <Route path=':uuid'  element={<SousCat />} />
+                <Route path='modif/:slug'  element={<ModifSousCate />} />
+              </Route>
 
-          <Route element={<ProtectedRoute requiredRole={1} redirectPath="/" />}>
-            <Route path="admin" element={<Users />} />            
-            <Route path="avis" element={<Avis />} />
-            
+              <Route path='info/:uuid'  element={<Info />} />
+                      
+            </Route>
           </Route>
 
-          <Route path="mesInscrit" element={<MesInscrit />} />
-          <Route path='admin/modif/:uuid' element={<UserModif />} />
+          <Route path='entre'>
+            <Route index element={<Entre />} />
+            <Route path='modif/:uuid' element={<ModifEntre />} />
+          </Route>
 
-          <Route path='modif/:id' element={<Admin />} />
+          <Route path='sortie' >
+            <Route index element={<Sortie />} />
+            
+            <Route path='remise' element={<RemiseFacture />} />
+            <Route path='entreprise/:uuid' element={<Sortie />} />
+            {/* <Route path='entreprise' element={<EseSortie />} /> */}
+            <Route path='modif/:uuid' element={<ModifSortie />} />
+          </Route>
+
+          <Route path='user'>
+
+            <Route element={<ProtectedRoute requiredRole={1} redirectPath="/" />}>
+              <Route path="admin" element={<Users />} />            
+              <Route path="avis" element={<Avis />} />
+              
+            </Route>
+
+            <Route path="mesInscrit" element={<MesInscrit />} />
+            <Route path='admin/modif/:uuid' element={<UserModif />} />
+
+            <Route path='modif/:id' element={<Admin />} />
+          </Route>
+
         </Route>
-
-      </Route>
-    </Routes>
-  </div>
+      </Routes>
+    </Box>
   )
 }
