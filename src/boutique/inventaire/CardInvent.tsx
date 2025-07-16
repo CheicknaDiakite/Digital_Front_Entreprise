@@ -77,9 +77,11 @@ export default function CardInvent({ row }: EntreProps) {
           </TableCell>
           <TableCell>
             {row.categorie_libelle}{' '}
-            <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
-              {row.libelle}
-            </span>
+              {row.libelle && (
+                <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                  {row.libelle}
+                </span>
+              )}
           </TableCell>
           <TableCell align="right">{row.qte}</TableCell>
           <TableCell align="right">{formatNumberWithSpaces(row.pu)}</TableCell>

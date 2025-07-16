@@ -11,7 +11,6 @@ import {
   Divider,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SaveIcon from '@mui/icons-material/Save';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import DescriptionIcon from '@mui/icons-material/Description';
@@ -73,11 +72,7 @@ export default function DepenseModif() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <Nav>
           <div className="flex items-center space-x-2">
-            <Link to="/entreprise/depense">
-              <IconButton size="small" className="hover:bg-gray-100">
-                <ArrowBackIcon />
-              </IconButton>
-            </Link>
+            
             {unUser.role === 1 && (
               <IconButton 
                 onClick={handleDelete}

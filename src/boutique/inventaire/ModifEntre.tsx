@@ -10,6 +10,7 @@ import {
   Paper,
   Box,
   IconButton,
+  Alert
 } from '@mui/material'
 import { connect } from '../../_services/account.service'
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
@@ -18,8 +19,6 @@ import Nav from '../../_components/Button/Nav'
 import { useFetchUser } from '../../usePerso/fonction.user'
 import { useStoreUuid } from '../../usePerso/store'
 import SaveIcon from '@mui/icons-material/Save';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Link } from 'react-router-dom';
 
 export default function ModifEntre() {
   const {uuid} = useParams<RouteParams>()
@@ -38,12 +37,17 @@ export default function ModifEntre() {
   
   const Is_Prix = () => setPrix(!is_prix);
   
+  const [showConfirm, setShowConfirm] = useState(false);
+
   const handleDelete = () => {
-    const confirmation = window.confirm("Êtes-vous sûr de vouloir supprimer cette entrée ?");
-    if (confirmation) {
-      deleteEntre(unEntre);
-    }
+    setShowConfirm(true);
   };
+
+  const confirmDelete = () => {
+    deleteEntre(unEntre);
+    setShowConfirm(false);
+  };
+
   // const {souscategories} = useFetchAllSousCate(top)
   
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -71,11 +75,7 @@ export default function ModifEntre() {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <Nav>
           <div className="flex items-center space-x-2">
-            <Link to="/inventaire/entre">
-              <IconButton size="small" className="hover:bg-gray-100">
-                <ArrowBackIcon />
-              </IconButton>
-            </Link>
+            
             {(unUser.role === 1 || unUser.role === 2) && (
               <IconButton 
                 onClick={handleDelete}
@@ -87,6 +87,25 @@ export default function ModifEntre() {
             )}
           </div>
         </Nav>
+
+        {showConfirm && (
+          <Alert 
+            severity="warning" 
+            className="mt-4"
+            action={
+              <div className="space-x-2">
+                <Button color="inherit" size="small" onClick={() => setShowConfirm(false)}>
+                  Annuler
+                </Button>
+                <Button color="error" size="small" onClick={confirmDelete}>
+                  Confirmer
+                </Button>
+              </div>
+            }
+          >
+            Êtes-vous sûr de vouloir supprimer cette entrée ?
+          </Alert>
+        )}
 
         <Paper elevation={0} className="mt-6 rounded-lg overflow-hidden">
           <Box className="p-6">

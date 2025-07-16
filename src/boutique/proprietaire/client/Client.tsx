@@ -182,7 +182,7 @@ export default function Client() {
               {/* Filters */}
               <Paper 
                 elevation={0} 
-                className={`${isMobile ? 'mobile-filters-section' : 'p-4 mb-6 bg-gray-50 rounded-lg'}`}
+                className={`${isMobile ? 'mobile-filters-section' : 'p-4 mb-6 rounded-lg'}`}
                 sx={isMobile ? {
                   background: 'rgba(255, 255, 255, 0.9)',
                   backdropFilter: 'blur(10px)',
@@ -200,63 +200,63 @@ export default function Client() {
                   </Typography>
                 </div>
                 <div className="flex flex-wrap gap-2">
-            <Button
-              variant={filter === 3 ? 'contained' : 'outlined'}
-              onClick={() => setFilter(3)}
-                    size="small"
-                    className={`${isMobile ? 'mobile-filter-button' : ''} ${filter === 3 ? (isMobile ? 'mobile-filter-button active' : 'bg-blue-600') : ''}`}
-                    sx={isMobile ? {
-                      borderRadius: '8px',
-                      fontWeight: 500,
-                      textTransform: 'none',
-                      transition: 'all 0.3s ease',
-                      margin: '4px',
-                      '&:hover': {
-                        transform: 'translateY(-1px)',
-                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
-                      }
-                    } : {}}
-            >
-              Tous
-            </Button>
-            <Button
-              variant={filter === 1 ? 'contained' : 'outlined'}
-              onClick={() => setFilter(1)}
-                    size="small"
-                    className={`${isMobile ? 'mobile-filter-button' : ''} ${filter === 1 ? (isMobile ? 'mobile-filter-button active' : 'bg-blue-600') : ''}`}
-                    sx={isMobile ? {
-                      borderRadius: '8px',
-                      fontWeight: 500,
-                      textTransform: 'none',
-                      transition: 'all 0.3s ease',
-                      margin: '4px',
-                      '&:hover': {
-                        transform: 'translateY(-1px)',
-                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
-                      }
-                    } : {}}
-            >
-                    Clients
-            </Button>
-            <Button
-              variant={filter === 2 ? 'contained' : 'outlined'}
-              onClick={() => setFilter(2)}
-                    size="small"
-                    className={`${isMobile ? 'mobile-filter-button' : ''} ${filter === 2 ? (isMobile ? 'mobile-filter-button active' : 'bg-blue-600') : ''}`}
-                    sx={isMobile ? {
-                      borderRadius: '8px',
-                      fontWeight: 500,
-                      textTransform: 'none',
-                      transition: 'all 0.3s ease',
-                      margin: '4px',
-                      '&:hover': {
-                        transform: 'translateY(-1px)',
-                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
-                      }
-                    } : {}}
-            >
-                    Fournisseurs
-            </Button>            
+                  <Button
+                    variant={filter === 3 ? 'contained' : 'outlined'}
+                    onClick={() => setFilter(3)}
+                          size="small"
+                          className={`${isMobile ? 'mobile-filter-button' : ''} ${filter === 3 ? (isMobile ? 'mobile-filter-button active' : 'bg-blue-600') : ''}`}
+                          sx={isMobile ? {
+                            borderRadius: '8px',
+                            fontWeight: 500,
+                            textTransform: 'none',
+                            transition: 'all 0.3s ease',
+                            margin: '4px',
+                            '&:hover': {
+                              transform: 'translateY(-1px)',
+                              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
+                            }
+                          } : {}}
+                  >
+                    Tous
+                  </Button>
+                  <Button
+                    variant={filter === 1 ? 'contained' : 'outlined'}
+                    onClick={() => setFilter(1)}
+                          size="small"
+                          className={`${isMobile ? 'mobile-filter-button' : ''} ${filter === 1 ? (isMobile ? 'mobile-filter-button active' : 'bg-blue-600') : ''}`}
+                          sx={isMobile ? {
+                            borderRadius: '8px',
+                            fontWeight: 500,
+                            textTransform: 'none',
+                            transition: 'all 0.3s ease',
+                            margin: '4px',
+                            '&:hover': {
+                              transform: 'translateY(-1px)',
+                              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
+                            }
+                          } : {}}
+                  >
+                          Clients
+                  </Button>
+                  <Button
+                    variant={filter === 2 ? 'contained' : 'outlined'}
+                    onClick={() => setFilter(2)}
+                          size="small"
+                          className={`${isMobile ? 'mobile-filter-button' : ''} ${filter === 2 ? (isMobile ? 'mobile-filter-button active' : 'bg-blue-600') : ''}`}
+                          sx={isMobile ? {
+                            borderRadius: '8px',
+                            fontWeight: 500,
+                            textTransform: 'none',
+                            transition: 'all 0.3s ease',
+                            margin: '4px',
+                            '&:hover': {
+                              transform: 'translateY(-1px)',
+                              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
+                            }
+                          } : {}}
+                  >
+                          Fournisseurs
+                  </Button>            
                 </div>
               </Paper>
           
@@ -264,7 +264,7 @@ export default function Client() {
               <Grid 
                 container 
                 spacing={isMobile ? 2 : 3}
-                className={isMobile ? 'mobile-grid' : ''}
+                className={isMobile ? 'pt-3' : ''}
                 sx={{
                   '& .MuiGrid-item': {
                     padding: isMobile ? '8px' : '12px'
@@ -392,17 +392,15 @@ export default function Client() {
             maxWidth="sm"
             PaperProps={{
               elevation: 0,
-              className: isMobile ? "mobile-modal" : "rounded-lg",
+              className: "rounded-10",
               sx: isMobile ? {
                 borderRadius: '20px',
                 background: 'rgba(255, 255, 255, 0.95)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                animation: 'bounceIn 0.6s ease-out'
+                backdropFilter: 'blur(10px)'
               } : {}
             }}
           >
-            <DialogTitle className={`${isMobile ? 'mobile-modal-header' : 'flex justify-between items-center'} border-b pb-3`}>
+            <DialogTitle className={`flex justify-between items-center bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700 text-white border-b pb-3`}>
               <Typography variant="h6" className="font-semibold">
                 Ajouter un nouveau contact
               </Typography>

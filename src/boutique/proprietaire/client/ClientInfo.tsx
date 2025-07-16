@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Box, Paper, IconButton } from '@mui/material';
+import { Box, Paper, IconButton, Alert, Button } from '@mui/material';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
@@ -23,12 +23,15 @@ export default function ClientInfo() {
   
   const {deleteClient} = useDeleteClient();
   const [value, setValue] = React.useState(0);
+  const [showConfirm, setShowConfirm] = React.useState(false);
 
   const handleDelete = () => {
-    const confirmation = window.confirm("Êtes-vous sûr de vouloir supprimer ce client ?");
-    if (confirmation) {
-      deleteClient(unClient);
-    }
+    setShowConfirm(true);
+  };
+
+  const confirmDelete = () => {
+    deleteClient(unClient);
+    setShowConfirm(false);
   };
 
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
@@ -50,6 +53,25 @@ export default function ClientInfo() {
             </IconButton>
           </Nav>
         </div>
+
+        {showConfirm && (
+          <Alert 
+            severity="warning" 
+            className="mt-4"
+            action={
+              <div className="space-x-2">
+                <Button color="inherit" size="small" onClick={() => setShowConfirm(false)}>
+                  Annuler
+                </Button>
+                <Button color="error" size="small" onClick={confirmDelete}>
+                  Confirmer
+                </Button>
+              </div>
+            }
+          >
+            Êtes-vous sûr de vouloir supprimer ce client ?
+          </Alert>
+        )}
 
         {/* Main Content */}
         <Paper elevation={0} className="rounded-lg overflow-hidden">

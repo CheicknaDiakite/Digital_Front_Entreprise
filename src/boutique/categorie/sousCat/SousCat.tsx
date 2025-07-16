@@ -283,7 +283,7 @@ export default function SousCat() {
           <Grid 
             container 
             spacing={isMobile ? 2 : 3} 
-            className={isMobile ? '' : ''}
+            className={'mt-3'}
             sx={{
               '& .MuiGrid-item': {
                 padding: { xs: '6px', sm: '12px' }
@@ -335,17 +335,19 @@ export default function SousCat() {
             open={open} 
             onClose={closeopen} 
             fullWidth 
-            maxWidth="xs"
+            maxWidth="sm"
             PaperProps={{
               elevation: 0,
-              className: `rounded-lg ${isMobile ? 'mobile-dialog' : ''}`,
-              sx: {
-                borderRadius: isMobile ? '20px' : '8px'
-              }
+              className: "rounded-10",
+              sx: isMobile ? {
+                borderRadius: '20px',
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(10px)'
+              } : {}
             }}
           >
             <DialogTitle 
-              className={`flex justify-between items-center border-b pb-3 ${isMobile ? 'mobile-glass' : ''}`}
+              className={`flex justify-between items-center border-b pb-3 bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700 text-white`}
               sx={{
                 borderRadius: isMobile ? '20px 20px 0 0' : '8px 8px 0 0'
               }}
@@ -362,7 +364,6 @@ export default function SousCat() {
               <IconButton 
                 onClick={closeopen} 
                 size="small"
-                className={isMobile ? 'mobile-edit-button' : ''}
               >
                 <CloseIcon />
               </IconButton>

@@ -307,20 +307,18 @@ export default function FacEntre() {
             open={open} 
             onClose={closeopen} 
             fullWidth 
-            maxWidth="sm"
+            maxWidth="xs"
             PaperProps={{
               elevation: 0,
-              className: isMobile ? "mobile-modal" : "rounded-lg",
+              className: "rounded-10",
               sx: isMobile ? {
                 borderRadius: '20px',
                 background: 'rgba(255, 255, 255, 0.95)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                animation: 'bounceIn 0.6s ease-out'
+                backdropFilter: 'blur(10px)'
               } : {}
             }}
           >
-            <DialogTitle className={`${isMobile ? 'mobile-modal-header' : 'flex justify-between items-center'} border-b pb-3`}>
+            <DialogTitle className={`flex justify-between items-center bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700 text-white border-b pb-3`}>
               <Typography variant="h6">Ajouter une facture d'entrée</Typography>
               <IconButton onClick={closeopen} size="small">
                 <CloseIcon />

@@ -52,6 +52,7 @@ export default function TableSortie({
   const sortedList = sortedLi.filter((post: any) =>
     post?.ref?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  
 
   // Filtrer la liste "ent" en fonction de scannedCode
   // On suppose ici que chaque option de "ent" possède une propriété "ref"
@@ -66,6 +67,7 @@ export default function TableSortie({
       handleChange(filteredEnt[0]); // ou une fonction qui met à jour selectedOption
     }
   }, [filteredEnt]);
+
   return (
     <>
       <ToastContainer position="top-right" theme="colored" />

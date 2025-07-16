@@ -107,8 +107,6 @@ export default function Profile() {
   // const [value] = useState(0);
 
 
-  const iconBackColorOpen = 'grey.100';
-
   if (isLoading) {
       return (
         <Box sx={{ width: 300 }}>
@@ -126,15 +124,15 @@ export default function Profile() {
 
   if (unUser) {
     return (
-      <Box sx={{ flexShrink: 0, ml: 0.75 }} className="bg-blue-200 border border-dashed animate-border-rotate rounded-lg">
+      <Box className="text-white border-indigo-600 bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700 border border-dashed animate-border-rotate rounded-lg">
         <ButtonBase
-          sx={{
-            p: 0.25,
-            bgcolor: open ? iconBackColorOpen : 'transparent',
-            borderRadius: 1,
-            '&:hover': { bgcolor: 'secondary.lighter' },
-            '&:focus-visible': { outline: `2px solid ${theme.palette.secondary.dark}`, outlineOffset: 2 }
-          }}
+          // sx={{
+          //   p: 0.25,
+          //   bgcolor: open ? iconBackColorOpen : 'transparent',
+          //   borderRadius: 1,
+          //   '&:hover': { bgcolor: 'secondary.lighter' },
+          //   '&:focus-visible': { outline: `2px solid ${theme.palette.secondary.dark}`, outlineOffset: 2 }
+          // }}
           aria-label="open profile"
           ref={anchorRef}
           aria-controls={open ? 'profile-grow' : undefined}
@@ -148,6 +146,7 @@ export default function Profile() {
             </Typography>
           </Stack>
         </ButtonBase>
+
         <Popper
           placement="bottom-end"
           open={open}

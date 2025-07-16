@@ -9,7 +9,9 @@ import {
   MenuItem, 
   Select, 
   Stack, 
-  TextField 
+  TextField,
+  CircularProgress,
+  Box
 } from '@mui/material';
 import { useCreateUser } from '../../../usePerso/fonction.user';
 import countryList from 'react-select-country-list';
@@ -52,15 +54,13 @@ const AuthRegister: FC = () => {
   const password = watch('password');
 
   const onSubmit = async (data: RegisterFormData) => {
-    const toastId = toast.loading('Création du compte en cours...');
     try {
       await create(data);
-      toast.success('Inscription réussie ! Vérifiez votre email.', { id: toastId });
+      toast.success('Inscription réussie ! Vérifiez votre email.');
       reset();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : 'Erreur lors de l\'inscription',
-        { id: toastId }
+        error instanceof Error ? error.message : 'Erreur lors de l\'inscription'
       );
     }
   };
@@ -75,6 +75,11 @@ const AuthRegister: FC = () => {
       }}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="p-4">
+        {isSubmitting && (
+          <Box className="flex justify-center items-center pb-4">
+            <CircularProgress size={36} color="primary" />
+          </Box>
+        )}
         <Stack spacing={2}>
           <TextField
             label="Nom"
@@ -85,6 +90,7 @@ const AuthRegister: FC = () => {
               minLength: { value: 2, message: 'Le nom doit contenir au moins 2 caractères' }
             })}
             fullWidth
+            disabled={isSubmitting}
             InputProps={{
               sx: {
                 '&:hover fieldset': {
@@ -103,6 +109,7 @@ const AuthRegister: FC = () => {
               minLength: { value: 2, message: 'Le prénom doit contenir au moins 2 caractères' }
             })}
             fullWidth
+            disabled={isSubmitting}
             InputProps={{
               sx: {
                 '&:hover fieldset': {
@@ -125,6 +132,7 @@ const AuthRegister: FC = () => {
               }
             })}
             fullWidth
+            disabled={isSubmitting}
             InputProps={{
               sx: {
                 '&:hover fieldset': {
@@ -146,6 +154,7 @@ const AuthRegister: FC = () => {
               }
             })}
             fullWidth
+            disabled={isSubmitting}
             InputProps={{
               sx: {
                 '&:hover fieldset': {
@@ -160,6 +169,7 @@ const AuthRegister: FC = () => {
             <Select
               {...register('pays', { required: 'Le pays est requis' })}
               label="Pays"
+              disabled={isSubmitting}
             >
               {countryOptions.map((option) => (
                 <MenuItem key={option.value} value={option.label}>
@@ -183,12 +193,13 @@ const AuthRegister: FC = () => {
                 value: 8, 
                 message: 'Le mot de passe doit contenir au moins 8 caractères' 
               },
-              pattern: {
-                value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
-                message: 'Le mot de passe doit contenir au moins une majuscule, une minuscule et un chiffre'
-              }
+              // pattern: {
+              //   value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+              //   message: 'Le mot de passe doit contenir au moins une majuscule, une minuscule et un chiffre'
+              // }
             })}
             fullWidth
+            disabled={isSubmitting}
             InputProps={{
               sx: {
                 '&:hover fieldset': {
@@ -209,6 +220,7 @@ const AuthRegister: FC = () => {
                 value === password || 'Les mots de passe ne correspondent pas'
             })}
             fullWidth
+            disabled={isSubmitting}
             InputProps={{
               sx: {
                 '&:hover fieldset': {

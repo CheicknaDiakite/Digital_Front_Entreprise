@@ -13,12 +13,11 @@ import {
   Alert,
 } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SaveIcon from '@mui/icons-material/Save';
 import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { connect } from "../../../_services/account.service";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { useDeleteUser, useFetchUser, useUpdateUser } from "../../../usePerso/fonction.user";
@@ -71,11 +70,7 @@ export function PersonnelModif() {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <Nav>
           <div className="flex items-center space-x-2">
-            <Link to="/entreprise/personnel">
-              <IconButton size="small" className="hover:bg-gray-100">
-                <ArrowBackIcon />
-              </IconButton>
-            </Link>
+            
             {unUser.uuid !== connect && (
               <IconButton 
                 onClick={handleDelete}

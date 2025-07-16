@@ -1,6 +1,6 @@
-import { ChangeEvent, FormEvent } from 'react'
+import { ChangeEvent, FormEvent, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { Button, Card, CardContent, DialogContent, DialogTitle, Stack, TextField, Typography } from '@mui/material'
+import { Button, Card, CardContent, DialogContent, DialogTitle, Stack, TextField, Typography, Alert } from '@mui/material'
 import { connect } from '../../_services/account.service'
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
 import { useDeleteSortie, useFetchSortie, useUpdateSortie } from '../../usePerso/fonction.entre'
@@ -20,15 +20,17 @@ export default function ModifSortie() {
   const {updateSortie} = useUpdateSortie()
   const {deleteSortie} = useDeleteSortie()
 
+  const [showConfirm, setShowConfirm] = useState(false);
+
   const handleDelete = () => {
-    const confirmation = window.confirm("Vous êtes sûr de vouloir supprimer ?");
-    if (confirmation) {
-      // Appel de la fonction de suppression
-      deleteSortie(unSortie);
-    }
+    setShowConfirm(true);
   };
-  // const {unSortie, setUnSortie, updateSortie, deleteSortie} = useSortie(slug!)
-  
+
+  const confirmDelete = () => {
+    deleteSortie(unSortie);
+    setShowConfirm(false);
+  };
+
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setUnSortie({
@@ -72,6 +74,24 @@ export default function ModifSortie() {
       </Button>
     }
     </Nav>
+    {showConfirm && (
+      <Alert 
+        severity="warning" 
+        className="mt-4"
+        action={
+          <div className="space-x-2">
+            <Button color="inherit" size="small" onClick={() => setShowConfirm(false)}>
+              Annuler
+            </Button>
+            <Button color="error" size="small" onClick={confirmDelete}>
+              Confirmer
+            </Button>
+          </div>
+        }
+      >
+        Êtes-vous sûr de vouloir supprimer cette sortie ?
+      </Alert>
+    )}
     <Card sx={{ minWidth: 275 }}>
         <CardContent>
           <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>

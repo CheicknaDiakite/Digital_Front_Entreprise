@@ -42,6 +42,7 @@ export default function ModifEntreprise() {
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [isMobile, setIsMobile] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const options = countryList().getData();
   console.log("kk", unEntreprise)
   useEffect(() => {
@@ -56,10 +57,12 @@ export default function ModifEntreprise() {
   }, []);
 
   const handleDelete = () => {
-    const confirmation = window.confirm("Êtes-vous sûr de vouloir supprimer cette entreprise ?");
-    if (confirmation) {
-      deleteEntreprise({ ...unEntreprise, user_id: connect });
-    }
+    setShowConfirm(true);
+  };
+
+  const confirmDelete = () => {
+    deleteEntreprise({ ...unEntreprise, user_id: connect });
+    setShowConfirm(false);
   };
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -133,8 +136,26 @@ export default function ModifEntreprise() {
             <DeleteIcon />
           </IconButton>
         </Tooltip>
-        
       </div>
+
+      {showConfirm && (
+        <Alert 
+          severity="warning" 
+          className="mt-4"
+          action={
+            <div className="space-x-2">
+              <Button color="inherit" size="small" onClick={() => setShowConfirm(false)}>
+                Annuler
+              </Button>
+              <Button color="error" size="small" onClick={confirmDelete}>
+                Confirmer
+              </Button>
+            </div>
+          }
+        >
+          Êtes-vous sûr de vouloir supprimer cette entreprise ?
+        </Alert>
+      )}
 
       <Paper elevation={0} className={`border rounded-lg overflow-hidden ${isMobile ? 'mobile-modif-paper' : ''}`}>
         <form onSubmit={onSubmit}>

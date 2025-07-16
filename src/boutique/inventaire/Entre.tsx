@@ -66,7 +66,7 @@ export default function Entre() {
   const Is_Prix = () => setPrix(!is_prix);
   
   const {entresEntreprise, isLoading, isError} = useGetAllEntre(connect, uuid!);
-  const itemsPerPage = isMobile ? 10 : 25;
+  const itemsPerPage = isMobile ? 25 : 25;
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedStartDate, setSelectedStartDate] = useState<string>('');
   const [selectedEndDate, setSelectedEndDate] = useState<string>('');
@@ -208,7 +208,7 @@ export default function Entre() {
 
   if (entresEntreprise) {
     const filteredBoutiques = displayedBoutiques.filter((post) =>
-      post?.libelle?.toLowerCase().includes(searchTerm.toLowerCase())
+      post?.categorie_libelle?.toLowerCase().includes(searchTerm.toLowerCase())
     ); 
 
     return (
@@ -292,7 +292,7 @@ export default function Entre() {
                 <Grid item xs={12} md={6} lg={3}>
                   <TextField
                     fullWidth
-                    placeholder="Rechercher par libellé ou référence"
+                    placeholder="Rechercher par désignations"
                     variant="outlined"
                     value={searchTerm}
                     onChange={handleSearchChange}
@@ -504,7 +504,7 @@ export default function Entre() {
             maxWidth="sm"
             PaperProps={{
               elevation: 0,
-              className: isMobile ? "mobile-dialog" : "rounded-lg",
+              className: "rounded-10",
               sx: isMobile ? {
                 borderRadius: '20px',
                 background: 'rgba(255, 255, 255, 0.95)',
@@ -512,7 +512,7 @@ export default function Entre() {
               } : {}
             }}
           >
-            <DialogTitle className={`${isMobile ? 'mobile-glass' : 'flex justify-between items-center'} border-b pb-3`}>
+            <DialogTitle className={`flex justify-between items-center bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700 text-white border-b pb-3`}>
               <Typography variant="h6" className="font-semibold">
                 Nouvelle Entrée
               </Typography>

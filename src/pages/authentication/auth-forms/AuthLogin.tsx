@@ -1,6 +1,6 @@
 import { FC, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button, Stack, Card, TextField } from '@mui/material';
+import { Button, Stack, Card, TextField, CircularProgress, Box } from '@mui/material';
 import toast from 'react-hot-toast';
 import { useLoginUser } from '../../../usePerso/fonction.user';
 
@@ -23,6 +23,7 @@ const AuthLogin: FC = () => {
       password: ''
     }
   });
+  
 
   useEffect(() => {
     const checkRegistrationSuccess = () => {
@@ -40,20 +41,16 @@ const AuthLogin: FC = () => {
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   const onSubmit = async (data: LoginFormData) => {
-    toast.promise(
-      (async () => {
-        await delay(5000);
-        await login(data);
-        reset();
-      })(),
-      {
-        loading: 'Connexion en cours...',
-        success: () => '',
-        error: (err) => err instanceof Error ? err.message : 'Erreur lors de la connexion'
-      }
-    );
+    try {
+      await delay(5000);
+      await login(data);
+      reset();
+      toast.success('Connexion réussie');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Erreur lors de la connexion');
+    }
   };
-
+  
   return (
     <Card 
       variant="outlined" 
@@ -63,7 +60,13 @@ const AuthLogin: FC = () => {
         '& .MuiTextField-root': { mb: 2 }
       }}
     >
+      
       <form onSubmit={handleSubmit(onSubmit)} className="p-4">
+        {isSubmitting && (
+          <Box className="flex justify-center items-center pb-4">
+            <CircularProgress size={36} color="primary" />
+          </Box>
+        )}
         <Stack spacing={2}>
           <TextField
             label="Nom d'utilisateur ou Numéro"

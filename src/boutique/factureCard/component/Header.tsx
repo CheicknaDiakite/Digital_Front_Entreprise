@@ -86,10 +86,11 @@ export default function Header({
             <Typography variant="h5" className="text-gray-600">
               <span className="font-medium">Nom :</span> {clientName}
             </Typography>
-            
+            {invoiceNumber &&            
             <Typography variant="h5" className="text-gray-600">
               <span className="font-medium">Téléphone :</span> {invoiceNumber}
             </Typography>
+            }
            
           </div>
         </div>

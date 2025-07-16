@@ -14,7 +14,6 @@ import { ChangeEvent, FormEvent, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useDeleteFacEntre, useFacEntre, useUpdateFacEntre } from '../../../../usePerso/fonction.facture';
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SaveIcon from '@mui/icons-material/Save';
 import DescriptionIcon from '@mui/icons-material/Description';
 import DateRangeIcon from '@mui/icons-material/DateRange';
@@ -73,11 +72,10 @@ export default function ModifProduitEntre() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <Nav>
           <div className="flex items-center space-x-2">
-            <Link to="/entreprise/facture-entre">
+            {/* <Link to="/entreprise/facture-entre">
               <IconButton size="small" className="hover:bg-gray-100">
                 <ArrowBackIcon />
-              </IconButton>
-            </Link>
+              </IconButton> */}
             {unUser.role === 1 && (
               <IconButton 
                 onClick={handleDelete}

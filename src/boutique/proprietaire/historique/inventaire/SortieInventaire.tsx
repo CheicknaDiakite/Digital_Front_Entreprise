@@ -7,10 +7,6 @@ import { format } from 'date-fns';
 import Nav from '../../../../_components/Button/Nav';
 
 // Types
-interface MonthlySale {
-  month: string;
-  count: number;
-}
 
 // Loading component
 const LoadingSpinner = () => (
@@ -36,8 +32,9 @@ export default function SortieInventaire() {
     if (isError) return <ErrorMessage />;
     if (!stockEntreprise) return null;
 
-    const hasSales = stockEntreprise.count_sortie_par_mois && stockEntreprise.count_sortie_par_mois.length > 0;
-
+    // const hasSales = stockEntreprise.details_entrer_par_mois && stockEntreprise?.details_entrer_par_mois.length > 0;
+    const hasSales = stockEntreprise.details_sortie_par_mois as unknown as Record<string, { somme_qte: number; somme_prix_total: string; }>;
+    
     return (
       <>
         <Nav />
@@ -55,15 +52,15 @@ export default function SortieInventaire() {
               </Typography>
             </Grid>
           ) : (
-            stockEntreprise.count_sortie_par_mois?.map((sale: MonthlySale, index: number) => {
-              const saleDate = new Date(sale.month);
-              
+            Object.entries(stockEntreprise.details_sortie_par_mois ?? {}).map(([month, details], index) => {
+              const saleDate = new Date(month);
               return (
-                <Grid item key={`${sale.month}-${index}`} xs={12} sm={6} md={4} lg={3}>
+                <Grid item key={`${month}-${index}`} xs={12} sm={6} md={4} lg={3}>
                   <AnalyticEcommerce
                     title="Ventes mensuelles"
-                    count={sale.count}
-                    pied="Détails des ventes pour le mois de"
+                    count={(details as any).somme_qte || 0}
+                    // pied="Détails des ventes pour le mois de"
+                    pied={`${(details as any).somme_prix_total || 0} f au mois de`}
                     extra={format(saleDate, 'MMMM yyyy')}
                     className="bg-blue-100"
                     user={unUser.role}

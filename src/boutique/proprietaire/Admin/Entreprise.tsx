@@ -2,7 +2,7 @@ import { ChangeEvent, FC, FormEvent, ReactNode, SyntheticEvent, useState } from 
 import CloseIcon from "@mui/icons-material/Close"
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import { Box, Dialog, DialogContent, DialogTitle, FormControl, IconButton, InputLabel, MenuItem, Select, SelectChangeEvent, Skeleton, Stack } from '@mui/material';
+import { Box, Dialog, DialogContent, DialogTitle, IconButton, SelectChangeEvent, Skeleton, Stack } from '@mui/material';
 import { EntrepriseType } from '../../../typescript/Account';
 import { connect } from '../../../_services/account.service';
 import EntrepriseIcon from '@mui/icons-material/ProductionQuantityLimits';
@@ -16,6 +16,7 @@ import { useStoreUuid } from '../../../usePerso/store';
 import CountrySelect from '../../../_components/Liste_Pays/CountrySelect';
 import { RecupType } from '../../../typescript/DataType';
 import clsx from 'clsx';
+import backgroundImage from '../../../../public/assets/img/img.jpg'
 
 // const CARD = ({post}) => (
   
@@ -126,8 +127,8 @@ const EntrepriseDialog: FC<{
   onSubmit,
   formValues,
   onChange,
-  licenceType,
-  onLicenceChange,
+  // licenceType,
+  // onLicenceChange,
   onCountryChange
 }) => (
   <Dialog 
@@ -154,8 +155,8 @@ const EntrepriseDialog: FC<{
         </IconButton>
       </Box>
     </DialogTitle>
-    <DialogContent className="p-6">
-      <form onSubmit={onSubmit} className="space-y-4">
+    <DialogContent className="p-6 ">
+      <form onSubmit={onSubmit} className="space-y-4 m-3">
         <Stack spacing={3}>
           <MyTextField
             label="Nom de l'entreprise"
@@ -187,8 +188,8 @@ const EntrepriseDialog: FC<{
             onChange={onChange}
             
           />
-          <CountrySelect onChange={onCountryChange} />
-          <FormControl fullWidth>
+          <CountrySelect onChange={onCountryChange} label="Choisir le pays" />
+          {/* <FormControl fullWidth>
             <InputLabel>Type de licence</InputLabel>
             <Select
               value={licenceType}
@@ -200,7 +201,7 @@ const EntrepriseDialog: FC<{
               <MenuItem value="Basic">Basique</MenuItem>
               <MenuItem value="Premium">Premium</MenuItem>
             </Select>
-          </FormControl>
+          </FormControl> */}
           <Button 
             type="submit" 
             variant="contained" 
@@ -329,7 +330,8 @@ export default function Entreprise() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
         {userEntreprises?.map((post: any, index) => {
-          let url = BASE(post.image);
+          // let url = BASE(post.image);
+          let url = post.image ? BASE(post.image) : backgroundImage;
           return (
             <div key={index} className="group">
               <Link

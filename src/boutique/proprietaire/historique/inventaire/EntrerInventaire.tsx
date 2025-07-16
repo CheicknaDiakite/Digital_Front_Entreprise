@@ -53,7 +53,7 @@ export default function EntrerInventaire() {
   if (!stockEntreprise) return null;
 
   const hasPurchases = stockEntreprise.count_entrer_par_mois && stockEntreprise.count_entrer_par_mois.length > 0;
-
+  console.log("yy ..", stockEntreprise)
   return (
     <>
       <Nav />

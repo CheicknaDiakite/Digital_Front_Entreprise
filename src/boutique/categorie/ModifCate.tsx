@@ -4,21 +4,20 @@ import {
   IconButton, 
   Paper,
   Typography,
-  Tooltip,
-  Fade,
-  Box
+  Box,
+  Alert
 } from '@mui/material';
 import { ChangeEvent, FormEvent, useState } from 'react';
 import { connect } from '../../_services/account.service';
 import { RouteParams } from '../../typescript/DataType';
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ImageIcon from '@mui/icons-material/Image';
 import { useDeleteCategorie, useFetchCategorie, useUpdateCategorie } from '../../usePerso/fonction.categorie';
 import Nav from '../../_components/Button/Nav';
 import MyTextField from '../../_components/Input/MyTextField';
 import { BASE } from '../../_services/caller.service';
 import img from '../../../public/icon-192x192.png';
+import { useFetchUser } from '../../usePerso/fonction.user';
 
 export default function ModifCate() {
   const { slug } = useParams<RouteParams>()
@@ -26,14 +25,19 @@ export default function ModifCate() {
   // const {unCategorie, setCategorie, updateCategorie, deleteCategorie} = useCategorie(slug!)
   const { unCategorie, setUnCategorie } = useFetchCategorie(slug!)
   unCategorie["user_id"] = connect
+  const {unUser} = useFetchUser(connect)
   const { updateCategorie } = useUpdateCategorie()
   const { deleteCategorie } = useDeleteCategorie()
 
+  const [showConfirm, setShowConfirm] = useState(false);
+
   const handleDelete = () => {
-    const confirmation = window.confirm("Êtes-vous sûr de vouloir supprimer cet article ?");
-    if (confirmation) {
-      deleteCategorie(unCategorie);
-    }
+    setShowConfirm(true);
+  };
+
+  const confirmDelete = () => {
+    deleteCategorie(unCategorie);
+    setShowConfirm(false);
   };
   
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -65,38 +69,56 @@ export default function ModifCate() {
   const url = unCategorie.image ? BASE(unCategorie.image) : img;
 
   return (
-    <div className="min-h-screen">
-      <Nav />
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Tooltip title="Retour" arrow TransitionComponent={Fade}>
-              <IconButton 
-                onClick={() => window.history.back()}
-                className="bg-white hover:bg-gray-50 shadow-sm"
-              >
-                <ArrowBackIcon />
-              </IconButton>
-            </Tooltip>
-            <Typography variant="h4" className="font-semibold text-gray-900">
-              Modifier l'article
-            </Typography>
-          </div>
-
-          <Tooltip title="Supprimer" arrow TransitionComponent={Fade}>
+    <div className="min-h-screen py-4 sm:py-6">
+      {/* <Nav /> */}
+      <Nav>
+        <div className="flex items-center space-x-2">
+          
+          {(unUser.role === 1 || unUser.role === 2) && (
             <IconButton 
               onClick={handleDelete}
-              className="bg-white hover:bg-red-50 text-red-600 shadow-sm"
+              size="small"
+              className="text-red-600 hover:bg-red-50"
             >
               <DeleteIcon />
             </IconButton>
-          </Tooltip>
+          )}
         </div>
+      </Nav>
+      <div className="max-w-full sm:max-w-4xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
+        <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+          <div className="flex items-center space-x-4">
+            
+            <Typography variant="h5" className="font-semibold text-gray-900">
+              Modifier l'article
+            </Typography>
+          </div>
+          
+        </div>
+
+        {showConfirm && (
+          <Alert 
+            severity="warning" 
+            className="mt-4"
+            action={
+              <div className="space-x-2">
+                <Button color="inherit" size="small" onClick={() => setShowConfirm(false)}>
+                  Annuler
+                </Button>
+                <Button color="error" size="small" onClick={confirmDelete}>
+                  Confirmer
+                </Button>
+              </div>
+            }
+          >
+            Êtes-vous sûr de vouloir supprimer cet article ?
+          </Alert>
+        )}
 
         <Paper elevation={0} className="border rounded-lg overflow-hidden">
           <form onSubmit={onSubmit}>
-            <div className="p-6 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-3 sm:p-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <Typography variant="subtitle2" className="mb-2 text-gray-600">
                     Informations de l'article
@@ -121,7 +143,7 @@ export default function ModifCate() {
                         <img 
                           src={previewUrl || url} 
                           alt={unCategorie.libelle} 
-                          className="max-h-full object-contain"
+                          className="max-h-40 sm:max-h-60 object-contain mx-auto"
                         />
                       )}
                     </Box>
@@ -131,7 +153,7 @@ export default function ModifCate() {
                       onChange={handleImageChange}
                       InputLabelProps={{ shrink: true }}
                       InputProps={{
-                        startAdornment: <ImageIcon className="mr-2 text-gray-400" />,
+                        startAdornment: <ImageIcon className="mr-2 text-gray-400" />, 
                       }}
                     />
                   </div>
@@ -139,13 +161,22 @@ export default function ModifCate() {
               </div>
             </div>
 
-            <div className="px-6 py-4 bg-gray-50 border-t flex justify-end">
+            <div className="px-3 sm:px-6 py-3 sm:py-4 bg-gray-50 border-t flex flex-col sm:flex-row gap-3 sm:gap-6 justify-end">
               <Button
                 type="submit"
                 variant="contained"
-                className="bg-blue-600 hover:bg-blue-700"
+                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
               >
                 Enregistrer les modifications
+              </Button>
+              <Button
+                component="a"
+                href="/categorie"
+                variant="outlined"
+                color="secondary"
+                className="w-full sm:w-auto"
+              >
+                Retour
               </Button>
             </div>
           </form>

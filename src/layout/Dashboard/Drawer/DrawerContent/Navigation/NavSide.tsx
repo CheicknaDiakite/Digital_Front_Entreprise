@@ -31,6 +31,7 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import AddBusinessIcon from '@mui/icons-material/AddBusiness';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import CloseIcon from "@mui/icons-material/Close";
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import { Link } from "react-router-dom";
 import { connect } from "../../../../../_services/account.service";
 import { useAddAvis, useFetchEntreprise, useFetchUser, useGetUserEntreprises } from "../../../../../usePerso/fonction.user";
@@ -189,13 +190,13 @@ const NavSide: React.FC = () => {
         background: `linear-gradient(rgba(128, 128, 128, 0.7), rgba(128, 128, 128, 0.7)), url(${logoUrl}) center/cover no-repeat`,
       }}
     >
-      <CardContent className="border border-indigo-600 bg-sky-500/30 flex items-center gap-2 p-2 rounded border-dashed">
+      <CardContent className="text-white border border-indigo-600 bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700 flex items-center gap-2 p-2 rounded border-dashed animate-border-rotate">
         <img
           src={logoUrl}
           alt={unEntreprise.nom}
           className="h-8 w-8 object-contain rounded-full"
         />
-        <Typography variant="h5" color="text.primary">
+        <Typography variant="h5">
           {unEntreprise.nom}
         </Typography>
       </CardContent>
@@ -291,12 +292,12 @@ const NavSide: React.FC = () => {
               bgColor="text-white bg-gray-500"
             />
 
-            <NavItem
+            {/* <NavItem
               icon={null}
               label="Entrer"
               to="/entreprise/inventaire/entrer"
               bgColor="text-white bg-gray-500"
-            />
+            /> */}
                       
             <NavItem
               icon={null}
@@ -435,16 +436,16 @@ const NavSide: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      <Typography variant="h5" className="text-white bg-gray-600 bg-opacity-100 px-2 py-1 rounded">
+      <Typography variant="h5" className="text-white bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700 px-2 py-1 rounded border border-dashed animate-border-rotate">
         <a
           href="https://wa.me/91154834"
-          style={{ textDecoration: 'none', color: 'inherit' }}
+          style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}
           target="_blank"
           rel="noopener noreferrer"
-          >
-          Tel = {" "}+223 91 15 48 34 {" "}
+        >
+          <WhatsAppIcon style={{ marginRight: 8 }} />
+          +223 91 15 48 34
         </a>
-         
       </Typography>
     </Card>
   );

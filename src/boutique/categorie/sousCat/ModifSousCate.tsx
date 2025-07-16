@@ -5,15 +5,14 @@ import {
   IconButton, 
   Paper,
   Typography,
-  Tooltip,
-  Fade,
-  Box
+  Box,
+  Alert
 } from "@mui/material"
 import { ChangeEvent, FormEvent, useState } from "react";
 import { connect } from "../../../_services/account.service";
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ImageIcon from '@mui/icons-material/Image';
+import { useFetchUser } from "../../../usePerso/fonction.user";
 import { useDeleteSousCate, useFetchSousCate, useUpdateSousCate } from "../../../usePerso/fonction.categorie";
 import Nav from "../../../_components/Button/Nav";
 import MyTextField from "../../../_components/Input/MyTextField";
@@ -26,16 +25,20 @@ export default function ModifSousCate() {
   // const {unSousCate, setUnSousCate, updateSousCate, deleteSousCate} = useSousCategorie(slug!)
   const { unSousCate, setUnSousCate } = useFetchSousCate(slug!)
   unSousCate["user_id"] = connect
+  const {unUser} = useFetchUser(connect)
   const {deleteSousCate} = useDeleteSousCate()
 
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const handleDelete = () => {
-    const confirmation = window.confirm("Êtes-vous sûr de vouloir supprimer ce produit ?");
-    if (confirmation) {
-      deleteSousCate(unSousCate);
-    }
+    setShowConfirm(true);
+  };
+
+  const confirmDelete = () => {
+    deleteSousCate(unSousCate);
+    setShowConfirm(false);
   };
   
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -66,33 +69,58 @@ export default function ModifSousCate() {
   const url = unSousCate.image ? BASE(unSousCate.image) : img;
 
   return (
-    <div className="min-h-screen">
-      <Nav />
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6 flex items-center justify-between">
+    <div className="min-h-screen py-4 sm:py-6">
+      {/* <Nav /> */}
+      <Nav>
+        <div className="flex items-center space-x-2">
+          
+          {(unUser.role === 1 || unUser.role === 2) && (
+            <IconButton 
+              onClick={handleDelete}
+              size="small"
+              className="text-red-600 hover:bg-red-50"
+            >
+              <DeleteIcon />
+            </IconButton>
+          )}
+        </div>
+      </Nav>
+      <div className="max-w-full sm:max-w-4xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
+        <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
           <div className="flex items-center space-x-4">
-            <Tooltip title="Retour" arrow TransitionComponent={Fade}>
-              <IconButton 
-                onClick={() => window.history.back()}
-                className="bg-white hover:bg-gray-50 shadow-sm"
-              >
-                <ArrowBackIcon />
-              </IconButton>
-            </Tooltip>
-            <Typography variant="h4" className="font-semibold text-gray-900">
+            <Typography variant="h5" className="font-semibold text-gray-900">
               Modifier le produit
             </Typography>
           </div>
 
-          <Tooltip title="Supprimer" arrow TransitionComponent={Fade}>
+          {/* <Tooltip title="Supprimer" arrow TransitionComponent={Fade}>
             <IconButton 
               onClick={handleDelete}
               className="bg-white hover:bg-red-50 text-red-600 shadow-sm"
             >
               <DeleteIcon />
             </IconButton>
-          </Tooltip>
+          </Tooltip> */}
         </div>
+
+        {showConfirm && (
+          <Alert 
+            severity="warning" 
+            className="mt-4"
+            action={
+              <div className="space-x-2">
+                <Button color="inherit" size="small" onClick={() => setShowConfirm(false)}>
+                  Annuler
+                </Button>
+                <Button color="error" size="small" onClick={confirmDelete}>
+                  Confirmer
+                </Button>
+              </div>
+            }
+          >
+            Êtes-vous sûr de vouloir supprimer ce produit ?
+          </Alert>
+        )}
 
         <Paper elevation={0} className="border rounded-lg overflow-hidden">
           <form onSubmit={onSubmit}>
