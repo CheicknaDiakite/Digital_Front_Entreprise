@@ -13,14 +13,19 @@ import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import AddBusinessIcon from '@mui/icons-material/AddBusiness';
 import { Link } from 'react-router-dom';
 import { FC, useState } from 'react';
-import { useFetchEntreprise, useFetchUser, useStockSemaine } from '../../usePerso/fonction.user';
+import { useFetchEntreprise, useFetchUser, useStockSemaine, useAllClients, useStockEntreprise } from '../../usePerso/fonction.user';
+import { useGetAllDepense, useGetSumDepense } from '../../usePerso/fonction.entre';
+import { formatNumberWithSpaces } from '../../usePerso/fonctionPerso';
 import { connect } from '../../_services/account.service';
 import { useStoreUuid } from '../../usePerso/store';
 import { format } from 'date-fns';
 import SimpleCharts from '../../_components/Chart/Chart_1';
-import { Alert, Box, CircularProgress, Stack, Paper, Container, Button, useMediaQuery, useTheme } from '@mui/material';
+import { Alert, Box, CircularProgress, Stack, Paper, Container, Button, useMediaQuery, useTheme, Chip } from '@mui/material';
 import MonthlyBarChart from './MonthlyBarChart';
 import './mobile-dashboard.css';
+import { ChartSection } from './components/ChartSection';
+
+// import Logo from '../../components/logo/LogoMain';
 
 // import SimpleCharts from '../../_components/Chart/Chart_1';
 
@@ -82,7 +87,7 @@ export default function DashboardDefault() {
   const [errorMessage, setErrorMessage] = useState('');
   
   // Utilisation de try-catch pour les hooks qui peuvent échouer
-  let unUser, uuid, unEntreprise, stockSemaine, isLoading, isError;
+  let unUser, uuid, unEntreprise, stockSemaine, stockEntreprise, getClients, stockData, depensesSum;
   
   try {
     const userData = useFetchUser(connect);
@@ -90,10 +95,16 @@ export default function DashboardDefault() {
     uuid = useStoreUuid((state) => state.selectedId);
     const entrepriseData = useFetchEntreprise(uuid!);
     unEntreprise = entrepriseData.unEntreprise;
-    const stockData = useStockSemaine(unEntreprise?.uuid || '');
+    stockData = useStockSemaine(unEntreprise?.uuid || '');
     stockSemaine = stockData.stockSemaine;
-    isLoading = stockData.isLoading;
-    isError = stockData.isError;
+    // Ajout pour CA et clients
+    const stockEntrepriseData = useStockEntreprise(unEntreprise?.uuid || '', connect);
+    const depensesData = useGetSumDepense(connect, uuid!);
+    depensesSum = depensesData.depensesSum;
+    stockEntreprise = stockEntrepriseData.stockEntreprise;
+    const clientsData = useAllClients(unEntreprise?.uuid || '');
+    getClients = clientsData.getClients;
+    
   } catch (error) {
     console.error('Erreur lors du chargement du dashboard:', error);
     setHasError(true);
@@ -135,7 +146,7 @@ export default function DashboardDefault() {
     );
   }
   
-  if (isLoading) {
+  if (stockData?.isLoading) {
     return (
       <Box className="flex items-center justify-center min-h-screen mobile-loading">
         <CircularProgress size={60} />
@@ -143,7 +154,7 @@ export default function DashboardDefault() {
     );
   }
 
-  if (isError) {
+  if (stockData?.isError) {
     return (
       <Container maxWidth="sm" className="py-8">
         <Alert 
@@ -241,144 +252,262 @@ export default function DashboardDefault() {
   return (
     <Box className="min-h-screen mobile-container">
       <Container maxWidth="xl" sx={{ padding: { xs: 0, sm: 1 } }}>
-        <Stack spacing={isMobile ? 3 : 6}>
-          {/* Header */}
-          <Box sx={{ textAlign: isMobile ? 'center' : 'left' }} className={isMobile ? 'mobile-header' : ''}>
-            <Typography 
-              variant="h4" 
-              className={`font-bold text-gray-900 mb-2 ${isMobile ? 'mobile-title' : ''} leading-tight`}
-              sx={{ 
-                fontSize: { xs: '1.75rem', sm: '2rem', md: '2.125rem' },
-                textAlign: isMobile ? 'center' : 'left'
-              }}
-            >
-              Tableau de bord
-            </Typography>
-            <Typography 
-              variant="body1" 
-              className="text-gray-600 leading-snug"
-              sx={{ 
-                fontSize: { xs: '0.9rem', sm: '1rem' },
-                textAlign: isMobile ? 'center' : 'left'
-              }}
-            >
-              Bienvenue dans votre espace de gestion
-            </Typography>
-          </Box>
+        <Box sx={{ px: { xs: 1, sm: 2 } }}>
+          <Stack spacing={isMobile ? 3 : 6}>
+            {/* Header */}
+            <Grid container>
+            
+              <Grid item xs={12}>
+              
+                <Box sx={{ display: 'flex', alignItems: isMobile ? 'center' : 'center', flexDirection: isMobile ? 'column' : 'column', textAlign: isMobile ? 'center' : 'center', gap: 2 }} className={isMobile ? 'mobile-header' : 'mobile-header'}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: isMobile ? 1 : 0 }}>
+                    {/* <Logo /> */}
+                    <Typography variant="h6" className="font-bold text-primary" sx={{ ml: 1, fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>{unEntreprise?.nom || 'Entreprise'}</Typography>
+                  </Box>
+                  <Box sx={{ flex: 1 }}>
+                    <Typography 
+                      variant="h4" 
+                      className={`font-bold text-gray-900 mb-2 ${isMobile ? 'mobile-title' : ''} leading-tight`}
+                      sx={{ 
+                        fontSize: { xs: '1.75rem', sm: '2rem', md: '2.125rem' },
+                        textAlign: isMobile ? 'center' : 'left'
+                      }}
+                    >
+                      Tableau de bord
+                    </Typography>
+                    <Typography 
+                      variant="body1" 
+                      className="text-gray-600 leading-snug"
+                      sx={{ 
+                        fontSize: { xs: '0.9rem', sm: '1rem' },
+                        textAlign: isMobile ? 'center' : 'left'
+                      }}
+                    >
+                      Bienvenue dans votre espace de gestion
+                    </Typography>
+                  </Box>
+                </Box>
 
-          {/* Sales Statistics */}
-          <Paper 
-            elevation={isMobile ? 1 : 0} 
-            className={`border rounded-2xl overflow-hidden ${isMobile ? 'mobile-stats-card' : ''} shadow-sm`}
-            sx={{ borderRadius: isMobile ? '16px' : '8px' }}
-          >
-            <Box className="p-4 border-b bg-gray-50">
-              <Typography 
-                variant="h5" 
-                className="font-medium text-gray-900"
-                sx={{ fontSize: { xs: '1.1rem', sm: '1.25rem' } }}
-              >
-                Statistiques des ventes
-              </Typography>
-            </Box>
-            <Box className="p-4">
-              {(() => {
-                try {
-                  return <SimpleCharts />;
-                } catch (error) {
-                  console.error('Erreur SimpleCharts:', error);
-                  return (
-                    <Alert severity="warning" className="rounded-lg">
-                      Impossible de charger les statistiques
-                    </Alert>
-                  );
-                }
-              })()}
-            </Box>
-          </Paper>
+                {/* Aperçu rapide */}
+                {/* <Box sx={{
+                  display: 'flex',
+                  flexDirection: isMobile ? 'column' : 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 3,
+                  mb: 3,
+                  width: '100%',
+                  textAlign: 'center',
+                }}> */}
+                <Grid container spacing={2} sx={{ width: '100%', mb: 3 }} className='flex justify-center'>
+                  <Grid item md={3} sm={6}>
 
-          {/* Monthly Sales */}
-          {safeStockSemaine.sorties_par_mois && safeStockSemaine.sorties_par_mois.length > 0 ? (
-            <Paper 
-              elevation={isMobile ? 1 : 0} 
-              className={`border rounded-2xl overflow-hidden ${isMobile ? 'mobile-stats-card' : ''} shadow-sm`}
-              sx={{ borderRadius: isMobile ? '16px' : '8px' }}
-            >
-              <Box className="p-4 border-b bg-gray-50">
-                <Typography 
-                  variant="h5" 
-                  className="font-medium text-gray-900"
-                  sx={{ fontSize: { xs: '1.1rem', sm: '1.25rem' } }}
-                >
-                  Produits les plus vendus - {(() => {
-                    try {
-                      return format(new Date(safeStockSemaine.sorties_par_mois[safeStockSemaine.sorties_par_mois.length - 1].month), 'MMMM yyyy');
-                    } catch (error) {
-                      return 'Ce mois';
-                    }
-                  })()}
-                </Typography>
-              </Box>
-              <Box className="p-4">
-                {(() => {
-                  try {
-                    return <MonthlyBarChart details={safeStockSemaine.sorties_par_mois[safeStockSemaine.sorties_par_mois.length - 1].details} />;
-                  } catch (error) {
-                    console.error('Erreur MonthlyBarChart:', error);
-                    return (
-                      <Alert severity="warning" className="rounded-lg">
-                        Impossible de charger le graphique des ventes
-                      </Alert>
-                    );
-                  }
-                })()}
-              </Box>
-            </Paper>
-          ) : (
-            <Alert 
-              severity="info" 
-              className={`border rounded-2xl ${isMobile ? 'mobile-alert' : ''} shadow-sm`}
-              sx={{ borderRadius: isMobile ? '16px' : '8px' }}
-            >
-              Aucune vente n'a été enregistrée ce mois-ci
-            </Alert>
-          )}
+                  <Paper elevation={3} sx={{ p: 3, borderRadius: 3, boxShadow: '0 4px 24px rgba(0,0,0,0.07)', bgcolor: 'white', minWidth: 220, flex: 1, maxWidth: 350 }}>
+                    <Typography variant="subtitle2" color="text.secondary">
+                      CA du mois
+                    </Typography>
+                    
+                    <Typography variant="h5" className="font-bold" sx={{ color: 'primary.main', mt: 1 }}>
+                      {(() => {
+                        if (stockEntreprise && stockEntreprise.details_sortie_par_mois) {
+                          const months = Object.keys(stockEntreprise.details_sortie_par_mois);
+                          const lastMonth = months[months.length - 1];
+                          const details = stockEntreprise.details_sortie_par_mois[lastMonth];
+                          
+                          if (details) {
+                            return formatNumberWithSpaces((details as any).somme_prix_total || 0);
+                          }
+                        }
+                        return '--';
+                      })()}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                      montant brut (hors remises)
+                    </Typography>
+                  </Paper>
+                  </Grid>
 
-          {/* Navigation Section */}
-          <Box>
-            <Typography 
-              variant="h5" 
-              className={`font-medium text-gray-900 mb-4 ${isMobile ? 'mobile-title' : ''}`}
-              sx={{ 
-                fontSize: { xs: '1.25rem', sm: '1.5rem' },
-                textAlign: isMobile ? 'center' : 'left'
-              }}
-            >
-              Navigation rapide
-            </Typography>
-            <Paper 
-              elevation={isMobile ? 1 : 0} 
-              className={`border p-4 mb-4 rounded-2xl ${isMobile ? 'mobile-glass' : ''} shadow-sm`}
-              sx={{ borderRadius: isMobile ? '16px' : '8px' }}
-            >
-              <Typography 
-                variant="body1" 
-                className="text-gray-600 text-center"
-                sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}
-              >
-                Pour les factures et dépenses (en version numérique si nécessaire en PDF)
-              </Typography>
-            </Paper>
-            <Grid container spacing={isMobile ? 2 : 3} className={isMobile ? 'py-3' : 'py-3'}>
-              {navigationCards.map((card, index) => (
-                <Grid item xs={6} sm={6} md={4} key={index} className={isMobile ? `mobile-stagger-${(index % 6) + 1}` : ''}>
-                  <NavigationCard {...card} />
+                  <Grid item md={3} sm={6}>
+
+                  <Paper elevation={3} sx={{ p: 3, borderRadius: 3, boxShadow: '0 4px 24px rgba(0,0,0,0.07)', bgcolor: 'white', minWidth: 220, flex: 1, maxWidth: 350 }}>
+                    <Typography variant="subtitle2" color="text.secondary">
+                      Dépenses du mois
+                    </Typography>
+                    
+                    <Typography variant="h5" className="font-bold" sx={{ color: 'error.main', mt: 1 }}>
+                      {(() => {
+                        if (depensesSum && depensesSum.length > 0) {
+                          // Trier par mois (du plus récent au plus ancien)
+                          const sortedDepenses = depensesSum.sort((a, b) => {
+                            const dateA = new Date(a.mois + '-01');
+                            const dateB = new Date(b.mois + '-01');
+                            return dateB.getTime() - dateA.getTime();
+                          });
+                          
+                          // Prendre le total du dernier mois
+                          const lastMonthTotal = sortedDepenses[0].total || 0;
+                          return formatNumberWithSpaces(lastMonthTotal);
+                        }
+                        return '--';
+                      })()}
+                    </Typography>
+                    
+                  </Paper>
+                  </Grid>
+
+                  <Grid item md={3} sm={6}>
+
+                  <Paper elevation={3} sx={{ p: 3, borderRadius: 3, boxShadow: '0 4px 24px rgba(0,0,0,0.07)', bgcolor: 'white', minWidth: 220, flex: 1, maxWidth: 350 }}>
+                    <Typography variant="subtitle2" color="text.secondary">Ventes ce mois</Typography>
+                    <Typography variant="h5" className="font-bold" sx={{ color: 'success.main', mt: 1 }}>
+                      {(() => {
+                        if (stockEntreprise && stockEntreprise.details_sortie_par_mois) {
+                          const months = Object.keys(stockEntreprise.details_sortie_par_mois);
+                          const lastMonth = months[months.length - 1];
+                          const details = stockEntreprise.details_sortie_par_mois[lastMonth];
+                          
+                          if (details) {
+                            return (details as any).somme_qte || 0;
+                          }
+                        }
+                        return '--';
+                      })()}
+                    </Typography>
+                  </Paper>
+                  </Grid>
+
+                  <Grid item md={3} sm={6}>
+
+                  <Paper elevation={3} sx={{ p: 3, borderRadius: 3, boxShadow: '0 4px 24px rgba(0,0,0,0.07)', bgcolor: 'white', minWidth: 220, flex: 1, maxWidth: 350 }}>
+                    <Typography variant="subtitle2" color="text.secondary">Clients</Typography>
+                    <Typography variant="h5" className="font-bold" sx={{ color: 'info.main', mt: 1 }}>
+                      {getClients ? getClients.filter(client => client.role === 1 || client.role === 3).length : '--'}
+                    </Typography>
+                    {/* <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                      (rôle 1 ou 3 uniquement)
+                    </Typography> */}
+                  </Paper>
+                  
+                  </Grid>
                 </Grid>
-              ))}
-            </Grid>
-          </Box>
 
-        </Stack>
+                {/* </Box> */}
+              </Grid>
+
+              {/* Grille principale pour les 3 sections */}
+
+              {/* Monthly Sales */}
+              <Grid item xs={12} md={8}>
+                {safeStockSemaine.sorties_par_mois && safeStockSemaine.sorties_par_mois.length > 0 ? (
+                  <Paper 
+                    elevation={isMobile ? 1 : 0} 
+                    className={`border rounded-2xl overflow-hidden ${isMobile ? 'mobile-stats-card' : ''} shadow-sm`}
+                    sx={{ borderRadius: isMobile ? '16px' : '8px' }}
+                  >
+                    <Box className="p-4 border-b bg-gray-50">
+                      <Typography 
+                        variant="h5" 
+                        className="font-medium text-gray-900"
+                        sx={{ fontSize: { xs: '1.1rem', sm: '1.25rem' } }}
+                      >
+                        Produits les plus vendus - {(() => {
+                          try {
+                            return format(new Date(safeStockSemaine.sorties_par_mois[safeStockSemaine.sorties_par_mois.length - 1].month), 'MMMM yyyy');
+                          } catch (error) {
+                            return 'Ce mois';
+                          }
+                        })()}
+                      </Typography>
+                    </Box>
+                    <Box className="p-4">
+                      {(() => {
+                        try {
+                          return <MonthlyBarChart details={safeStockSemaine.sorties_par_mois[safeStockSemaine.sorties_par_mois.length - 1].details} />;
+                        } catch (error) {
+                          console.error('Erreur MonthlyBarChart:', error);
+                          return (
+                            <Alert severity="warning" className="rounded-lg">
+                              Impossible de charger le graphique des ventes
+                            </Alert>
+                          );
+                        }
+                      })()}
+                    </Box>
+                  </Paper>
+                ) : (
+                  <Alert 
+                    severity="info" 
+                    className={`border rounded-2xl ${isMobile ? 'mobile-alert' : ''} shadow-sm`}
+                    sx={{ borderRadius: isMobile ? '16px' : '8px' }}
+                  >
+                    Aucune vente n'a été enregistrée ce mois-ci
+                  </Alert>
+                )}
+              </Grid>
+
+              {/* Sales Statistics */}
+              <Grid item xs={12} md={4}>
+                
+                  
+                  {/* <Box className={`border rounded-2xl overflow-hidden ${isMobile ? 'mobile-stats-card mt-3' : 'ml-3'} `}> */}
+                    {(() => {
+                      try {
+                        return <ChartSection className={`${isMobile ? 'mt-5' : 'ml-5'} `} title="Statistiques des ventes">
+                        <SimpleCharts />
+                        </ChartSection>
+                      // <SimpleCharts />;
+                      } catch (error) {
+                        console.error('Erreur SimpleCharts:', error);
+                        return (
+                          <Alert severity="warning" className="rounded-lg">
+                            Impossible de charger les statistiques
+                          </Alert>
+                        );
+                      }
+                    })()}
+                  {/* </Box> */}
+                
+              </Grid>
+
+            
+              <Grid item xs={12}>
+                {/* Navigation Section */}
+                <Box>
+                  <Typography 
+                    variant="h5" 
+                    className={`font-medium text-gray-900 mb-4 ${isMobile ? 'mobile-title' : ''}`}
+                    sx={{ 
+                      fontSize: { xs: '1.25rem', sm: '1.5rem' },
+                      textAlign: isMobile ? 'center' : 'left'
+                    }}
+                  >
+                    Navigation rapide
+                  </Typography>
+                  <Paper 
+                    elevation={isMobile ? 1 : 0} 
+                    className={`border p-4 mb-4 rounded-2xl ${isMobile ? 'mobile-glass' : ''} shadow-sm`}
+                    sx={{ borderRadius: isMobile ? '16px' : '8px' }}
+                  >
+                    <Typography 
+                      variant="body1" 
+                      className="text-gray-600 text-center"
+                      sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}
+                    >
+                      Pour les factures et dépenses (en version numérique si nécessaire en PDF)
+                    </Typography>
+                  </Paper>
+                  <Grid container spacing={isMobile ? 2 : 3} className={isMobile ? 'py-3' : 'py-3'}>
+                    {navigationCards.map((card, index) => (
+                      <Grid item xs={6} sm={6} md={4} key={index} className={isMobile ? `mobile-stagger-${(index % 6) + 1}` : ''}>
+                        <NavigationCard {...card} />
+                      </Grid>
+                    ))}
+                  </Grid>
+                </Box>
+              </Grid>
+            </Grid>
+          </Stack>
+        </Box>
       </Container>
     </Box>
   );

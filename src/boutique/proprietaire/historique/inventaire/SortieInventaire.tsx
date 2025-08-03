@@ -1,6 +1,7 @@
 import { Alert, Box, CircularProgress, Grid, Stack, Typography } from '@mui/material';
 import { useStoreUuid } from '../../../../usePerso/store';
 import { useFetchEntreprise, useFetchUser, useStockEntreprise } from '../../../../usePerso/fonction.user';
+import { formatNumberWithSpaces } from '../../../../usePerso/fonctionPerso';
 import { connect } from '../../../../_services/account.service';
 import AnalyticEcommerce from '../../../../components/cards/statistics/AnalyticEcommerce';
 import { format } from 'date-fns';
@@ -60,7 +61,7 @@ export default function SortieInventaire() {
                     title="Ventes mensuelles"
                     count={(details as any).somme_qte || 0}
                     // pied="Détails des ventes pour le mois de"
-                    pied={`${(details as any).somme_prix_total || 0} f au mois de`}
+                    pied={`${formatNumberWithSpaces((details as any).somme_prix_total || 0)} f au mois de`}
                     extra={format(saleDate, 'MMMM yyyy')}
                     className="bg-blue-100"
                     user={unUser.role}

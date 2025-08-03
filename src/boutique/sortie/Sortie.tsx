@@ -316,7 +316,7 @@ export default function Sortie() {
       const {entresEntreprise: entres, refetch} = useGetAllEntre(connect, entreprise_uuid!)
       
       const ent = entres.filter(info => info.qte !== 0 && info.is_sortie);
-      console.log("entres ..",ent);
+      
       const [scannedCode, setScannedCode] = useState<string>('');
       const [open, openchange] = useState(false);
 

@@ -9,7 +9,7 @@ import { imagetools } from 'vite-imagetools';
 export default defineConfig({
     plugins: [react(), VitePWA({
         registerType: "autoUpdate",
-        includeAssets: ['favicon.svg', 'icon-192x192.png', 'icon-512x512.png', 'C_D.ico'],
+        includeAssets: ['favicon.svg', 'icon-192x192.png', 'icon-512x512.png', 'C_D.ico', 'offline.html'],
         manifest: {
             name: 'Gest Stocks',
             short_name: 'Gest Stocks',
@@ -28,55 +28,43 @@ export default defineConfig({
                 src: '/icon-192x192.png',
                 sizes: '192x192',
                 type: 'image/png',
-                purpose: 'any maskable'
+                purpose: 'maskable'
               },
               {
                 src: '/icon-512x512.png',
                 sizes: '512x512',
                 type: 'image/png',
-                purpose: 'any maskable'
-              },
-              {
-                src: '/icon-192x192.png',
-                sizes: '192x192',
-                type: 'image/png',
-                purpose: 'any'
-              },
-              {
-                src: '/icon-512x512.png',
-                sizes: '512x512',
-                type: 'image/png',
-                purpose: 'any'
+                purpose: 'maskable'
               },
               // Icônes spécifiques pour iOS
-              {
-                src: '/icon-180x180.png',
-                sizes: '180x180',
-                type: 'image/png',
-                purpose: 'any'
-              },
-              {
-                src: '/icon-167x167.png',
-                sizes: '167x167',
-                type: 'image/png',
-                purpose: 'any'
-              },
-              {
-                src: '/icon-152x152.png',
-                sizes: '152x152',
-                type: 'image/png',
-                purpose: 'any'
-              },
-              {
-                src: '/icon-120x120.png',
-                sizes: '120x120',
-                type: 'image/png',
-                purpose: 'any'
-              }
+              // {
+              //   src: '/icon-180x180.png',
+              //   sizes: '180x180',
+              //   type: 'image/png',
+              //   purpose: 'any'
+              // },
+              // {
+              //   src: '/icon-167x167.png',
+              //   sizes: '167x167',
+              //   type: 'image/png',
+              //   purpose: 'any'
+              // },
+              // {
+              //   src: '/icon-152x152.png',
+              //   sizes: '152x152',
+              //   type: 'image/png',
+              //   purpose: 'any'
+              // },
+              // {
+              //   src: '/icon-120x120.png',
+              //   sizes: '120x120',
+              //   type: 'image/png',
+              //   purpose: 'any'
+              // }
             ],
             screenshots: [
               {
-                src: '/dashboard.png',
+                src: '/assets/img/dashboard.png',
                 sizes: '1280x720',
                 type: 'image/png',
                 form_factor: 'wide'
@@ -86,6 +74,7 @@ export default defineConfig({
         workbox: {
             globPatterns: ['**/*{js,css,html,ico,png,svg}'],
             maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB par exemple
+            navigateFallback: '/offline.html',
             runtimeCaching: [
                 {
                     urlPattern: /^https:\/\/diakitedigital\.com\/.*/i,
@@ -115,7 +104,7 @@ export default defineConfig({
             ]
         },
         devOptions: {
-            enabled: true,
+            enabled: false,
             type: 'module'
         }
     }),
