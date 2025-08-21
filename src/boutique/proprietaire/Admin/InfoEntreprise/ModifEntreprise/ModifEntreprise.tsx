@@ -35,7 +35,7 @@ import '../../mobile-admin.css';
 
 export default function ModifEntreprise() {
   const uuid = useStoreUuid((state) => state.selectedId);
-  const { unEntreprise, setUnEntreprise, isLoading, isError } = useFetchEntreprise(uuid!);
+  const { unEntreprise, setUnEntreprise, isLoading, isError } = useFetchEntreprise(uuid);
   const { deleteEntreprise } = useDeleteEntreprise();
   const { updateEntreprise } = useUpdateEntreprise();
   const [open, setOpen] = useState(false);
@@ -44,7 +44,7 @@ export default function ModifEntreprise() {
   const [isMobile, setIsMobile] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const options = countryList().getData();
-  console.log("kk", unEntreprise)
+  
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768);

@@ -24,7 +24,7 @@ import './mobile-admin.css';
 
 export default function EntrepriseDetail() {
   const uuid = useStoreUuid((state) => state.selectedId);
-  const { unEntreprise, isLoading, isError } = useFetchEntreprise(uuid!);
+  const { unEntreprise, isLoading, isError } = useFetchEntreprise(uuid);
   const [value, setValue] = React.useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -76,22 +76,7 @@ export default function EntrepriseDetail() {
         
         <Box 
           className={`relative ${isMobile ? 'mobile-animate-in' : ''}`}
-          // sx={{
-          //   '&::before': {
-          //     content: '""',
-          //     position: 'absolute',
-          //     top: 0,
-          //     left: 0,
-          //     right: 0,
-          //     bottom: 0,
-          //     backgroundImage: `url(${url})`,
-          //     backgroundSize: 'cover',
-          //     backgroundPosition: 'center',
-          //     backgroundRepeat: 'no-repeat',
-          //     opacity: isMobile ? 0.1 : 0.15,
-          //     zIndex: 0,
-          //   }
-          // }}
+          
         >
           <Container maxWidth="xl" className="relative z-10">
             <Paper elevation={0} className={`border rounded-lg overflow-hidden ${isMobile ? 'mobile-modif-paper' : ''}`}>

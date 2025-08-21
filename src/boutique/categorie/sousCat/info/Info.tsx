@@ -25,7 +25,7 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Nav from "../../../../_components/Button/Nav";
-import { useCateSousCate, useInfoSousCate } from "../../../../usePerso/fonction.categorie";
+import { useCateSousCate, useFetchSousCate, useInfoSousCate } from "../../../../usePerso/fonction.categorie";
 import { connect } from "../../../../_services/account.service";
 import { formatNumberWithSpaces } from "../../../../usePerso/fonctionPerso";
 import { useState } from "react";
@@ -39,7 +39,8 @@ export default function Info() {
   
   const { uuid } = useParams<RouteParams>();
   const { unUser } = useFetchUser(connect);
-  const { sousCate } = useCateSousCate({ slug: uuid, user_id: connect });
+  // const { sousCate } = useCateSousCate({ slug: uuid, user_id: connect });
+  const {unSousCate} = useFetchSousCate(uuid!)
   const { infos, isLoading } = useInfoSousCate({ slug: uuid });
   
   const [currentPage, setCurrentPage] = useState(1);
@@ -92,8 +93,8 @@ export default function Info() {
     <div className={`min-h-screen ${isMobile ? '' : ''}`}>
       <Nav />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {sousCate?.map((post, index) => (
-          <div key={index} className={`mb-8 ${isMobile ? 'mobile-header-container' : ''}`}>
+        {/* {sousCate?.map((post, index) => ( */}
+          <div className={`mb-8 ${isMobile ? 'mobile-header-container' : ''}`}>
             <Typography 
               variant="h4" 
               className={`font-semibold text-gray-900 ${isMobile ? 'mobile-title' : ''}`}
@@ -102,7 +103,7 @@ export default function Info() {
                 textAlign: isMobile ? 'center' : 'left'
               }}
             >
-              {post.libelle}
+              {unSousCate.libelle}
             </Typography>
             <Typography 
               variant="body1" 
@@ -115,7 +116,7 @@ export default function Info() {
               Informations détaillées des ventes et du stock
             </Typography>
           </div>
-        ))}
+        {/* ))} */}
 
         <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 ${isMobile ? 'mobile-grid' : ''}`}>
           <Paper 

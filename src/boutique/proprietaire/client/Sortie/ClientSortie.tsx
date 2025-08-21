@@ -58,7 +58,7 @@ export default function ClientSortie(uuid: UuType) {
     // const {ajoutEntre} = useCreateEntre()
     const {ajoutSortie} = useCreateSortie()
     const entreprise_id = useStoreUuid((state) => state.selectedId)
-    const { unEntreprise } = useFetchEntreprise(entreprise_id!);
+  const { unEntreprise } = useFetchEntreprise(entreprise_id);
     // Pour la remise
 
       const [texte, setNom] = useState<TypeText>({
@@ -86,7 +86,7 @@ export default function ClientSortie(uuid: UuType) {
     
     const {unEntreprise: entreprise} = useFetchEntreprise(entreprise_id!)
     
-    const {entresEntreprise: entres} = useGetAllEntre(connect, entreprise_id!)
+    const {entresEntreprise: entres} = useGetAllEntre(entreprise_id!)
     // const {entresEntreprise, isLoading, isError} = useGetAllEntre(connect)
     // const {sortiesEntreprise: entresEntreprise , isLoading, isError} = useGetAllSortie(connect)
     const {sorties: entresEntreprise , isLoading, isError} = useFetchAllSortie(top)

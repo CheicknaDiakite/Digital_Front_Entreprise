@@ -8,7 +8,7 @@ import MyTextField from '../../_components/Input/MyTextField';
 import { ABType } from '../../typescript/Account';
 import { useAllClients, useFetchEntreprise } from '../../usePerso/fonction.user';
 import { useStoreUuid } from '../../usePerso/store';
-import { isLicenceExpired } from '../../usePerso/fonctionPerso';
+import { formatNumberWithSpaces, isLicenceExpired } from '../../usePerso/fonctionPerso';
 import Select from 'react-select';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
 import { ChangeEvent, useEffect, useState } from 'react';
@@ -33,7 +33,7 @@ export default function TableSortie({
   handleScanResult
 }: any) {
   const entreprise_uuid = useStoreUuid((state) => state.selectedId);
-  const { unEntreprise } = useFetchEntreprise(entreprise_uuid!);
+  const { unEntreprise } = useFetchEntreprise(entreprise_uuid);
   const { getClients } = useAllClients(entreprise_uuid!);
   const clients = getClients.filter((info) => info.role === 1 || info.role === 3);
 
@@ -204,7 +204,7 @@ export default function TableSortie({
             <label htmlFor="amount">
               Somme <Money size={40} className="inline" />
             </label>
-            <p>{amount}</p>
+            <p>{formatNumberWithSpaces(amount)}</p>
           </div>
         </div>
 

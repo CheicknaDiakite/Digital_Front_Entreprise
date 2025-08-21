@@ -1,6 +1,6 @@
 import { Box, Grid, Typography, CircularProgress, Card, CardContent, CardHeader, useTheme } from '@mui/material';
 import Nav from '../../../_components/Button/Nav';
-import { useFetchEntreprise, useSortieUserEntreprise } from '../../../usePerso/fonction.user';
+import { useSortieUserEntreprise } from '../../../usePerso/fonction.user';
 import { useStoreUuid } from '../../../usePerso/store';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -70,8 +70,8 @@ const MonthlyUserChart = ({ monthlyData }: { monthlyData: MonthlyData }) => {
 
 export default function VenteUsers() {
   const uuid = useStoreUuid((state) => state.selectedId);
-  const { unEntreprise } = useFetchEntreprise(uuid!);
-  const { sortiesUser, isLoading } = useSortieUserEntreprise(unEntreprise?.uuid!);
+  
+  const { sortiesUser, isLoading } = useSortieUserEntreprise(uuid!);
 
   const monthlyData = sortiesUser?.mensuel_par_utilisateur as MonthlyData[] || [];
   const hasData = monthlyData.length > 0;

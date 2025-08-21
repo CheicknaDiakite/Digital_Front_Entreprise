@@ -219,10 +219,10 @@ export default function RemiseFacture() {
         user_id: connect
     }
     
-    const { sorties: allSorties } = useFetchAllSortie(top)
+    // const { sorties: allSorties } = useFetchAllSortie(top)
 
     const handleSaveSorties = () => {
-        setSorties(allSorties);
+        setSorties(sortiesEntreprise);
     };
 
     const [searchTerm, setSearchTerm] = useState<string>('');

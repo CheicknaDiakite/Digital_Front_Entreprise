@@ -20,7 +20,7 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import { useParams } from "react-router-dom";
 import { connect } from "../../../_services/account.service";
 import { ChangeEvent, FormEvent, useState } from "react";
-import { useDeleteUser, useFetchUser, useUpdateUser } from "../../../usePerso/fonction.user";
+import { useDeleteUser, useFetchUnUser, useUpdateUser } from "../../../usePerso/fonction.user";
 import Nav from "../../../_components/Button/Nav";
 import MyTextField from "../../../_components/Input/MyTextField";
 import { useStoreUuid } from "../../../usePerso/store";
@@ -28,7 +28,7 @@ import { useStoreUuid } from "../../../usePerso/store";
 export function PersonnelModif() {
   const { uuid } = useParams();
   const entreprise_id = useStoreUuid((state) => state.selectedId);
-  const { unUser, setUnUser } = useFetchUser(uuid!);
+  const { unUser, setUnUser } = useFetchUnUser(uuid!);
   const [showConfirm, setShowConfirm] = useState(false);
   
   unUser["user_id"] = connect;
@@ -210,7 +210,7 @@ export function PersonnelModif() {
                     >
                       <MenuItem value={2}>Superviseur</MenuItem>
                       <MenuItem value={3}>Caissier(e)</MenuItem>
-                      <MenuItem value={4}>Visiteur</MenuItem>
+                      <MenuItem value={4}>Pas de rôle</MenuItem>
                     </Select>
                   </FormControl>
                 </div>

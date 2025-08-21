@@ -46,7 +46,7 @@ export default function ClientEntrer(uuid: UuType) {
   const {unClient} = useUnClient(uuid.uuid!);
   const {ajoutEntre} = useCreateEntre()
   const entreprise_id = useStoreUuid((state) => state.selectedId)
-  const {souscategories} = useFetchAllSousCate(connect, entreprise_id!)
+  const {souscategories} = useFetchAllSousCate(entreprise_id!)
 
   const [ajout_terminer, setTerminer] = useState(false);
 

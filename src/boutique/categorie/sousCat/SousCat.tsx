@@ -17,7 +17,7 @@ import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import ImageIcon from '@mui/icons-material/Image';
 import img from '../../../../public/icon-192x192.png'
-import { useAllGetSousCate, useCreateSousCate, useFetchAllCategorie } from '../../../usePerso/fonction.categorie';
+import { useAllGetSousCate, useCreateSousCate, useFetchCategorie } from '../../../usePerso/fonction.categorie';
 import MyTextField from '../../../_components/Input/MyTextField';
 import Nav from '../../../_components/Button/Nav';
 import { SousCategorieFormType } from '../../../typescript/FormType';
@@ -142,17 +142,13 @@ export default function SousCat() {
   
   const { uuid } = useParams<RouteParams>();
   const entreprise_uuid = useStoreUuid((state) => state.selectedId);
-  const { unEntreprise } = useFetchEntreprise(entreprise_uuid!);
+  const { unEntreprise } = useFetchEntreprise(entreprise_uuid);
   const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm<SousCategorieFormType>();
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
 
-  const recup = {
-    slug: uuid,
-    user_id: connect
-  };
-
-  const { categories } = useFetchAllCategorie(recup);
+  const { unCategorie } = useFetchCategorie(uuid!)
+  
   const { getSousCates, isLoading, isError } = useAllGetSousCate(uuid!);
   const { ajoutSousCate } = useCreateSousCate();
 
@@ -229,8 +225,8 @@ export default function SousCat() {
       <div className={`min-h-screen ${isMobile ? '' : ''}`}>
         <Nav />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {categories?.map((category, index) => (
-            <div key={index} className={`mb-6 ${isMobile ? 'mobile-header-container' : ''}`}>
+          
+            <div className={`mb-6 ${isMobile ? 'mobile-header-container' : ''}`}>
               <Typography 
                 variant="h4" 
                 className={`font-semibold text-gray-900 ${isMobile ? 'mobile-title' : ''}`}
@@ -239,10 +235,10 @@ export default function SousCat() {
                   textAlign: isMobile ? 'center' : 'left'
                 }}
               >
-                {category.libelle}
+                {unCategorie?.libelle}
               </Typography>
             </div>
-          ))}
+          
 
           <div className={`mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 ${isMobile ? 'mobile-header-container' : ''}`}>
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">

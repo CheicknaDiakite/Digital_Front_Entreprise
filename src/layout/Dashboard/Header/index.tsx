@@ -42,10 +42,6 @@ export default function Header() {
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat',
       
-      // background: `url(${backgroundImage}) center center`,
-      // backgroundSize: 'contain', // Modifiez ici pour 'contain'
-      // backgroundPosition: 'center',
-      // backgroundRepeat: 'no-repeat'
     }}
     >
       <IconButton

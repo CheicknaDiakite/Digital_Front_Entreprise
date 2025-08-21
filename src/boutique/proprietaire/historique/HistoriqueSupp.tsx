@@ -15,7 +15,6 @@ import {
 } from '@mui/material';
 import { format } from 'date-fns';
 import { useHistorySuppEntreprise } from '../../../usePerso/fonction.user';
-import { connect } from '../../../_services/account.service';
 import { useStoreUuid } from '../../../usePerso/store';
 import { formatNumberWithSpaces } from '../../../usePerso/fonctionPerso';
 import Nav from '../../../_components/Button/Nav';
@@ -156,7 +155,7 @@ const HistoryTable = ({ data }: { data: HistoriqueType[] }) => (
 
 export default function HistoriqueSupp() {
   const uuid = useStoreUuid((state) => state.selectedId);
-  const { suppH, isLoading, isError } = useHistorySuppEntreprise(connect, uuid!);
+  const { suppH, isLoading, isError } = useHistorySuppEntreprise(uuid!);
 
   if (isLoading) return <LoadingSpinner />;
   if (isError) return <ErrorMessage />;

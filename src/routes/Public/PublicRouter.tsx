@@ -46,10 +46,10 @@ import { BASE } from '../../_services/caller.service'
 
 
 export default function PublicRouter() {
-  notClick()
+  // notClick()
 
   const uuid = useStoreUuid((state) => state.selectedId);
-  const { unEntreprise } = useFetchEntreprise(uuid!);
+  const { unEntreprise } = useFetchEntreprise(uuid);
   const url = unEntreprise.image ? BASE(unEntreprise.image) : backgroundImage;
   
   return (
@@ -139,11 +139,11 @@ export default function PublicRouter() {
             <Route path='categorie' >
               <Route index element={<ComponentShadow />} />
               <Route path=':slug' element={<Sortie />} />
-              <Route path='modif/:slug' element={<ModifCate />} /> 
+              <Route path='modif/:uuid' element={<ModifCate />} /> 
 
               <Route path='sous'>
                 <Route path=':uuid'  element={<SousCat />} />
-                <Route path='modif/:slug'  element={<ModifSousCate />} />
+                <Route path='modif/:uuid'  element={<ModifSousCate />} />
               </Route>
 
               <Route path='info/:uuid'  element={<Info />} />

@@ -11,7 +11,7 @@ const allFacEntre = async (slug: string) => {
         const response = await Axios.post('entreprise/facture/entre/get',
             slug,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -30,7 +30,7 @@ const getFacEntre = async (slug: string) => {
         const response = await Axios.get(`entreprise/facture/entre/get/${slug}`,
             {                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -43,10 +43,10 @@ const getFacEntre = async (slug: string) => {
 }
 const getAllFacEntre = async (slug: string, uuid: string) => {
     try {
-        const response = await Axios.get(`entreprise/facture/entre/get_facEntersEntreprise_entreprise/${slug}/${uuid}`,
+        const response = await Axios.get(`entreprise/facture/entre/get_facEntersEntreprise_entreprise/${uuid}`,
             {                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -66,7 +66,7 @@ const addFacEntre = async (data: FacSorType) => {
             data,{                         
                 headers: {
                     "Content-Type": "multipart/form-data",
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -86,7 +86,7 @@ const updateFacEntre = async (nom: FacSorType) => {
             nom,{                         
                 headers: {
                     "Content-Type": "multipart/form-data",
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -105,7 +105,7 @@ const deleteFacEntre = async (categorie: FacSorType) => {
         const response = await Axios.post(`entreprise/facture/entre/del`,
             categorie,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -130,7 +130,7 @@ const allFacSortie = async (slug: string) => {
         const response = await Axios.post('entreprise/facture/sortie/get',
             slug,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -149,7 +149,7 @@ const getFacSortie = async (slug: string) => {
         const response = await Axios.get(`entreprise/facture/sortie/get/${slug}`,
             {                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -162,10 +162,10 @@ const getFacSortie = async (slug: string) => {
 }
 const getAllFacSortie = async (slug: string, uuid: string) => {
     try {
-        const response = await Axios.get(`entreprise/facture/sortie/get_facSortiesEntreprise_entreprise/${slug}/${uuid}`,
+        const response = await Axios.get(`entreprise/facture/sortie/get_facSortiesEntreprise_entreprise/${uuid}`,
             {                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -185,7 +185,7 @@ const addFacSortie = async (data: FacSorType) => {
             data,{                         
                 headers: {
                     "Content-Type": "multipart/form-data",
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -205,7 +205,7 @@ const updateFacSortie = async (nom: EntreType) => {
             nom,{                         
                 headers: {
                     "Content-Type": "multipart/form-data",
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -224,7 +224,7 @@ const deleteFacSortie = async (categorie: EntreType) => {
         const response = await Axios.post(`entreprise/facture/sortie/del`,
             categorie,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });

@@ -12,7 +12,7 @@ const allEntreprise = async (post: string ) => {
         const response = await Axios.post('entreprise/get', 
             post,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -30,7 +30,7 @@ const getEntrepriseUsers = async (post: string ) => {
         const response = await Axios.get(`entreprise/get_entreprise_utilisateurs/${post}`, 
             {                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -43,12 +43,12 @@ const getEntrepriseUsers = async (post: string ) => {
 }
 
 // Pour tous les entreprises d'un utilisateur 
-const getUserEntreprises = async (post: string) => {
+const getUserEntreprises = async () => {
     try {
-        const response = await Axios.get(`entreprise/get_utilisateur_entreprise/${post}`, 
+        const response = await Axios.get(`entreprise/user_entreprises`, 
             {                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -81,11 +81,30 @@ const allUserEntreprise = async (post: string) => {
  * Récupération d'un utilisateur
  */
 const getEntreprise = async (slug: string) => {
+    
     try {
-        const response = await Axios.get(`entreprise/get/${slug}`,
+        const response = await Axios.get(`entreprise/un/${slug}`,
             {                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
+                },
+                withCredentials: true
+            });
+           
+        return response;
+    } catch (error) {
+        console.error("Error fetching user profile:", error);
+        throw error;
+    }
+    
+}
+
+const historiqueEntreprise = async () => {
+    try {
+        const response = await Axios.get(`entreprise/get_utilisateur_entreprise_historique`,
+            {                         
+                headers: {
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -97,12 +116,12 @@ const getEntreprise = async (slug: string) => {
     
 }
 
-const historiqueEntreprise = async (slug: string) => {
+const historySuppEntreprise = async (uuid: string) => {
     try {
-        const response = await Axios.get(`entreprise/get_utilisateur_entreprise_historique/${slug}`,
+        const response = await Axios.get(`entreprise/get_utilisateur_entreprise_historique_supp/${uuid}`,
             {                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -114,33 +133,18 @@ const historiqueEntreprise = async (slug: string) => {
     
 }
 
-const historySuppEntreprise = async (slug: string, uuid: string) => {
+const stockEntreprise = async (entreprise_id: string) => {
+    
     try {
-        const response = await Axios.get(`entreprise/get_utilisateur_entreprise_historique_supp/${slug}/${uuid}`,
+        
+        const response = await Axios.get(`entreprise/statistiques/${entreprise_id}`,
             {                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
-        return response;
-    } catch (error) {
-        console.error("Error fetching user profile:", error);
-        throw error;
-    }
-    
-}
-
-const stockEntreprise = async (entreprise_id: string, user_id: string) => {
-    
-    try {
-        const response = await Axios.get(`entreprise/api_somme_sortie/${entreprise_id}/${user_id}`,
-            {                         
-                headers: {
-                    'Authorization': `${token_1}`
-                },
-                withCredentials: true
-            });
+            
         return response;
     } catch (error) {
         // console.error("Error fetching user profile:", error);
@@ -153,10 +157,10 @@ const stockEntreprise = async (entreprise_id: string, user_id: string) => {
 const sortieUserEntreprise = async (entreprise_id: string) => {
     
     try {
-        const response = await Axios.get(`entreprise/api_count_sortie_par_utilisateur/${entreprise_id}`,
+        const response = await Axios.get(`entreprise/count_sortie_par_utilisateur/${entreprise_id}`,
             {                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -174,10 +178,11 @@ const stockCateSemaine = async (entreprise_id: string) => {
         const response = await Axios.get(`entreprise/sous-categories-sorties/${entreprise_id}`,
             {                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
+            
         return response;
     } catch (error) {
         // console.error("Error fetching user profile:", error);
@@ -194,7 +199,7 @@ const addEntreprise = async (data: EntrepriseType) => {
         const response = await Axios.post('entreprise/add',
             data,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -215,7 +220,7 @@ const updateEntreprise = async (nom: TypeEntreprise) => {
             nom,{                         
                 headers: {
                     "Content-Type": "multipart/form-data",
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -231,7 +236,7 @@ const removeUserEntreprise = async (nom: DataType) => {
         const response = await Axios.post('entreprise/remove_user_from_entreprise',
             nom,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -251,7 +256,7 @@ const deleteEntreprise = async (Entreprise: TypeEntreprise) => {
         const response = await Axios.post(`entreprise/del`,
             Entreprise,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });

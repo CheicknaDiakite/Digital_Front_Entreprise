@@ -8,34 +8,20 @@ import Axios from './caller.service'
 /**
  * Récupératoin de la liste des utilisateurs
  */
-const allCategorie =async (post: SlugType): Promise<ReponseCategorie> => {
 
-    try {
-        const response = await Axios.post('entreprise/categorie/get',
-            post,{                         
-            headers: {
-                'Authorization': `${token_1}`
-            },
-            withCredentials: true
-        });
-        return response;
-    } catch (error) {
-        console.error("Error fetching entreprises:", error);
-        throw error;
-    }
-    
-}
 
-const categoriesEntreprise = async (post: string, uuid: string): Promise<ReponseCategorie> => {
+const categoriesEntreprise = async (uuid: string): Promise<ReponseCategorie> => {
     // const categoriesEntreprise = (post: string ) => {
+    
         try {
-            const response = await Axios.get(`entreprise/categorie/get_categories_utilisateur/${post}/${uuid}`,
+            const response = await Axios.get(`entreprise/categorie/get_categories_utilisateur/${uuid}`,
                 {                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             })
+            
             return response;
         } catch (error) {
             console.error("Error fetching entreprises:", error);
@@ -49,10 +35,10 @@ const categoriesEntreprise = async (post: string, uuid: string): Promise<Reponse
  */
 const getCategorie = async (slug: string): Promise<ReponseCategorie> => {   
     try {
-        const response = await Axios.get(`entreprise/categorie/get/${slug}`,
+        const response = await Axios.get(`entreprise/categorie/${slug}`,
             {                         
             headers: {
-                'Authorization': `${token_1}`
+                'Authorization': `Bearer ${token_1}`
             },
             withCredentials: true
         });
@@ -74,7 +60,7 @@ const addCategorie = async (data: CategorieFormType): Promise<ReponseCategorie> 
             data,{                         
             headers: {
                 "Content-Type": "multipart/form-data",
-                'Authorization': `${token_1}`
+                'Authorization': `Bearer ${token_1}`
             },
             withCredentials: true
         });
@@ -95,7 +81,7 @@ const updateCategorie = async (nom: CategorieType): Promise<ReponseCategorie> =>
             nom,{                         
             headers: {
                 "Content-Type": "multipart/form-data",
-                'Authorization': `${token_1}`
+                'Authorization': `Bearer ${token_1}`
             },
             withCredentials: true
         });
@@ -115,7 +101,7 @@ const deleteCategorie = async (categorie: CategorieType): Promise<ReponseCategor
         const response = await Axios.post(`entreprise/categorie/del`,
             categorie,{                         
             headers: {
-                'Authorization': `${token_1}`
+                'Authorization': `Bearer ${token_1}`
             },
             withCredentials: true
         });
@@ -129,7 +115,7 @@ const deleteCategorie = async (categorie: CategorieType): Promise<ReponseCategor
 
 // Décaraltion des esrvices pour import
 export const categorieService = {
-    allCategorie, getCategorie, addCategorie,
+    getCategorie, addCategorie,
     updateCategorie, deleteCategorie, categoriesEntreprise
 }
 
@@ -141,7 +127,7 @@ const allSousCategorie = async (post: SlugType ) => {
         const response = await Axios.post('entreprise/sous_categorie/get', 
             post,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -159,7 +145,7 @@ const getAllSousCategorie = async (slug: string) => {
         const response = await Axios.get(`entreprise/sous_categorie/get_sous_categories_par_categorie/${slug}`,
             {                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -175,11 +161,12 @@ const getAllSousCategorie = async (slug: string) => {
  * Récupération d'un utilisateur
  */
 const getSousCategorie = async (slug: string) => {
+    
     try {
         const response = await Axios.get(`entreprise/sous_categorie/get/${slug}`,
             {                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -191,12 +178,12 @@ const getSousCategorie = async (slug: string) => {
     
 }
 
-const getSousCategoriesUser = async (slug: string, uuid: string) => {
+const getSousCategoriesUser = async (uuid: string) => {
     try {
-        const response = await Axios.get(`entreprise/sous_categorie/get_sous_categories_utilisateur/${slug}/${uuid}`,
+        const response = await Axios.get(`entreprise/sous_categorie/get_sous_categories_utilisateur/${uuid}`,
             {                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -213,7 +200,7 @@ const getInfo = async (slug: SlugType) => {
         const response = await Axios.post(`entreprise/info_sous_cat/get`,
             slug,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -234,7 +221,7 @@ const addSousCategorie = async (data: SousCategorieFormType) => {
             data,{                         
                 headers: {
                     "Content-Type": "multipart/form-data",
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -255,7 +242,7 @@ const updateSousCategorie = async (nom: SousCategorieFormType) => {
             nom,{                         
                 headers: {
                     "Content-Type": "multipart/form-data",
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -276,7 +263,7 @@ const deleteSousCategorie = async (categorie: DataType) => {
         const response = await Axios.post(`entreprise/sous_categorie/del`,
             categorie,{                         
             headers: {
-                'Authorization': `${token_1}`
+                'Authorization': `Bearer ${token_1}`
             },
             withCredentials: true
         });
@@ -304,7 +291,7 @@ const allEntre = async (slug: TypeSlug ) => {
         const response = await Axios.post('entreprise/entre/get',
             slug,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -323,7 +310,7 @@ const getEntre = async (slug: string) => {
         const response = await Axios.get(`entreprise/entre/get/${slug}`,
             {                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -334,12 +321,12 @@ const getEntre = async (slug: string) => {
     }
     
 }
-const getAllEntre = async (slug: string, uuid: string) => {
+const getAllEntre = async (uuid: string) => {
     try {
-        const response = await Axios.get(`entreprise/entre/get_entrers_entreprise/${slug}/${uuid}`,
+        const response = await Axios.get(`entreprise/entre/get_entrers_entreprise/${uuid}`,
             {                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -358,7 +345,7 @@ const addEntre = async (data: EntreFormType) => {
         const response = await Axios.post('entreprise/entre/add',
             data,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -377,7 +364,7 @@ const updateEntre = async (nom: EntreType) => {
         const response = await Axios.post('entreprise/entre/set',
             nom,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -396,7 +383,7 @@ const deleteEntre = async (categorie: DataType) => {
         const response = await Axios.post(`entreprise/entre/del`,
             categorie,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -422,7 +409,7 @@ const allDepense = async (slug: string ) => {
         const response = await Axios.post('entreprise/depense/get',
             slug,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -441,7 +428,7 @@ const getDepense = async (slug: string) => {
         const response = await Axios.get(`entreprise/depense/get/${slug}`,
             {                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -452,15 +439,17 @@ const getDepense = async (slug: string) => {
     }
     
 }
-const getAllDepense = async (slug: string, uuid: string) => {
+const getAllDepense = async (uuid: string) => {
+    
     try {
-        const response = await Axios.get(`entreprise/depense/get_depenses_entreprise/${slug}/${uuid}`,
+        const response = await Axios.get(`entreprise/depense/get_depenses_entreprise/${uuid}`,
             {                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
+            
         return response;
     } catch (error) {
         console.error("Error fetching entreprises:", error);
@@ -472,15 +461,16 @@ const getAllDepense = async (slug: string, uuid: string) => {
  * Ajout d'un depense
  */
 
-const getSumDepense = async (slug: string, uuid: string) => {
+const getSumDepense = async (uuid: string) => {
     try {
-        const response = await Axios.get(`entreprise/depense/get_depenses_somme/${slug}/${uuid}`,
+        const response = await Axios.get(`entreprise/depense/get_depenses_somme/${uuid}`,
             {                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
+            
         return response;
     } catch (error) {
         console.error("Error fetching entreprises:", error);
@@ -495,7 +485,7 @@ const addDepense = async (data: DepenseType) => {
             data,{                         
                 headers: {
                     "Content-Type": "multipart/form-data",
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -516,7 +506,7 @@ const updateDepense = async (nom: DepenseType) => {
             nom,{                         
                 headers: {
                     "Content-Type": "multipart/form-data",
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -535,7 +525,7 @@ const deleteDepense = async (categorie: DepenseType) => {
         const response = await Axios.post(`entreprise/depense/del`,
             categorie,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -561,7 +551,7 @@ const allSortie = async (post: DataSlugType ) => {
         const response = await Axios.post('entreprise/sortie/get',
             post,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -578,10 +568,11 @@ const getAllSortie = async (slug: string) => {
         const response = await Axios.get(`entreprise/sortie/get_sorties_entreprise/${slug}`,
             {                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
+            
         return response;
     } catch (error) {
         console.error("Error fetching entreprises:", error);
@@ -597,7 +588,7 @@ const getSortie = async (slug: string) => {
         const response = await Axios.get(`entreprise/sortie/get/${slug}`,
             {                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -616,7 +607,7 @@ const addSortie = async (data: SortieType) => {
         const response = await Axios.post('entreprise/sortie/add',
             data,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -631,12 +622,12 @@ const addSortie = async (data: SortieType) => {
  * Mise à jour d'un utilisateur
  */
 const updateSortie = async (nom: SortieType) => {
-    console.log("testing 111 ...", nom)
+    
     try {
         const response = await Axios.post('entreprise/sortie/set',
             nom,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -649,12 +640,12 @@ const updateSortie = async (nom: SortieType) => {
 }
 
 const updateFacSortie = async (nom: SortieType) => {
-    console.log("testing Fac ...", nom)
+    
     try {
         const response = await Axios.post('entreprise/sortie/setFac',
             nom,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -673,7 +664,7 @@ const deleteSortie = async (categorie: DataType) => {
         const response = await Axios.post(`entreprise/sortie/del`,
             categorie,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });

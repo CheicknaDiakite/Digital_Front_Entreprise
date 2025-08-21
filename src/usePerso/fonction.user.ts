@@ -134,6 +134,41 @@ export function useFetchUser(slug: string) {
     return { us ,unUser, setUnUser, isLoading, isError };
   }
 
+export function useFetchUnUser(slug: string) {
+  
+    const [unUser, setUnUser] = useState<UtilisateurType>({
+      avatar:'',
+      email:'',
+      uuid:'',
+      first_name:'',
+      role: 0,
+      last_name:'',
+      user_id: '',
+      numero:0,
+      username:'',
+    });
+  
+    const { data: us, isLoading, isError } = useQuery({
+      queryKey: ["User", slug],
+      queryFn: () =>
+        userService.unUser(slug).then((res) => {
+          if (res.data.etat === true) {
+            return res.data.donnee as UnUserType;
+          } else {
+            throw new Error("Les identifiants sont incorrects");
+          }
+        }),
+    });
+  
+    useEffect(() => {
+      if (us) {
+        setUnUser(us);
+      }
+    }, [us]);
+
+    return { us ,unUser, setUnUser, isLoading, isError };
+  }
+
   
 export function useFetchAllUsers(slug: TypeSlug) {
     const [getUser, setUser] = useState<UtilisateurType[]>([]);
@@ -161,6 +196,7 @@ export function useFetchAllUsers(slug: TypeSlug) {
 
     return { getUser, setUser, isLoading, isError };
 }
+
 export function useAllUsers(slug: string) {
     const [getUsers, setUsers] = useState([]);
 
@@ -227,6 +263,7 @@ export function useCreateUser() {
             } else {
               // Met à jour les requêtes et redirige
               useQ.invalidateQueries({ queryKey: ["AddUser"] });
+              toast.success('Inscription réussie ! Vérifiez votre email.');
   
               // Enregistre un indicateur dans localStorage
               localStorage.setItem("inscriptionSuccess", "true");
@@ -322,12 +359,14 @@ export function useLoginUser() {
         mutationFn: (post: FormType) => {
           return userService.userLogin(post)
           .then((res) => {
+            
             if (res.data.etat===false) {
               if(res.data.message !== "requette invalide"){
                 toast.error(res.data.message);
               }
             } else {
-              accountService.saveToken(res.data.id!, res.data.token)
+              console.log("eoo ..", res.data)
+              accountService.saveToken(res.data.id!, res.data.access)
               navigate('/')
               toast.success("Connexion réussie");
             }
@@ -537,7 +576,7 @@ export function useDeleteClient() {
   const del = useMutation({
     mutationFn: (post: FormClienType) => {
       return userService.clientDelete(post).then((res) => {
-        console.log("tr .. ", res.data)
+        
         if (res.data.etat !== true) {
           toast.error(res.data.message);
         } else {
@@ -588,7 +627,7 @@ export function useAllClients(slug: string) {
 // Fonction Pour la entreprise
 // ok ok ok ok ok ok ok ok ok
 
-export function useFetchEntreprise(slug: string) {
+export function useFetchEntreprise(slug: string | null | undefined) {
   const [unEntreprise, setUnEntreprise] = useState<TypeEntreprise>({
     adresse: '',
     coordonne:'',
@@ -605,7 +644,7 @@ export function useFetchEntreprise(slug: string) {
   const { data: us, isLoading, isError } = useQuery({
     queryKey: ["User", slug],
     queryFn: () =>
-      entrepriseService.getEntreprise(slug).then((res) => {
+      entrepriseService.getEntreprise(slug as string).then((res) => {
         if (res.data.etat === true) {
           return res.data.donnee;
         } else {
@@ -613,6 +652,8 @@ export function useFetchEntreprise(slug: string) {
           toast.error(res.data.message);
         }
       }),
+    // n'exécute pas la requête si slug est null/undefined/empty
+    enabled: !!slug,
   });
 
   useEffect(() => {
@@ -624,13 +665,13 @@ export function useFetchEntreprise(slug: string) {
   return { unEntreprise, setUnEntreprise, isLoading, isError };
 }
 
-export function useHistoriqueEntreprise(slug: string) {
+export function useHistoriqueEntreprise() {
   const [historique, setHistorique] = useState<EntrepriseType[]>([]);
 
   const { data: us, isLoading, isError } = useQuery({
-    queryKey: ["History", slug],
+    queryKey: ["History"],
     queryFn: () =>
-      entrepriseService.historiqueEntreprise(slug).then((res) => {
+      entrepriseService.historiqueEntreprise().then((res) => {
         if (res.data.etat === true) {
           return res.data.donnee;
         } else {
@@ -649,14 +690,14 @@ export function useHistoriqueEntreprise(slug: string) {
   return { historique, setHistorique, isLoading, isError };
 }
 
-export function useHistorySuppEntreprise(slug: string, uuid: string) {
+export function useHistorySuppEntreprise(slug: string) {
   const [suppH, setSuppH] = useState<HistoriqueType[]>([]);
 
   const { data: us, isLoading, isError } = useQuery({
     queryKey: ["HistorySupp", slug],
 
     queryFn: () =>
-      entrepriseService.historySuppEntreprise(slug, uuid).then((res) => {
+      entrepriseService.historySuppEntreprise(slug).then((res) => {
         if (res.data.etat === true) {
           return res.data.donnee;
         } else {
@@ -675,7 +716,7 @@ export function useHistorySuppEntreprise(slug: string, uuid: string) {
   return { suppH, setSuppH, isLoading, isError };
 }
 
-export function useStockEntreprise(entreprise_id: string, user_id: string) {
+export function useStockEntreprise(entreprise_id: string) {
   
   const [stockEntreprise, setStockEntreprise] = useState<StockType>({
     somme_entrer_pu: 0,
@@ -687,9 +728,9 @@ export function useStockEntreprise(entreprise_id: string, user_id: string) {
     });
 
   const { data: us, isLoading, isError } = useQuery({
-    queryKey: ["Stock", entreprise_id, user_id],
+    queryKey: ["Stock", entreprise_id],
     queryFn: () =>
-      entrepriseService.stockEntreprise(entreprise_id, user_id).then((res) => {
+      entrepriseService.stockEntreprise(entreprise_id).then((res) => {
         if (res.data.etat === true) {
           return res.data.donnee;
         } else {
@@ -974,13 +1015,13 @@ export function useGetEntrepriseUsers(slug: string) {
 }
 
 // Pour tous les Entreprises d'un utilisateur 
-export function useGetUserEntreprises(slug: string) {
+export function useGetUserEntreprises() {
   const [userEntreprises, setUserEntreprises] = useState<TypeEntreprise[]>([]);
   
   const {data: us, isLoading, isError} = useQuery({
-    queryKey: ["UserEntreprises", slug],
+    queryKey: ["UserEntreprises"],
     queryFn: () =>
-      entrepriseService.getUserEntreprises(slug).then((res) => {
+      entrepriseService.getUserEntreprises().then((res) => {
         if (res.data.etat === true) {
           return res.data.donnee;
         } else {

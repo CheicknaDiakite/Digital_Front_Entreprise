@@ -146,8 +146,9 @@ const NavSide: React.FC = () => {
 
   const { unUser } = useFetchUser(connect);
   const uuid = useStoreUuid((state) => state.selectedId);
-  const { unEntreprise } = useFetchEntreprise(uuid!);
-  const { userEntreprises } = useGetUserEntreprises(connect);
+  console.log("uuid", uuid);
+  const { unEntreprise } = useFetchEntreprise(uuid);
+  const { userEntreprises } = useGetUserEntreprises();
   const addId = useStoreUuid(state => state.addId);
   const { createAvis } = useAddAvis();
 
@@ -197,7 +198,7 @@ const NavSide: React.FC = () => {
           className="h-8 w-8 object-contain rounded-full"
         />
         <Typography variant="h5">
-          {unEntreprise.nom}
+          {unEntreprise.nom ? unEntreprise.nom : "Gest Stocks"}
         </Typography>
       </CardContent>
 
@@ -217,7 +218,10 @@ const NavSide: React.FC = () => {
                 key={entreprise.uuid}
                 icon={null}
                 label={entreprise.nom}
-                onClick={() => addId(entreprise.uuid!)}
+                onClick={() => {
+                  addId(entreprise.uuid!);
+                  window.location.reload();
+                }}
                 to="/entreprise"
                 bgColor="text-black bg-white"
               />

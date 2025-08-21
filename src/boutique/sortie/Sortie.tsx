@@ -3,7 +3,7 @@ import { ChangeEvent, FormEvent, Fragment, SyntheticEvent, useEffect, useState }
 import { RecupType, SortieType } from "../../typescript/DataType";
 import { connect } from "../../_services/account.service";
 import { useStoreCart } from "../../usePerso/cart_store";
-import { useCreateSortie, useFetchAllSortie, useGetAllEntre, useGetAllSortie, useUpdateSortie } from "../../usePerso/fonction.entre";
+import { useCreateSortie, useGetAllEntre, useGetAllSortie, useUpdateSortie } from "../../usePerso/fonction.entre";
 import Fact from "../factureCard/Fact";
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import TableSortie from "./TableSortie";
@@ -106,19 +106,11 @@ export default function Sortie() {
     setShowInvoice(false); // Affiche la section de facture lorsque le bouton est cliqué
   };
 
-  const {unEntreprise: entreprise} = useFetchEntreprise(entreprise_uuid!)
+  const {unEntreprise: entreprise} = useFetchEntreprise(entreprise_uuid)
   
   const setSorties = useStoreCart(state => state.setSorties)
 
-  const top = {
-    all: "all",
-    user_id: connect
-  }
-  // const {entres} = useEntrer(top)
-  // const {entresEntreprise: entres} = useGetAllEntre(connect)
-  const {sorties} = useFetchAllSortie(top)
   const {sortiesEntreprise, isLoading, isError} = useGetAllSortie(entreprise_uuid!)
-
   
   const {ajoutSortie} = useCreateSortie()
   
@@ -191,7 +183,7 @@ export default function Sortie() {
   };
 
     const handleSaveSorties = () => {
-      setSorties(sorties);
+      setSorties(sortiesEntreprise);
     };
     
     const [formValues, setFormValues] = useState<SortieType>({
@@ -313,7 +305,7 @@ export default function Sortie() {
         }
       };
     
-      const {entresEntreprise: entres, refetch} = useGetAllEntre(connect, entreprise_uuid!)
+      const {entresEntreprise: entres, refetch} = useGetAllEntre(entreprise_uuid!)
       
       const ent = entres.filter(info => info.qte !== 0 && info.is_sortie);
       

@@ -38,13 +38,13 @@ export function useFetchCategorie(slug: string) {
     return { unCategorie, setUnCategorie, isLoading, isError };
 }
   
-export function useCategoriesEntreprise(slug: string, uuid: string) {
+export function useCategoriesEntreprise(slug: string) {
     const [cateEntreprises, setCateEntreprise] = useState<CateBouType[]>([]);
   
     const { data: us, isLoading, isError } = useQuery({
       queryKey: ["enRecup", slug],
       queryFn: async () => {
-        const res = await categorieService.categoriesEntreprise(slug, uuid);
+        const res = await categorieService.categoriesEntreprise(slug);
           if (res.data.etat === true) {
             const donnees = res.data.donnee as unknown as CateBouType[]; // Si c'est un tableau
             return donnees || [];
@@ -63,34 +63,6 @@ export function useCategoriesEntreprise(slug: string, uuid: string) {
     }, [us]);
   
     return { cateEntreprises, isLoading, isError };
-}
-  
-export function useFetchAllCategorie(slug: SlugType) {
-    const [categories, setCategorie] = useState<CategorieType[]>([]);
-
-    const {data: us, isLoading, isError} = useQuery({
-      queryKey: ["entre", slug],
-      queryFn: async () =>{
-        const res = await categorieService.allCategorie(slug);
-          if (res.data.etat === true) {
-            const donnees = res.data.donnee as unknown as CategorieType[]; // Si c'est un tableau
-            return donnees || [];
-          } else {
-            // toast.error("Les identifiants sont incorrects");
-            toast.error(res.data.message);
-            return [];
-          }
-        }
-        });
-    
-
-    useEffect(() => {
-        if (us) {
-            setCategorie(us);
-        }
-      }, [us]);
-
-    return { categories, setCategorie, isLoading, isError };
 }
 
 export function useCreateCategorie() {
@@ -242,13 +214,13 @@ export function useAllGetSousCate(slug: string) {
   return { getSousCates, setSousCate, isLoading, isError };
 }
 
-export function useFetchAllSousCate(slug: string, uuid: string) {
+export function useFetchAllSousCate(slug: string) {
   const [souscategories, setSousCate] = useState<RecupType[]>([]);
   
   const {data: us, isLoading, isError} = useQuery({
     queryKey: ["SouCategorie", slug],
     queryFn: () =>
-        souscategorieService.getSousCategoriesUser(slug, uuid).then((res) => {
+        souscategorieService.getSousCategoriesUser(slug).then((res) => {
         if (res.data.etat === true) {
           return res.data.donnee;
         } else {

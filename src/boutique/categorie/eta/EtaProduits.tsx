@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import Nav from '../../../_components/Button/Nav';
 import MainCard from '../../../components/MainCard';
 import MonthlyBarChart from '../../../pages/dashboard/MonthlyBarChart';
-import { useFetchEntreprise, useStockSemaine } from '../../../usePerso/fonction.user';
+import { useStockSemaine } from '../../../usePerso/fonction.user';
 import { useStoreUuid } from '../../../usePerso/store';
 
 // Types
@@ -33,8 +33,8 @@ const MonthlyProductChart = ({ saleData }: { saleData: ProductSaleDetails }) => 
 
 export default function EtaProduits() {
   const uuid = useStoreUuid((state) => state.selectedId);
-  const { unEntreprise } = useFetchEntreprise(uuid!);
-  const { stockSemaine } = useStockSemaine(unEntreprise?.uuid!);
+
+  const { stockSemaine } = useStockSemaine(uuid!);
 
   const hasSales = stockSemaine?.sorties_par_mois && stockSemaine.sorties_par_mois.length > 0;
   

@@ -1,6 +1,5 @@
-import { useFetchEntreprise, useStockEntreprise } from '../../usePerso/fonction.user';
+import { useStockEntreprise } from '../../usePerso/fonction.user';
 import { useStoreUuid } from '../../usePerso/store';
-import { connect } from '../../_services/account.service';
 import {
   Box,
   Card,
@@ -17,8 +16,7 @@ export default function SimpleCharts() {
   const theme = useTheme();
 
   const uuid = useStoreUuid((state) => state.selectedId);
-  const { unEntreprise } = useFetchEntreprise(uuid!);
-  const { stockEntreprise, isLoading, isError } = useStockEntreprise(unEntreprise?.uuid!, connect);
+  const { stockEntreprise, isLoading, isError } = useStockEntreprise(uuid || '');
 
   if (isLoading) {
     return (

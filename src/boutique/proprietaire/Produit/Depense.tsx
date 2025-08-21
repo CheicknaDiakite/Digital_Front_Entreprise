@@ -43,8 +43,9 @@ import './mobile-produit.css';
 export default function Depense() {
   const {ajoutDepense} = useCreateDepense();
   const uuid = useStoreUuid((state) => state.selectedId);
-  const {unEntreprise} = useFetchEntreprise(uuid!);
-  const {depensesEntreprise, isLoading, isError} = useGetAllDepense(connect, uuid!);
+  const {unEntreprise} = useFetchEntreprise(uuid);
+  
+  const {depensesEntreprise, isLoading, isError} = useGetAllDepense(uuid!);
   const [isMobile, setIsMobile] = useState(false);
   
   const [currentPage, setCurrentPage] = useState(1);

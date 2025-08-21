@@ -42,8 +42,8 @@ const AuthLogin: FC = () => {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      await delay(1000);
       await login(data);
+      await delay(4000);
       reset();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Erreur lors de la connexion');

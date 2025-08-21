@@ -29,7 +29,7 @@ import SettingOutlined from '@ant-design/icons/SettingOutlined';
 import UserOutlined from '@ant-design/icons/UserOutlined';
 import { connect } from '../../../../../_services/account.service';
 import { Alert, Avatar, CircularProgress } from '@mui/material';
-import { useFetchEntreprise, useFetchUser } from '../../../../../usePerso/fonction.user';
+import { useFetchUser } from '../../../../../usePerso/fonction.user';
 import { logout, stringAvatar } from '../../../../../usePerso/fonctionPerso';
 import { useStoreUuid } from '../../../../../usePerso/store';
 
@@ -88,7 +88,6 @@ export default function Profile() {
   };
 
   const uuid = useStoreUuid((state) => state.selectedId)
-  const {unEntreprise} = useFetchEntreprise(uuid!)
   // const anchorRef = useRef(null);
   const anchorRef = useRef<HTMLButtonElement>(null); // Ajustez le type selon votre usage
   const [open, setOpen] = useState(false);
@@ -178,9 +177,9 @@ export default function Profile() {
                             <Stack>
                               <Typography variant="h6">{unUser.last_name} {unUser.first_name}</Typography>
                               
-                              <Typography variant="body2" color="text.secondary">
+                              {/* <Typography variant="body2" color="text.secondary">
                                 {unEntreprise.nom}
-                              </Typography>
+                              </Typography> */}
                               
                             </Stack>
                           </Stack>

@@ -19,6 +19,7 @@ import ClientSortie from './Sortie/ClientSortie';
 export default function ClientInfo() {
   const { uuid } = useParams();
   const {unClient} = useUnClient(uuid!);
+  
   unClient["user_id"] = connect;
   
   const {deleteClient} = useDeleteClient();

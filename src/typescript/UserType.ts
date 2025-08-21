@@ -84,6 +84,7 @@ export type RegisType = {
     message: string;
     token: string;
     id?: string;
+    access?: string;
 }
 export interface RegisterResponse {
     // Ajoutez ici les propriétés de la réponse selon votre API

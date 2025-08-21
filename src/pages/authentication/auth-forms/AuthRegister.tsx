@@ -53,10 +53,13 @@ const AuthRegister: FC = () => {
 
   const password = watch('password');
 
+  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
   const onSubmit = async (data: RegisterFormData) => {
     try {
       await create(data);
-      toast.success('Inscription réussie ! Vérifiez votre email.');
+      await delay(4000);
+      
       reset();
     } catch (error) {
       toast.error(
@@ -190,8 +193,8 @@ const AuthRegister: FC = () => {
             {...register('password', {
               required: 'Le mot de passe est requis',
               minLength: { 
-                value: 8, 
-                message: 'Le mot de passe doit contenir au moins 8 caractères' 
+                value: 6, 
+                message: 'Le mot de passe doit contenir au moins 6 caractères' 
               },
               // pattern: {
               //   value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,

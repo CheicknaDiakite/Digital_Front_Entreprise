@@ -1,6 +1,6 @@
 import { Alert, Box, CircularProgress, Grid, Stack, Typography } from '@mui/material';
 import { useStoreUuid } from '../../../../usePerso/store';
-import { useFetchEntreprise, useFetchUser, useStockEntreprise } from '../../../../usePerso/fonction.user';
+import { useFetchUser, useStockEntreprise } from '../../../../usePerso/fonction.user';
 import { formatNumberWithSpaces } from '../../../../usePerso/fonctionPerso';
 import { connect } from '../../../../_services/account.service';
 import AnalyticEcommerce from '../../../../components/cards/statistics/AnalyticEcommerce';
@@ -26,8 +26,8 @@ const ErrorMessage = () => (
 export default function SortieInventaire() {
     const uuid = useStoreUuid((state) => state.selectedId);
     const { unUser } = useFetchUser(connect);
-    const { unEntreprise } = useFetchEntreprise(uuid!);
-    const { stockEntreprise, isLoading, isError } = useStockEntreprise(unEntreprise?.uuid!, connect);
+    
+  const { stockEntreprise, isLoading, isError } = useStockEntreprise(uuid || '');
     
     if (isLoading) return <LoadingSpinner />;
     if (isError) return <ErrorMessage />;

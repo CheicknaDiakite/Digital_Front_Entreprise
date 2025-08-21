@@ -90,7 +90,7 @@ function ShadowBox({ shadow }: ShadowBoxProps) {
       
       <div className="absolute top-2 right-2">
         <Tooltip title="Modifier" arrow TransitionComponent={Fade}>
-          <Link to={`/categorie/modif/${shadow.slug}`}>
+          <Link to={`/categorie/modif/${shadow.uuid}`}>
             <IconButton 
               size="small" 
               className={`bg-white hover:bg-gray-50 shadow-sm mobile-edit-button ${isMobile ? 'mobile-glass' : ''}`}
@@ -113,7 +113,7 @@ export default function ComponentShadow() {
   
   const uuid = useStoreUuid((state) => state.selectedId);
 
-  const { unEntreprise } = useFetchEntreprise(uuid!);
+  const { unEntreprise } = useFetchEntreprise(uuid);
   
   const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm<CategorieFormType>();
 
@@ -126,7 +126,7 @@ export default function ComponentShadow() {
     setOpen(false);
   };
 
-  const { cateEntreprises, isLoading, isError } = useCategoriesEntreprise(connect, uuid!);
+  const { cateEntreprises, isLoading, isError } = useCategoriesEntreprise(uuid!);
 
   const { ajoutCategorie } = useCreateCategorie();
 

@@ -20,10 +20,10 @@ import { BASE } from '../../../_services/caller.service';
 import img from '../../../../public/icon-192x192.png';
 
 export default function ModifSousCate() {
-  const { slug } = useParams<RouteParams>()
+  const { uuid } = useParams<RouteParams>()
 
   // const {unSousCate, setUnSousCate, updateSousCate, deleteSousCate} = useSousCategorie(slug!)
-  const { unSousCate, setUnSousCate } = useFetchSousCate(slug!)
+  const { unSousCate, setUnSousCate } = useFetchSousCate(uuid!)
   unSousCate["user_id"] = connect
   const {unUser} = useFetchUser(connect)
   const {deleteSousCate} = useDeleteSousCate()

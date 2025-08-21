@@ -40,7 +40,7 @@ export function AjoutEntreForm({
     Is_Prix
   }: any) {
     const uuid = useStoreUuid((state) => state.selectedId)
-    const {souscategories} = useFetchAllSousCate(connect, uuid!)
+    const {souscategories} = useFetchAllSousCate(uuid!)
     const {unUser} = useFetchUser(connect)
     const { getClients } = useAllClients(uuid!);
     const fournisseurs = getClients.filter(info => info.role == 2 || info.role == 3);

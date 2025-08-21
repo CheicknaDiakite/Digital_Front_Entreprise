@@ -8,8 +8,7 @@ import {
   Typography,
   Button
 } from '@mui/material';
-import { useFetchEntreprise, useStockEntreprise } from '../../../../../usePerso/fonction.user';
-import { connect } from '../../../../../_services/account.service';
+import { useStockEntreprise } from '../../../../../usePerso/fonction.user';
 import { useStoreUuid } from '../../../../../usePerso/store';
 import { Link } from 'react-router-dom';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -21,8 +20,7 @@ import '../../mobile-admin.css';
 
 export default function EtatProduit() {
   const uuid = useStoreUuid((state) => state.selectedId);
-  const { unEntreprise } = useFetchEntreprise(uuid!);
-  const { stockEntreprise, isLoading, isError } = useStockEntreprise(unEntreprise.uuid!, connect);
+  const { stockEntreprise, isLoading, isError } = useStockEntreprise(uuid || '');
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {

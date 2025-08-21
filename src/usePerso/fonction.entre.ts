@@ -64,13 +64,13 @@ export function useFetchAllDepense(slug: string) {
 }
 
 // Pour recuperertous les entrers d'une Entreprise
-export function useGetAllDepense(slug: string, uuid: string) {
+export function useGetAllDepense(slug: string) {
     const [depensesEntreprise, setDepense] = useState<DepenseType[]>([]);
 
     const {data: us, isLoading, isError} = useQuery({
       queryKey: ["depenses", slug],
       queryFn: () =>
-        depenseService.getAllDepense(slug, uuid).then((res) => {
+        depenseService.getAllDepense(slug).then((res) => {
           if (res.data.etat === true) {
             return res.data.donnee;
           } else {
@@ -89,13 +89,13 @@ export function useGetAllDepense(slug: string, uuid: string) {
     return { depensesEntreprise, setDepense, isLoading, isError };
 }
 
-export function useGetSumDepense(slug: string, uuid: string) {
+export function useGetSumDepense(slug: string) {
   const [depensesSum, setSum] = useState<DepenseSumType[]>([]);
 
   const {data: us, isLoading, isError} = useQuery({
     queryKey: ["depens", slug],
     queryFn: () =>
-      depenseService.getSumDepense(slug, uuid).then((res) => {
+      depenseService.getSumDepense(slug).then((res) => {
         if (res.data.etat === true) {
           return res.data.donnee;
         } else {
@@ -268,13 +268,13 @@ export function useFetchAllEntre(slug: TypeSlug) {
 }
 
 // Pour recuperertous les entrers d'une Entreprise
-export function useGetAllEntre(slug: string, uuid: string) {
+export function useGetAllEntre(slug: string) {
   const [entresEntreprise, setEntre] = useState<RecupType[]>([]);
 
   const {data: us, isLoading, isError, refetch} = useQuery({
     queryKey: ["entre", slug],
     queryFn: () =>
-      entrerService.getAllEntre(slug, uuid).then((res) => {
+      entrerService.getAllEntre(slug).then((res) => {
         if (res.data.etat === true) {
           return res.data.donnee;
         } else {

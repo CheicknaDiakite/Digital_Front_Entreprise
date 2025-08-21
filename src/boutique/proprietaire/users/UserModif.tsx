@@ -16,20 +16,16 @@ import {
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
 import { connect } from "../../../_services/account.service";
 import { useParams } from "react-router-dom";
-import { useDeleteUser, useFetchUser, useUpdateUser } from "../../../usePerso/fonction.user";
+import { useDeleteUser, useFetchUnUser, useUpdateUser } from "../../../usePerso/fonction.user";
 import Nav from "../../../_components/Button/Nav";
 import MyTextField from "../../../_components/Input/MyTextField";
-
-// Types
-// interface UserModifFormValues extends UtilisateurType {
-//   [key: string]: any;
-// }
 
 // Components
 
 export const UserModif: FC = () => {
   const { uuid } = useParams();
-  const { unUser, setUnUser } = useFetchUser(uuid!);
+  const { unUser, setUnUser } = useFetchUnUser(uuid!);
+ 
   unUser["user_id"] = connect;
   const { updateUser } = useUpdateUser();
   const {deleteUser} = useDeleteUser()
@@ -59,7 +55,7 @@ export const UserModif: FC = () => {
     e.preventDefault();
     unUser["is_cabinet"] = is_cab;
     // unUser["boutique_id"] = selectedBoutique;
-    console.log(unUser)
+    
     updateUser(unUser);
   };
 

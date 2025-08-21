@@ -6,7 +6,7 @@ import Axios from "./caller.service"
 
 const userRegister = async (post: FormValueType): Promise<RegisterResponse> => {
     try {
-        const response = await Axios.post('/utilisateur/inscription', post)
+        const response = await Axios.post('/utilisateur/register', post)
         return response;
     } catch (error) {
         console.error("Error fetching boutiques:", error);
@@ -16,7 +16,13 @@ const userRegister = async (post: FormValueType): Promise<RegisterResponse> => {
 
 const userClient = async (post: ClienType): Promise<RegisterResponse> => {
     try {
-        const response = await Axios.post('/entreprise/client/add', post)
+        const response = await Axios.post('/entreprise/client/add',
+             post,{                         
+                headers: {
+                    'Authorization': `Bearer ${token_1}`
+                },
+                withCredentials: true
+            });
         return response;
     } catch (error) {
         console.error("Error fetching boutiques:", error);
@@ -28,7 +34,7 @@ const userAdminRegister = (data: FormValueType) => {
     return Axios.post('utilisateur/admin/inscription',
         data,{                         
             headers: {
-                'Authorization': `${token_1}`
+                'Authorization': `Bearer ${token_1}`
             },
             withCredentials: true
         });
@@ -38,7 +44,7 @@ const userCabinetRegister = (data: FormValueType) => {
     return Axios.post('utilisateur/admin/cabinet',
         data,{                         
             headers: {
-                'Authorization': `${token_1}`
+                'Authorization': `Bearer ${token_1}`
             },
             withCredentials: true
         });
@@ -48,7 +54,7 @@ const avisCreate = (data: AvisType) => {
     return Axios.post('entreprise/avis/add',
         data,{                         
             headers: {
-                'Authorization': `${token_1}`
+                'Authorization': `Bearer ${token_1}`
             },
             withCredentials: true
         });
@@ -56,7 +62,7 @@ const avisCreate = (data: AvisType) => {
 
 const userLogin = async (post: LoginType): Promise<RegisterResponse> => {
     try {
-        const response = await Axios.post('/utilisateur/connexion', post, { withCredentials: true })
+        const response = await Axios.post('/utilisateur/login', post, { withCredentials: true })
         return response;
     } catch (error) {
         console.error("Error fetching boutiques:", error);
@@ -67,10 +73,10 @@ const userLogin = async (post: LoginType): Promise<RegisterResponse> => {
 const userUnGet = async (id: string) => {
     
     try {
-        const response = await Axios.get(`/utilisateur/profile/get/${id}`, 
+        const response = await Axios.get(`/utilisateur/user/profil`, 
             {
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -86,7 +92,7 @@ const userUnClient = async (id: string) => {
     try {
         const response = await Axios.get(`/entreprise/client/get_un/${id}`, {
             headers: {
-                'Authorization': `${token_1}`
+                'Authorization': `Bearer ${token_1}`
             },
             withCredentials: true
         });
@@ -103,7 +109,7 @@ const userGet = async (post: string) => {
         const response = await Axios.post(`utilisateur/profile/get`,
             post,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -120,7 +126,7 @@ const avisGet = async (post: string) => {
         const response = await Axios.post(`entreprise/avis/get`,
             post,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -137,7 +143,7 @@ const userAll = async (data?: TypeSlug): Promise<ReponseUser> => {
         const response = await Axios.post(`utilisateur/get`,
             data,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -154,7 +160,24 @@ const allUsers = async (data: string) => {
         const response = await Axios.get(`utilisateur/get/${data}`,
             {                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
+                },
+                withCredentials: true
+            });
+        return response;
+    } catch (error) {
+        console.error("Error fetching user profile:", error);
+        throw error;
+    }
+    
+}
+
+const unUser = async (data: string) => {
+    try {
+        const response = await Axios.get(`utilisateur/user/${data}`,
+            {                         
+                headers: {
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -171,7 +194,7 @@ const allMesUsers = async (data: string) => {
         const response = await Axios.get(`utilisateur/get/mes_user/${data}`,
             {                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -185,10 +208,10 @@ const allMesUsers = async (data: string) => {
 
 const allClients = async (data: string) => {
     try {
-        const response = await Axios.get(`entreprise/client/get/${data}`,
+        const response = await Axios.get(`entreprise/clients/${data}`,
             {                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -205,7 +228,7 @@ const userUpdate = async (post: UserType): Promise<ReponseUser> => {
         const response = await Axios.post('utilisateur/profile/set',
             post,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -223,7 +246,7 @@ const clientUpdate = async (post: FormClienType): Promise<ReponseClient> => {
         const response = await Axios.post('entreprise/client/set',
             post,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -240,7 +263,7 @@ const userDelete = async (post: UtilisateurType): Promise<ReponseUser> => {
         const response = await Axios.post('utilisateur/profile/del',
             post,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -257,7 +280,7 @@ const clientDelete = async (post: FormClienType): Promise<ReponseUser> => {
         const response = await Axios.post('entreprise/client/del',
             post,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -274,7 +297,7 @@ const avisDelete = async (post: FormClienType): Promise<ReponseUser> => {
         const response = await Axios.post('entreprise/avis/del',
             post,{                         
                 headers: {
-                    'Authorization': `${token_1}`
+                    'Authorization': `Bearer ${token_1}`
                 },
                 withCredentials: true
             });
@@ -290,28 +313,11 @@ const userForgot = (post: FormType) => {
     return Axios.post('utilisateur/forgot-password',
         post,{                         
             headers: {
-                'Authorization': `${token_1}`
+                'Authorization': `Bearer ${token_1}`
             },
             withCredentials: true
         });
 }
-// const userForgot = async (post: FormType): Promise<UserType> => {
-    
-//     try{
-//         const response = await Axios.post('utilisateur/forgot-password',
-//             post,{                         
-//                 headers: {
-//                     'Authorization': `${token_1}`
-//                 },
-//                 withCredentials: true
-//             });
-//         return response;
-//     } catch (error) {
-//         console.error("Error fetching user profile:", error);
-//         throw error;
-//     }
-    
-// }
 
 const userLogout = () => {
     return Axios.get('utilisateur/deconnxion')
@@ -323,7 +329,7 @@ export const userService = {
     userAll, userLogout, userUnGet, userAdminRegister, allUsers,
     userForgot, avisDelete, avisGet, avisCreate, allMesUsers,
     allClients, userClient, userUnClient, clientUpdate, clientDelete,
-    userCabinetRegister
+    userCabinetRegister, unUser
 }
 
 const saveToken = (token: string, tok?: string) => {

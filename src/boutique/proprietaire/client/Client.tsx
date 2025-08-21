@@ -39,7 +39,7 @@ import '../mobile-personnel-client.css';
 
 export default function Client() {
   const uuid = useStoreUuid((state) => state.selectedId);
-  const { unEntreprise } = useFetchEntreprise(uuid!);
+  const { unEntreprise } = useFetchEntreprise(uuid);
   const { register, handleSubmit, reset, formState: { errors } } = useForm<ClienType>();
   const [open, setOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -121,7 +121,7 @@ export default function Client() {
     return (
       <div className={`min-h-screen ${isMobile ? '' : ''} py-6`}>
         <div className={`${isMobile ? 'px-4' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'}`}>
-      <Nav />
+          <Nav />
 
           <Paper 
             elevation={0} 

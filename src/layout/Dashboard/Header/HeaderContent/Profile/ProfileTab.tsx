@@ -37,10 +37,10 @@ export default function ProfileTab() {
 
   }
   
-  if (isError) {
-    window.location.reload();
-    return <div>Une erreur s'est produite</div>;
-  }
+  // if (isError) {
+  //   window.location.reload();
+  //   return <div>Une erreur s'est produite</div>;
+  // }
 
   if (unUser) {
     return (

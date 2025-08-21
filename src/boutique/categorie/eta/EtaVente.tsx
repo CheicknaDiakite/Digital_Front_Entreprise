@@ -8,7 +8,7 @@ import Chart_2 from '../../../_components/Chart/Chart_2'
 export default function EtaVente() {
     
   const uuid = useStoreUuid((state) => state.selectedId)
-  const {unEntreprise} = useFetchEntreprise(uuid!)
+  const {unEntreprise} = useFetchEntreprise(uuid)
   const {stockSemaine} = useStockSemaine(unEntreprise.uuid!)
 
   return (<>

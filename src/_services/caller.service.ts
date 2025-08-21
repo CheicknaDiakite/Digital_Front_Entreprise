@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from "axios";
 
 // URL de base pour l'API
 // http://127.0.0.1:8000
-// https://back.diakitedigital.com
+// https://backend.diakitedigital.com
 // https://back.gest-stocks.com
 
 const BaseDomaine = {

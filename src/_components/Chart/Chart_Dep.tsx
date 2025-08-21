@@ -1,6 +1,5 @@
 import { useGetSumDepense } from '../../usePerso/fonction.entre';
 import { useStoreUuid } from '../../usePerso/store';
-import { connect } from '../../_services/account.service';
 import { 
   Box, 
   Card, 
@@ -21,7 +20,7 @@ interface DepenseSumType {
 export default function Chart_Dep() {
   const theme = useTheme()
   const uuid = useStoreUuid((state) => state.selectedId);
-  const { depensesSum, isLoading, isError } = useGetSumDepense(connect, uuid!);
+  const { depensesSum, isLoading, isError } = useGetSumDepense(uuid!);
   if (isLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200 }}>

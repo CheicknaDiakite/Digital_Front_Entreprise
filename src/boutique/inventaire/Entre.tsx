@@ -42,7 +42,7 @@ import './mobile-entre.css';
 export default function Entre() {
   const uuid = useStoreUuid((state) => state.selectedId);
   const {unUser} = useFetchUser(connect);
-  const {unEntreprise} = useFetchEntreprise(uuid!);
+  const {unEntreprise} = useFetchEntreprise(uuid);
   const {ajoutEntre} = useCreateEntre();
   const [ajout_terminer, setTerminer] = useState(false);
   const [is_sortie, setSortie] = useState(true);
@@ -65,7 +65,7 @@ export default function Entre() {
   const Is_Sortie = () => setSortie(!is_sortie);
   const Is_Prix = () => setPrix(!is_prix);
   
-  const {entresEntreprise, isLoading, isError} = useGetAllEntre(connect, uuid!);
+  const {entresEntreprise, isLoading, isError} = useGetAllEntre(uuid!);
   const itemsPerPage = isMobile ? 25 : 25;
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedStartDate, setSelectedStartDate] = useState<string>('');

@@ -48,7 +48,7 @@ type TypeText = {
 export default function Facture() {
   const uuid = useStoreUuid((state) => state.selectedId)
 
-  const {unEntreprise, isLoading, isError} = useFetchEntreprise(uuid!)
+  const {unEntreprise, isLoading, isError} = useFetchEntreprise(uuid)
   // const {userEntreprises, isLoading, isError} = useGetUserEntreprises(String(connect))
   let url = BASE(unEntreprise.image as string | File);
 

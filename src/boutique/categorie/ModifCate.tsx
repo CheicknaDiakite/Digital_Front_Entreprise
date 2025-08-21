@@ -20,10 +20,11 @@ import img from '../../../public/icon-192x192.png';
 import { useFetchUser } from '../../usePerso/fonction.user';
 
 export default function ModifCate() {
-  const { slug } = useParams<RouteParams>()
+  const { uuid } = useParams<RouteParams>()
   
   // const {unCategorie, setCategorie, updateCategorie, deleteCategorie} = useCategorie(slug!)
-  const { unCategorie, setUnCategorie } = useFetchCategorie(slug!)
+  const { unCategorie, setUnCategorie } = useFetchCategorie(uuid!)
+  
   unCategorie["user_id"] = connect
   const {unUser} = useFetchUser(connect)
   const { updateCategorie } = useUpdateCategorie()

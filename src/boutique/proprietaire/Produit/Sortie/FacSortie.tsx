@@ -41,7 +41,7 @@ import '../mobile-produit.css';
 
 export default function FacSortie() {
   const uuid = useStoreUuid((state) => state.selectedId)
-  const {unEntreprise} = useFetchEntreprise(uuid!)
+  const {unEntreprise} = useFetchEntreprise(uuid)
   const [isMobile, setIsMobile] = useState(false);
 
   const {ajoutFacSortie} = useCreateFacSortie()

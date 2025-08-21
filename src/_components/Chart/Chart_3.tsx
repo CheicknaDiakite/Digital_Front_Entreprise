@@ -23,8 +23,8 @@ interface MonthlyData {
 export default function Chart_3() {
   const theme = useTheme();
   const uuid = useStoreUuid((state) => state.selectedId);
-  const { unEntreprise  } = useFetchEntreprise(uuid!);
-  const { sortiesUser } = useSortieUserEntreprise(unEntreprise?.uuid!);
+  const { unEntreprise  } = useFetchEntreprise(uuid);
+  const { sortiesUser } = useSortieUserEntreprise(uuid!);
 
   if (!uuid || !unEntreprise) {
     return (

@@ -40,7 +40,7 @@ import '../mobile-personnel-client.css';
 
 export default function Personnel() {
   const uuid = useStoreUuid((state) => state.selectedId)
-  const {unEntreprise} = useFetchEntreprise(uuid!)
+  const {unEntreprise} = useFetchEntreprise(uuid)
   const [isMobile, setIsMobile] = useState(false);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValueType>();
@@ -71,6 +71,7 @@ export default function Personnel() {
   };
 
   const { getUser, isLoading, isError } = useFetchAllUsers(top);
+  // const {getUsers} = useAllUsers()
   // const {unEntreprise} = useFetchEntreprise(uuid!)
   // const { userEntreprises } = useGetUserEntreprises(connect);
   const { createAdmin } = useCreateAdminUser();

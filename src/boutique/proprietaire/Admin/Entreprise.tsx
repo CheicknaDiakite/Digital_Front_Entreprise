@@ -220,6 +220,7 @@ const EntrepriseDialog: FC<{
 export default function Entreprise() {
 
     const {userEntreprises, isLoading, isError} = useGetUserEntreprises(connect)
+    
     const {unUser} = useFetchUser(connect)
     const {ajoutEntreprise} = useCreateEntreprise()
     // const options = countryList().getData();

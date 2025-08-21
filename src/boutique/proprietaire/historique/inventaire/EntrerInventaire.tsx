@@ -45,8 +45,8 @@ const MonthlyPurchaseCard = ({ data, userRole }: { data: MonthlyPurchase, userRo
 export default function EntrerInventaire() {
   const uuid = useStoreUuid((state) => state.selectedId);
   const { unUser } = useFetchUser(connect);
-  const { unEntreprise } = useFetchEntreprise(uuid!);
-  const { stockEntreprise, isLoading, isError } = useStockEntreprise(unEntreprise?.uuid!, connect);
+  const { unEntreprise } = useFetchEntreprise(uuid);
+  const { stockEntreprise, isLoading, isError } = useStockEntreprise(unEntreprise?.uuid || '');
 
   if (isLoading) return <LoadingSpinner />;
   if (isError) return <ErrorMessage />;
