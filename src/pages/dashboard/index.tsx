@@ -94,7 +94,7 @@ export default function DashboardDefault() {
     unUser = userData.unUser;
     uuid = useStoreUuid((state) => state.selectedId);
     
-  const entrepriseData = useFetchEntreprise(uuid);
+    const entrepriseData = useFetchEntreprise(uuid);
     
     unEntreprise = entrepriseData.unEntreprise;
     

@@ -36,7 +36,7 @@ const Bienvenue: FC = () => {
       >
         <TypeAnimation
           sequence={[
-            'Bienvenue sur Gest Stock',
+            'Bienvenue sur Gest Stocks',
             1000
           ]}
           wrapper="span"

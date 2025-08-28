@@ -1,15 +1,13 @@
 import { FC } from 'react';
-import { Link } from 'react-router-dom';
-import { Grid, Stack, Typography } from '@mui/material';
+import { Grid } from '@mui/material';
 import AuthWrapper from './AuthWrapper';
 import AuthRegister from './auth-forms/AuthRegister';
-import Bienvenue from '../../_components/Card/Bienvenue';
 
 const Register: FC = () => {
   return (
     <AuthWrapper>
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
+      <Grid container >
+        {/* <Grid item xs={12}>
           <Bienvenue />
           <Stack 
             direction="row" 
@@ -38,10 +36,10 @@ const Register: FC = () => {
               Connexion ?
             </Typography>
           </Stack>
-        </Grid>
-        <Grid item xs={12}>
+        </Grid> */}
+        {/* <Grid item xs={12}> */}
           <AuthRegister />
-        </Grid>
+        {/* </Grid> */}
       </Grid>
     </AuthWrapper>
   );

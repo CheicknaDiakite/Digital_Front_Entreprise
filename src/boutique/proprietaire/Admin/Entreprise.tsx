@@ -219,7 +219,7 @@ const EntrepriseDialog: FC<{
 
 export default function Entreprise() {
 
-    const {userEntreprises, isLoading, isError} = useGetUserEntreprises(connect)
+    const {userEntreprises, isLoading, isError} = useGetUserEntreprises()
     
     const {unUser} = useFetchUser(connect)
     const {ajoutEntreprise} = useCreateEntreprise()

@@ -12,15 +12,7 @@ export default function AuthBackground() {
   return (
     <Box
     sx={{
-      // position: 'fixed',
-      // display: 'flex',
-      // alignItems: 'center',
-      // justifyContent: 'center',
-      // width: '100%',
-      // height: '100vh',
-      // filter: 'blur(5px)',
-      // zIndex: -1,
-      // overflow: 'hidden', // Pour s'assurer que l'image n'a pas de débordement
+      
       position: 'fixed',
       display: 'flex',
       alignItems: 'center',

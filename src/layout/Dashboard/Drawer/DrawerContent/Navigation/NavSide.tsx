@@ -146,7 +146,6 @@ const NavSide: React.FC = () => {
 
   const { unUser } = useFetchUser(connect);
   const uuid = useStoreUuid((state) => state.selectedId);
-  console.log("uuid", uuid);
   const { unEntreprise } = useFetchEntreprise(uuid);
   const { userEntreprises } = useGetUserEntreprises();
   const addId = useStoreUuid(state => state.addId);
@@ -295,33 +294,27 @@ const NavSide: React.FC = () => {
               to="/entreprise/inventaire/sortie"
               bgColor="text-white bg-gray-500"
             />
-
-            {/* <NavItem
-              icon={null}
-              label="Entrer"
-              to="/entreprise/inventaire/entrer"
-              bgColor="text-white bg-gray-500"
-            /> */}
-                      
+    
             <NavItem
               icon={null}
               label="Etat des produits"
               to="/entreprise/inventaire/EtaDesProduits"
               bgColor="text-white bg-gray-500"
             />
-            
-            <NavItem
-              icon={null}
-              label="Etat des utilisateurs"
-              to="/entreprise/inventaire/VenteUsers"
-              bgColor="text-white bg-gray-500"
-            />
+            {(unUser.role === 1 && uuid) && 
+              <NavItem
+                icon={null}
+                label="Etat des utilisateurs"
+                to="/entreprise/inventaire/VenteUsers"
+                bgColor="text-white bg-gray-500"
+              />
+            }
           
           </List>
         </Collapse>
-
         </>
         }
+
         {(unUser.role === 1 && uuid) && 
         <>
         {/*  */}

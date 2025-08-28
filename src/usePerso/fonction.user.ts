@@ -365,7 +365,7 @@ export function useLoginUser() {
                 toast.error(res.data.message);
               }
             } else {
-              console.log("eoo ..", res.data)
+              
               accountService.saveToken(res.data.id!, res.data.access)
               navigate('/')
               toast.success("Connexion réussie");

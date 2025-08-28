@@ -1,21 +1,32 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { 
-  Button, 
-  Card, 
-  FormControl, 
+import {
+  Button,
+  Card,
+  CardContent,
+  FormControl,
   FormHelperText,
-  InputLabel, 
-  MenuItem, 
-  Select, 
-  Stack, 
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
   TextField,
   CircularProgress,
-  Box
+  Box,
+  Avatar,
+  Typography,
+  Divider,
+  InputAdornment,
+  IconButton
 } from '@mui/material';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import { useCreateUser } from '../../../usePerso/fonction.user';
 import countryList from 'react-select-country-list';
 import toast from 'react-hot-toast';
+import Bienvenue from '../../../_components/Card/Bienvenue';
 
 interface RegisterFormData {
   username: string;
@@ -31,6 +42,7 @@ interface RegisterFormData {
 const AuthRegister: FC = () => {
   const { create } = useCreateUser();
   const countryOptions = countryList().getData();
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -67,191 +79,189 @@ const AuthRegister: FC = () => {
       );
     }
   };
-
   return (
-    <Card 
-      variant="outlined" 
-      sx={{ 
-        boxShadow: 0, 
-        bgcolor: 'transparent',
-        '& .MuiTextField-root': { mb: 2 }
-      }}
-    >
-      <form onSubmit={handleSubmit(onSubmit)} className="p-4">
-        {isSubmitting && (
-          <Box className="flex justify-center items-center pb-4">
-            <CircularProgress size={36} color="primary" />
+    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+      <Card 
+        elevation={6} 
+        sx={{ width: '100%', maxWidth: 640, borderRadius: 3, overflow: 'hidden' }}
+      >
+        
+        <CardContent sx={{ py: 4, px: 6 }} className='rounded border-x-2 animate-border-rotate'>
+          
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+            <Bienvenue />
+            
+            <Avatar sx={{ bgcolor: 'primary.main', width: 56, height: 56 }}>
+              <PersonAddAltIcon fontSize="large" />
+            </Avatar>
+            <Typography variant="h5" sx={{ fontWeight: 700 }}>Créer un compte</Typography>
+            <Typography variant="body2" color="text.secondary">Remplissez le formulaire pour créer votre compte</Typography>
           </Box>
-        )}
-        <Stack spacing={2}>
-          <TextField
-            label="Nom"
-            error={!!errors.last_name}
-            helperText={errors.last_name?.message || ''}
-            {...register('last_name', { 
-              required: 'Le nom est requis',
-              minLength: { value: 2, message: 'Le nom doit contenir au moins 2 caractères' }
-            })}
-            fullWidth
-            disabled={isSubmitting}
-            InputProps={{
-              sx: {
-                '&:hover fieldset': {
-                  borderColor: 'primary.main',
-                },
-              },
-            }}
-          />
 
-          <TextField
-            label="Prénom"
-            error={!!errors.first_name}
-            helperText={errors.first_name?.message || ''}
-            {...register('first_name', { 
-              required: 'Le prénom est requis',
-              minLength: { value: 2, message: 'Le prénom doit contenir au moins 2 caractères' }
-            })}
-            fullWidth
-            disabled={isSubmitting}
-            InputProps={{
-              sx: {
-                '&:hover fieldset': {
-                  borderColor: 'primary.main',
-                },
-              },
-            }}
-          />
+          <Divider sx={{ my: 3 }} />
 
-          <TextField
-            label="Email"
-            type="email"
-            error={!!errors.email}
-            helperText={errors.email?.message || ''}
-            {...register('email', {
-              required: 'L\'email est requis',
-              pattern: { 
-                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, 
-                message: 'Adresse email invalide' 
-              }
-            })}
-            fullWidth
-            disabled={isSubmitting}
-            InputProps={{
-              sx: {
-                '&:hover fieldset': {
-                  borderColor: 'primary.main',
-                },
-              },
-            }}
-          />
-
-          <TextField
-            label="Numéro de téléphone"
-            error={!!errors.numero}
-            helperText={errors.numero?.message || ''}
-            {...register('numero', {
-              required: 'Le numéro est requis',
-              pattern: { 
-                value: /^[+]?[0-9]{8,15}$/, 
-                message: 'Format de numéro invalide' 
-              }
-            })}
-            fullWidth
-            disabled={isSubmitting}
-            InputProps={{
-              sx: {
-                '&:hover fieldset': {
-                  borderColor: 'primary.main',
-                },
-              },
-            }}
-          />
-
-          <FormControl fullWidth error={!!errors.pays}>
-            <InputLabel>Pays</InputLabel>
-            <Select
-              {...register('pays', { required: 'Le pays est requis' })}
-              label="Pays"
-              disabled={isSubmitting}
-            >
-              {countryOptions.map((option) => (
-                <MenuItem key={option.value} value={option.label}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </Select>
-            {errors.pays && (
-              <FormHelperText error>{errors.pays.message}</FormHelperText>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            {isSubmitting && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+                <CircularProgress size={36} color="primary" />
+              </Box>
             )}
-          </FormControl>
 
-          <TextField
-            label="Mot de passe"
-            type="password"
-            error={!!errors.password}
-            helperText={errors.password?.message || ''}
-            {...register('password', {
-              required: 'Le mot de passe est requis',
-              minLength: { 
-                value: 6, 
-                message: 'Le mot de passe doit contenir au moins 6 caractères' 
-              },
-              // pattern: {
-              //   value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
-              //   message: 'Le mot de passe doit contenir au moins une majuscule, une minuscule et un chiffre'
-              // }
-            })}
-            fullWidth
-            disabled={isSubmitting}
-            InputProps={{
-              sx: {
-                '&:hover fieldset': {
-                  borderColor: 'primary.main',
-                },
-              },
-            }}
-          />
+            <Stack spacing={2}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                <TextField
+                  label="Nom"
+                  error={!!errors.last_name}
+                  helperText={errors.last_name?.message || ''}
+                  {...register('last_name', {
+                    required: 'Le nom est requis',
+                    minLength: { value: 2, message: 'Le nom doit contenir au moins 2 caractères' }
+                  })}
+                  fullWidth
+                  disabled={isSubmitting}
+                />
 
-          <TextField
-            label="Confirmer le mot de passe"
-            type="password"
-            error={!!errors.passwordConfirm}
-            helperText={errors.passwordConfirm?.message || ''}
-            {...register('passwordConfirm', {
-              required: 'La confirmation du mot de passe est requise',
-              validate: value => 
-                value === password || 'Les mots de passe ne correspondent pas'
-            })}
-            fullWidth
-            disabled={isSubmitting}
-            InputProps={{
-              sx: {
-                '&:hover fieldset': {
-                  borderColor: 'primary.main',
-                },
-              },
-            }}
-          />
+                <TextField
+                  label="Prénom"
+                  error={!!errors.first_name}
+                  helperText={errors.first_name?.message || ''}
+                  {...register('first_name', {
+                    required: 'Le prénom est requis',
+                    minLength: { value: 2, message: 'Le prénom doit contenir au moins 2 caractères' }
+                  })}
+                  fullWidth
+                  disabled={isSubmitting}
+                />
+              </Box>
 
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            disabled={isSubmitting}
-            sx={{
-              py: 1.5,
-              textTransform: 'none',
-              fontWeight: 600,
-              '&:hover': {
-                backgroundColor: 'primary.dark',
-              },
-            }}
-          >
-            {isSubmitting ? 'Inscription en cours...' : 'S\'inscrire'}
-          </Button>
-        </Stack>
-      </form>
-    </Card>
+              <TextField
+                label="Email"
+                type="email"
+                error={!!errors.email}
+                helperText={errors.email?.message || ''}
+                {...register('email', {
+                  required: 'L\'email est requis',
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: 'Adresse email invalide'
+                  }
+                })}
+                fullWidth
+                disabled={isSubmitting}
+              />
+
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                <TextField
+                  label="Numéro de téléphone"
+                  error={!!errors.numero}
+                  helperText={errors.numero?.message || ''}
+                  {...register('numero', {
+                    required: 'Le numéro est requis',
+                    pattern: {
+                      value: /^[+]?[0-9]{8,15}$/, 
+                      message: 'Format de numéro invalide'
+                    }
+                  })}
+                  fullWidth
+                  disabled={isSubmitting}
+                />
+
+                <FormControl fullWidth error={!!errors.pays}>
+                  <InputLabel>Pays</InputLabel>
+                  <Select
+                    {...register('pays', { required: 'Le pays est requis' })}
+                    label="Pays"
+                    disabled={isSubmitting}
+                  >
+                    {countryOptions.map((option) => (
+                      <MenuItem key={option.value} value={option.label}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {errors.pays && (
+                    <FormHelperText error>{errors.pays.message}</FormHelperText>
+                  )}
+                </FormControl>
+              </Box>
+
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                <TextField
+                  label="Mot de passe"
+                  type={showPassword ? 'text' : 'password'}
+                  error={!!errors.password}
+                  helperText={errors.password?.message || ''}
+                  {...register('password', {
+                    required: 'Le mot de passe est requis',
+                    minLength: { value: 6, message: 'Le mot de passe doit contenir au moins 6 caractères' }
+                  })}
+                  fullWidth
+                  disabled={isSubmitting}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={() => setShowPassword(prev => !prev)} size="small">
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    )
+                  }}
+                />
+
+                <TextField
+                  label="Confirmer le mot de passe"
+                  type={showPassword ? 'text' : 'password'}
+                  error={!!errors.passwordConfirm}
+                  helperText={errors.passwordConfirm?.message || ''}
+                  {...register('passwordConfirm', {
+                    required: 'La confirmation du mot de passe est requise',
+                    validate: value => value === password || 'Les mots de passe ne correspondent pas'
+                  })}
+                  fullWidth
+                  disabled={isSubmitting}
+                />
+              </Box>
+
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                
+                  {/* <Typography
+                    component={Link}
+                    to="/auth/login"
+                    variant="h5"
+                    sx={{ 
+                      textDecoration: 'none',
+                      transition: 'color 0.3s',
+                      '&:hover': {
+                        color: 'primary.dark'
+                      }
+                    }}
+                    color="primary"
+                  >
+                    Connexion ?
+                  </Typography> */}
+                <Button variant="text" component={Link} to="/auth/login" sx={{ textTransform: 'none' }}>
+                  Déjà un compte ? Se connecter
+                </Button>
+              </Box>
+
+              {/* <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', justifyContent: 'space-between' }}> */}
+                <Button type="submit" variant="contained" color="primary" disabled={isSubmitting} sx={{ py: 1.5, textTransform: 'none', fontWeight: 600 }}>
+                  {isSubmitting ? 'Inscription en cours...' : 'S\'inscrire'}
+                </Button>
+
+                {/* <Button variant="text" component={Link} to="/auth/login" sx={{ textTransform: 'none' }}>
+                  Déjà un compte ? Se connecter
+                </Button> */}
+              {/* </Box> */}
+            </Stack>
+          </form>
+        </CardContent>
+        {/* <Divider />
+        <Box sx={{ px: 4, py: 2, display: 'flex', justifyContent: 'center' }}>
+          <Typography variant="caption" color="text.secondary">En vous inscrivant, vous acceptez nos conditions.</Typography>
+        </Box> */}
+      </Card>
+    </Box>
   );
 };
 

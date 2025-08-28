@@ -1,15 +1,13 @@
 import { FC } from 'react';
-import { Link } from 'react-router-dom';
-import { Grid, Stack, Typography } from '@mui/material';
+import { Grid } from '@mui/material';
 import AuthWrapper from './AuthWrapper';
 import AuthLogin from './auth-forms/AuthLogin';
-import Bienvenue from '../../_components/Card/Bienvenue';
 
 const Login: FC = () => {
   return (
     <AuthWrapper>
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
+      <Grid container >
+        {/* <Grid item xs={12}>
           <Bienvenue />
           <Stack 
             direction="row" 
@@ -38,11 +36,11 @@ const Login: FC = () => {
               Inscription ?
             </Typography>
           </Stack>
-        </Grid>
-        <Grid item xs={12}>
+        </Grid> */}
+        {/* <Grid item xs={12}> */}
           <AuthLogin />
-        </Grid>
-        <Grid item xs={12}>
+        {/* </Grid> */}
+        {/* <Grid item xs={12}>
           <Typography
             component={Link}
             to="/auth/mot_de_passe_oublier"
@@ -58,7 +56,7 @@ const Login: FC = () => {
           >
             Mot de passe oublié ?
           </Typography>
-        </Grid>
+        </Grid> */}
       </Grid>
     </AuthWrapper>
   );

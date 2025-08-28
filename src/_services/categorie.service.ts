@@ -1,7 +1,6 @@
 import { CategorieType, ReponseCategorie } from '../typescript/CategorieType';
 import { DataSlugType, DataType, DepenseType, EntreType, SlugType, SortieType, TypeSlug } from '../typescript/DataType'
 import { CategorieFormType, EntreFormType, SousCategorieFormType } from '../typescript/FormType';
-import { token_1 } from './account.service';
 import Axios from './caller.service'
 
 
@@ -15,12 +14,7 @@ const categoriesEntreprise = async (uuid: string): Promise<ReponseCategorie> => 
     
         try {
             const response = await Axios.get(`entreprise/categorie/get_categories_utilisateur/${uuid}`,
-                {                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            })
+                { withCredentials: true })
             
             return response;
         } catch (error) {
@@ -36,12 +30,7 @@ const categoriesEntreprise = async (uuid: string): Promise<ReponseCategorie> => 
 const getCategorie = async (slug: string): Promise<ReponseCategorie> => {   
     try {
         const response = await Axios.get(`entreprise/categorie/${slug}`,
-            {                         
-            headers: {
-                'Authorization': `Bearer ${token_1}`
-            },
-            withCredentials: true
-        });
+            { withCredentials: true });
         return response;
     } catch (error) {
             console.error("Error fetching entreprises:", error);
@@ -59,8 +48,7 @@ const addCategorie = async (data: CategorieFormType): Promise<ReponseCategorie> 
         const response = await Axios.post('entreprise/categorie/add',
             data,{                         
             headers: {
-                "Content-Type": "multipart/form-data",
-                'Authorization': `Bearer ${token_1}`
+                "Content-Type": "multipart/form-data"
             },
             withCredentials: true
         });
@@ -80,8 +68,7 @@ const updateCategorie = async (nom: CategorieType): Promise<ReponseCategorie> =>
         const response = await Axios.post('entreprise/categorie/set', 
             nom,{                         
             headers: {
-                "Content-Type": "multipart/form-data",
-                'Authorization': `Bearer ${token_1}`
+                "Content-Type": "multipart/form-data"
             },
             withCredentials: true
         });
@@ -99,12 +86,7 @@ const updateCategorie = async (nom: CategorieType): Promise<ReponseCategorie> =>
 const deleteCategorie = async (categorie: CategorieType): Promise<ReponseCategorie> => {
     try {
         const response = await Axios.post(`entreprise/categorie/del`,
-            categorie,{                         
-            headers: {
-                'Authorization': `Bearer ${token_1}`
-            },
-            withCredentials: true
-        });
+            categorie,{ withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching entreprises:", error);
@@ -125,12 +107,7 @@ export const categorieService = {
 const allSousCategorie = async (post: SlugType ) => {
     try {
         const response = await Axios.post('entreprise/sous_categorie/get', 
-            post,{                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+            post,{ withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching entreprises:", error);
@@ -143,12 +120,7 @@ const allSousCategorie = async (post: SlugType ) => {
 const getAllSousCategorie = async (slug: string) => {
     try {
         const response = await Axios.get(`entreprise/sous_categorie/get_sous_categories_par_categorie/${slug}`,
-            {                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+            { withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching entreprises:", error);
@@ -164,12 +136,7 @@ const getSousCategorie = async (slug: string) => {
     
     try {
         const response = await Axios.get(`entreprise/sous_categorie/get/${slug}`,
-            {                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+            { withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching entreprises:", error);
@@ -181,12 +148,7 @@ const getSousCategorie = async (slug: string) => {
 const getSousCategoriesUser = async (uuid: string) => {
     try {
         const response = await Axios.get(`entreprise/sous_categorie/get_sous_categories_utilisateur/${uuid}`,
-            {                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+            { withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching entreprises:", error);
@@ -198,12 +160,7 @@ const getSousCategoriesUser = async (uuid: string) => {
 const getInfo = async (slug: SlugType) => {
     try {
         const response = await Axios.post(`entreprise/info_sous_cat/get`,
-            slug,{                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+            slug,{ withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching entreprises:", error);
@@ -220,8 +177,7 @@ const addSousCategorie = async (data: SousCategorieFormType) => {
         const response = await Axios.post('entreprise/sous_categorie/add',
             data,{                         
                 headers: {
-                    "Content-Type": "multipart/form-data",
-                    'Authorization': `Bearer ${token_1}`
+                    "Content-Type": "multipart/form-data"
                 },
                 withCredentials: true
             });
@@ -241,8 +197,7 @@ const updateSousCategorie = async (nom: SousCategorieFormType) => {
         const response = await Axios.post('entreprise/sous_categorie/set',
             nom,{                         
                 headers: {
-                    "Content-Type": "multipart/form-data",
-                    'Authorization': `Bearer ${token_1}`
+                    "Content-Type": "multipart/form-data"
                 },
                 withCredentials: true
             });
@@ -261,12 +216,7 @@ const updateSousCategorie = async (nom: SousCategorieFormType) => {
 const deleteSousCategorie = async (categorie: DataType) => {
     try {
         const response = await Axios.post(`entreprise/sous_categorie/del`,
-            categorie,{                         
-            headers: {
-                'Authorization': `Bearer ${token_1}`
-            },
-            withCredentials: true
-        });
+            categorie,{ withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching entreprises:", error);
@@ -289,12 +239,7 @@ export const souscategorieService = {
 const allEntre = async (slug: TypeSlug ) => {
     try {
         const response = await Axios.post('entreprise/entre/get',
-            slug,{                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+            slug,{ withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching entreprises:", error);
@@ -308,12 +253,7 @@ const allEntre = async (slug: TypeSlug ) => {
 const getEntre = async (slug: string) => {
     try {
         const response = await Axios.get(`entreprise/entre/get/${slug}`,
-            {                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+            { withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching entreprises:", error);
@@ -324,12 +264,7 @@ const getEntre = async (slug: string) => {
 const getAllEntre = async (uuid: string) => {
     try {
         const response = await Axios.get(`entreprise/entre/get_entrers_entreprise/${uuid}`,
-            {                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+            { withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching entreprises:", error);
@@ -343,12 +278,7 @@ const getAllEntre = async (uuid: string) => {
 const addEntre = async (data: EntreFormType) => {
     try {
         const response = await Axios.post('entreprise/entre/add',
-            data,{                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+            data,{ withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching entreprises:", error);
@@ -362,12 +292,7 @@ const addEntre = async (data: EntreFormType) => {
 const updateEntre = async (nom: EntreType) => {
     try {
         const response = await Axios.post('entreprise/entre/set',
-            nom,{                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+            nom,{ withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching entreprises:", error);
@@ -381,12 +306,7 @@ const updateEntre = async (nom: EntreType) => {
 const deleteEntre = async (categorie: DataType) => {
     try {
         const response = await Axios.post(`entreprise/entre/del`,
-            categorie,{                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+            categorie,{ withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching entreprises:", error);
@@ -407,12 +327,7 @@ export const entrerService = {
 const allDepense = async (slug: string ) => {
     try {
         const response = await Axios.post('entreprise/depense/get',
-            slug,{                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+            slug,{ withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching entreprises:", error);
@@ -426,12 +341,7 @@ const allDepense = async (slug: string ) => {
 const getDepense = async (slug: string) => {
     try {
         const response = await Axios.get(`entreprise/depense/get/${slug}`,
-            {                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+            { withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching entreprises:", error);
@@ -443,12 +353,7 @@ const getAllDepense = async (uuid: string) => {
     
     try {
         const response = await Axios.get(`entreprise/depense/get_depenses_entreprise/${uuid}`,
-            {                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+            { withCredentials: true });
             
         return response;
     } catch (error) {
@@ -464,12 +369,7 @@ const getAllDepense = async (uuid: string) => {
 const getSumDepense = async (uuid: string) => {
     try {
         const response = await Axios.get(`entreprise/depense/get_depenses_somme/${uuid}`,
-            {                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+            { withCredentials: true });
             
         return response;
     } catch (error) {
@@ -484,8 +384,7 @@ const addDepense = async (data: DepenseType) => {
         const response = await Axios.post('entreprise/depense/add',
             data,{                         
                 headers: {
-                    "Content-Type": "multipart/form-data",
-                    'Authorization': `Bearer ${token_1}`
+                    "Content-Type": "multipart/form-data"
                 },
                 withCredentials: true
             });
@@ -505,8 +404,7 @@ const updateDepense = async (nom: DepenseType) => {
         const response = await Axios.post('entreprise/depense/set',
             nom,{                         
                 headers: {
-                    "Content-Type": "multipart/form-data",
-                    'Authorization': `Bearer ${token_1}`
+                    "Content-Type": "multipart/form-data"
                 },
                 withCredentials: true
             });
@@ -523,12 +421,7 @@ const updateDepense = async (nom: DepenseType) => {
 const deleteDepense = async (categorie: DepenseType) => {
     try {
         const response = await Axios.post(`entreprise/depense/del`,
-            categorie,{                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+            categorie,{ withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching entreprises:", error);
@@ -549,12 +442,7 @@ export const depenseService = {
 const allSortie = async (post: DataSlugType ) => {
     try {
         const response = await Axios.post('entreprise/sortie/get',
-            post,{                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+            post,{ withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching entreprises:", error);
@@ -566,12 +454,7 @@ const allSortie = async (post: DataSlugType ) => {
 const getAllSortie = async (slug: string) => {
     try {
         const response = await Axios.get(`entreprise/sortie/get_sorties_entreprise/${slug}`,
-            {                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+            { withCredentials: true });
             
         return response;
     } catch (error) {
@@ -586,12 +469,7 @@ const getAllSortie = async (slug: string) => {
 const getSortie = async (slug: string) => {
     try {
         const response = await Axios.get(`entreprise/sortie/get/${slug}`,
-            {                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+            { withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching entreprises:", error);
@@ -605,12 +483,7 @@ const getSortie = async (slug: string) => {
 const addSortie = async (data: SortieType) => {
     try {
         const response = await Axios.post('entreprise/sortie/add',
-            data,{                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+            data,{ withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching entreprises:", error);
@@ -625,12 +498,7 @@ const updateSortie = async (nom: SortieType) => {
     
     try {
         const response = await Axios.post('entreprise/sortie/set',
-            nom,{                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+            nom,{ withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching entreprises:", error);
@@ -643,12 +511,7 @@ const updateFacSortie = async (nom: SortieType) => {
     
     try {
         const response = await Axios.post('entreprise/sortie/setFac',
-            nom,{                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+            nom,{ withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching entreprises:", error);
@@ -662,12 +525,7 @@ const updateFacSortie = async (nom: SortieType) => {
 const deleteSortie = async (categorie: DataType) => {
     try {
         const response = await Axios.post(`entreprise/sortie/del`,
-            categorie,{                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+            categorie,{ withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching entreprises:", error);

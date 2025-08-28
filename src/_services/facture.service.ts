@@ -1,6 +1,5 @@
 import { EntreType } from "../typescript/DataType";
 import { FacSorType } from "../typescript/fac";
-import { token_1 } from "./account.service";
 import Axios from "./caller.service";
 
 /**
@@ -8,13 +7,7 @@ import Axios from "./caller.service";
  */
 const allFacEntre = async (slug: string) => {
     try {
-        const response = await Axios.post('entreprise/facture/entre/get',
-            slug,{                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+        const response = await Axios.post('entreprise/facture/entre/get', slug,{ withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching user profile:", error);
@@ -27,13 +20,7 @@ const allFacEntre = async (slug: string) => {
  */
 const getFacEntre = async (slug: string) => {
     try {
-        const response = await Axios.get(`entreprise/facture/entre/get/${slug}`,
-            {                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+        const response = await Axios.get(`entreprise/facture/entre/get/${slug}`, { withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching user profile:", error);
@@ -43,13 +30,7 @@ const getFacEntre = async (slug: string) => {
 }
 const getAllFacEntre = async (slug: string, uuid: string) => {
     try {
-        const response = await Axios.get(`entreprise/facture/entre/get_facEntersEntreprise_entreprise/${uuid}`,
-            {                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+        const response = await Axios.get(`entreprise/facture/entre/get_facEntersEntreprise_entreprise/${uuid}`, { withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching user profile:", error);
@@ -65,8 +46,7 @@ const addFacEntre = async (data: FacSorType) => {
         const response = await Axios.post('entreprise/facture/entre/add',
             data,{                         
                 headers: {
-                    "Content-Type": "multipart/form-data",
-                    'Authorization': `Bearer ${token_1}`
+                    "Content-Type": "multipart/form-data"
                 },
                 withCredentials: true
             });
@@ -85,8 +65,7 @@ const updateFacEntre = async (nom: FacSorType) => {
         const response = await Axios.post('entreprise/facture/entre/set',
             nom,{                         
                 headers: {
-                    "Content-Type": "multipart/form-data",
-                    'Authorization': `Bearer ${token_1}`
+                    "Content-Type": "multipart/form-data"
                 },
                 withCredentials: true
             });
@@ -102,13 +81,7 @@ const updateFacEntre = async (nom: FacSorType) => {
  */
 const deleteFacEntre = async (categorie: FacSorType) => {
     try {
-        const response = await Axios.post(`entreprise/facture/entre/del`,
-            categorie,{                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+        const response = await Axios.post(`entreprise/facture/entre/del`, categorie,{ withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching user profile:", error);
@@ -127,13 +100,7 @@ export const facEntrerService = {
  */
 const allFacSortie = async (slug: string) => {
     try {
-        const response = await Axios.post('entreprise/facture/sortie/get',
-            slug,{                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+        const response = await Axios.post('entreprise/facture/sortie/get', slug,{ withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching user profile:", error);
@@ -146,13 +113,7 @@ const allFacSortie = async (slug: string) => {
  */
 const getFacSortie = async (slug: string) => {
     try {
-        const response = await Axios.get(`entreprise/facture/sortie/get/${slug}`,
-            {                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+        const response = await Axios.get(`entreprise/facture/sortie/get/${slug}`, { withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching user profile:", error);
@@ -162,13 +123,7 @@ const getFacSortie = async (slug: string) => {
 }
 const getAllFacSortie = async (slug: string, uuid: string) => {
     try {
-        const response = await Axios.get(`entreprise/facture/sortie/get_facSortiesEntreprise_entreprise/${uuid}`,
-            {                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+        const response = await Axios.get(`entreprise/facture/sortie/get_facSortiesEntreprise_entreprise/${uuid}`, { withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching user profile:", error);
@@ -184,8 +139,7 @@ const addFacSortie = async (data: FacSorType) => {
         const response = await Axios.post('entreprise/facture/sortie/add',
             data,{                         
                 headers: {
-                    "Content-Type": "multipart/form-data",
-                    'Authorization': `Bearer ${token_1}`
+                    "Content-Type": "multipart/form-data"
                 },
                 withCredentials: true
             });
@@ -204,8 +158,7 @@ const updateFacSortie = async (nom: EntreType) => {
         const response = await Axios.post('entreprise/facture/sortie/set',
             nom,{                         
                 headers: {
-                    "Content-Type": "multipart/form-data",
-                    'Authorization': `Bearer ${token_1}`
+                    "Content-Type": "multipart/form-data"
                 },
                 withCredentials: true
             });
@@ -221,13 +174,7 @@ const updateFacSortie = async (nom: EntreType) => {
  */
 const deleteFacSortie = async (categorie: EntreType) => {
     try {
-        const response = await Axios.post(`entreprise/facture/sortie/del`,
-            categorie,{                         
-                headers: {
-                    'Authorization': `Bearer ${token_1}`
-                },
-                withCredentials: true
-            });
+        const response = await Axios.post(`entreprise/facture/sortie/del`, categorie,{ withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching user profile:", error);
