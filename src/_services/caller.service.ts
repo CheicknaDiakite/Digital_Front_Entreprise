@@ -52,12 +52,13 @@ Axios.interceptors.response.use(
 
             try {
                 const refreshResponse = await axios.post(
-                    `${Base.baseURL}/token/refresh/`,
+                    `${Base.baseURL}/utilisateur/token/refresh/`,
                     { refresh: refreshToken },
                     { withCredentials: true }
                 );
 
                 const newAccess = refreshResponse?.data?.access;
+                
                 if (newAccess) {
                     localStorage.setItem('token_1', newAccess);
                     originalRequest.headers = originalRequest.headers || {};

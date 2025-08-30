@@ -126,7 +126,7 @@ export default function ComponentShadow() {
     setOpen(false);
   };
 
-  const { cateEntreprises, isLoading, isError } = useCategoriesEntreprise(uuid!);
+  const { cateEntreprises, isLoading } = useCategoriesEntreprise(uuid!);
 
   const { ajoutCategorie } = useCreateCategorie();
 
@@ -166,28 +166,6 @@ export default function ComponentShadow() {
           ))}
         </Grid>
       </Box>
-    );
-  }
-
-  if (isError) {
-    return (
-      <Alert 
-        severity="error" 
-        className={`m-4 ${isMobile ? 'mobile-alert' : ''}`}
-        sx={{ borderRadius: isMobile ? '16px' : '4px' }}
-        action={
-          <Button 
-            color="inherit" 
-            size="small" 
-            onClick={() => window.location.reload()}
-            className={isMobile ? 'mobile-button' : ''}
-          >
-            Réessayer
-          </Button>
-        }
-      >
-        Problème de connexion ! Veuillez réessayer.
-      </Alert>
     );
   }
 

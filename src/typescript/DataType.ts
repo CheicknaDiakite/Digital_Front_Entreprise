@@ -1,7 +1,7 @@
 import { FormType } from "./FormType";
 export type TypeSlug = {
     all?: string | undefined;
-    user_id?: string;
+    user_id?: string | null | undefined;
     client_id?: string;
   }
 export type DataType = {

@@ -46,7 +46,7 @@ const userLogin = async (post: LoginType): Promise<RegisterResponse> => {
     }
 }
 
-const userUnGet = async (id: string) => {
+const userUnGet = async () => {
     
     try {
         const response = await Axios.get(`/utilisateur/user/profil`, { withCredentials: true });

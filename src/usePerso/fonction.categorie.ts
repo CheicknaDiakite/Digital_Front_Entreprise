@@ -7,8 +7,23 @@ import { CateBouType, DataType, InfoSousType, RecupType, SlugType } from "../typ
 import { categorieService, souscategorieService } from "../_services";
 import { foncError } from "./fonctionPerso";
 import { CategorieType } from "../typescript/CategorieType";
+import { accountService } from "../_services/account.service";
+
+// Fonction utilitaire pour gérer les erreurs d'authentification
+const handleAuthError = (error: any, navigate: any) => {
+  if (error?.response?.status === 401) {
+    // Token expiré et refresh échoué
+    accountService.logout();
+    navigate('/login');
+    toast.error("Session expirée. Veuillez vous reconnecter.");
+    return true;
+  }
+  return false;
+};
 
 export function useFetchCategorie(slug: string) {
+    const navigate = useNavigate();
+    
     const [unCategorie, setUnCategorie] = useState<CategorieType>({
       uuid: '',
       libelle: '',
@@ -16,18 +31,25 @@ export function useFetchCategorie(slug: string) {
       sous_categorie_count: 0,
       });
   
-    const { data: us, isLoading, isError } = useQuery({
+    const { data: us, isLoading, isError, error } = useQuery({
       queryKey: ["entreRecup", slug],
       queryFn: () =>
         categorieService.getCategorie(slug).then((res) => {
           if (res.data.etat === true) {
             return res.data.donnee;
           } else {
-            // throw new Error("Les identifiants sont incorrects");
             toast.error(res.data.message);
+            throw new Error(res.data.message);
           }
         }),
     });
+
+    // Gestion des erreurs d'auth
+    useEffect(() => {
+      if (error && (error as any)?.response?.status === 401) {
+        handleAuthError(error, navigate);
+      }
+    }, [error, navigate]);
   
     useEffect(() => {
       if (us) {
@@ -39,22 +61,30 @@ export function useFetchCategorie(slug: string) {
 }
   
 export function useCategoriesEntreprise(slug: string) {
+    const navigate = useNavigate();
+    
     const [cateEntreprises, setCateEntreprise] = useState<CateBouType[]>([]);
   
-    const { data: us, isLoading, isError } = useQuery({
+    const { data: us, isLoading, isError, error } = useQuery({
       queryKey: ["enRecup", slug],
       queryFn: async () => {
         const res = await categorieService.categoriesEntreprise(slug);
           if (res.data.etat === true) {
-            const donnees = res.data.donnee as unknown as CateBouType[]; // Si c'est un tableau
+            const donnees = res.data.donnee as unknown as CateBouType[];
             return donnees || [];
           } else {
-            // throw new Error("Les identifiants sont incorrects");
             toast.error(res.data.message);
-            return [];
+            // throw new Error(res.data.message);
           }
-        }
-        });
+        },
+    });
+
+    // Gestion des erreurs d'auth
+    useEffect(() => {
+      if (error && (error as any)?.response?.status === 401) {
+        handleAuthError(error, navigate);
+      }
+    }, [error, navigate]);
   
     useEffect(() => {
       if (us) {
@@ -66,7 +96,7 @@ export function useCategoriesEntreprise(slug: string) {
 }
 
 export function useCreateCategorie() {
-  
+    const navigate = useNavigate();
     const useQ = useQueryClient();
     
     const ajout = useMutation({
@@ -80,13 +110,14 @@ export function useCreateCategorie() {
           } else {
             useQ.invalidateQueries({ queryKey: ["enRecup"] });
             toast.success("C'est ajouter avec succès");
-            // navigate('/')
           }
       })
       },
       onError: (error: any) => {
-        const message = error?.response?.data?.message || error.message || "Une erreur est survenue";
-        toast.error(message);
+        if (!handleAuthError(error, navigate)) {
+          const message = error?.response?.data?.message || error.message || "Une erreur est survenue";
+          toast.error(message);
+        }
       },
     });
   
@@ -109,7 +140,6 @@ export function useUpdateCategorie() {
             if (res.data.etat === true) {
               toast.success("Modification reuissi");
               useQ.invalidateQueries({ queryKey: ["entre"] });
-              // navigate("/admin/formation/index")
               navigate(-1);
             } else {
               toast.error(res.data.message);
@@ -118,7 +148,9 @@ export function useUpdateCategorie() {
           .catch((err) => console.log(err));
       },
       onError: (error) => {
-        foncError(error);
+        if (!handleAuthError(error, navigate)) {
+          foncError(error);
+        }
       },
     });
 
@@ -146,8 +178,10 @@ export function useDeleteCategorie() {
         });
       },
       onError: (error: any) => {
-        const message = error?.response?.data?.message || error.message || "Une erreur est survenue";
-        toast.error(message);
+        if (!handleAuthError(error, navigate)) {
+          const message = error?.response?.data?.message || error.message || "Une erreur est survenue";
+          toast.error(message);
+        }
       }
     });
 
@@ -161,24 +195,32 @@ export function useDeleteCategorie() {
 // SOUS_CATEGORIE
 
 export function useFetchSousCate(slug: string) {
+  const navigate = useNavigate();
+  
   const [unSousCate, setUnSousCate] = useState<SousCategorieFormType>({
       libelle: '',
       user_id: '',
       categorie_slug: '',
     });
 
-  const { data: us, isLoading, isError } = useQuery({
+  const { data: us, isLoading, isError, error } = useQuery({
     queryKey: ["sortieRecup", slug],
     queryFn: () =>
         souscategorieService.getSousCategorie(slug).then((res) => {
         if (res.data.etat === true) {
           return res.data.donnee;
         } else {
-          // throw new Error("Les identifiants sont incorrects");
-          // toast.error(res.data.message);
+          throw new Error(res.data.message || "Erreur lors de la récupération");
         }
       }),
   });
+
+  // Gestion des erreurs d'auth
+  useEffect(() => {
+    if (error && (error as any)?.response?.status === 401) {
+      handleAuthError(error, navigate);
+    }
+  }, [error, navigate]);
 
   useEffect(() => {
     if (us) {
@@ -190,20 +232,28 @@ export function useFetchSousCate(slug: string) {
 }
 
 export function useAllGetSousCate(slug: string) {
+  const navigate = useNavigate();
+  
   const [getSousCates, setSousCate] = useState<RecupType[]>([]);
   
-  const {data: us, isLoading, isError} = useQuery({
+  const {data: us, isLoading, isError, error} = useQuery({
     queryKey: ["SouCategorie", slug],
     queryFn: () =>
         souscategorieService.getAllSousCategorie(slug).then((res) => {
         if (res.data.etat === true) {
           return res.data.donnee;
         } else {
-          // toast.error("Les identifiants sont incorrects");
-          // toast.error(res.data.message);
+          throw new Error(res.data.message || "Erreur lors de la récupération");
         }
       }),
   });
+
+  // Gestion des erreurs d'auth
+  useEffect(() => {
+    if (error && (error as any)?.response?.status === 401) {
+      handleAuthError(error, navigate);
+    }
+  }, [error, navigate]);
 
   useEffect(() => {
       if (us) {
@@ -215,20 +265,28 @@ export function useAllGetSousCate(slug: string) {
 }
 
 export function useFetchAllSousCate(slug: string) {
+  const navigate = useNavigate();
+  
   const [souscategories, setSousCate] = useState<RecupType[]>([]);
   
-  const {data: us, isLoading, isError} = useQuery({
+  const {data: us, isLoading, isError, error} = useQuery({
     queryKey: ["SouCategorie", slug],
     queryFn: () =>
         souscategorieService.getSousCategoriesUser(slug).then((res) => {
         if (res.data.etat === true) {
           return res.data.donnee;
         } else {
-          // toast.error("Les identifiants sont incorrects");
-          // toast.error(res.data.message);
+          throw new Error(res.data.message || "Erreur lors de la récupération");
         }
       }),
   });
+
+  // Gestion des erreurs d'auth
+  useEffect(() => {
+    if (error && (error as any)?.response?.status === 401) {
+      handleAuthError(error, navigate);
+    }
+  }, [error, navigate]);
 
   useEffect(() => {
       if (us) {
@@ -240,20 +298,29 @@ export function useFetchAllSousCate(slug: string) {
 }
 
 export function useInfoSousCate(slug: SlugType) {
+  const navigate = useNavigate();
+  
   const [infos, setInfo] = useState<InfoSousType[]>([]);
 
-  const {data: us, isLoading, isError} = useQuery({
+  const {data: us, isLoading, isError, error} = useQuery({
     queryKey: ["info", slug],
     queryFn: () =>
         souscategorieService.getInfo(slug).then((res) => {
         if (res.data.etat === true) {
           return res.data.donnee;
         } else {
-          // toast.error("Les identifiants sont incorrects");
           toast.error(res.data.message);
+          // throw new Error(res.data.message);
         }
       }),
   });
+
+  // Gestion des erreurs d'auth
+  useEffect(() => {
+    if (error && (error as any)?.response?.status === 401) {
+      handleAuthError(error, navigate);
+    }
+  }, [error, navigate]);
 
   useEffect(() => {
       if (us) {
@@ -265,20 +332,29 @@ export function useInfoSousCate(slug: SlugType) {
 }
 
 export function useCateSousCate(slug: SlugType) {
+  const navigate = useNavigate();
+  
   const [sousCate, setSousCate] = useState<InfoSousType[]>([]);
   
-  const {data: us, isLoading, isError} = useQuery({
+  const {data: us, isLoading, isError, error} = useQuery({
     queryKey: ["info", slug],
     queryFn: () =>
         souscategorieService.allSousCategorie(slug).then((res) => {
         if (res.data.etat === true) {
           return res.data.donnee;
         } else {
-          // toast.error("Les identifiants sont incorrects");
           toast.error(res.data.message);
+          throw new Error(res.data.message);
         }
       }),
   });
+
+  // Gestion des erreurs d'auth
+  useEffect(() => {
+    if (error && (error as any)?.response?.status === 401) {
+      handleAuthError(error, navigate);
+    }
+  }, [error, navigate]);
 
   useEffect(() => {
       if (us) {
@@ -290,6 +366,7 @@ export function useCateSousCate(slug: SlugType) {
 }
 
 export function useCreateSousCate() {
+  const navigate = useNavigate();
   const useQ = useQueryClient();
   
   const ajout = useMutation({
@@ -303,13 +380,14 @@ export function useCreateSousCate() {
         } else {
           useQ.invalidateQueries({ queryKey: ["SouCategorie"] });
           toast.success("C'est ajouter avec succès");
-          // navigate('/')
         }
     })
     },
     onError: (error: any) => {
-      const message = error?.response?.data?.message || error.message || "Une erreur est survenue";
-      toast.error(message);
+      if (!handleAuthError(error, navigate)) {
+        const message = error?.response?.data?.message || error.message || "Une erreur est survenue";
+        toast.error(message);
+      }
     },
   });
 
@@ -332,7 +410,6 @@ export function useUpdateSousCate() {
           if (res.data.etat === true) {
             toast.success("Modification reuissi");
             useQ.invalidateQueries({ queryKey: ["SouCategorie"] });
-            // navigate("/admin/formation/index")
             navigate(-1);
           } else {
             toast.error(res.data.message);
@@ -341,8 +418,10 @@ export function useUpdateSousCate() {
         .catch((err) => console.log(err));
     },
     onError: (error: any) => {
-      const message = error?.response?.data?.message || error.message || "Une erreur est survenue";
-      toast.error(message);
+      if (!handleAuthError(error, navigate)) {
+        const message = error?.response?.data?.message || error.message || "Une erreur est survenue";
+        toast.error(message);
+      }
     },
   });
 
@@ -370,8 +449,10 @@ export function useDeleteSousCate() {
       });
     },
     onError: (error: any) => {
-      const message = error?.response?.data?.message || error.message || "Une erreur est survenue";
-      toast.error(message);
+      if (!handleAuthError(error, navigate)) {
+        const message = error?.response?.data?.message || error.message || "Une erreur est survenue";
+        toast.error(message);
+      }
     },
     
   });

@@ -38,7 +38,7 @@ export default function Info() {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   
   const { uuid } = useParams<RouteParams>();
-  const { unUser } = useFetchUser(connect);
+  const { unUser } = useFetchUser();
   // const { sousCate } = useCateSousCate({ slug: uuid, user_id: connect });
   const {unSousCate} = useFetchSousCate(uuid!)
   const { infos, isLoading } = useInfoSousCate({ slug: uuid });

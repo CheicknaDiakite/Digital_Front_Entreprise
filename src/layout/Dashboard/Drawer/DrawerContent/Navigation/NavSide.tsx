@@ -144,7 +144,7 @@ const NavSide: React.FC = () => {
   const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
   const [helpDialogOpen, setHelpDialogOpen] = useState(false);
 
-  const { unUser } = useFetchUser(connect);
+  const { unUser } = useFetchUser();
   const uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise } = useFetchEntreprise(uuid);
   const { userEntreprises } = useGetUserEntreprises();

@@ -90,7 +90,7 @@ export default function DashboardDefault() {
   let unUser, uuid, unEntreprise, stockSemaine, stockEntreprise, getClients, stockData, depensesSum;
   
   try {
-    const userData = useFetchUser(connect!);
+    const userData = useFetchUser();
     unUser = userData.unUser;
     uuid = useStoreUuid((state) => state.selectedId);
     

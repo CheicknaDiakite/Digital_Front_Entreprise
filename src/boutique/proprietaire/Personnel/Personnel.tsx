@@ -67,9 +67,10 @@ export default function Personnel() {
 
   const top = {
     entreprise_id: uuid,
-    user_id: connect,
+    // user_id: connect,
+    user_id: localStorage.getItem('token'),
   };
-
+  
   const { getUser, isLoading, isError } = useFetchAllUsers(top);
   // const {getUsers} = useAllUsers()
   // const {unEntreprise} = useFetchEntreprise(uuid!)

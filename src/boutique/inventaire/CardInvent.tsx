@@ -44,7 +44,7 @@ type EntreProps = {
 }
 
 export default function CardInvent({ row }: EntreProps) {
-  const { unUser } = useFetchUser(connect);
+  const { unUser } = useFetchUser();
   const [open, setOpen] = useState(false);
   const functionOpen = () => {
     setOpen(true);
@@ -112,7 +112,7 @@ export default function CardInvent({ row }: EntreProps) {
 
         <Dialog open={open} onClose={closeOpen} fullWidth maxWidth="xs">
           <DialogTitle>
-            Barre Code
+            Code (QR)
             <IconButton onClick={closeOpen} style={{ float: 'right' }}>
               <CloseIcon color="primary" />
             </IconButton>

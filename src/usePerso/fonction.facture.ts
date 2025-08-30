@@ -8,8 +8,23 @@ import { EntreType, RecupType } from "../typescript/DataType";
 import { facEntrerService, facSortieService } from "../_services/facture.service";
 import { foncError } from "./fonctionPerso";
 import { FacSorType } from "../typescript/fac";
+import { accountService } from "../_services/account.service";
+
+// Fonction utilitaire pour gérer les erreurs d'authentification
+const handleAuthError = (error: any, navigate: any) => {
+  if (error?.response?.status === 401) {
+    // Token expiré et refresh échoué
+    accountService.logout();
+    navigate('/login');
+    toast.error("Session expirée. Veuillez vous reconnecter.");
+    return true;
+  }
+  return false;
+};
 
 export function useFacEntre(slug: string) {
+    const navigate = useNavigate();
+    
     const [unFacEntre, setUnFacEntre] = useState<FacSorType>({
         libelle: '',
         user_id: '',
@@ -17,18 +32,25 @@ export function useFacEntre(slug: string) {
         date: '',
       });
   
-    const { data: us, isLoading, isError } = useQuery({
+    const { data: us, isLoading, isError, error } = useQuery({
       queryKey: ["entreRecup", slug],
       queryFn: () =>
         facEntrerService.getFacEntre(slug).then((res) => {
           if (res.data.etat === true) {
             return res.data.donnee;
           } else {
-            // throw new Error("Les identifiants sont incorrects");
             toast.error(res.data.message);
+            throw new Error(res.data.message);
           }
         }),
     });
+
+    // Gestion des erreurs d'auth
+    useEffect(() => {
+      if (error && (error as any)?.response?.status === 401) {
+        handleAuthError(error, navigate);
+      }
+    }, [error, navigate]);
   
     useEffect(() => {
       if (us) {
@@ -40,20 +62,29 @@ export function useFacEntre(slug: string) {
   }
   
 export function useAllFacEntre(slug: string) {
+const navigate = useNavigate();
+
 const [entres, setEntre] = useState<RecupType[]>([]);
 
-const {data: us, isLoading, isError} = useQuery({
+const {data: us, isLoading, isError, error} = useQuery({
     queryKey: ["entre", slug],
     queryFn: () =>
     facEntrerService.allFacEntre(slug).then((res) => {
         if (res.data.etat === true) {
         return res.data.donnee;
         } else {
-        // toast.error("Les identifiants sont incorrects");
         toast.error(res.data.message);
+        throw new Error(res.data.message);
         }
     }),
 });
+
+// Gestion des erreurs d'auth
+useEffect(() => {
+  if (error && (error as any)?.response?.status === 401) {
+    handleAuthError(error, navigate);
+  }
+}, [error, navigate]);
 
 useEffect(() => {
     if (us) {
@@ -66,20 +97,29 @@ return { entres, setEntre, isLoading, isError };
   
 // Pour recuperertous les entrers d'une boutique
 export function useGetAllFacEntre(slug: string, uuid: string) {
+const navigate = useNavigate();
+
 const [facEntresUtilisateur, setEntre] = useState<RecupType[]>([]);
 
-const {data: us, isLoading, isError} = useQuery({
+const {data: us, isLoading, isError, error} = useQuery({
     queryKey: ["facEntre", slug],
     queryFn: () =>
     facEntrerService.getAllFacEntre(slug, uuid).then((res) => {
         if (res.data.etat === true) {
         return res.data.donnee;
         } else {
-        // toast.error("Les identifiants sont incorrects");
         toast.error(res.data.message);
+        throw new Error(res.data.message);
         }
     }),
 });
+
+// Gestion des erreurs d'auth
+useEffect(() => {
+  if (error && (error as any)?.response?.status === 401) {
+    handleAuthError(error, navigate);
+  }
+}, [error, navigate]);
 
 useEffect(() => {
     if (us) {
@@ -91,7 +131,7 @@ return { facEntresUtilisateur, setEntre, isLoading, isError };
 }
   
 export function useCreateFacEntre() {
-
+const navigate = useNavigate();
 const useQ = useQueryClient();
 
 const ajout = useMutation({
@@ -105,17 +145,17 @@ const ajout = useMutation({
         } else {
         useQ.invalidateQueries({ queryKey: ["facEntre"] });
         toast.success("C'est ajouter avec succès");
-        // navigate('/')
         }
     })
     },
     onError: (error) => {
+        if (!handleAuthError(error, navigate)) {
         foncError(error)
+        }
     },
 });
 
 const ajoutFacEntre = (post: FacSorType) => {
-    // console.log("submit ...", post);
     ajout.mutate(post);
 };
 
@@ -134,7 +174,6 @@ const modif = useMutation({
         if (res.data.etat === true) {
             toast.success("Modification reuissi");
             useQ.invalidateQueries({ queryKey: ["facEntre"] });
-            // navigate("/admin/formation/index")
             navigate(-1);
         } else {
             toast.error(res.data.message);
@@ -143,7 +182,9 @@ const modif = useMutation({
         .catch((err) => console.log(err));
     },
     onError: (error) => {
+        if (!handleAuthError(error, navigate)) {
     foncError(error);
+        }
     },
 });
 
@@ -167,7 +208,9 @@ export function useDeleteFacEntre() {
         });
         },
         onError: (error) => {
+            if (!handleAuthError(error, navigate)) {
             foncError(error)
+            }
         },
         onSuccess: () => {
         useQ.invalidateQueries({ queryKey: ["facEntre"] });
@@ -188,6 +231,8 @@ export function useDeleteFacEntre() {
 
 
 export function useFacSortie(slug: string) {
+    const navigate = useNavigate();
+    
     const [unFacSortie, setUnFacSortie] = useState<EntreType>({
         libelle: '',
         user_id: '',
@@ -196,18 +241,25 @@ export function useFacSortie(slug: string) {
         categorie_slug: '',
       });
   
-    const { data: us, isLoading, isError } = useQuery({
+    const { data: us, isLoading, isError, error } = useQuery({
       queryKey: ["sortieFacRecup", slug],
       queryFn: () =>
         facSortieService.getFacSortie(slug).then((res) => {
           if (res.data.etat === true) {
             return res.data.donnee;
           } else {
-            // throw new Error("Les identifiants sont incorrects");
             toast.error(res.data.message);
+            throw new Error(res.data.message);
           }
         }),
     });
+
+    // Gestion des erreurs d'auth
+    useEffect(() => {
+      if (error && (error as any)?.response?.status === 401) {
+        handleAuthError(error, navigate);
+      }
+    }, [error, navigate]);
   
     useEffect(() => {
       if (us) {
@@ -219,20 +271,29 @@ export function useFacSortie(slug: string) {
   }
   
 export function useAllFacSortie(slug: string) {
+const navigate = useNavigate();
+
 const [entres, setEntre] = useState<RecupType[]>([]);
 
-const {data: us, isLoading, isError} = useQuery({
+const {data: us, isLoading, isError, error} = useQuery({
     queryKey: ["entre", slug],
     queryFn: () =>
     facSortieService.allFacSortie(slug).then((res) => {
         if (res.data.etat === true) {
         return res.data.donnee;
         } else {
-        // toast.error("Les identifiants sont incorrects");
         toast.error(res.data.message);
+        throw new Error(res.data.message);
         }
     }),
 });
+
+// Gestion des erreurs d'auth
+useEffect(() => {
+  if (error && (error as any)?.response?.status === 401) {
+    handleAuthError(error, navigate);
+  }
+}, [error, navigate]);
 
 useEffect(() => {
     if (us) {
@@ -245,20 +306,29 @@ return { entres, setEntre, isLoading, isError };
   
 // Pour recuperertous les entrers d'une boutique
 export function useGetAllFacSortie(slug: string, uuid: string) {
+const navigate = useNavigate();
+
 const [facSortiesUtilisateur, setEntre] = useState<RecupType[]>([]);
 
-const {data: us, isLoading, isError} = useQuery({
+const {data: us, isLoading, isError, error} = useQuery({
     queryKey: ["facSortie", slug],
     queryFn: () =>
         facSortieService.getAllFacSortie(slug, uuid).then((res) => {
         if (res.data.etat === true) {
         return res.data.donnee;
         } else {
-        // toast.error("Les identifiants sont incorrects");
         toast.error(res.data.message);
+        throw new Error(res.data.message);
         }
     }),
 });
+
+// Gestion des erreurs d'auth
+useEffect(() => {
+  if (error && (error as any)?.response?.status === 401) {
+    handleAuthError(error, navigate);
+  }
+}, [error, navigate]);
 
 useEffect(() => {
     if (us) {
@@ -270,6 +340,7 @@ return { facSortiesUtilisateur, setEntre, isLoading, isError };
 }
   
 export function useCreateFacSortie() {
+const navigate = useNavigate();
 const useQ = useQueryClient();
 
 const ajout = useMutation({
@@ -283,17 +354,17 @@ const ajout = useMutation({
         } else {
         useQ.invalidateQueries({ queryKey: ["facSortie"] });
         toast.success("C'est ajouter avec succès");
-        // navigate('/')
         }
     })
     },
     onError: (error) => {
+        if (!handleAuthError(error, navigate)) {
     foncError(error)
+        }
     },
 });
 
 const ajoutFacSortie = (post: FacSorType) => {
-    // console.log("submit ...", post);
     ajout.mutate(post);
 };
 
@@ -312,7 +383,6 @@ const modif = useMutation({
         if (res.data.etat === true) {
             toast.success("Modification reuissi");
             useQ.invalidateQueries({ queryKey: ["entre"] });
-            // navigate("/admin/formation/index")
             navigate(-1);
         } else {
             toast.error(res.data.message);
@@ -321,7 +391,9 @@ const modif = useMutation({
         .catch((err) => console.log(err));
     },
     onError: (error) => {
+        if (!handleAuthError(error, navigate)) {
     foncError(error);
+        }
     },
 });
 
@@ -345,7 +417,9 @@ export function useDeleteFacSortie() {
         });
         },
         onError: (error) => {
+            if (!handleAuthError(error, navigate)) {
         foncError(error);
+            }
         },
         onSuccess: () => {
         useQ.invalidateQueries({ queryKey: ["entre"] });

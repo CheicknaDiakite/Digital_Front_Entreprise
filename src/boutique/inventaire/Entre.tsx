@@ -41,7 +41,7 @@ import './mobile-entre.css';
 
 export default function Entre() {
   const uuid = useStoreUuid((state) => state.selectedId);
-  const {unUser} = useFetchUser(connect);
+  const {unUser} = useFetchUser();
   const {unEntreprise} = useFetchEntreprise(uuid);
   const {ajoutEntre} = useCreateEntre();
   const [ajout_terminer, setTerminer] = useState(false);

@@ -17,8 +17,8 @@ const pricingTiers: PricingTier[] = [
     name: 'Trimestriel',
     id: 'tier-quarterly',
     href: '#',
-    priceMonthly: '25 000 f',
-    price: '30 000 f',
+    priceMonthly: '20 000 f',
+    price: '25 000 f',
     description: "Le plan parfait si vous venez de commencer avec notre produit.",
     features: [
       'Suivis des stocks',
@@ -35,8 +35,8 @@ const pricingTiers: PricingTier[] = [
     name: 'Annuel',
     id: 'tier-yearly',
     href: '#',
-    priceMonthly: '80 000 f',
-    price: '100 000 f',
+    priceMonthly: '75 000 f',
+    price: '80 000 f',
     description: "Le choix idéal pour profiter pleinement de notre produit toute l'année.",
     features: [
       'Suivis des stocks',

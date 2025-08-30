@@ -6,9 +6,24 @@ import { DataSlugType, DataType, DepenseType, DepenseSumType, EntreType, RecupTy
 import { depenseService, entrerService, sortieService } from "../_services";
 import { foncError } from "./fonctionPerso";
 import { EntreFormType } from "../typescript/FormType";
+import { accountService } from "../_services/account.service";
+
+// Fonction utilitaire pour gérer les erreurs d'authentification
+const handleAuthError = (error: any, navigate: any) => {
+  if (error?.response?.status === 401) {
+    // Token expiré et refresh échoué
+    accountService.logout();
+    navigate('/login');
+    toast.error("Session expirée. Veuillez vous reconnecter.");
+    return true;
+  }
+  return false;
+};
 
 // Produit
 export function useFetchDepense(slug: string) {
+    const navigate = useNavigate();
+    
     const [unDepense, setUnDepense] = useState<DepenseType>({
         libelle: '',
         user_id: '',
@@ -16,18 +31,25 @@ export function useFetchDepense(slug: string) {
         date: '',
       });
   
-    const { data: us, isLoading, isError } = useQuery({
+    const { data: us, isLoading, isError, error } = useQuery({
       queryKey: ["entreDepense", slug],
       queryFn: () =>
         depenseService.getDepense(slug).then((res) => {
           if (res.data.etat === true) {
             return res.data.donnee;
           } else {
-            // throw new Error("Les identifiants sont incorrects");
             toast.error(res.data.message);
+            throw new Error(res.data.message);
           }
         }),
     });
+
+    // Gestion des erreurs d'auth
+    useEffect(() => {
+      if (error && (error as any)?.response?.status === 401) {
+        handleAuthError(error, navigate);
+      }
+    }, [error, navigate]);
   
     useEffect(() => {
       if (us) {
@@ -39,20 +61,29 @@ export function useFetchDepense(slug: string) {
 }
   
 export function useFetchAllDepense(slug: string) {
+    const navigate = useNavigate();
+    
     const [entres, setDepense] = useState<RecupType[]>([]);
 
-    const {data: us, isLoading, isError} = useQuery({
+    const {data: us, isLoading, isError, error} = useQuery({
       queryKey: ["produit", slug],
       queryFn: () =>
         depenseService.allDepense(slug).then((res) => {
           if (res.data.etat === true) {
             return res.data.donnee;
           } else {
-            // toast.error("Les identifiants sont incorrects");
             toast.error(res.data.message);
+            throw new Error(res.data.message);
           }
         }),
     });
+
+    // Gestion des erreurs d'auth
+    useEffect(() => {
+      if (error && (error as any)?.response?.status === 401) {
+        handleAuthError(error, navigate);
+      }
+    }, [error, navigate]);
 
     useEffect(() => {
         if (us) {
@@ -65,20 +96,29 @@ export function useFetchAllDepense(slug: string) {
 
 // Pour recuperertous les entrers d'une Entreprise
 export function useGetAllDepense(slug: string) {
+    const navigate = useNavigate();
+    
     const [depensesEntreprise, setDepense] = useState<DepenseType[]>([]);
 
-    const {data: us, isLoading, isError} = useQuery({
+    const {data: us, isLoading, isError, error} = useQuery({
       queryKey: ["depenses", slug],
       queryFn: () =>
         depenseService.getAllDepense(slug).then((res) => {
           if (res.data.etat === true) {
             return res.data.donnee;
           } else {
-            // toast.error("Les identifiants sont incorrects");
             toast.error(res.data.message);
+            throw new Error(res.data.message);
           }
         }),
     });
+
+    // Gestion des erreurs d'auth
+    useEffect(() => {
+      if (error && (error as any)?.response?.status === 401) {
+        handleAuthError(error, navigate);
+      }
+    }, [error, navigate]);
 
     useEffect(() => {
         if (us) {
@@ -90,9 +130,11 @@ export function useGetAllDepense(slug: string) {
 }
 
 export function useGetSumDepense(slug: string) {
+  const navigate = useNavigate();
+  
   const [depensesSum, setSum] = useState<DepenseSumType[]>([]);
 
-  const {data: us, isLoading, isError} = useQuery({
+  const {data: us, isLoading, isError, error} = useQuery({
     queryKey: ["depens", slug],
     queryFn: () =>
       depenseService.getSumDepense(slug).then((res) => {
@@ -100,9 +142,17 @@ export function useGetSumDepense(slug: string) {
           return res.data.donnee;
         } else {
           toast.error(res.data.message);
+          throw new Error(res.data.message);
         }
       }),
   });
+
+  // Gestion des erreurs d'auth
+  useEffect(() => {
+    if (error && (error as any)?.response?.status === 401) {
+      handleAuthError(error, navigate);
+    }
+  }, [error, navigate]);
 
   useEffect(() => {
       if (us) {
@@ -114,7 +164,7 @@ export function useGetSumDepense(slug: string) {
 }
 
 export function useCreateDepense() {
-    
+    const navigate = useNavigate();
     const useQ = useQueryClient();
     
     const ajout = useMutation({
@@ -128,18 +178,18 @@ export function useCreateDepense() {
           } else {
             useQ.invalidateQueries({ queryKey: ["depenses"] });
             toast.success("C'est ajouter avec succès");
-            // navigate('/')
           }
       })
       },
       onError: (error: any) => {
-        const message = error?.response?.data?.message || error.message || "Une erreur est survenue";
-        toast.error(message);
+        if (!handleAuthError(error, navigate)) {
+          const message = error?.response?.data?.message || error.message || "Une erreur est survenue";
+          toast.error(message);
+        }
       },
     });
   
     const ajoutDepense = (post: DepenseType) => {
-      
       ajout.mutate(post);
     };
 
@@ -158,7 +208,6 @@ export function useUpdateDepense() {
             if (res.data.etat === true) {
               toast.success("Modification reuissi");
               useQ.invalidateQueries({ queryKey: ["depenses"] });
-              // navigate("/admin/formation/index")
               navigate(-1);
             } else {
               toast.error(res.data.message);
@@ -167,7 +216,9 @@ export function useUpdateDepense() {
           .catch((err) => console.log(err));
       },
       onError: (error) => {
-        foncError(error);
+        if (!handleAuthError(error, navigate)) {
+          foncError(error);
+        }
       },
     });
 
@@ -191,8 +242,10 @@ export function useDeleteDepense() {
         });
       },
       onError: (error: any) => {
-        const message = error?.response?.data?.message || error.message || "Une erreur est survenue";
-        toast.error(message);
+        if (!handleAuthError(error, navigate)) {
+          const message = error?.response?.data?.message || error.message || "Une erreur est survenue";
+          toast.error(message);
+        }
       },
       onSuccess: () => {
         useQ.invalidateQueries({ queryKey: ["depenses"] });
@@ -211,6 +264,8 @@ export function useDeleteDepense() {
 // Inventaire
 
 export function useFetchEntre(slug: string) {
+  const navigate = useNavigate();
+  
   const [unEntre, setUnEntre] = useState<EntreType>({
       libelle: '',
       user_id: '',
@@ -220,18 +275,25 @@ export function useFetchEntre(slug: string) {
       categorie_slug: '',
     });
 
-  const { data: us, isLoading, isError } = useQuery({
+  const { data: us, isLoading, isError, error } = useQuery({
     queryKey: ["entreRecup", slug],
     queryFn: () =>
       entrerService.getEntre(slug).then((res) => {
         if (res.data.etat === true) {
           return res.data.donnee;
         } else {
-          // throw new Error("Les identifiants sont incorrects");
           toast.error(res.data.message);
+          throw new Error(res.data.message);
         }
       }),
   });
+
+  // Gestion des erreurs d'auth
+  useEffect(() => {
+    if (error && (error as any)?.response?.status === 401) {
+      handleAuthError(error, navigate);
+    }
+  }, [error, navigate]);
 
   useEffect(() => {
     if (us) {
@@ -243,20 +305,29 @@ export function useFetchEntre(slug: string) {
 }
  
 export function useFetchAllEntre(slug: TypeSlug) {
+  const navigate = useNavigate();
+  
   const [entres, setEntre] = useState<RecupType[]>([]);
 
-  const {data: us, isLoading, isError} = useQuery({
+  const {data: us, isLoading, isError, error} = useQuery({
     queryKey: ["entre", slug],
     queryFn: () =>
       entrerService.allEntre(slug).then((res) => {
         if (res.data.etat === true) {
           return res.data.donnee;
         } else {
-          // toast.error("Les identifiants sont incorrects");
           toast.error(res.data.message);
+          throw new Error(res.data.message);
         }
       }),
   });
+
+  // Gestion des erreurs d'auth
+  useEffect(() => {
+    if (error && (error as any)?.response?.status === 401) {
+      handleAuthError(error, navigate);
+    }
+  }, [error, navigate]);
 
   useEffect(() => {
       if (us) {
@@ -269,20 +340,29 @@ export function useFetchAllEntre(slug: TypeSlug) {
 
 // Pour recuperertous les entrers d'une Entreprise
 export function useGetAllEntre(slug: string) {
+  const navigate = useNavigate();
+  
   const [entresEntreprise, setEntre] = useState<RecupType[]>([]);
 
-  const {data: us, isLoading, isError, refetch} = useQuery({
+  const {data: us, isLoading, isError, error, refetch} = useQuery({
     queryKey: ["entre", slug],
     queryFn: () =>
       entrerService.getAllEntre(slug).then((res) => {
         if (res.data.etat === true) {
           return res.data.donnee;
         } else {
-          // toast.error("Les identifiants sont incorrects");
           toast.error(res.data.message);
+          throw new Error(res.data.message);
         }
       }),
   });
+
+  // Gestion des erreurs d'auth
+  useEffect(() => {
+    if (error && (error as any)?.response?.status === 401) {
+      handleAuthError(error, navigate);
+    }
+  }, [error, navigate]);
 
   useEffect(() => {
       if (us) {
@@ -294,7 +374,7 @@ export function useGetAllEntre(slug: string) {
 }
 
 export function useCreateEntre() {
-
+  const navigate = useNavigate();
   const useQ = useQueryClient();
   
   const ajout = useMutation({
@@ -308,13 +388,14 @@ export function useCreateEntre() {
         } else {
           useQ.invalidateQueries({ queryKey: ["entre"] });
           toast.success("C'est ajouter avec succès");
-          // navigate('/')
         }
     })
     },
     onError: (error: any) => {
-      const message = error?.response?.data?.message || error.message || "Une erreur est survenue";
-      toast.error(message);
+      if (!handleAuthError(error, navigate)) {
+        const message = error?.response?.data?.message || error.message || "Une erreur est survenue";
+        toast.error(message);
+      }
     },
   });
 
@@ -337,7 +418,6 @@ export function useUpdateEntre() {
           if (res.data.etat === true) {
             toast.success("Modification reuissi");
             useQ.invalidateQueries({ queryKey: ["entre"] });
-            // navigate("/admin/formation/index")
             navigate(-1);
           } else {
             toast.error(res.data.message);
@@ -346,7 +426,9 @@ export function useUpdateEntre() {
         .catch((err) => console.log(err));
     },
     onError: (error) => {
-      foncError(error);
+      if (!handleAuthError(error, navigate)) {
+        foncError(error);
+      }
     },
   });
 
@@ -375,8 +457,10 @@ export function useDeleteEntre() {
       });
     },
     onError: (error: any) => {
-      const message = error?.response?.data?.message || error.message || "Une erreur est survenue";
-      toast.error(message);
+      if (!handleAuthError(error, navigate)) {
+        const message = error?.response?.data?.message || error.message || "Une erreur est survenue";
+        toast.error(message);
+      }
     },
   });
 
@@ -390,6 +474,8 @@ export function useDeleteEntre() {
 // SORTIE
 
 export function useFetchSortie(slug: string) {
+  const navigate = useNavigate();
+  
   const [unSortie, setUnSortie] = useState<SortieType>({
       user_id: '',
       pu: 0,
@@ -398,18 +484,25 @@ export function useFetchSortie(slug: string) {
       
     });
 
-  const { data: us, isLoading, isError } = useQuery({
+  const { data: us, isLoading, isError, error } = useQuery({
     queryKey: ["sortieRecup", slug],
     queryFn: () =>
       sortieService.getSortie(slug).then((res) => {
         if (res.data.etat === true) {
           return res.data.donnee;
         } else {
-          // throw new Error("Les identifiants sont incorrects");
           toast.error(res.data.message);
+          throw new Error(res.data.message);
         }
       }),
   });
+
+  // Gestion des erreurs d'auth
+  useEffect(() => {
+    if (error && (error as any)?.response?.status === 401) {
+      handleAuthError(error, navigate);
+    }
+  }, [error, navigate]);
 
   useEffect(() => {
     if (us) {
@@ -421,20 +514,29 @@ export function useFetchSortie(slug: string) {
 }
 
 export function useFetchAllSortie(slug: DataSlugType) {
+  const navigate = useNavigate();
+  
   const [sorties, setSortie] = useState<RecupType[]>([]);
 
-  const {data: us, isLoading, isError} = useQuery({
+  const {data: us, isLoading, isError, error} = useQuery({
     queryKey: ["sortie", slug],
     queryFn: () =>
       sortieService.allSortie(slug).then((res) => {
         if (res.data.etat === true) {
           return res.data.donnee;
         } else {
-          // toast.error("Les identifiants sont incorrects");
           toast.error(res.data.message);
+          throw new Error(res.data.message);
         }
       }),
   });
+
+  // Gestion des erreurs d'auth
+  useEffect(() => {
+    if (error && (error as any)?.response?.status === 401) {
+      handleAuthError(error, navigate);
+    }
+  }, [error, navigate]);
 
   useEffect(() => {
       if (us) {
@@ -447,20 +549,29 @@ export function useFetchAllSortie(slug: DataSlugType) {
 
 
 export function useGetAllSortie(slug: string) {
+  const navigate = useNavigate();
+  
   const [sortiesEntreprise, setSortie] = useState<RecupType[]>([]);
 
-  const {data: us, isLoading, isError} = useQuery({
+  const {data: us, isLoading, isError, error} = useQuery({
     queryKey: ["sortie", slug],
     queryFn: () =>
       sortieService.getAllSortie(slug).then((res) => {
         if (res.data.etat === true) {
           return res.data.donnee;
         } else {
-          // toast.error("Les identifiants sont incorrects");
           toast.error(res.data.message);
+          throw new Error(res.data.message);
         }
       }),
   });
+
+  // Gestion des erreurs d'auth
+  useEffect(() => {
+    if (error && (error as any)?.response?.status === 401) {
+      handleAuthError(error, navigate);
+    }
+  }, [error, navigate]);
 
   useEffect(() => {
       if (us) {
@@ -472,7 +583,7 @@ export function useGetAllSortie(slug: string) {
 }
 
 export function useCreateSortie() {
-
+  const navigate = useNavigate();
   const useQ = useQueryClient();
   
   const ajout = useMutation({
@@ -486,13 +597,14 @@ export function useCreateSortie() {
         } else {
           useQ.invalidateQueries({ queryKey: ["sortie"] });
           toast.success("C'est ajouter avec succès");
-          // navigate('/')
         }
     })
     },
     onError: (error: any) => {
-      const message = error?.response?.data?.message || error.message || "Une erreur est survenue";
-      toast.error(message);
+      if (!handleAuthError(error, navigate)) {
+        const message = error?.response?.data?.message || error.message || "Une erreur est survenue";
+        toast.error(message);
+      }
     },
   });
 
@@ -504,7 +616,7 @@ export function useCreateSortie() {
 }
 
 export function useUpdateSortie() {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const useQ = useQueryClient();
 
   const modif = useMutation({
@@ -515,8 +627,6 @@ export function useUpdateSortie() {
           if (res.data.etat === true) {
             toast.success("Remise effectuer");
             useQ.invalidateQueries({ queryKey: ["sortie"] });
-            // navigate("/admin/formation/index")
-            // navigate(-1);
           } else {
             toast.error(res.data.message);
           }
@@ -524,7 +634,9 @@ export function useUpdateSortie() {
         .catch((err) => console.log(err));
     },
     onError: (error) => {
-      foncError(error);
+      if (!handleAuthError(error, navigate)) {
+        foncError(error);
+      }
     },
   });
 
@@ -536,7 +648,7 @@ export function useUpdateSortie() {
 }
 
 export function useUpdateRemiseSortie() {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const useQ = useQueryClient();
 
   const modif = useMutation({
@@ -547,8 +659,6 @@ export function useUpdateRemiseSortie() {
           if (res.data.etat === true) {
             toast.success("Remise annuler");
             useQ.invalidateQueries({ queryKey: ["sortie"] });
-            // navigate("/admin/formation/index")
-            // navigate(-1);
           } else {
             toast.error(res.data.message);
           }
@@ -556,7 +666,9 @@ export function useUpdateRemiseSortie() {
         .catch((err) => console.log(err));
     },
     onError: (error) => {
-      foncError(error);
+      if (!handleAuthError(error, navigate)) {
+        foncError(error);
+      }
     },
   });
 
@@ -580,7 +692,9 @@ export function useDeleteSortie() {
       });
     },
     onError: (error: any) => {
-      foncError(error)
+      if (!handleAuthError(error, navigate)) {
+        foncError(error)
+      }
     },
     onSuccess: () => {
       useQ.invalidateQueries({ queryKey: ["sortie"] });

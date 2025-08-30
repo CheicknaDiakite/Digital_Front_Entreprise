@@ -12,6 +12,18 @@ import { entrepriseService } from "../_services/entreprise.service";
 import { EntrepriseType, HistoriqueType } from "../typescript/Account";
 import { FormClienType } from "../typescript/ClienType";
 
+// Fonction utilitaire pour gérer les erreurs d'authentification
+const handleAuthError = (error: any, navigate: any) => {
+  if (error?.response?.status === 401) {
+    // Token expiré et refresh échoué
+    accountService.logout();
+    navigate('/login');
+    toast.error("Session expirée. Veuillez vous reconnecter.");
+    return true;
+  }
+  return false;
+};
+
 // Avis
 
 export function useAddAvis() {
@@ -99,7 +111,7 @@ export function useDeleteAvis() {
 }
 
 // Pour l'utilisateur
-export function useFetchUser(slug: string) {
+export function useFetchUser() {
   
     const [unUser, setUnUser] = useState<UtilisateurType>({
       avatar:'',
@@ -114,9 +126,9 @@ export function useFetchUser(slug: string) {
     });
   
     const { data: us, isLoading, isError } = useQuery({
-      queryKey: ["User", slug],
+      queryKey: ["User",],
       queryFn: () =>
-        userService.userUnGet(slug).then((res) => {
+        userService.userUnGet().then((res) => {
           if (res.data.etat === true) {
             return res.data.donnee as UnUserType;
           } else {
@@ -171,6 +183,7 @@ export function useFetchUnUser(slug: string) {
 
   
 export function useFetchAllUsers(slug: TypeSlug) {
+  
     const [getUser, setUser] = useState<UtilisateurType[]>([]);
 
     const {data: us, isLoading, isError} = useQuery({
@@ -358,14 +371,12 @@ export function useLoginUser() {
     const connexion = useMutation({
         mutationFn: (post: FormType) => {
           return userService.userLogin(post)
-          .then((res) => {
-            
+          .then((res) => {            
             if (res.data.etat===false) {
               if(res.data.message !== "requette invalide"){
                 toast.error(res.data.message);
               }
-            } else {
-              
+            } else {                     
               accountService.saveToken(res.data.id!, res.data.access)
               navigate('/')
               toast.success("Connexion réussie");
