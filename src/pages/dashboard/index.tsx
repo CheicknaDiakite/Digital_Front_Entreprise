@@ -16,7 +16,6 @@ import { FC, useState } from 'react';
 import { useFetchEntreprise, useFetchUser, useStockSemaine, useAllClients, useStockEntreprise } from '../../usePerso/fonction.user';
 import { useGetSumDepense } from '../../usePerso/fonction.entre';
 import { formatNumberWithSpaces } from '../../usePerso/fonctionPerso';
-import { connect } from '../../_services/account.service';
 import { useStoreUuid } from '../../usePerso/store';
 import { format } from 'date-fns';
 import SimpleCharts from '../../_components/Chart/Chart_1';

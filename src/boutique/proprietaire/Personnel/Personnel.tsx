@@ -25,7 +25,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import { FormValueType } from "../../../typescript/FormType";
 // import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useCreateAdminUser, useFetchAllUsers, useFetchEntreprise } from "../../../usePerso/fonction.user";
-import { connect } from "../../../_services/account.service";
 import Nav from "../../../_components/Button/Nav";
 import MyTextField from "../../../_components/Input/MyTextField";
 import { useStoreUuid } from "../../../usePerso/store";
@@ -259,7 +258,7 @@ export default function Personnel() {
                                       label={
                                         post.role === 1 ? "Admin" :
                                         post.role === 2 ? "Superviseur" :
-                                        post.role === 3 ? "Caissier(e)" : "Visiteur"
+                                        post.role === 3 ? "Caissier(e)" : "Pas de rôle"
                                       }
                                       variant="outlined"
                                       color={post.role === 1 ? "primary" : post.role === 2 ? "primary" : "info"}
