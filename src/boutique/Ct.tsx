@@ -6,7 +6,7 @@ interface PricingTier {
   id: string;
   href: string;
   priceMonthly: string;
-  price: string;
+  price?: string;
   description: string;
   features: string[];
   featured: boolean;
@@ -18,7 +18,7 @@ const pricingTiers: PricingTier[] = [
     id: 'tier-quarterly',
     href: '#',
     priceMonthly: '20 000 f',
-    price: '25 000 f',
+    // price: '25 000 f',
     description: "Le plan parfait si vous venez de commencer avec notre produit.",
     features: [
       'Suivis des stocks',
