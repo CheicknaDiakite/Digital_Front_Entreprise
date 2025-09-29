@@ -82,6 +82,8 @@ export default function ModifEntreprise() {
     }
   };
 
+  if (!unEntreprise) return null;
+
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     updateEntreprise({ ...unEntreprise, user_id: connect, image });
@@ -117,10 +119,8 @@ export default function ModifEntreprise() {
     );
   }
 
-  if (!unEntreprise) return null;
-
   const url = unEntreprise.image ? BASE(unEntreprise.image) : img;
-
+  
   return (
     <div className={`max-w-4xl mx-auto p-4 ${isMobile ? 'mobile-modif-container' : ''}`}>
       <div className={`mb-6 flex items-center justify-between ${isMobile ? 'mobile-modif-header' : ''}`}>

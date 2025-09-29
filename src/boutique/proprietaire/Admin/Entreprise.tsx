@@ -59,7 +59,7 @@ interface LicenceTagProps {
   children: ReactNode;
 }
 
-const LicenceTag: FC<LicenceTagProps> = ({ type, children }) => (
+export const LicenceTag: FC<LicenceTagProps> = ({ type, children }) => (
   <span
     className={clsx(
       "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset",
@@ -221,7 +221,7 @@ export default function Entreprise() {
 
     const {userEntreprises, isLoading, isError} = useGetUserEntreprises()
     
-    const {unUser} = useFetchUser(connect)
+    const {unUser} = useFetchUser()
     const {ajoutEntreprise} = useCreateEntreprise()
     // const options = countryList().getData();
 
@@ -330,52 +330,67 @@ export default function Entreprise() {
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-        {userEntreprises?.map((post: any, index) => {
-          // let url = BASE(post.image);
-          let url = post.image ? BASE(post.image) : backgroundImage;
-          return (
-            <div key={index} className="group">
-              <Link
-                to={`/entreprise`}
-                onClick={() => addId(post.uuid)}
-                className="block h-full"
-                style={{
-                  textDecoration: 'none',
-                  color: 'inherit',
-                }}
-              >
-                <IconsGrid
-                  icon={<EntrepriseIcon fontSize="small" className="text-blue-500" />}
-                  image={url}
-                  title={post.nom}
-                  description={
-                    post.licence_active && (
-                      <div className="space-y-3">
-                        <p className="text-gray-700 font-medium">Cette entreprise est activée et possède une licence</p>
-                        <div className="flex flex-col items-center gap-2">
-                          <LicenceTag type={post.licence_type}>
-                            {post.licence_type}
-                          </LicenceTag>
-                          <p className="text-gray-600 text-sm">jusqu'au</p>
-                          <LicenceTag type={post.licence_type}>
-                            {post.licence_date_expiration}
-                          </LicenceTag>
-                        </div>
+        
+      {userEntreprises?.map((post: any, index) => {
+        let url = post.image ? BASE(post.image) : backgroundImage;
+        const expired = isLicenceExpired(post.licence_date_expiration);
+
+        return (
+          <div
+            key={index}
+            className={`group relative transition-all duration-300 ${
+              expired ? 'opacity-60 grayscale' : ''
+            }`}
+          >
+            {/* Badge Expirée */}
+            {expired && (
+              <div className="absolute top-2 left-2 z-10 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded shadow-lg">
+                Licence expirée
+              </div>
+            )}
+            <Link
+              to={`/entreprise`}
+              onClick={() => addId(post.uuid)}
+              className="block h-full"
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+                pointerEvents: 'auto', // désactive le lien si expiré
+              }}
+              tabIndex={expired ? -1 : 0}
+              aria-disabled={expired}
+            >
+              <IconsGrid
+                icon={<EntrepriseIcon fontSize="small" className="text-blue-500" />}
+                image={url}
+                title={post.nom}
+                description={
+                  post.licence_active && (
+                    <div className="space-y-3">
+                      <p className="text-gray-700 font-medium">
+                        {expired
+                          ? "Cette entreprise n'a plus de licence active"
+                          : "Cette entreprise est activée et possède une licence"}
+                      </p>
+                      <div className="flex flex-col items-center gap-2">
+                        <LicenceTag type={post.licence_type}>
+                          {post.licence_type}
+                        </LicenceTag>
+                        <p className="text-gray-600 text-sm">jusqu'au</p>
+                        <LicenceTag type={post.licence_type}>
+                          {post.licence_date_expiration}
+                        </LicenceTag>
                       </div>
-                    )
-                  }
-                />
-              </Link>
-              {isLicenceExpired(post.licence_date_expiration) && (
-                <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <Typography variant="body2" color="error" className="text-center font-medium">
-                    ⚠️ L'abonnement de cette entreprise a expiré !
-                  </Typography>
-                </div>
-              )}
-            </div>
-          );
-        })}
+                    </div>
+                  )
+                }
+              />
+            </Link>
+            
+          </div>
+        );
+      })}
+
       </div>
     
       <EntrepriseDialog

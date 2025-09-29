@@ -62,7 +62,7 @@ const allUserEntreprise = async (post: string) => {
 const getEntreprise = async (slug: string) => {
     
     try {
-        const response = await Axios.get(`entreprise/un/${slug}`,
+        const response = await Axios.get(`entreprise/get/${slug}`,
             { withCredentials: true });
            
         return response;

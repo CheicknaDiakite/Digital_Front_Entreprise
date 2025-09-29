@@ -8,7 +8,7 @@ import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import ImageIcon from '@mui/icons-material/Image';
 // project import
-import { Alert, Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Paper, Skeleton, TextField, Tooltip, Fade, alpha, useTheme, useMediaQuery } from '@mui/material';
+import { Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Paper, Skeleton, TextField, Tooltip, Fade, alpha, useTheme, useMediaQuery } from '@mui/material';
 import { ChangeEvent, useState } from 'react';
 import { connect } from '../../_services/account.service';
 import { Link } from 'react-router-dom';
@@ -114,7 +114,6 @@ export default function ComponentShadow() {
   const uuid = useStoreUuid((state) => state.selectedId);
 
   const { unEntreprise } = useFetchEntreprise(uuid);
-  
   const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm<CategorieFormType>();
 
 

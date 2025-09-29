@@ -25,7 +25,7 @@ export default function ModifEntre() {
   const entreprise_id = useStoreUuid((state) => state.selectedId)
 
   const {unEntre, setUnEntre} = useFetchEntre(uuid!)
-  const {unUser} = useFetchUser(connect)
+  const {unUser} = useFetchUser()
   const {updateEntre} = useUpdateEntre()
   const {deleteEntre} = useDeleteEntre()
 

@@ -82,7 +82,7 @@ function ChildModal() {
 export default function Sortie() {
   
   const entreprise_uuid = useStoreUuid((state) => state.selectedId)
-  const {unUser} = useFetchUser(connect)
+  const {unUser} = useFetchUser()
   const [isMobile, setIsMobile] = useState(false);
   
   const [showInvoice, setShowInvoice] = useState(false); // État pour afficher ou masquer la section de facture

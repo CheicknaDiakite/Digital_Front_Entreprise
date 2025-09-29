@@ -8,7 +8,7 @@ import {
   Typography,
   Button
 } from '@mui/material';
-import { useStockEntreprise } from '../../../../../usePerso/fonction.user';
+import { useFetchEntreprise, useStockEntreprise } from '../../../../../usePerso/fonction.user';
 import { useStoreUuid } from '../../../../../usePerso/store';
 import { Link } from 'react-router-dom';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -17,20 +17,28 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import { useState, useEffect } from 'react';
 import '../../mobile-admin.css';
+import { LicenceTag } from '../../Entreprise';
+
+// Ajoute ta fonction utilitaire si besoin
+function isLicenceExpired(dateStr: string) {
+  if (!dateStr) return false;
+  const today = new Date();
+  const exp = new Date(dateStr);
+  return exp < today;
+}
 
 export default function EtatProduit() {
   const uuid = useStoreUuid((state) => state.selectedId);
   const { stockEntreprise, isLoading, isError } = useStockEntreprise(uuid || '');
+  const { unEntreprise } = useFetchEntreprise(uuid);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768);
     };
-    
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
@@ -58,7 +66,9 @@ export default function EtatProduit() {
     );
   }
 
-  if (!stockEntreprise) return null;
+  if (!stockEntreprise || !unEntreprise) return null;
+
+  const licenceExpiree = isLicenceExpired(unEntreprise.licence_date_expiration);
 
   const stats = [
     {
@@ -101,6 +111,21 @@ export default function EtatProduit() {
 
   return (
     <Container maxWidth="lg" className={`py-8 ${isMobile ? 'mobile-stats-container' : ''}`}>
+      <div className="flex flex-col items-center gap-2 mb-4">
+        <LicenceTag type={unEntreprise.licence_type}>
+          Licence {unEntreprise.licence_type}
+        </LicenceTag>
+        <p className="text-gray-600 text-sm">jusqu'au</p>
+        <LicenceTag type={unEntreprise.licence_type}>
+          {unEntreprise.licence_date_expiration}
+        </LicenceTag>
+        {licenceExpiree && (
+          <span className="inline-block bg-red-600 text-white text-xs font-bold px-3 py-1 rounded shadow mt-2">
+            Licence expirée
+          </span>
+        )}
+      </div>
+
       <div className={`mb-6 ${isMobile ? 'mobile-animate-in' : ''}`}>
         <Typography variant="h4" className={`font-semibold text-gray-900 mb-2 ${isMobile ? 'mobile-stats-title' : ''}`}>
           Statistiques de l'entreprise
@@ -113,9 +138,9 @@ export default function EtatProduit() {
       <Grid container spacing={3} className={isMobile ? 'mobile-stats-grid' : ''}>
         {stats.map((stat, index) => {
           const StatContent = () => (
-            <Paper 
-              elevation={0} 
-              className={`border rounded-lg overflow-hidden h-full transition-all duration-200 hover:shadow-md bg-gradient-to-br ${stat.bgClass} ${isMobile ? 'mobile-stat-card' : ''}`}
+            <Paper
+              elevation={0}
+              className={`border rounded-lg overflow-hidden h-full transition-all duration-200 hover:shadow-md bg-gradient-to-br ${stat.bgClass} ${isMobile ? 'mobile-stat-card' : ''} ${licenceExpiree ? 'opacity-60 grayscale' : ''}`}
             >
               <Box className={`p-6 ${isMobile ? 'mobile-responsive-stack' : ''}`}>
                 <div className={`flex items-center justify-between mb-4 ${isMobile ? 'mobile-stat-header' : ''}`}>
@@ -135,7 +160,7 @@ export default function EtatProduit() {
 
           return (
             <Grid item xs={12} sm={6} md={3} key={index} className={isMobile ? 'mobile-animate-in' : ''}>
-              {stat.link ? (
+              {stat.link && !licenceExpiree ? (
                 <Link to={stat.link} className="block h-full no-underline">
                   <StatContent />
                 </Link>

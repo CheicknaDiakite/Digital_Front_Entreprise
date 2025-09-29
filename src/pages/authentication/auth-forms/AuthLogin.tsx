@@ -208,6 +208,7 @@ const AuthLogin: FC = () => {
                 >
                   Inscription !
                 </Typography>
+
                 <Button variant="text" size="small" color='error' sx={{ textTransform: 'none' }} component={Link} to="/auth/mot_de_passe_oublier">
                   Mot de passe oublié ?
                 </Button>

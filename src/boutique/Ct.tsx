@@ -68,9 +68,11 @@ const PricingCard: React.FC<{ tier: PricingTier }> = ({ tier }) => (
       {tier.name}
     </h3>
 
-    <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-700/10 line-through">
-      {tier.price}
-    </span>
+      {tier.price && 
+        <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-700/10 line-through">
+          {tier.price}
+        </span>
+      }
 
     <p className="mt-4 flex items-baseline gap-x-2">
       <span

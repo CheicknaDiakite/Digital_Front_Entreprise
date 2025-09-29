@@ -14,6 +14,7 @@ import QrCode2Icon from '@mui/icons-material/QrCode2';
 import { ChangeEvent, useEffect, useState } from 'react';
 import CloseIcon from "@mui/icons-material/Close"
 import BarcodeScanner from '../../_components/Input/BarcodeScanner';
+import M_Abonnement from '../../_components/Card/M_Abonnement';
 
 export default function TableSortie({
   ent,
@@ -209,9 +210,7 @@ export default function TableSortie({
         </div>
 
         {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
-          <Typography variant="h5" color="error" sx={{ mt: 1 }}>
-            L'abonnement de cet Entreprise a expiré !
-          </Typography>
+          <M_Abonnement />
         ) : (
           <button
             type="submit"
