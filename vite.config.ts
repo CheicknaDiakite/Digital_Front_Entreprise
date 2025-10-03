@@ -1,15 +1,23 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import {VitePWA} from "vite-plugin-pwa";
-import { visualizer } from 'rollup-plugin-visualizer';
-import viteCompression from 'vite-plugin-compression';
+import { VitePWA } from 'vite-plugin-pwa';
 import { imagetools } from 'vite-imagetools';
+import viteCompression from 'vite-plugin-compression';
 
-// https://vitejs.dev/config/
 export default defineConfig({
     plugins: [react(), VitePWA({
         registerType: "autoUpdate",
-        includeAssets: ['favicon.svg', 'icon-192x192.png', 'icon-512x512.png', 'C_D.ico', 'offline.html'],
+        includeAssets: [
+            'favicon.svg', 
+            'icon-192x192.png', 
+            'icon-512x512.png', 
+            'icon-180x180.png',
+            'icon-167x167.png',
+            'icon-152x152.png',
+            'icon-120x120.png',
+            'C_D.ico', 
+            'offline.html'
+        ],
         manifest: {
             name: 'Gest Stocks',
             short_name: 'Gest Stocks',
@@ -37,30 +45,18 @@ export default defineConfig({
                 purpose: 'maskable'
               },
               // Icônes spécifiques pour iOS
-              // {
-              //   src: '/icon-180x180.png',
-              //   sizes: '180x180',
-              //   type: 'image/png',
-              //   purpose: 'any'
-              // },
-              // {
-              //   src: '/icon-167x167.png',
-              //   sizes: '167x167',
-              //   type: 'image/png',
-              //   purpose: 'any'
-              // },
-              // {
-              //   src: '/icon-152x152.png',
-              //   sizes: '152x152',
-              //   type: 'image/png',
-              //   purpose: 'any'
-              // },
-              // {
-              //   src: '/icon-120x120.png',
-              //   sizes: '120x120',
-              //   type: 'image/png',
-              //   purpose: 'any'
-              // }
+              {
+                src: '/icon-32x32.png',
+                sizes: '32x32',
+                type: 'image/png',
+                purpose: 'any'
+              },
+              {
+                src: '/icon-16x16.png',
+                sizes: '16x16',
+                type: 'image/png',
+                purpose: 'any'
+              }
             ],
             screenshots: [
               {
@@ -73,7 +69,7 @@ export default defineConfig({
           },
         workbox: {
             globPatterns: ['**/*{js,css,html,ico,png,svg}'],
-            maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB par exemple
+            maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
             navigateFallback: '/offline.html',
             runtimeCaching: [
                 {
@@ -97,7 +93,7 @@ export default defineConfig({
                         cacheName: 'images',
                         expiration: {
                             maxEntries: 60,
-                            maxAgeSeconds: 30 * 24 * 60 * 60, // 30 jours
+                            maxAgeSeconds: 30 * 24 * 60 * 60,
                         },
                     },
                 }
@@ -122,10 +118,9 @@ export default defineConfig({
         deleteOriginFile: false
     })],
     build: {
-        target: 'esnext', // Pour utiliser les fonctionnalités modernes
+        target: 'esnext',
         rollupOptions: {
             external: ['workbox-window'],
         },
     },
-    // base: '/monapp/', // Base de ton application dans le sous-dossier
 });

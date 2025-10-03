@@ -1,7 +1,6 @@
 import { Autocomplete, Box, Button, Checkbox, FormControlLabel, Stack, TextField, Typography } from "@mui/material";
 import MyTextField from "../_components/Input/MyTextField";
 import { useFetchAllSousCate } from "./fonction.categorie";
-import { connect } from "../_services/account.service";
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import QuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
 import { useState } from "react";
@@ -41,7 +40,7 @@ export function AjoutEntreForm({
   }: any) {
     const uuid = useStoreUuid((state) => state.selectedId)
     const {souscategories} = useFetchAllSousCate(uuid!)
-    const {unUser} = useFetchUser(connect)
+    const {unUser} = useFetchUser()
     const { getClients } = useAllClients(uuid!);
     const fournisseurs = getClients.filter(info => info.role == 2 || info.role == 3);
    

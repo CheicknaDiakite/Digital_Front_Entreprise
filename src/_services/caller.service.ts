@@ -6,7 +6,7 @@ import axios, { AxiosInstance } from "axios";
 // https://back.gest-stocks.com
 
 const BaseDomaine = {
-    URL: 'https://backend.diakitedigital.com'
+    URL: 'https://back.gest-stocks.com'
 }
 
 export const Base = {

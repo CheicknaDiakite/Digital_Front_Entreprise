@@ -64,8 +64,8 @@ export const LicenceTag: FC<LicenceTagProps> = ({ type, children }) => (
     className={clsx(
       "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset",
       {
-        "bg-red-50 text-red-700 ring-red-700/10": type === "Free",
-        "bg-yellow-50 text-yellow-700 ring-yellow-700/10": type === "Basic",
+        "bg-red-50 text-red-700 ring-red-700/10": type === "Essai",
+        "bg-yellow-50 text-yellow-700 ring-yellow-700/10": type === "Standard",
         "bg-green-50 text-green-700 ring-green-700/10": type === "Premium",
       }
     )}
