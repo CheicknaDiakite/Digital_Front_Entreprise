@@ -18,6 +18,7 @@ import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import { useState, useEffect } from 'react';
 import '../../mobile-admin.css';
 import { LicenceTag } from '../../Entreprise';
+import { getLicenceDuration } from '../../../../../usePerso/fonctionPerso';
 
 // Ajoute ta fonction utilitaire si besoin
 function isLicenceExpired(dateStr: string) {
@@ -26,6 +27,7 @@ function isLicenceExpired(dateStr: string) {
   const exp = new Date(dateStr);
   return exp < today;
 }
+
 
 export default function EtatProduit() {
   const uuid = useStoreUuid((state) => state.selectedId);
@@ -113,12 +115,11 @@ export default function EtatProduit() {
     <Container maxWidth="lg" className={`py-8 ${isMobile ? 'mobile-stats-container' : ''}`}>
       <div className="flex flex-col items-center gap-2 mb-4">
         <LicenceTag type={unEntreprise.licence_type}>
-          Licence {unEntreprise.licence_type}
+          Licence {unEntreprise.licence_type} {getLicenceDuration(unEntreprise.licence_date_expiration)}
         </LicenceTag>
-        <p className="text-gray-600 text-sm">jusqu'au</p>
-        <LicenceTag type={unEntreprise.licence_type}>
-          {unEntreprise.licence_date_expiration}
-        </LicenceTag>
+        {/* <p className="text-gray-600 text-sm">
+          {getLicenceDuration(unEntreprise.licence_date_expiration)}
+        </p> */}
         {licenceExpiree && (
           <span className="inline-block bg-red-600 text-white text-xs font-bold px-3 py-1 rounded shadow mt-2">
             Licence expirée

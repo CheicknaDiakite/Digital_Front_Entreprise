@@ -8,7 +8,7 @@ import { connect } from '../../../_services/account.service';
 import EntrepriseIcon from '@mui/icons-material/ProductionQuantityLimits';
 import { Link } from 'react-router-dom';
 import { useCreateEntreprise, useFetchUser, useGetUserEntreprises } from '../../../usePerso/fonction.user';
-import { isLicenceExpired } from '../../../usePerso/fonctionPerso';
+import { getLicenceDuration, isLicenceExpired } from '../../../usePerso/fonctionPerso';
 import { BASE } from '../../../_services/caller.service';
 import MyTextField from '../../../_components/Input/MyTextField';
 // import countryList from 'react-select-country-list';
@@ -334,7 +334,7 @@ export default function Entreprise() {
       {userEntreprises?.map((post: any, index) => {
         let url = post.image ? BASE(post.image) : backgroundImage;
         const expired = isLicenceExpired(post.licence_date_expiration);
-
+        const validDate = post.licence_date_expiration ?? new Date();
         return (
           <div
             key={index}
@@ -374,12 +374,13 @@ export default function Entreprise() {
                       </p>
                       <div className="flex flex-col items-center gap-2">
                         <LicenceTag type={post.licence_type}>
-                          {post.licence_type}
+                          {post.licence_type} {getLicenceDuration(validDate)}
                         </LicenceTag>
-                        <p className="text-gray-600 text-sm">jusqu'au</p>
+                        {/* <p className="text-gray-600 text-sm">jusqu'au</p>
                         <LicenceTag type={post.licence_type}>
-                          {post.licence_date_expiration}
-                        </LicenceTag>
+                          {format(new Date(validDate), 'dd/MM/yyyy')}
+                          
+                        </LicenceTag> */}
                       </div>
                     </div>
                   )

@@ -5,7 +5,6 @@ import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 
 export default function CardInfo({row}: any) {
   const validDate = row.date ?? new Date();
-  // console.log("rr ..", row.date)
   const price = priceRow(row.qte, row.pu);
     return (
         <TableRow>
@@ -16,10 +15,12 @@ export default function CardInfo({row}: any) {
             <TableCell>            
               {row.client}           
             </TableCell>
-            <TableCell>            
-              <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
-                {row.libelle}
-              </span>           
+            <TableCell> 
+              {row.libelle &&               
+                <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                  {row.libelle}
+                </span>           
+              }           
              </TableCell>
             <TableCell align="right">{row.qte}</TableCell>
             <TableCell align="right">{formatNumberWithSpaces(row.pu)}</TableCell>

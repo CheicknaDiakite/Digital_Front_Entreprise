@@ -30,6 +30,24 @@ export const isLicenceExpired = (expirationDate: string): boolean => {
   return currentDate > licenceExpirationDate;
 };
 
+export function getLicenceDuration(dateStr: string) {
+  if (!dateStr) return '';
+  const now = new Date();
+  const exp = new Date(dateStr);
+  const diffMs = exp.getTime() - now.getTime();
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 30) {
+    return `${diffDays} jour${diffDays > 1 ? 's' : ''}`;
+  } else if (diffDays < 365) {
+    const months = Math.round(diffDays / 30);
+    return `${months} mois`;
+  } else {
+    const years = Math.round(diffDays / 365);
+    return `${years} an${years > 1 ? 's' : ''}`;
+  }
+}
+
 export function isRecupType(value: unknown): value is RecupType {
     return typeof value === 'object' && value !== null && 'all' in value && typeof (value as RecupType).all === 'string';
   }

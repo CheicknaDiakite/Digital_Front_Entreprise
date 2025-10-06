@@ -167,6 +167,7 @@ export default function Entre() {
     formValues["is_sortie"] = is_sortie;
     formValues["is_prix"] = is_prix;
     formValues["user_id"] = connect;
+    console.log(" test ..",formValues);
     ajoutEntre(formValues);
     
     setTerminer(false);

@@ -190,16 +190,21 @@ const NavSide: React.FC = () => {
         background: `linear-gradient(rgba(128, 128, 128, 0.7), rgba(128, 128, 128, 0.7)), url(${logoUrl}) center/cover no-repeat`,
       }}
     >
-      <CardContent className="text-white border border-indigo-600 bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700 flex items-center gap-2 p-2 rounded border-dashed animate-border-rotate">
-        <img
-          src={logoUrl}
-          alt={unEntreprise.nom}
-          className="h-8 w-8 object-contain rounded-full"
-        />
-        <Typography variant="h5">
-          {unEntreprise.nom ? unEntreprise.nom : "Gest Stocks"}
-        </Typography>
-      </CardContent>
+        <CardContent className="text-white border border-indigo-600 bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700 flex items-center gap-2 p-2 rounded border-dashed animate-border-rotate cursor-pointer">
+          
+          <Link to="/">
+            <img
+              src={logoUrl}
+              alt={unEntreprise.nom ? unEntreprise.nom : "Gest_Stocks"}
+              className="h-8 w-8 object-contain rounded-full"
+            />
+          </Link>
+
+          <Typography variant="h5">
+            {unEntreprise.nom ? unEntreprise.nom : "Gest Stocks"}
+          </Typography>
+
+        </CardContent>
 
       <List>
         <NavItem
