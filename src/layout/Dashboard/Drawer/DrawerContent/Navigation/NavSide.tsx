@@ -353,20 +353,20 @@ const NavSide: React.FC = () => {
 
         {(unUser.role === 1 && unUser.is_superuser ) && <>
         
-        <NavItem
-          icon={<UserCircleIcon color="primary" />}
-          label="Les Admin"
-          to="/user/admin"
-          bgColor="text-white bg-blue-900"
-        />
-        
-        <NavItem
-          icon={<UserCircleIcon color="primary" />}
-          label="Les Avis"
-          to="/user/avis"
-          bgColor="text-white bg-blue-900"
-        />
-        </>
+            <NavItem
+              icon={<UserCircleIcon color="primary" />}
+              label="Les Admin"
+              to="/user/admin"
+              bgColor="text-white bg-blue-900"
+            />
+            
+            <NavItem
+              icon={<UserCircleIcon color="primary" />}
+              label="Les Avis"
+              to="/user/avis"
+              bgColor="text-white bg-blue-900"
+            />
+          </>
         }
 
         {(unUser.role === 1 && unUser.is_cabinet ) && <>        

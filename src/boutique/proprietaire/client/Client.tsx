@@ -329,11 +329,11 @@ export default function Client() {
                           </Typography>
                                   <div className="mt-2">
                               <Chip
-                                      label={
-                                        post.role === 1 ? "Client" :
-                                        post.role === 2 ? "Fournisseur" :
-                                        "Client/Fournisseur"
-                                      }
+                                    label={
+                                      post.role === 1 ? "Client" :
+                                      post.role === 2 ? "Fournisseur" :
+                                      "Client/Fournisseur"
+                                    }
                                 variant="outlined"
                                       color={
                                         post.role === 1 ? "primary" :

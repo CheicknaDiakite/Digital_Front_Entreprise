@@ -37,7 +37,9 @@ export function getLicenceDuration(dateStr: string) {
   const diffMs = exp.getTime() - now.getTime();
   const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 
-  if (diffDays < 30) {
+  if (diffDays < 0) {
+    return 'expirée';
+  } else if (diffDays < 30) {
     return `${diffDays} jour${diffDays > 1 ? 's' : ''}`;
   } else if (diffDays < 365) {
     const months = Math.round(diffDays / 30);

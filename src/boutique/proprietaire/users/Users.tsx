@@ -168,7 +168,6 @@ export default function Users() {
     email: "",
     password: "",
   });
-
   const { getUsers, isLoading, isError } = useAllUsers(connect);
   const { createAdmin } = useCreateAdminUser();
   
