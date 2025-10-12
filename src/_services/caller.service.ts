@@ -27,6 +27,7 @@ const Axios: AxiosInstance = axios.create({
 // Injecter automatiquement le token d'accès sur chaque requête
 Axios.interceptors.request.use((config) => {
     const accessToken = localStorage.getItem('token_1'); // access
+    
     if (accessToken) {
         config.headers = config.headers || {};
         (config.headers as any)['Authorization'] = `Bearer ${accessToken}`;
@@ -36,11 +37,13 @@ Axios.interceptors.request.use((config) => {
 
 // Gérer le rafraîchissement du token sur 401
 Axios.interceptors.response.use(
+    
     (response) => response,
     async (error) => {
+         
         const originalRequest = error?.config;
         if (!originalRequest) return Promise.reject(error);
-
+        
         // éviter les boucles infinies
         if (error.response?.status === 401 && !(originalRequest as any)._retry) {
             (originalRequest as any)._retry = true;

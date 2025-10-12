@@ -27,7 +27,6 @@ import Transitions from '../../../../../components/@extended/Transitions';
 import LogoutOutlined from '@ant-design/icons/LogoutOutlined';
 import SettingOutlined from '@ant-design/icons/SettingOutlined';
 import UserOutlined from '@ant-design/icons/UserOutlined';
-import { connect } from '../../../../../_services/account.service';
 import { Alert, Avatar, CircularProgress } from '@mui/material';
 import { useFetchUser } from '../../../../../usePerso/fonction.user';
 import { logout, stringAvatar } from '../../../../../usePerso/fonctionPerso';
@@ -60,26 +59,26 @@ function a11yProps(index : number) {
 
 export default function Profile() {
   const theme = useTheme();
-  const [errorCount, setErrorCount] = useState<number>(() => {
-    const savedCount = localStorage.getItem('errorCount');
-    return savedCount ? parseInt(savedCount, 10) : 0;
-  });
+  // const [errorCount, setErrorCount] = useState<number>(() => {
+  //   const savedCount = localStorage.getItem('errorCount');
+  //   return savedCount ? parseInt(savedCount, 10) : 0;
+  // });
 
-  const {unUser, isLoading, isError} = useFetchUser(connect)
+  const {unUser, isLoading, isError} = useFetchUser()
   
-  useEffect(() => {
-    if (isError) {
-      const newCount = errorCount + 1;
-      setErrorCount(newCount);
-      localStorage.setItem('errorCount', newCount.toString());
-    }
-  }, [isError]);
+  // useEffect(() => {
+  //   if (isError) {
+  //     const newCount = errorCount + 1;
+  //     setErrorCount(newCount);
+  //     localStorage.setItem('errorCount', newCount.toString());
+  //   }
+  // }, [isError]);
 
-  useEffect(() => {
-    if (errorCount >= 2) {
-      logout();
-    }
-  }, [errorCount]);
+  // useEffect(() => {
+  //   if (errorCount >= 2) {
+  //     logout();
+  //   }
+  // }, [errorCount]);
   
   const [value, setValue] = useState(0);
 
@@ -115,9 +114,9 @@ export default function Profile() {
   }
   
   if (isError) {
-    if (errorCount < 2) {
-      window.location.reload();
-    }
+    // if (errorCount < 2) {
+    //   window.location.reload();
+    // }
     return <Alert severity="error">Probleme de connexion !</Alert>
   }
 
