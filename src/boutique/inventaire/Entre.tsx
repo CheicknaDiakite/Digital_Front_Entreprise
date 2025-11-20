@@ -217,18 +217,19 @@ export default function Entre() {
       
       >
         <div className={`${isMobile ? 'px-4' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'}`}>
-          <Nav />
+          {/* <Nav /> */}
 
           <Paper 
             elevation={0} 
-            className={`${isMobile ? 'mobile-header-container' : 'mt-6 rounded-lg overflow-hidden'}`}
-            sx={isMobile ? {
-              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7))',
+            // className={`${isMobile ? 'mobile-header-container' : 'mt-6 rounded-lg overflow-hidden'}`}
+            sx={ {
+              // background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7))',
               backdropFilter: 'blur(10px)',
               border: '1px solid rgba(255, 255, 255, 0.2)',
               borderRadius: '20px',
-              marginTop: '24px'
-            } : {}}
+              marginTop: '24px',
+              bgcolor: 'rgba(255,255,255,0.06)', 
+            } }
           >
             <Box className={`${isMobile ? 'mobile-p-4' : 'p-6'}`}>
               {/* Header */}

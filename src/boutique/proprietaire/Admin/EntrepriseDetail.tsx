@@ -71,15 +71,27 @@ export default function EntrepriseDetail() {
 
   if (unEntreprise) {
     return (
-      <div className={` ${isMobile ? 'mobile-admin-container' : ''}`}>
-        <Nav />
+      <div 
+      // className={` ${isMobile ? 'mobile-admin-container' : ''}`}
+      >
+        {/* <Nav /> */}
         
         <Box 
-          className={`relative ${isMobile ? 'mobile-animate-in' : ''}`}
+          // className={`relative ${isMobile ? 'mobile-animate-in' : ''}`}
           
         >
           <Container maxWidth="xl" className="relative z-10">
-            <Paper elevation={0} className={`border rounded-lg overflow-hidden ${isMobile ? 'mobile-modif-paper' : ''}`}>
+            <Paper 
+            elevation={0} 
+            className={`border rounded-lg overflow-hidden ${isMobile ? 'mobile-modif-paper' : ''}`}
+            sx={ {
+                  
+                  backdropFilter: 'blur(8px)',
+                  
+                  bgcolor: 'rgba(255,255,255,0.06)', // semi-transparent. Mettre 'transparent' pour totalement transparent
+                  // backdropFilter: 'blur(8px)',
+                } }
+            >
               <Box className={`border-b bg-white/80 backdrop-blur-sm ${isMobile ? 'mobile-admin-tabs' : ''}`}>
                 <Tabs 
                   value={value} 

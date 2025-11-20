@@ -25,7 +25,7 @@ const ErrorMessage = () => (
 
 export default function SortieInventaire() {
     const uuid = useStoreUuid((state) => state.selectedId);
-    const { unUser } = useFetchUser(connect);
+    const { unUser } = useFetchUser();
     
   const { stockEntreprise, isLoading, isError } = useStockEntreprise(uuid || '');
     
@@ -38,7 +38,7 @@ export default function SortieInventaire() {
     
     return (
       <>
-        <Nav />
+        {/* <Nav /> */}
         <Grid container rowSpacing={4.5} columnSpacing={2.75}>
           <Grid item xs={12} sx={{ mb: -2.25 }}>
             <Typography variant="h5" component="h1" gutterBottom>

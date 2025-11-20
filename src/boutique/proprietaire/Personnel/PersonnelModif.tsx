@@ -68,21 +68,7 @@ export function PersonnelModif() {
   return (
     <div className="min-h-screen py-6">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Nav>
-          <div className="flex items-center space-x-2">
-            
-            {unUser.uuid !== connect && (
-              <IconButton 
-                onClick={handleDelete}
-                size="small"
-                className="text-red-600 hover:bg-red-50"
-              >
-                <DeleteIcon />
-              </IconButton>
-            )}
-          </div>
-        </Nav>
-
+        
         {showConfirm && (
           <Alert 
             severity="warning" 
@@ -248,17 +234,26 @@ export function PersonnelModif() {
                 </div>
               </div>
 
-              <div className="pt-6">
+              <div className="px-3 sm:px-6 py-3 sm:py-4 bg-gray-50 border-t flex flex-col sm:flex-row gap-3 sm:gap-6 justify-end">
                 <Button
                   type="submit"
                   variant="contained"
-                  fullWidth
-                  size="large"
                   startIcon={<SaveIcon />}
                   className="bg-blue-600 hover:bg-blue-700"
                 >
                   Enregistrer les modifications
                 </Button>
+
+                
+                {unUser.uuid !== connect && (
+                  <IconButton 
+                    onClick={handleDelete}                    
+                    size="small"
+                    className="text-red-600 hover:bg-red-50"
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                )}
               </div>
             </form>
           </Box>

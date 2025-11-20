@@ -183,234 +183,257 @@ const NavSide: React.FC = () => {
   return (
     <Card 
       sx={{ 
+        display: 'flex',               // <-- ajout
+        flexDirection: 'column',       // <-- ajout
         height: "calc(100vh - 2rem)", 
         maxWidth: "20rem", 
         p: 2, 
         boxShadow: 3,
-        background: `linear-gradient(rgba(128, 128, 128, 0.7), rgba(128, 128, 128, 0.7)), url(${logoUrl}) center/cover no-repeat`,
+        bgcolor: 'rgba(255,255,255,0.06)',
+        backdropFilter: 'blur(3px)'
       }}
     >
-        <CardContent className="text-white border border-indigo-600 bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700 flex items-center gap-2 p-2 rounded border-dashed animate-border-rotate cursor-pointer">
-          
-          <Link to="/">
-            <img
-              src={logoUrl}
-              alt={unEntreprise.nom ? unEntreprise.nom : "Gest_Stocks"}
-              className="h-8 w-8 object-contain rounded-full"
-            />
-          </Link>
+      {/* header / top (logo, actions, etc.) */}
+      {/* <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+        <img src={logoUrl} alt="Logo" style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }} />
+        <Typography variant="h6" sx={{ flex: 1, color: 'white' }}>
+          {unEntreprise.nom}
+        </Typography>
+        <IconButton color="inherit" size="small">
+          <PowerIcon />
+        </IconButton>
+      </Box> */}
 
-          <Typography variant="h5">
-            {unEntreprise.nom ? unEntreprise.nom : "Gest Stocks"}
-          </Typography>
+      {/* wrapper scrollable pour la liste */}
+      <Box sx={{
+        flex: 1,
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        WebkitOverflowScrolling: 'touch',
+        pr: 1,
+        '&::-webkit-scrollbar': { width: 8 },
+        '&::-webkit-scrollbar-thumb': { backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 2 },
+        '&::-webkit-scrollbar-track': { backgroundColor: 'transparent' }
+      }}>
+        <List>
+          <NavItem
+            icon={<AddBusinessIcon color="primary" />}
+            label="Entreprise(s)"
+            onClick={() => handleSectionExpand(5)}
+            bgColor="text-white bg-gray-500"
+            isExpanded={expandedSection === 5}
+          />
 
-        </CardContent>
+          <Collapse in={expandedSection === 5} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              {userEntreprises?.map((entreprise) => (
+                <NavItem
+                  key={entreprise.uuid}
+                  icon={null}
+                  label={entreprise.nom}
+                  onClick={() => {
+                    addId(entreprise.uuid!);
+                    window.location.reload();
+                  }}
+                  to="/entreprise"
+                  bgColor="text-black bg-white"
+                />
+              ))}
+            </List>
+          </Collapse>
 
-      <List>
-        <NavItem
-          icon={<AddBusinessIcon color="primary" />}
-          label="Entreprise(s)"
-          onClick={() => handleSectionExpand(5)}
-          bgColor="text-white bg-gray-500"
-          isExpanded={expandedSection === 5}
-        />
-
-        <Collapse in={expandedSection === 5} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
-            {userEntreprises?.map((entreprise) => (
+          {uuid && (
+            <>
               <NavItem
-                key={entreprise.uuid}
-                icon={null}
-                label={entreprise.nom}
-                onClick={() => {
-                  addId(entreprise.uuid!);
-                  window.location.reload();
-                }}
-                to="/entreprise"
-                bgColor="text-black bg-white"
+                icon={<DashboardIcon color="primary" />}
+                label="Accueil"
+                onClick={() => handleSectionExpand(1)}
+                bgColor="text-white bg-gray-900"
+                isExpanded={expandedSection === 1}
               />
-            ))}
-          </List>
-        </Collapse>
 
-        {uuid && (
-          <>
-            <NavItem
-              icon={<DashboardIcon color="primary" />}
-              label="Accueil"
-              onClick={() => handleSectionExpand(1)}
-              bgColor="text-white bg-gray-900"
-              isExpanded={expandedSection === 1}
-            />
+              {(unUser.role === 1 || unUser.role === 2 || unUser.role === 3) && (
+                <Collapse in={expandedSection === 1} timeout="auto" unmountOnExit>
+                  <List component="div" disablePadding>
+                    {(unUser.role === 1 || unUser.role === 2) && (
+                      <>
+                        <NavItem
+                          icon={<CategoryIcon />}
+                          label="Article"
+                          to="/categorie"
+                          bgColor="text-black bg-white"
+                        />
+                        <NavItem
+                          icon={<AddCircleIcon color="success" />}
+                          label="Entrer (Achat)"
+                          to="/entre"
+                          bgColor="text-white bg-green-500"
+                        />
+                      </>
+                    )}
+                    <NavItem
+                      icon={<ExitToAppIcon color="error" />}
+                      label="Sortie (Vente)"
+                      to="/sortie"
+                      bgColor="text-white bg-red-500"
+                    />
+                    <NavItem
+                      icon={<ExitToAppIcon color="error" />}
+                      label="Remise Facture"
+                      to="/sortie/remise"
+                      bgColor="text-white bg-red-400"
+                    />
+                  </List>
+                </Collapse>
+              )}
+            </>
+          )}
 
-            {(unUser.role === 1 || unUser.role === 2 || unUser.role === 3) && (
-              <Collapse in={expandedSection === 1} timeout="auto" unmountOnExit>
-                <List component="div" disablePadding>
-                  {(unUser.role === 1 || unUser.role === 2) && (
-                    <>
-                      <NavItem
-                        icon={<CategoryIcon />}
-                        label="Article"
-                        to="/categorie"
-                        bgColor="text-black bg-white"
-                      />
-                      <NavItem
-                        icon={<AddCircleIcon color="success" />}
-                        label="Entrer (Achat)"
-                        to="/entre"
-                        bgColor="text-white bg-green-500"
-                      />
-                    </>
-                  )}
-                  <NavItem
-                    icon={<ExitToAppIcon color="error" />}
-                    label="Sortie (Vente)"
-                    to="/sortie"
-                    bgColor="text-white bg-red-500"
-                  />
-                  <NavItem
-                    icon={<ExitToAppIcon color="error" />}
-                    label="Remise Facture"
-                    to="/sortie/remise"
-                    bgColor="text-white bg-red-400"
-                  />
-                </List>
-              </Collapse>
-            )}
-          </>
-        )}
+          {((unUser.role === 1 || unUser.role === 2) && uuid) && 
+          <>        
+          {/* Inventaier Par moi */}
+          <NavItem
+            icon={<HistoryEduIcon color="primary" />}
+            label="Inventaire"
+            onClick={() => handleSectionExpand(2)}
+            bgColor="text-white bg-gray-900"
+            isExpanded={expandedSection === 2}
+          />
+          <Collapse in={expandedSection === 2} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
 
-        {((unUser.role === 1 || unUser.role === 2) && uuid) && 
-        <>        
-        {/* Inventaier Par moi */}
-        <NavItem
-          icon={<HistoryEduIcon color="primary" />}
-          label="Inventaire"
-          onClick={() => handleSectionExpand(2)}
-          bgColor="text-white bg-gray-900"
-          isExpanded={expandedSection === 2}
-        />
-        <Collapse in={expandedSection === 2} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
-
-            <NavItem
-              icon={null}
-              label="Sortie"
-              to="/entreprise/inventaire/sortie"
-              bgColor="text-white bg-gray-500"
-            />
-    
-            <NavItem
-              icon={null}
-              label="Etat des produits"
-              to="/entreprise/inventaire/EtaDesProduits"
-              bgColor="text-white bg-gray-500"
-            />
-            {(unUser.role === 1 && uuid) && 
               <NavItem
                 icon={null}
-                label="Etat des utilisateurs"
-                to="/entreprise/inventaire/VenteUsers"
+                label="Sortie"
+                to="/entreprise/inventaire/sortie"
                 bgColor="text-white bg-gray-500"
               />
-            }
-          
-          </List>
-        </Collapse>
-        </>
-        }
-
-        {(unUser.role === 1 && uuid) && 
-        <>
-        {/*  */}
-        <NavItem
-          icon={<HistoryEduIcon color="primary" />}
-          label="Historique"
-          onClick={() => handleSectionExpand(3)}
-          bgColor="text-white bg-gray-900"
-          isExpanded={expandedSection === 3}
-        />
-        <Collapse in={expandedSection === 3} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
-            <NavItem
-              icon={null}
-              label="Historique d'entrer et sortie"
-              to="/entreprise/historique"
-              bgColor="text-white bg-gray-500"
-            />
-                      
-            <NavItem
-              icon={null}
-              label="Historique des suppressions"
-              to="/entreprise/historique/sppression"
-              bgColor="text-white bg-gray-500"
-            />
-          
-          </List>
-        </Collapse>
-        </>
-        }
-
-        {(unUser.role === 1 && unUser.is_superuser ) && <>
-        
-            <NavItem
-              icon={<UserCircleIcon color="primary" />}
-              label="Les Admin"
-              to="/user/admin"
-              bgColor="text-white bg-blue-900"
-            />
+      
+              <NavItem
+                icon={null}
+                label="Etat des produits"
+                to="/entreprise/inventaire/EtaDesProduits"
+                bgColor="text-white bg-gray-500"
+              />
+              {(unUser.role === 1 && uuid) && 
+                <NavItem
+                  icon={null}
+                  label="Etat des utilisateurs"
+                  to="/entreprise/inventaire/VenteUsers"
+                  bgColor="text-white bg-gray-500"
+                />
+              }
             
-            <NavItem
-              icon={<UserCircleIcon color="primary" />}
-              label="Les Avis"
-              to="/user/avis"
-              bgColor="text-white bg-blue-900"
-            />
+            </List>
+          </Collapse>
           </>
-        }
+          }
 
-        {(unUser.role === 1 && unUser.is_cabinet ) && <>        
-        <NavItem
-          icon={<UserCircleIcon color="primary" />}
-          label="Mes inscrits"
-          to="/user/mesInscrit"
-          bgColor="text-white bg-blue-900"
-        />
-        </>
-        }
-        
-        <NavItem
-          icon={<DescriptionIcon color="primary" />}
-          label="Documentation"
-          to="https://documentation.gest-stocks.com"
-          bgColor="text-white bg-sky-900"
-        />
-
-        <NavItem
-          icon={<HelpOutlineIcon color="primary" />}
-          label="Que pensez-vous ?"
-          onClick={() => setFeedbackDialogOpen(true)}
-          bgColor="text-white bg-sky-900"
-        />
-
-        {(unUser.role === 1 || unUser.role === 2) &&        
+          {(unUser.role === 1 && uuid) && 
+          <>
+          {/*  */}
           <NavItem
-            icon={<HelpOutlineIcon color="primary" />}
-            label="Abonnement ?"
-            onClick={() => setHelpDialogOpen(true)}
+            icon={<HistoryEduIcon color="primary" />}
+            label="Historique"
+            onClick={() => handleSectionExpand(3)}
+            bgColor="text-white bg-gray-900"
+            isExpanded={expandedSection === 3}
+          />
+          <Collapse in={expandedSection === 3} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              <NavItem
+                icon={null}
+                label="Historique d'entrer et sortie"
+                to="/entreprise/historique"
+                bgColor="text-white bg-gray-500"
+              />
+                        
+              <NavItem
+                icon={null}
+                label="Historique des suppressions"
+                to="/entreprise/historique/sppression"
+                bgColor="text-white bg-gray-500"
+              />
+            
+            </List>
+          </Collapse>
+          </>
+          }
+
+          {(unUser.role === 1 && unUser.is_superuser ) && <>
+          
+              <NavItem
+                icon={<UserCircleIcon color="primary" />}
+                label="Les Admin"
+                to="/user/admin"
+                bgColor="text-white bg-blue-900"
+              />
+              
+              <NavItem
+                icon={<UserCircleIcon color="primary" />}
+                label="Les Avis"
+                to="/user/avis"
+                bgColor="text-white bg-blue-900"
+              />
+            </>
+          }
+
+          {(unUser.role === 1 && unUser.is_cabinet ) && <>        
+          <NavItem
+            icon={<UserCircleIcon color="primary" />}
+            label="Mes inscrits"
+            to="/user/mesInscrit"
+            bgColor="text-white bg-blue-900"
+          />
+          </>
+          }
+          
+          <NavItem
+            icon={<DescriptionIcon color="primary" />}
+            label="Documentation"
+            to="https://documentation.gest-stocks.com"
             bgColor="text-white bg-sky-900"
           />
-        }
 
-        <NavItem
-          icon={<PowerIcon color="error" />}
-          label="Déconnexion"
-          onClick={logout}
-          bgColor="text-white bg-red-600"
-        />
-        
-      </List>
+          <NavItem
+            icon={<HelpOutlineIcon color="primary" />}
+            label="Que pensez-vous ?"
+            onClick={() => setFeedbackDialogOpen(true)}
+            bgColor="text-white bg-sky-900"
+          />
 
+          {(unUser.role === 1 || unUser.role === 2) &&        
+            <NavItem
+              icon={<HelpOutlineIcon color="primary" />}
+              label="Abonnement ?"
+              onClick={() => setHelpDialogOpen(true)}
+              bgColor="text-white bg-sky-900"
+            />
+          }
+
+          <NavItem
+            icon={<PowerIcon color="error" />}
+            label="Déconnexion"
+            onClick={logout}
+            bgColor="text-white bg-red-600"
+          />
+          
+        </List>
+
+        <Typography variant="h5" className="text-white bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700 px-2 py-1 rounded border border-dashed animate-border-rotate">
+          <Link
+            to="https://wa.me/91154834"
+            style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <WhatsAppIcon style={{ marginRight: 8 }} />
+            +223 91 15 48 34
+          </Link>
+        </Typography>
+      </Box>
+
+      
       <FeedbackDialog
         open={feedbackDialogOpen}
         onClose={() => setFeedbackDialogOpen(false)}
@@ -437,18 +460,6 @@ const NavSide: React.FC = () => {
           <Example />
         </DialogContent>
       </Dialog>
-
-      <Typography variant="h5" className="text-white bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700 px-2 py-1 rounded border border-dashed animate-border-rotate">
-        <a
-          href="https://wa.me/91154834"
-          style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <WhatsAppIcon style={{ marginRight: 8 }} />
-          +223 91 15 48 34
-        </a>
-      </Typography>
     </Card>
   );
 };

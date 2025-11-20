@@ -26,7 +26,7 @@ export default function ModifCate() {
   const { unCategorie, setUnCategorie } = useFetchCategorie(uuid!)
   
   unCategorie["user_id"] = connect
-  const {unUser} = useFetchUser(connect)
+  const {unUser} = useFetchUser()
   const { updateCategorie } = useUpdateCategorie()
   const { deleteCategorie } = useDeleteCategorie()
 
@@ -72,20 +72,7 @@ export default function ModifCate() {
   return (
     <div className="min-h-screen py-4 sm:py-6">
       {/* <Nav /> */}
-      <Nav>
-        <div className="flex items-center space-x-2">
-          
-          {(unUser.role === 1 || unUser.role === 2) && (
-            <IconButton 
-              onClick={handleDelete}
-              size="small"
-              className="text-red-600 hover:bg-red-50"
-            >
-              <DeleteIcon />
-            </IconButton>
-          )}
-        </div>
-      </Nav>
+      
       <div className="max-w-full sm:max-w-4xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
         <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
           <div className="flex items-center space-x-4">
@@ -170,15 +157,15 @@ export default function ModifCate() {
               >
                 Enregistrer les modifications
               </Button>
-              <Button
-                component="a"
-                href="/categorie"
-                variant="outlined"
-                color="secondary"
-                className="w-full sm:w-auto"
-              >
-                Retour
-              </Button>
+              {(unUser.role === 1 || unUser.role === 2) && (
+                <IconButton 
+                  onClick={handleDelete}
+                  size="small"
+                  className="text-red-600 hover:bg-red-50"
+                >
+                  <DeleteIcon />
+                </IconButton>
+              )}
             </div>
           </form>
         </Paper>

@@ -12,7 +12,7 @@ export default function EtaVente() {
   const {stockSemaine} = useStockSemaine(unEntreprise.uuid!)
 
   return (<>
-      <Nav />
+      {/* <Nav /> */}
     
       <Grid container rowSpacing={4.5} columnSpacing={2.75}>
         {/* Titre */}

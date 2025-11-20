@@ -44,7 +44,7 @@ export default function ClientInfo() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-6">
-          <Nav>
+          {/* <Nav>
             <IconButton 
               onClick={handleDelete}
               className="text-red-600 hover:text-red-700 hover:bg-red-50"
@@ -52,7 +52,7 @@ export default function ClientInfo() {
             >
               <DeleteIcon fontSize="small" />
             </IconButton>
-          </Nav>
+          </Nav> */}
         </div>
 
         {showConfirm && (
@@ -129,6 +129,21 @@ export default function ClientInfo() {
                     </div>
                   }
                   {...a11yProps(2)} 
+                />
+                
+                <Tab 
+                  label={
+                    <div className="flex items-center space-x-2">
+                      <IconButton 
+                        onClick={handleDelete}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        size="small"
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </div>
+                  }
+                  
                 />
               </Tabs>
             </Box>

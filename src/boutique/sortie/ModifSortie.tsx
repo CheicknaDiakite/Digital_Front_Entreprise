@@ -12,7 +12,7 @@ export default function ModifSortie() {
   const {uuid} = useParams()
   const entreprise_id = useStoreUuid((state) => state.selectedId)
 
-  const {unUser} = useFetchUser(connect)
+  const {unUser} = useFetchUser()
   const {unSortie, setUnSortie} = useFetchSortie(uuid!)
  
   unSortie["user_id"] = connect
@@ -38,23 +38,6 @@ export default function ModifSortie() {
       [name]: value,
     });
   };
-  
-  // const handleAutoCompleteChange = (_: SyntheticEvent<Element, Event>,
-  //   value: string | RecupType | null,
-  //   // reason: AutocompleteChangeReason
-  //   ) => {
-  //   if (typeof value === 'object' && value !== null) {
-  //     setUnSortie({
-  //       ...unSortie,
-  //       entre_id: value.uuid ?? '',
-  //     });
-  //   } else {
-  //       setUnSortie({
-  //       ...unSortie,
-  //       entre_id: '',
-  //     });
-  //   }
-  // };
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -67,13 +50,7 @@ export default function ModifSortie() {
   };
   
   return (<>
-  <Nav>
-    {(unUser.role === 1 || unUser.role === 2) &&     
-      <Button size="small" className='rounded-full shadow-md shadow-red-800/50' onClick={handleDelete}>
-        <DeleteIcon fontSize='small' />
-      </Button>
-    }
-    </Nav>
+    
     {showConfirm && (
       <Alert 
         severity="warning" 
@@ -104,16 +81,6 @@ export default function ModifSortie() {
           <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmit}>
             <Stack spacing={2} margin={2}>
 
-              {/* <Autocomplete
-                id="free-solo-demo"
-                freeSolo
-                options={entres}
-                getOptionLabel={(option) => (typeof option === 'string' ? option : `${option.categorie_libelle} (${option.libelle})`  || '')}
-                onChange={handleAutoCompleteChange}
-                renderInput={(params) => <TextField {...params} onChange={onChange} label="Categorie" />}
-              /> */}
-
-              {/* <TextField variant="outlined" label="libelle" name='libelle' onChange={onChange}></TextField> */}
               <TextField 
               variant="outlined"
               label="Designation" 
@@ -138,6 +105,12 @@ export default function ModifSortie() {
               value={unSortie.qte} 
               name='qte'
                onChange={onChange}></TextField>
+
+               {(unUser.role === 1 || unUser.role === 2) &&     
+                  <Button size="small" className='rounded-full shadow-md shadow-red-800/50' onClick={handleDelete}>
+                    <DeleteIcon fontSize='small' />
+                  </Button>
+                }
               
               {/* <Button type="submit" color="success" variant="outlined">Yes</Button> */}
             </Stack>

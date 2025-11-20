@@ -446,18 +446,20 @@ export default function Sortie() {
           <div className={`min-h-screen ${isMobile ? '' : ''}`}>
             <div className={`${isMobile ? 'px-4 py-6' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'}`}>
               <div className={`${isMobile ? 'mobile-m-4' : 'mb-8'}`}>
-                <Nav />
+                {/* <Nav /> */}
               </div>
 
               <Paper 
                 elevation={0} 
-                className={`${isMobile ? 'mobile-header-container' : 'rounded-lg overflow-hidden'}`}
-                sx={isMobile ? {
+                // className={`${isMobile ? 'mobile-header-container' : 'rounded-lg overflow-hidden'}`}
+                sx={ {
                   background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7))',
-                  backdropFilter: 'blur(10px)',
+                  backdropFilter: 'blur(8px)',
                   border: '1px solid rgba(255, 255, 255, 0.2)',
-                  borderRadius: '20px'
-                } : {}}
+                  borderRadius: '20px',
+                  bgcolor: 'rgba(255,255,255,0.06)', // semi-transparent. Mettre 'transparent' pour totalement transparent
+                  // backdropFilter: 'blur(8px)',
+                } }
               >
                 <div className={`${isMobile ? 'mobile-p-4' : 'p-6'} space-y-6`}>
                   {/* Header Section */}

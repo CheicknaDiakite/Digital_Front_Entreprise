@@ -19,7 +19,6 @@ import {
   SelectChangeEvent
 } from '@mui/material';
 import { ChangeEvent, FormEvent, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import { useFetchUser, useUpdateUser } from '../../../usePerso/fonction.user';
 import { connect } from '../../../_services/account.service';
 import countryList from 'react-select-country-list';
@@ -43,9 +42,8 @@ const style = {
 };
 
 export default function Admin() {
-  const { uuid } = useParams();
   const [open, setOpen] = useState(false);
-  const { unUser, setUnUser, isLoading, isError } = useFetchUser(uuid!);
+  const { unUser, setUnUser, isLoading, isError } = useFetchUser();
   const { updateUser } = useUpdateUser();
   const options = countryList().getData();
 
@@ -116,7 +114,7 @@ export default function Admin() {
   if (unUser) {
     return (
       <>
-        <Nav />
+        {/* <Nav /> */}
         <Container maxWidth="lg" className="py-8">
           <Paper elevation={0} className="border rounded-lg overflow-hidden">
             <Box className="p-6 border-b bg-gray-50">

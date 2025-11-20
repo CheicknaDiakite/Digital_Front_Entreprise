@@ -112,20 +112,28 @@ export default function EtatProduit() {
   ];
 
   return (
-    <Container maxWidth="lg" className={`py-8 ${isMobile ? 'mobile-stats-container' : ''}`}>
-      <div className="flex flex-col items-center gap-2 mb-4">
+    <Container 
+    maxWidth="lg" 
+    className={`py-8`}
+    sx={ {
+                  
+      backdropFilter: 'blur(2px)',
+      
+      bgcolor: 'rgba(255,255,255,0.06)', // semi-transparent. Mettre 'transparent' pour totalement transparent
+      // backdropFilter: 'blur(8px)',
+    } }
+    >
+      {/* <div className="flex flex-col items-center gap-2 mb-4">
         <LicenceTag type={unEntreprise.licence_type}>
           Licence {unEntreprise.licence_type} {getLicenceDuration(unEntreprise.licence_date_expiration)}
         </LicenceTag>
-        {/* <p className="text-gray-600 text-sm">
-          {getLicenceDuration(unEntreprise.licence_date_expiration)}
-        </p> */}
+        
         {licenceExpiree && (
           <span className="inline-block bg-red-600 text-white text-xs font-bold px-3 py-1 rounded shadow mt-2">
             Licence expirée
           </span>
         )}
-      </div>
+      </div> */}
 
       <div className={`mb-6 ${isMobile ? 'mobile-animate-in' : ''}`}>
         <Typography variant="h4" className={`font-semibold text-gray-900 mb-2 ${isMobile ? 'mobile-stats-title' : ''}`}>
@@ -142,6 +150,7 @@ export default function EtatProduit() {
             <Paper
               elevation={0}
               className={`border rounded-lg overflow-hidden h-full transition-all duration-200 hover:shadow-md bg-gradient-to-br ${stat.bgClass} ${isMobile ? 'mobile-stat-card' : ''} ${licenceExpiree ? 'opacity-60 grayscale' : ''}`}
+              
             >
               <Box className={`p-6 ${isMobile ? 'mobile-responsive-stack' : ''}`}>
                 <div className={`flex items-center justify-between mb-4 ${isMobile ? 'mobile-stat-header' : ''}`}>

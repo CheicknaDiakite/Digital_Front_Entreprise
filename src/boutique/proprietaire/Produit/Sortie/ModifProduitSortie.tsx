@@ -30,7 +30,7 @@ export default function ModifProduitSortie() {
   
   const {deleteFacSortie} = useDeleteFacSortie();
   const {updateFacSortie} = useUpdateFacSortie();
-  const {unUser} = useFetchUser(connect);
+  const {unUser} = useFetchUser();
   const [showConfirm, setShowConfirm] = useState(false);
 
   const handleDelete = () => {
@@ -71,20 +71,7 @@ export default function ModifProduitSortie() {
   return (
     <div className="min-h-screen py-4 sm:py-6">
       <div className="max-w-full sm:max-w-4xl mx-auto px-2 sm:px-4 lg:px-8">
-        <Nav>
-          <div className="flex items-center space-x-2">
-            {unUser.role === 1 && (
-              <IconButton 
-                onClick={handleDelete}
-                size="small"
-                className="text-red-600 hover:bg-red-50"
-              >
-                <DeleteIcon />
-              </IconButton>
-            )}
-          </div>
-        </Nav>
-
+        
         {showConfirm && (
           <Alert 
             severity="warning" 
@@ -210,7 +197,7 @@ export default function ModifProduitSortie() {
 
               <Divider className="my-4" />
 
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-6 justify-end">
+              <div className="px-3 sm:px-6 py-3 sm:py-4 bg-gray-50 border-t flex flex-col sm:flex-row gap-3 sm:gap-6 justify-end">
                 <Button
                   type="submit"
                   variant="contained"
@@ -220,11 +207,16 @@ export default function ModifProduitSortie() {
                 >
                   Enregistrer
                 </Button>
-                <Link to="/entreprise/produit/sortie" className="w-full sm:w-auto">
-                  <Button variant="outlined" color="secondary" className="w-full sm:w-auto">
-                    Retour
-                  </Button>
-                </Link>
+
+                {unUser.role === 1 && (
+                  <IconButton 
+                    onClick={handleDelete}
+                    size="small"
+                    className="text-red-600 hover:bg-red-50"
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                )}
               </div>
             </form>
           </Box>

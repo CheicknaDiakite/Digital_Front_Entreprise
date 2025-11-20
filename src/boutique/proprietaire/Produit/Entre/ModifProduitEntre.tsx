@@ -29,7 +29,7 @@ export default function ModifProduitEntre() {
   const {unFacEntre, setUnFacEntre} = useFacEntre(uuid!);
   const {deleteFacEntre} = useDeleteFacEntre();
   const {updateFacEntre} = useUpdateFacEntre();
-  const {unUser} = useFetchUser(connect);
+  const {unUser} = useFetchUser();
   const [showConfirm, setShowConfirm] = useState(false);
 
   const handleDelete = () => {
@@ -70,24 +70,7 @@ export default function ModifProduitEntre() {
   return (
     <div className="min-h-screen py-6">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Nav>
-          <div className="flex items-center space-x-2">
-            {/* <Link to="/entreprise/facture-entre">
-              <IconButton size="small" className="hover:bg-gray-100">
-                <ArrowBackIcon />
-              </IconButton> */}
-            {unUser.role === 1 && (
-              <IconButton 
-                onClick={handleDelete}
-                size="small"
-                className="text-red-600 hover:bg-red-50"
-              >
-                <DeleteIcon />
-              </IconButton>
-            )}
-          </div>
-        </Nav>
-
+       
         {showConfirm && (
           <Alert 
             severity="warning" 
@@ -236,12 +219,8 @@ export default function ModifProduitEntre() {
 
               <Divider className="my-6" />
 
-              <div className="flex justify-end space-x-3">
-                <Link to="/entreprise/facture-entre">
-                  <Button variant="outlined">
-                    Annuler
-                  </Button>
-                </Link>
+              <div className="px-3 sm:px-6 py-3 sm:py-4 bg-gray-50 border-t flex flex-col sm:flex-row gap-3 sm:gap-6 justify-end">
+                
                 {(unUser.role === 1 || unUser.role === 2) && (
                   <Button
                     type="submit"
@@ -251,6 +230,16 @@ export default function ModifProduitEntre() {
                   >
                     Enregistrer les modifications
                   </Button>
+                )}
+
+                {unUser.role === 1 && (
+                  <IconButton 
+                    onClick={handleDelete}
+                    size="small"
+                    className="text-red-600 hover:bg-red-50"
+                  >
+                    <DeleteIcon />
+                  </IconButton>
                 )}
               </div>
             </form>

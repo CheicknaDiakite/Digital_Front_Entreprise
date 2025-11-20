@@ -124,7 +124,7 @@ export default function Personnel() {
     return (
       <div className={`min-h-screen ${isMobile ? '' : ''} py-6`}>
         <div className={`${isMobile ? 'px-4' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'}`}>
-          <Nav />
+          {/* <Nav /> */}
           
           <div className={isMobile ? 'mobile-chart-section' : ''}>
             <Chart_3 />

@@ -2,7 +2,7 @@
 import Box from '@mui/material/Box';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import backgroundImage from '../../../../public/assets/img/img.jpg'
+import backgroundImage from '../../../../public/assets/img/favicon.svg'
 
 // ==============================|| AUTH BLUR BACK SVG ||============================== //
 

@@ -30,7 +30,7 @@ export default function DepenseModif() {
   const {unDepense, setUnDepense} = useFetchDepense(uuid!);
   const {updateDepense} = useUpdateDepense();
   const {deleteDepense} = useDeleteDepense();
-  const {unUser} = useFetchUser(connect);
+  const {unUser} = useFetchUser();
   const [showConfirm, setShowConfirm] = useState(false);
   const [image, setImage] = useState<File | null>(null);
 
@@ -70,20 +70,6 @@ export default function DepenseModif() {
   return (
     <div className="min-h-screen py-6">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Nav>
-          <div className="flex items-center space-x-2">
-            
-            {unUser.role === 1 && (
-              <IconButton 
-                onClick={handleDelete}
-                size="small"
-                className="text-red-600 hover:bg-red-50"
-              >
-                <DeleteIcon />
-              </IconButton>
-            )}
-          </div>
-        </Nav>
 
         {showConfirm && (
           <Alert 
@@ -237,11 +223,7 @@ export default function DepenseModif() {
               <Divider className="my-6" />
 
               <div className="flex justify-end space-x-3">
-                <Link to="/entreprise/depense">
-                  <Button variant="outlined">
-                    Annuler
-                  </Button>
-                </Link>
+                
                 {(unUser.role === 1 || unUser.role === 2) && (
                   <Button
                     type="submit"
@@ -251,6 +233,16 @@ export default function DepenseModif() {
                   >
                     Enregistrer les modifications
                   </Button>
+                )}
+
+                {unUser.role === 1 && (
+                  <IconButton 
+                    onClick={handleDelete}
+                    size="small"
+                    className="text-red-600 hover:bg-red-50"
+                  >
+                    <DeleteIcon />
+                  </IconButton>
                 )}
               </div>
             </form>

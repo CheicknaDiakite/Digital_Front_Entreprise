@@ -25,7 +25,7 @@ export default function ModifSousCate() {
   // const {unSousCate, setUnSousCate, updateSousCate, deleteSousCate} = useSousCategorie(slug!)
   const { unSousCate, setUnSousCate } = useFetchSousCate(uuid!)
   unSousCate["user_id"] = connect
-  const {unUser} = useFetchUser(connect)
+  const {unUser} = useFetchUser()
   const {deleteSousCate} = useDeleteSousCate()
 
   const [image, setImage] = useState<File | null>(null);
@@ -71,20 +71,7 @@ export default function ModifSousCate() {
   return (
     <div className="min-h-screen py-4 sm:py-6">
       {/* <Nav /> */}
-      <Nav>
-        <div className="flex items-center space-x-2">
-          
-          {(unUser.role === 1 || unUser.role === 2) && (
-            <IconButton 
-              onClick={handleDelete}
-              size="small"
-              className="text-red-600 hover:bg-red-50"
-            >
-              <DeleteIcon />
-            </IconButton>
-          )}
-        </div>
-      </Nav>
+      
       <div className="max-w-full sm:max-w-4xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
         <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
           <div className="flex items-center space-x-4">
@@ -93,14 +80,6 @@ export default function ModifSousCate() {
             </Typography>
           </div>
 
-          {/* <Tooltip title="Supprimer" arrow TransitionComponent={Fade}>
-            <IconButton 
-              onClick={handleDelete}
-              className="bg-white hover:bg-red-50 text-red-600 shadow-sm"
-            >
-              <DeleteIcon />
-            </IconButton>
-          </Tooltip> */}
         </div>
 
         {showConfirm && (
@@ -168,7 +147,7 @@ export default function ModifSousCate() {
               </div>
             </div>
 
-            <div className="px-6 py-4 bg-gray-50 border-t flex justify-end">
+            <div className="px-3 sm:px-6 py-3 sm:py-4 bg-gray-50 border-t flex flex-col sm:flex-row gap-3 sm:gap-6 justify-end">
               <Button
                 type="submit"
                 variant="contained"
@@ -176,6 +155,16 @@ export default function ModifSousCate() {
               >
                 Enregistrer les modifications
               </Button>
+
+              {(unUser.role === 1 || unUser.role === 2) && (
+                <IconButton 
+                  onClick={handleDelete}
+                  size="small"
+                  className="text-red-600 hover:bg-red-50"
+                >
+                  <DeleteIcon />
+                </IconButton>
+              )}
             </div>
           </form>
         </Paper>

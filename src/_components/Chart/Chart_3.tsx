@@ -62,9 +62,10 @@ export default function Chart_3() {
       <Card 
         sx={{ 
           height: '100%',
-          backgroundColor: 'background.paper',
+          // backgroundColor: 'background.paper',
           backdropFilter: 'blur(10px)',
           border: `1px solid rgba(0, 0, 0, 0.1)}`,
+          bgcolor: 'rgba(255,255,255,0.06)', 
         }}
       >
         <CardHeader

@@ -23,6 +23,7 @@ import { Alert, Box, CircularProgress, Stack, Paper, Container, Button, useMedia
 import MonthlyBarChart from './MonthlyBarChart';
 import './mobile-dashboard.css';
 import { ChartSection } from './components/ChartSection';
+import MonthlyTarget from './MonthlyTarget';
 
 // import Logo from '../../components/logo/LogoMain';
 
@@ -236,15 +237,30 @@ export default function DashboardDefault() {
             
               <Grid item xs={12}>
               
-                <Box sx={{ display: 'flex', alignItems: isMobile ? 'center' : 'center', flexDirection: isMobile ? 'column' : 'column', textAlign: isMobile ? 'center' : 'center', gap: 2 }} className={isMobile ? 'mobile-header' : 'mobile-header'}>
+                <Box 
+                sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  flexDirection: 'column', 
+                  textAlign: 'center', 
+                  gap: 2,
+
+                  backdropFilter: 'blur(1px)',
+                  // bgcolor: 'rgba(255,255,255,0.06)',
+
+                }} 
+                
+                className={'mobile-glass p-4 rounded-2xl mb-4'}
+                
+                >
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: isMobile ? 1 : 0 }}>
                     {/* <Logo /> */}
-                    <Typography variant="h6" className="font-bold text-primary" sx={{ ml: 1, fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>{unEntreprise?.nom || 'Entreprise'}</Typography>
+                    <Typography variant="h6" className="font-bold text-gray-300" sx={{ ml: 1, fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>{unEntreprise?.nom || 'Entreprise'}</Typography>
                   </Box>
                   <Box sx={{ flex: 1 }}>
                     <Typography 
                       variant="h4" 
-                      className={`font-bold text-gray-900 mb-2 ${isMobile ? 'mobile-title' : ''} leading-tight`}
+                      className={`font-bold text-gray-50 mb-2 ${isMobile ? 'mobile-title' : ''} leading-tight`}
                       sx={{ 
                         fontSize: { xs: '1.75rem', sm: '2rem', md: '2.125rem' },
                         textAlign: isMobile ? 'center' : 'left'
@@ -254,7 +270,7 @@ export default function DashboardDefault() {
                     </Typography>
                     <Typography 
                       variant="body1" 
-                      className="text-gray-600 leading-snug"
+                      className="text-gray-400 leading-snug"
                       sx={{ 
                         fontSize: { xs: '0.9rem', sm: '1rem' },
                         textAlign: isMobile ? 'center' : 'left'
@@ -268,29 +284,42 @@ export default function DashboardDefault() {
                 <Grid container spacing={2} sx={{ width: '100%', mb: 3 }} className='flex justify-center'>
                   <Grid item md={3} sm={6}>
 
-                  <Paper elevation={3} sx={{ p: 3, borderRadius: 3, boxShadow: '0 4px 24px rgba(0,0,0,0.07)', bgcolor: 'white', minWidth: 200, flex: 1, maxWidth: 350 }}>
-                    <Typography variant="subtitle2" color="text.secondary">
-                      CA du mois
-                    </Typography>
+                    <Paper 
+                      elevation={3} 
+                      sx={{ 
+                        p: 3, 
+                        borderRadius: 3, 
+                        boxShadow: '0 4px 24px rgba(0,0,0,0.07)', 
+                        minWidth: 200, 
+                        flex: 1, 
+                        maxWidth: 350,
+                        // bgcolor: 'rgba(255,255,255,0.06)', // semi-transparent. Mettre 'transparent' pour totalement transparent
+                        // backdropFilter: 'blur(8px)'        
+                      }}
                     
-                    <Typography variant="h5" className="font-bold" sx={{ color: 'primary.main', mt: 1 }}>
-                      {(() => {
-                        if (stockEntreprise && stockEntreprise.details_sortie_par_mois) {
-                          const months = Object.keys(stockEntreprise.details_sortie_par_mois);
-                          const lastMonth = months[months.length - 1];
-                          const details = stockEntreprise.details_sortie_par_mois[lastMonth];
-                          
-                          if (details) {
-                            return formatNumberWithSpaces((details as any).somme_prix_total || 0);
+                    >
+                      <Typography variant="subtitle2" color="text.secondary">
+                        CA du mois
+                      </Typography>
+                      
+                      <Typography variant="h5" className="font-bold" sx={{ color: 'primary.main', mt: 1 }}>
+                        {(() => {
+                          if (stockEntreprise && stockEntreprise.details_sortie_par_mois) {
+                            const months = Object.keys(stockEntreprise.details_sortie_par_mois);
+                            const lastMonth = months[months.length - 1];
+                            const details = stockEntreprise.details_sortie_par_mois[lastMonth];
+                            
+                            if (details) {
+                              return formatNumberWithSpaces((details as any).somme_prix_total || 0);
+                            }
                           }
-                        }
-                        return '--';
-                      })()}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                      montant brut (hors remises)
-                    </Typography>
-                  </Paper>
+                          return '--';
+                        })()}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                        montant brut (hors remises)
+                      </Typography>
+                    </Paper>
                   </Grid>
 
                   <Grid item md={3} sm={6}>
@@ -432,6 +461,10 @@ export default function DashboardDefault() {
                       }
                     })()}
                   {/* </Box> */}
+
+                  {/* <div className="col-span-12 xl:col-span-5">
+                    <MonthlyTarget />
+                  </div> */}
                 
               </Grid>
 
@@ -441,7 +474,7 @@ export default function DashboardDefault() {
                 <Box>
                   <Typography 
                     variant="h5" 
-                    className={`font-medium text-gray-900 mb-4 ${isMobile ? 'mobile-title' : ''}`}
+                    className={`font-medium text-gray-50 mb-4`}
                     sx={{ 
                       fontSize: { xs: '1.25rem', sm: '1.5rem' },
                       textAlign: isMobile ? 'center' : 'left'
@@ -451,12 +484,12 @@ export default function DashboardDefault() {
                   </Typography>
                   <Paper 
                     elevation={isMobile ? 1 : 0} 
-                    className={`border p-4 mb-4 rounded-2xl ${isMobile ? 'mobile-glass' : ''} shadow-sm`}
+                    className={`border p-4 mb-4 rounded-2xl mobile-glass shadow-sm`}
                     sx={{ borderRadius: isMobile ? '16px' : '8px' }}
                   >
                     <Typography 
                       variant="body1" 
-                      className="text-gray-600 text-center"
+                      className="text-gray-50 text-center"
                       sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}
                     >
                       Pour les factures et dépenses (en version numérique si nécessaire en PDF)

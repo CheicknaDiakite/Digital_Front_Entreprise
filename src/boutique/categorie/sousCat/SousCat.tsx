@@ -46,7 +46,7 @@ interface ShadowBoxProps {
 
 function ShadowBox({ shadow }: ShadowBoxProps) {
   const url = shadow.image ? BASE(shadow.image) : img;
-  const { unUser } = useFetchUser(connect);
+  const { unUser } = useFetchUser();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -223,7 +223,7 @@ export default function SousCat() {
 
     return (
       <div className={`min-h-screen ${isMobile ? '' : ''}`}>
-        <Nav />
+        {/* <Nav /> */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           
             <div className={`mb-6 ${isMobile ? 'mobile-header-container' : ''}`}>

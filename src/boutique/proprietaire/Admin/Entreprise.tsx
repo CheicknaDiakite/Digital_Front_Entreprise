@@ -343,11 +343,11 @@ export default function Entreprise() {
             }`}
           >
             {/* Badge Expirée */}
-            {expired && (
+            {/* {expired && (
               <div className="absolute top-2 left-2 z-10 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded shadow-lg">
                 Licence expirée
               </div>
-            )}
+            )} */}
             <Link
               to={`/entreprise`}
               onClick={() => addId(post.uuid)}
@@ -367,21 +367,17 @@ export default function Entreprise() {
                 description={
                   post.licence_active && (
                     <div className="space-y-3">
-                      <p className="text-gray-700 font-medium">
+                      {/* <p className="text-gray-700 font-medium">
                         {expired
                           ? "Cette entreprise n'a plus de licence active"
                           : "Cette entreprise est activée et possède une licence"}
-                      </p>
-                      <div className="flex flex-col items-center gap-2">
+                      </p> */}
+                      {/* <div className="flex flex-col items-center gap-2">
                         <LicenceTag type={post.licence_type}>
                           {post.licence_type} {getLicenceDuration(validDate)}
                         </LicenceTag>
-                        {/* <p className="text-gray-600 text-sm">jusqu'au</p>
-                        <LicenceTag type={post.licence_type}>
-                          {format(new Date(validDate), 'dd/MM/yyyy')}
-                          
-                        </LicenceTag> */}
-                      </div>
+                        
+                      </div> */}
                     </div>
                   )
                 }

@@ -205,22 +205,6 @@ export default function RemiseFacture() {
         return b.id - a.id;
     });
 
-    // Pour la remise des facture
-    // const [openF, setOpenF] = useState(false);
-    // const handleOpen = () => {
-    //     setOpenF(true);
-    // };
-    // const handleClose = () => {
-    //     setOpenF(false);
-    // };
-
-    const top = {
-        all: "all",
-        user_id: connect
-    }
-    
-    // const { sorties: allSorties } = useFetchAllSortie(top)
-
     const handleSaveSorties = () => {
         setSorties(sortiesEntreprise);
     };
@@ -237,13 +221,6 @@ export default function RemiseFacture() {
     // States
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // const handleConfirmRemise = () => {
-    //     const selectedSorties = sorties.filter((sor) => sor.id && selectedIds.has(sor.id));
-    //     const idsToUpdate = selectedSorties.map(sor => sor.id);
-    //     updateRemiseSortie(idsToUpdate);
-    //     reset();
-    //     setIsModalOpen(false);
-    // };
 
     if (isLoading) {
     return <LoadingState />
@@ -257,10 +234,6 @@ export default function RemiseFacture() {
 
         return (
             <>
-    
-            <div className='py-2'>
-                <Nav />
-            </div>
     
             <Button 
                 variant="outlined" 

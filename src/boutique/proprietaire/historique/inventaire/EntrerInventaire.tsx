@@ -44,7 +44,7 @@ const MonthlyPurchaseCard = ({ data, userRole }: { data: MonthlyPurchase, userRo
 
 export default function EntrerInventaire() {
   const uuid = useStoreUuid((state) => state.selectedId);
-  const { unUser } = useFetchUser(connect);
+  const { unUser } = useFetchUser();
   const { unEntreprise } = useFetchEntreprise(uuid);
   const { stockEntreprise, isLoading, isError } = useStockEntreprise(unEntreprise?.uuid || '');
 
@@ -56,7 +56,7 @@ export default function EntrerInventaire() {
   console.log("yy ..", stockEntreprise)
   return (
     <>
-      <Nav />
+      {/* <Nav /> */}
       <Grid container spacing={3}>
         <Grid item xs={12}>
           <Typography variant="h5" component="h1" gutterBottom>

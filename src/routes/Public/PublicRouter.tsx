@@ -46,21 +46,23 @@ import { BASE } from '../../_services/caller.service'
 
 
 export default function PublicRouter() {
-  notClick()
+  // notClick()
 
   const uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise } = useFetchEntreprise(uuid);
   const url = unEntreprise.image ? BASE(unEntreprise.image) : backgroundImage;
+  // const url = backgroundImage;
   
   return (
     <Box 
-      className='bg-red-200'
+      
       sx={{
-        background: `linear-gradient(rgba(128, 128, 128, 0.7), rgba(128, 128, 128, 0.7)), url(${url})`,
+         background: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.55)), url(${url})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundAttachment: 'fixed',
-        padding: { xs: '16px', sm: '24px', md: '32px' }
+        padding: { sm: '24px', md: '32px' },
+        backdropFilter: 'blur(5px)',
       }}
     >
       <Routes>

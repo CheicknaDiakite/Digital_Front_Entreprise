@@ -66,20 +66,6 @@ export default function Profile() {
 
   const {unUser, isLoading, isError} = useFetchUser()
   
-  // useEffect(() => {
-  //   if (isError) {
-  //     const newCount = errorCount + 1;
-  //     setErrorCount(newCount);
-  //     localStorage.setItem('errorCount', newCount.toString());
-  //   }
-  // }, [isError]);
-
-  // useEffect(() => {
-  //   if (errorCount >= 2) {
-  //     logout();
-  //   }
-  // }, [errorCount]);
-  
   const [value, setValue] = useState(0);
 
   const handleChange = (_: SyntheticEvent, newValue: number) => {
@@ -124,13 +110,7 @@ export default function Profile() {
     return (
       <Box className="text-white border-indigo-600 bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700 border border-dashed animate-border-rotate rounded-lg">
         <ButtonBase
-          // sx={{
-          //   p: 0.25,
-          //   bgcolor: open ? iconBackColorOpen : 'transparent',
-          //   borderRadius: 1,
-          //   '&:hover': { bgcolor: 'secondary.lighter' },
-          //   '&:focus-visible': { outline: `2px solid ${theme.palette.secondary.dark}`, outlineOffset: 2 }
-          // }}
+         
           aria-label="open profile"
           ref={anchorRef}
           aria-controls={open ? 'profile-grow' : undefined}
@@ -175,10 +155,6 @@ export default function Profile() {
                             <Avatar alt="profile user" {...stringAvatar(`${unUser.last_name} ${unUser.first_name}`)} sx={{ width: 32, height: 32 }} />
                             <Stack>
                               <Typography variant="h6">{unUser.last_name} {unUser.first_name}</Typography>
-                              
-                              {/* <Typography variant="body2" color="text.secondary">
-                                {unEntreprise.nom}
-                              </Typography> */}
                               
                             </Stack>
                           </Stack>

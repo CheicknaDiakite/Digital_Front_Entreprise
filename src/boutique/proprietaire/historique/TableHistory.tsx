@@ -221,7 +221,7 @@ const HistoryRow = ({ row }: HistoryRowProps) => {
 };
 
 export default function TableHistory() {
-  const { historique, isLoading, isError } = useHistoriqueEntreprise(connect);
+  const { historique, isLoading, isError } = useHistoriqueEntreprise();
 
   if (isLoading) return <LoadingSpinner />;
   if (isError) return <ErrorMessage />;
@@ -230,7 +230,7 @@ export default function TableHistory() {
   return (
     <div className="min-h-screen py-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Nav />
+        {/* <Nav /> */}
         <Paper elevation={0} className="mt-6">
           <TableContainer>
             <Table aria-label="tableau des entreprises">
