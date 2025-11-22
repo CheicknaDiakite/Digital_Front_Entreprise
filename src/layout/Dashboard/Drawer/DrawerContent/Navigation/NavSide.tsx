@@ -205,7 +205,8 @@ const NavSide: React.FC = () => {
       </Box> */}
 
       {/* wrapper scrollable pour la liste */}
-      <Box sx={{
+      <Box 
+      sx={{
         flex: 1,
         overflowY: 'auto',
         overflowX: 'hidden',
@@ -214,7 +215,8 @@ const NavSide: React.FC = () => {
         '&::-webkit-scrollbar': { width: 8 },
         '&::-webkit-scrollbar-thumb': { backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 2 },
         '&::-webkit-scrollbar-track': { backgroundColor: 'transparent' }
-      }}>
+      }}
+      >
         <List>
           <NavItem
             icon={<AddBusinessIcon color="primary" />}
@@ -402,14 +404,14 @@ const NavSide: React.FC = () => {
             bgColor="text-white bg-sky-900"
           />
 
-          {(unUser.role === 1 || unUser.role === 2) &&        
+          {/* {(unUser.role === 1 || unUser.role === 2) &&        
             <NavItem
               icon={<HelpOutlineIcon color="primary" />}
               label="Abonnement ?"
               onClick={() => setHelpDialogOpen(true)}
               bgColor="text-white bg-sky-900"
             />
-          }
+          } */}
 
           <NavItem
             icon={<PowerIcon color="error" />}

@@ -57,12 +57,11 @@ export default function PublicRouter() {
     <Box 
       
       sx={{
-         background: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.55)), url(${url})`,
+        background: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.55)), url(${url})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundAttachment: 'fixed',
         padding: { sm: '24px', md: '32px' },
-        backdropFilter: 'blur(5px)',
       }}
     >
       <Routes>

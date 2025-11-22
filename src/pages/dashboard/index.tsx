@@ -255,12 +255,12 @@ export default function DashboardDefault() {
                 >
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: isMobile ? 1 : 0 }}>
                     {/* <Logo /> */}
-                    <Typography variant="h6" className="font-bold text-gray-300" sx={{ ml: 1, fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>{unEntreprise?.nom || 'Entreprise'}</Typography>
+                    <Typography variant="h6" className="font-bold text-gray-100" sx={{ ml: 1, fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>{unEntreprise?.nom || 'Entreprise'}</Typography>
                   </Box>
                   <Box sx={{ flex: 1 }}>
                     <Typography 
                       variant="h4" 
-                      className={`font-bold text-gray-50 mb-2 ${isMobile ? 'mobile-title' : ''} leading-tight`}
+                      className={`font-bold text-gray-50 mb-2 leading-tight`}
                       sx={{ 
                         fontSize: { xs: '1.75rem', sm: '2rem', md: '2.125rem' },
                         textAlign: isMobile ? 'center' : 'left'
@@ -270,7 +270,7 @@ export default function DashboardDefault() {
                     </Typography>
                     <Typography 
                       variant="body1" 
-                      className="text-gray-400 leading-snug"
+                      className="text-gray-200 leading-snug"
                       sx={{ 
                         fontSize: { xs: '0.9rem', sm: '1rem' },
                         textAlign: isMobile ? 'center' : 'left'
@@ -282,6 +282,7 @@ export default function DashboardDefault() {
                 </Box>
 
                 <Grid container spacing={2} sx={{ width: '100%', mb: 3 }} className='flex justify-center'>
+                  
                   <Grid item md={3} sm={6}>
 
                     <Paper 

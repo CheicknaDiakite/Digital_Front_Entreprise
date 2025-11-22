@@ -41,16 +41,32 @@ export default function Header() {
   const iconBackColor = 'grey.100';
   const iconBackColorOpen = 'grey.200';
 
+  const appBarCommonSx = {
+    position: 'fixed' as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: theme.zIndex.appBar,
+    borderBottom: `1px solid ${theme.palette.divider}`,
+    // background with darker overlay and blend for better contrast
+    backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.55)), url(${backgroundImage})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    backgroundBlendMode: 'multiply',
+    backdropFilter: 'blur(4px)',
+  };
+
   // common header
   const mainHeader = (
     <Toolbar 
-      style={{ 
-        background: `linear-gradient(rgba(128, 128, 128, 0.7), rgba(128, 128, 128, 0.7)), url(${backgroundImage}) center center`, 
-        backgroundSize: 'contain', // Peut être 'cover' ou 'contain' selon votre besoin
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
+      // style={{ 
+      //   background: `linear-gradient(rgba(128, 128, 128, 0.7), rgba(128, 128, 128, 0.7)), url(${backgroundImage}) center center`, 
+      //   backgroundSize: 'contain', // Peut être 'cover' ou 'contain' selon votre besoin
+      //   backgroundPosition: 'center',
+      //   backgroundRepeat: 'no-repeat',
         
-      }}
+      // }}
       >
       {/* bouton gauche */}
       {isHome ? null : isEntreprise ? (
@@ -97,12 +113,12 @@ export default function Header() {
   return (
     <>
       {!downLG ? (
-        <AppBarStyled {...appBar}>
+        <AppBarStyled {...appBar} sx={appBarCommonSx}>
           
           {mainHeader}
         </AppBarStyled>
       ) : (
-        <AppBar {...appBar}>{mainHeader}</AppBar>
+        <AppBar {...appBar} sx={appBarCommonSx}>{mainHeader}</AppBar>
       )}
     </>
   );
