@@ -93,10 +93,10 @@ export default function Info() {
       {/* <Nav /> */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* {sousCate?.map((post, index) => ( */}
-          <div className={`mb-8 ${isMobile ? 'mobile-header-container' : ''}`}>
+          <div className={`mb-8`}>
             <Typography 
               variant="h4" 
-              className={`font-semibold text-gray-900 ${isMobile ? 'mobile-title' : ''}`}
+              className={`font-semibold text-gray-50`}
               sx={{ 
                 fontSize: { xs: '1.75rem', sm: '2rem' },
                 textAlign: isMobile ? 'center' : 'left'
@@ -106,7 +106,7 @@ export default function Info() {
             </Typography>
             <Typography 
               variant="body1" 
-              className="text-gray-500 mt-1"
+              className="text-gray-200 mt-1"
               sx={{ 
                 fontSize: { xs: '0.9rem', sm: '1rem' },
                 textAlign: isMobile ? 'center' : 'left'
@@ -224,7 +224,7 @@ export default function Info() {
             borderRadius: isMobile ? '16px' : '8px'
           }}
         >
-          <div className={`p-4 border-b bg-gray-50 ${isMobile ? 'mobile-table-header' : ''}`}>
+          <div className={`p-4 border-b bg-gray-200`}>
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
                 <TextField
@@ -277,7 +277,7 @@ export default function Info() {
                 <Button
                   variant="outlined"
                   size="small"
-                  className={isMobile ? 'mobile-button' : ''}
+                  // className={isMobile ? 'mobile-button' : ''}
                   sx={{
                     borderRadius: isMobile ? '12px' : '4px',
                     fontWeight: isMobile ? 600 : 400

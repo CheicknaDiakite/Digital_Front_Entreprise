@@ -177,10 +177,10 @@ export default function ComponentShadow() {
       <div className={`min-h-screen ${isMobile ? '' : ''}`}>
         {/* <Nav /> */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className={`mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 ${isMobile ? 'mobile-header-container' : ''}`}>
+          <div className={`mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4`}>
             <Typography 
               variant="h4" 
-              className={`font-semibold text-gray-900 ${isMobile ? 'mobile-title' : ''}`}
+              className={`font-semibold text-gray-50`}
               sx={{ 
                 fontSize: { xs: '1.75rem', sm: '2rem' },
                 textAlign: isMobile ? 'center' : 'left'

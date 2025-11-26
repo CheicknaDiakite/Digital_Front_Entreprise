@@ -167,7 +167,7 @@ export default function Entre() {
     formValues["is_sortie"] = is_sortie;
     formValues["is_prix"] = is_prix;
     formValues["user_id"] = connect;
-    console.log(" test ..",formValues);
+    
     ajoutEntre(formValues);
     
     setTerminer(false);
@@ -237,19 +237,19 @@ export default function Entre() {
                 <div>
                   <Typography 
                     variant={isMobile ? "h5" : "h4"} 
-                    className={`${isMobile ? 'mobile-title' : 'font-semibold text-gray-900'}`}
-                    sx={isMobile ? {
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                      backgroundClip: 'text',
-                      fontWeight: 700,
-                      textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-                    } : {}}
+                    className={'font-semibold text-gray-50'}
+                    // sx={isMobile ? {
+                    //   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    //   WebkitBackgroundClip: 'text',
+                    //   WebkitTextFillColor: 'transparent',
+                    //   backgroundClip: 'text',
+                    //   fontWeight: 700,
+                    //   textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                    // } : {}}
                   >
                     Gestion des Entrées
                   </Typography>
-                  <Typography variant="body2" className={`${isMobile ? 'text-gray-600 mt-2' : 'text-gray-500 mt-1'}`}>
+                  <Typography variant="body2" className={`${isMobile ? 'text-gray-200 mt-2' : 'text-gray-200 mt-1'}`}>
                     Gérez votre inventaire et vos approvisionnements
                   </Typography>
                 </div>

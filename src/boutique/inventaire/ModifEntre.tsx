@@ -65,7 +65,7 @@ export default function ModifEntre() {
 
     unEntre["is_sortie"] = ajout_terminer
     unEntre["is_prix"] = is_prix
-    console.log(unEntre)
+    
     updateEntre(unEntre)
     
   };
