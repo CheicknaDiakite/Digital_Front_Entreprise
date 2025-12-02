@@ -6,8 +6,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import AppBar, { AppBarProps } from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
-import ReturnIcon from '@mui/icons-material/KeyboardReturn';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import backgroundImage from '../../../../public/assets/img/img.jpg'
 // project import
 import AppBarStyled from './AppBarStyled';
@@ -37,9 +36,6 @@ export default function Header() {
 
   // header content
   const headerContent = useMemo(() => <HeaderContent />, []);
-
-  const iconBackColor = 'grey.100';
-  const iconBackColorOpen = 'grey.200';
 
   const appBarCommonSx = {
     position: 'fixed' as const,
@@ -91,7 +87,7 @@ export default function Header() {
           className='text-white border-indigo-600 bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700 border border-dashed animate-border-rotate rounded-lg'
           // sx={{ color: 'text.primary', bgcolor: iconBackColor, ml: { xs: 0, lg: -2 } }}
         >
-          <ArrowBackIosNewIcon />
+          <ArrowBackIcon />
         </IconButton>
       )}      
       

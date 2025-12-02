@@ -61,6 +61,7 @@ export type EntreType = {
     pu_achat?: number;
     facture?: File | undefined | null ;
     date?: string;
+    description?: string;
     ref?: string;
     entreprise_id?: string;
     is_sortie?: boolean;

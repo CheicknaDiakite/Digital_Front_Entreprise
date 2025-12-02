@@ -10,12 +10,12 @@ import {
   Paper,
   Box,
   IconButton,
-  Alert
+  Alert,
+  Switch
 } from '@mui/material'
 import { connect } from '../../_services/account.service'
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
 import { useDeleteEntre, useFetchEntre, useUpdateEntre } from '../../usePerso/fonction.entre'
-import Nav from '../../_components/Button/Nav'
 import { useFetchUser } from '../../usePerso/fonction.user'
 import { useStoreUuid } from '../../usePerso/store'
 import SaveIcon from '@mui/icons-material/Save';
@@ -30,6 +30,7 @@ export default function ModifEntre() {
   const {deleteEntre} = useDeleteEntre()
 
   const [ajout_terminer, setTerminer] = useState(true);
+  const [showAncien, setShowAncien] = useState(false);
   
   const Ajout_Terminer = () => setTerminer(!ajout_terminer);
 
@@ -103,6 +104,20 @@ export default function ModifEntre() {
               <Typography variant="body2" className="text-gray-500 mt-1">
                 Modifiez les informations de l'entrée en stock
               </Typography>
+
+              {/* Switch pour afficher / masquer "ancien" */}
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={showAncien}
+                    onChange={(e) => setShowAncien(e.target.checked)}
+                    color="primary"
+                    size="small"
+                    inputProps={{ 'aria-label': 'Une motif de la mis en jour' }}
+                  />
+                }
+                label="Une motif de la mis en jour"
+              />
             </div>
 
             {/* Form */}
@@ -159,6 +174,20 @@ export default function ModifEntre() {
                     onChange={onChange}
                     fullWidth
                     className="bg-white"
+                  />
+                )}
+
+                {showAncien && (
+                  <TextField
+                    fullWidth
+                    multiline
+                    rows={4}
+                    name="description"
+                    label="Ajoutez des notes ou des informations supplémentaires..."
+                    value={unEntre.description}
+                    onChange={onChange}
+                    variant="outlined"
+                    className="bg-slate-100 text-red-300"
                   />
                 )}
 

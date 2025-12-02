@@ -16,7 +16,10 @@ import {
   CircularProgress,
   Pagination,
   TextField,
-  Stack
+  Stack,
+  Switch,
+  FormControlLabel,
+  Tooltip
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -107,6 +110,7 @@ const HistoryRow = ({ row }: HistoryRowProps) => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [showAncien, setShowAncien] = useState(false); // <-- état du switch
   const rowsPerPage = 50;
 
   const filteredHistorique = row.historique?.filter((historyRow) => {
@@ -122,6 +126,8 @@ const HistoryRow = ({ row }: HistoryRowProps) => {
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
+
+  console.log('Filtered Historique:', filteredHistorique);
 
   return (
     <>
@@ -152,6 +158,20 @@ const HistoryRow = ({ row }: HistoryRowProps) => {
                     {filteredHistorique?.length ?? 0}
                   </span>
                 </Typography>
+
+                {/* Switch pour afficher / masquer "ancien" */}
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={showAncien}
+                      onChange={(e) => setShowAncien(e.target.checked)}
+                      color="primary"
+                      size="small"
+                      inputProps={{ 'aria-label': 'Afficher ancien' }}
+                    />
+                  }
+                  label="Afficher ancien"
+                />
               </div>
 
               <FilterButtons currentFilter={filter} onFilterChange={setFilter} />
@@ -170,33 +190,96 @@ const HistoryRow = ({ row }: HistoryRowProps) => {
                       <TableCell>Type</TableCell>
                       <TableCell align="right">Quantité</TableCell>
                       <TableCell align="right">Prix unitaire</TableCell>
-                      <TableCell align="right">Libellé</TableCell>
                       <TableCell align="right">Catégorie</TableCell>
+                      <TableCell align="right">Description</TableCell>
                       <TableCell align="right">Action</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {paginatedHistorique?.map((historyRow, index) => (
-                      <TableRow key={index} hover>
-                        <TableCell>
-                          {format(new Date(historyRow.date ?? new Date()), 'dd/MM/yyyy HH:mm:ss')}
-                        </TableCell>
-                        <TableCell>
-                          <span className={`px-2 py-1 rounded-full text-sm ${
-                            historyRow.type === 'entrer' 
-                              ? 'bg-green-50 text-green-700' 
-                              : 'bg-blue-50 text-blue-700'
-                          }`}>
-                            {historyRow.type}
-                          </span>
-                        </TableCell>
-                        <TableCell align="right">{historyRow.qte}</TableCell>
-                        <TableCell align="right">{formatNumberWithSpaces(historyRow.pu)}</TableCell>
-                        <TableCell align="right">{historyRow.libelle}</TableCell>
-                        <TableCell align="right">{historyRow.categorie}</TableCell>
-                        <TableCell align="right">{historyRow.action}</TableCell>
-                      </TableRow>
-                    ))}
+                    {paginatedHistorique?.map((historyRow, index) => {
+                      const ancien = Number(historyRow.ancien_qte) || 0;
+                      const qteRaw = Number(historyRow.qte) || 0;
+
+                      const qteAffiche = historyRow.cumuler_qe ? ancien + qteRaw : qteRaw;
+                      const delta = historyRow.cumuler_qe ? qteRaw : qteRaw - ancien;
+                      const deltaText = `${delta > 0 ? '+' : ''}${delta}`;
+                      const arrowIcon = historyRow.cumuler_qe
+                        ? <KeyboardArrowUpIcon color="success" fontSize="small" />
+                        : (delta > 0
+                            ? <KeyboardArrowUpIcon color="success" fontSize="small" />
+                            : <KeyboardArrowDownIcon color="error" fontSize="small" />
+                          );
+                      const badgeColor = historyRow.cumuler_qe
+                        ? 'bg-green-100 text-green-800'
+                        : (delta > 0 ? 'bg-green-100 text-green-800' : delta < 0 ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-700');
+
+                      return (
+                        <TableRow key={index} hover>
+                          <TableCell>
+                            {format(new Date(historyRow.date ?? new Date()), 'dd/MM/yyyy HH:mm:ss')}
+                          </TableCell>
+                          <TableCell>
+                            <span className={`px-2 py-1 rounded-full text-sm ${
+                              historyRow.type === 'entrer'
+                                ? 'bg-green-50 text-green-700'
+                                : 'bg-blue-50 text-blue-700'
+                            }`}>
+                              {historyRow.type}
+                            </span>
+                          </TableCell>
+                          <TableCell align="right">
+                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, justifyContent: 'flex-end' }}>
+                              {/* n'affiche l'ancien que si le switch est activé */}
+                              {showAncien && (
+                                <span style={{ color: '#6b7280', fontSize: '0.95rem', minWidth: 48, textAlign: 'right' }}>{ancien}</span>
+                              )}
+
+                              <span style={{ fontWeight: 700, fontSize: '0.95rem', minWidth: 48, textAlign: 'right' }}>{qteAffiche}</span>
+
+                              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                                {arrowIcon}
+                                <span style={{
+                                  fontSize: '0.75rem',
+                                  padding: '2px 6px',
+                                  borderRadius: 8,
+                                  fontWeight: 600
+                                }} className={badgeColor}>
+                                  {historyRow.cumuler_qe ? `+${qteRaw}` : deltaText}
+                                </span>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell align="right">{formatNumberWithSpaces(historyRow.pu)}</TableCell>
+                          <TableCell align="right">{historyRow.categorie}</TableCell>
+                          <TableCell align="right">
+                            <Typography variant="body2" sx={{ fontWeight: 600, textAlign: 'right' }}>
+                              {historyRow.libelle || '-'}
+                            </Typography>
+
+                            {historyRow.description && (
+                              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0.5 }}>
+                                <Tooltip title={historyRow.description}>
+                                  <Typography
+                                    variant="caption"
+                                    sx={{
+                                      color: 'text.secondary',
+                                      fontStyle: 'italic',
+                                      maxWidth: 220,
+                                      textOverflow: 'ellipsis',
+                                      overflow: 'hidden',
+                                      whiteSpace: 'nowrap',
+                                    }}
+                                  >
+                                    motif: {historyRow.description.length > 80 ? `${historyRow.description.slice(0, 80)}…` : historyRow.description}
+                                  </Typography>
+                                </Tooltip>
+                              </Box>
+                            )}
+                          </TableCell>
+                          <TableCell align="right">{historyRow.action}</TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </TableContainer>
@@ -222,7 +305,7 @@ const HistoryRow = ({ row }: HistoryRowProps) => {
 
 export default function TableHistory() {
   const { historique, isLoading, isError } = useHistoriqueEntreprise();
-
+  
   if (isLoading) return <LoadingSpinner />;
   if (isError) return <ErrorMessage />;
   if (!historique) return null;

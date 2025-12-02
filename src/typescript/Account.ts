@@ -14,8 +14,11 @@ export type Account = {
 export type HistoriqueType = {
     type: string,
     ref: string,
+    description?: string,
     actions: string,
     qte: number,
+    ancien_qte?: number,
+    cumuler_qe?: boolean,
     pu: number,
     libelle: string,
     categorie: string,
