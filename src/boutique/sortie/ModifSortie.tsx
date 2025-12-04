@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { Button, Card, CardContent, DialogContent, DialogTitle, Stack, TextField, Typography, Alert } from '@mui/material'
 import { connect } from '../../_services/account.service'
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
+import CancelIcon from '@mui/icons-material/Cancel';
 import { useDeleteSortie, useFetchSortie, useUpdateSortie } from '../../usePerso/fonction.entre'
 import Nav from '../../_components/Button/Nav'
 import { useFetchUser } from '../../usePerso/fonction.user'
@@ -21,14 +22,30 @@ export default function ModifSortie() {
   const {deleteSortie} = useDeleteSortie()
 
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   const handleDelete = () => {
     setShowConfirm(true);
   };
+  const handleCancel = () => {
+    setShowCancelConfirm(true);
+  };
 
   const confirmDelete = () => {
-    deleteSortie(unSortie);
+    const payload = { ...unSortie, action: 'delete' };
+    setUnSortie(payload);
+    deleteSortie(payload);
+    
     setShowConfirm(false);
+  };
+  
+  const confirmCancel = () => {
+    const payload = { ...unSortie, action: 'cancel' };
+    setUnSortie(payload);
+    // on utilise updateSortie pour marquer la sortie comme annulée
+    deleteSortie(payload);
+    
+    setShowCancelConfirm(false);
   };
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -66,7 +83,26 @@ export default function ModifSortie() {
           </div>
         }
       >
-        Êtes-vous sûr de vouloir supprimer cette sortie ?
+        Êtes-vous sûr de vouloir supprimer cette vente ?
+      </Alert>
+    )}
+    
+    {showCancelConfirm && (
+      <Alert 
+        severity="warning" 
+        className="mt-4"
+        action={
+          <div className="space-x-2">
+            <Button color="inherit" size="small" onClick={() => setShowCancelConfirm(false)}>
+              Annuler
+            </Button>
+            <Button color="error" size="small" onClick={confirmCancel}>
+              Confirmer
+            </Button>
+          </div>
+        }
+      >
+        Êtes-vous sûr d'annuler cette vente ?
       </Alert>
     )}
     <Card sx={{ minWidth: 275 }}>
@@ -106,11 +142,16 @@ export default function ModifSortie() {
               name='qte'
                onChange={onChange}></TextField>
 
-               {(unUser.role === 1 || unUser.role === 2) &&     
+               {(unUser.role === 1) &&     
                   <Button size="small" className='rounded-full shadow-md shadow-red-800/50' onClick={handleDelete}>
                     <DeleteIcon fontSize='small' />
                   </Button>
                 }
+                {(unUser.role === 1 || unUser.role === 2) &&     
+                   <Button size="small" className='ml-2 rounded-full shadow-md shadow-gray-800/30' onClick={handleCancel}>
+                     <CancelIcon fontSize='small' />
+                   </Button>
+                 }
               
               {/* <Button type="submit" color="success" variant="outlined">Yes</Button> */}
             </Stack>

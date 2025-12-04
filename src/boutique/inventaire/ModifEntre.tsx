@@ -116,7 +116,7 @@ export default function ModifEntre() {
                     inputProps={{ 'aria-label': 'Une motif de la mis en jour' }}
                   />
                 }
-                label="Une motif de la mis en jour"
+                label="Une motif de la mis a jour"
               />
             </div>
 

@@ -19,15 +19,16 @@ import {
   Stack,
   Switch,
   FormControlLabel,
-  Tooltip
+  Tooltip,
+  Dialog,
+  DialogTitle,
+  DialogContent
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { format } from 'date-fns';
 import { useHistoriqueEntreprise } from '../../../usePerso/fonction.user';
-import { connect } from '../../../_services/account.service';
 import { EntrepriseType } from '../../../typescript/Account';
-import Nav from '../../../_components/Button/Nav';
 import { formatNumberWithSpaces } from '../../../usePerso/fonctionPerso';
 
 // Types
@@ -111,6 +112,7 @@ const HistoryRow = ({ row }: HistoryRowProps) => {
   const [endDate, setEndDate] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [showAncien, setShowAncien] = useState(false); // <-- état du switch
+  const [descDialog, setDescDialog] = useState<string | null>(null);
   const rowsPerPage = 50;
 
   const filteredHistorique = row.historique?.filter((historyRow) => {
@@ -126,8 +128,6 @@ const HistoryRow = ({ row }: HistoryRowProps) => {
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
-
-  console.log('Filtered Historique:', filteredHistorique);
 
   return (
     <>
@@ -167,7 +167,7 @@ const HistoryRow = ({ row }: HistoryRowProps) => {
                       onChange={(e) => setShowAncien(e.target.checked)}
                       color="primary"
                       size="small"
-                      inputProps={{ 'aria-label': 'Afficher ancien' }}
+                      inputProps={{ 'aria-label': 'Afficher ancien (quantiter)' }}
                     />
                   }
                   label="Afficher ancien"
@@ -258,9 +258,10 @@ const HistoryRow = ({ row }: HistoryRowProps) => {
 
                             {historyRow.description && (
                               <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0.5 }}>
-                                <Tooltip title={historyRow.description}>
+                                <Tooltip title="Afficher la description complète">
                                   <Typography
                                     variant="caption"
+                                    onClick={() => setDescDialog(historyRow.description ?? null)}
                                     sx={{
                                       color: 'text.secondary',
                                       fontStyle: 'italic',
@@ -268,6 +269,8 @@ const HistoryRow = ({ row }: HistoryRowProps) => {
                                       textOverflow: 'ellipsis',
                                       overflow: 'hidden',
                                       whiteSpace: 'nowrap',
+                                      cursor: 'pointer',
+                                      '&:hover': { textDecoration: 'underline' }
                                     }}
                                   >
                                     motif: {historyRow.description.length > 80 ? `${historyRow.description.slice(0, 80)}…` : historyRow.description}
@@ -299,6 +302,15 @@ const HistoryRow = ({ row }: HistoryRowProps) => {
           </Collapse>
         </TableCell>
       </TableRow>
+
+      <Dialog open={!!descDialog} onClose={() => setDescDialog(null)} maxWidth="sm" fullWidth>
+        <DialogTitle>Motif</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+            {descDialog}
+          </Typography>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

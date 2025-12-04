@@ -46,7 +46,7 @@ import { BASE } from '../../_services/caller.service'
 
 
 export default function PublicRouter() {
-  // notClick()
+  notClick()
 
   const uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise } = useFetchEntreprise(uuid);
