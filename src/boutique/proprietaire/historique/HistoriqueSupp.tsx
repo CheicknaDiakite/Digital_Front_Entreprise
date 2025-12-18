@@ -17,7 +17,6 @@ import { format } from 'date-fns';
 import { useHistorySuppEntreprise } from '../../../usePerso/fonction.user';
 import { useStoreUuid } from '../../../usePerso/store';
 import { formatNumberWithSpaces } from '../../../usePerso/fonctionPerso';
-import Nav from '../../../_components/Button/Nav';
 import { HistoriqueType } from '../../../typescript/Account';
 
 // Components
@@ -69,11 +68,16 @@ const HistoryTable = ({ data }: { data: HistoriqueType[] }) => (
     elevation={0}
     sx={{ 
       borderRadius: 2,
-      overflow: 'hidden'
+      overflow: 'hidden',
+      /* permettre le scroll horizontal au toucher sur mobile */
+      overflowX: 'auto',
+      WebkitOverflowScrolling: 'touch',
+      touchAction: 'pan-x',
+      overscrollBehaviorX: 'auto'
     }}
   >
     <Table 
-      sx={{ minWidth: 700 }} 
+      sx={{ minWidth: 700, display: 'table' }} 
       aria-label="tableau historique des suppressions"
     >
       <TableHead>
@@ -121,11 +125,7 @@ const HistoryTable = ({ data }: { data: HistoriqueType[] }) => (
           <TableRow 
             key={`history-${index}`}
             hover
-            sx={{ 
-              '&:last-child td, &:last-child th': { 
-                border: 0 
-              }
-            }}
+            sx={{ '& > *': { borderBottom: 'unset' } }}
           >
             <TableCell>
               {format(new Date(row.date ?? new Date()), 'dd/MM/yyyy HH:mm:ss')}
@@ -165,9 +165,9 @@ export default function HistoriqueSupp() {
     <div className="min-h-screen py-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* <Nav /> */}
-        <Box sx={{ mt: 6 }}>
+        <Paper elevation={0} className="mt-6">
           <HistoryTable data={suppH} />
-        </Box>
+        </Paper>
       </div>
     </div>
   );

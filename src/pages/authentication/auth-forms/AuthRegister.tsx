@@ -200,7 +200,15 @@ const AuthRegister: FC = () => {
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
-                        <IconButton onClick={() => setShowPassword(prev => !prev)} size="small">
+                        <IconButton 
+                        onClick={() => setShowPassword(prev => !prev)} 
+                        size="small"
+                        color='error'
+                        aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                        // onClick={() => setShowPassword(prev => !prev)}
+                        edge="end"
+                        // size="small"
+                        >
                           {showPassword ? <VisibilityOff /> : <Visibility />}
                         </IconButton>
                       </InputAdornment>

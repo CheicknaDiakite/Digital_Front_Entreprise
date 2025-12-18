@@ -19,7 +19,6 @@ import ImageIcon from '@mui/icons-material/Image';
 import img from '../../../../public/icon-192x192.png'
 import { useAllGetSousCate, useCreateSousCate, useFetchCategorie } from '../../../usePerso/fonction.categorie';
 import MyTextField from '../../../_components/Input/MyTextField';
-import Nav from '../../../_components/Button/Nav';
 import { SousCategorieFormType } from '../../../typescript/FormType';
 import { useStoreUuid } from '../../../usePerso/store';
 import { useFetchEntreprise, useFetchUser } from '../../../usePerso/fonction.user';
@@ -75,7 +74,7 @@ function ShadowBox({ shadow }: ShadowBoxProps) {
             </div>
             <Typography 
               variant="subtitle1" 
-              className="font-medium text-gray-900"
+              className="font-medium text-white"
               sx={{ 
                 fontSize: { xs: '0.9rem', sm: '1rem' },
                 fontWeight: 600

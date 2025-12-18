@@ -178,7 +178,7 @@ const AuthLogin: FC = () => {
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton
-                        color='success'
+                        color='error'
                         aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
                         onClick={() => setShowPassword(prev => !prev)}
                         edge="end"

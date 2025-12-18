@@ -14,7 +14,6 @@ import { connect } from '../../_services/account.service';
 import { Link } from 'react-router-dom';
 import { useCategoriesEntreprise, useCreateCategorie } from '../../usePerso/fonction.categorie';
 import MyTextField from '../../_components/Input/MyTextField';
-import Nav from '../../_components/Button/Nav';
 import { CategorieFormType } from '../../typescript/FormType';
 import { CateBouType } from '../../typescript/DataType';
 import { useStoreUuid } from '../../usePerso/store';
@@ -67,7 +66,7 @@ function ShadowBox({ shadow }: ShadowBoxProps) {
           <div className="text-center">
             <Typography 
               variant="subtitle1" 
-              className="font-medium text-gray-900"
+              className="font-medium text-white"
               sx={{ 
                 fontSize: { xs: '0.9rem', sm: '1rem' },
                 fontWeight: 600
@@ -77,7 +76,7 @@ function ShadowBox({ shadow }: ShadowBoxProps) {
             </Typography>
             <Typography 
               variant="body2" 
-              className="text-gray-500"
+              className="text-gray-300"
               sx={{ 
                 fontSize: { xs: '0.8rem', sm: '0.875rem' }
               }}

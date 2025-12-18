@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { SyntheticEvent, useEffect, useRef, useState } from 'react';
+import { SyntheticEvent, useRef, useState } from 'react';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
