@@ -38,7 +38,7 @@ function ShadowBox({ shadow }: ShadowBoxProps) {
   return (
     <Paper 
       elevation={isMobile ? 2 : 0} 
-      className={`relative p-4 rounded-lg transition-all duration-200 hover:shadow-md border-x-2 animate-border-rotate mobile-shadow-card mobile-hover-effect ${isMobile ? 'mobile-glass' : ''}`}
+      className={`relative p-4 rounded-lg transition-all duration-200 hover:shadow-md border-x-2 animate-border-rotate mobile-shadow-card mobile-hover-effect ${isMobile ? 'mobile-glass' : 'mobile-glass'}`}
       sx={{
         borderRadius: isMobile ? '20px' : '8px',
         minHeight: { xs: '140px', sm: '160px' }

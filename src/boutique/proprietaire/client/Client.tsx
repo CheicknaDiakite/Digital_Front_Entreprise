@@ -25,7 +25,6 @@ import { ChangeEvent, Fragment, useState, useEffect } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { useAllClients, useCreateClient, useFetchEntreprise } from "../../../usePerso/fonction.user";
 import { connect } from "../../../_services/account.service";
-import Nav from "../../../_components/Button/Nav";
 import MyTextField from "../../../_components/Input/MyTextField";
 import { useStoreUuid } from "../../../usePerso/store";
 import { ClienType } from "../../../typescript/UserType";
@@ -125,14 +124,14 @@ export default function Client() {
 
           <Paper 
             elevation={0} 
-            className={`${isMobile ? 'mobile-header-container' : 'mt-6 rounded-lg overflow-hidden'}`}
-            sx={isMobile ? {
-              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7))',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              borderRadius: '20px',
-              marginTop: '24px'
-            } : {}}
+            className={`${isMobile ? 'mt-6 rounded-lg overflow-hidden' : 'mt-6 rounded-lg overflow-hidden'}`}
+            sx={{
+              background: 'transparent',   // totalement transparent
+              bgcolor: 'transparent',
+              backdropFilter: 'none',
+              border: 'none',
+              ...(isMobile ? { borderRadius: '20px', marginTop: '24px' } : {})
+            }}
           >
             <Box className={`${isMobile ? 'mobile-p-4' : 'p-6'}`}>
               {/* Header */}
@@ -140,19 +139,19 @@ export default function Client() {
                 <div>
                   <Typography 
                     variant={isMobile ? "h5" : "h4"} 
-                    className={`${isMobile ? 'mobile-title' : 'font-semibold text-gray-900'}`}
-                    sx={isMobile ? {
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                      backgroundClip: 'text',
-                      fontWeight: 700,
-                      textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-                    } : {}}
+                    className={`${isMobile ? 'font-semibold text-gray-50' : 'font-semibold text-gray-50'}`}
+                    // sx={isMobile ? {
+                    //   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    //   WebkitBackgroundClip: 'text',
+                    //   WebkitTextFillColor: 'transparent',
+                    //   backgroundClip: 'text',
+                    //   fontWeight: 700,
+                    //   textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                    // } : {}}
                   >
                     Gestion des Clients et Fournisseurs
               </Typography>
-                  <Typography variant="body2" className={`${isMobile ? 'text-gray-600 mt-2' : 'text-gray-500 mt-1'}`}>
+                  <Typography variant="body2" className={`${isMobile ? 'text-gray-100 mt-2' : 'text-gray-100 mt-1'}`}>
                     Gérez vos relations commerciales
               </Typography>
                 </div>

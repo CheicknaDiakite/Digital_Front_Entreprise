@@ -26,7 +26,6 @@ import { connect } from '../../_services/account.service';
 import { RecupType } from '../../typescript/DataType';
 import CloseIcon from "@mui/icons-material/Close";
 import { useCreateEntre, useGetAllEntre } from '../../usePerso/fonction.entre';
-import Nav from '../../_components/Button/Nav';
 import { EntreFormType } from '../../typescript/FormType';
 import { AjoutEntreForm, useFormValues } from '../../usePerso/useEntreprise';
 import { formatNumberWithSpaces, isLicenceExpired } from '../../usePerso/fonctionPerso';

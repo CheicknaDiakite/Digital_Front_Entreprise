@@ -85,12 +85,14 @@ export default function EntrepriseDetail() {
             elevation={0} 
             className={`border rounded-lg overflow-hidden ${isMobile ? 'mobile-modif-paper' : ''}`}
             sx={ {
-                  
-                  backdropFilter: 'blur(8px)',
-                  
-                  bgcolor: 'rgba(255,255,255,0.06)', // semi-transparent. Mettre 'transparent' pour totalement transparent
-                  // backdropFilter: 'blur(8px)',
-                } }
+                background: 'transparent',
+                bgcolor: 'transparent',
+                backdropFilter: 'none',
+                // backdropFilter: 'blur(8px)',
+                
+                // bgcolor: 'rgba(255,255,255,0.06)', // semi-transparent. Mettre 'transparent' pour totalement transparent
+                // backdropFilter: 'blur(8px)',
+              } }
             >
               <Box className={`border-b bg-white/80 backdrop-blur-sm ${isMobile ? 'mobile-admin-tabs' : ''}`}>
                 <Tabs 
@@ -126,7 +128,18 @@ export default function EntrepriseDetail() {
                 </Tabs>
               </Box>
 
-              <Box className={`bg-white/95 backdrop-blur-sm ${isMobile ? 'mobile-fade-in' : ''}`}>
+              <Box 
+                className={`bg-white/95 backdrop-blur-sm ${isMobile ? 'mobile-fade-in' : ''}`}
+                sx={ {
+                  background: 'transparent',
+                  bgcolor: 'transparent',
+                  backdropFilter: 'none',
+                  // backdropFilter: 'blur(8px)',
+                  
+                  // bgcolor: 'rgba(255,255,255,0.06)', // semi-transparent. Mettre 'transparent' pour totalement transparent
+                  // backdropFilter: 'blur(8px)',
+                } }
+                >
                 <CustomTabPanel value={value} index={0}>
                   <EtatProduit />
                 </CustomTabPanel>

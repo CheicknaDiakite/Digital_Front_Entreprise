@@ -1,4 +1,4 @@
-// import { UserPlusIcon } from "@heroicons/react/24/solid";
+// import { UserPlusIcon } from "@heroicons/react/24/solid};
 import {
   Typography,
   Button,
@@ -25,7 +25,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import { FormValueType } from "../../../typescript/FormType";
 // import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useCreateAdminUser, useFetchAllUsers, useFetchEntreprise } from "../../../usePerso/fonction.user";
-import Nav from "../../../_components/Button/Nav";
 import MyTextField from "../../../_components/Input/MyTextField";
 import { useStoreUuid } from "../../../usePerso/store";
 // import { format } from "date-fns";
@@ -132,14 +131,14 @@ export default function Personnel() {
 
           <Paper 
             elevation={0} 
-            className={`${isMobile ? 'mobile-header-container' : 'mt-6 rounded-lg overflow-hidden'}`}
-            sx={isMobile ? {
-              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7))',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              borderRadius: '20px',
-              marginTop: '24px'
-            } : {}}
+            className={`${isMobile ? 'mt-6 rounded-lg overflow-hidden' : 'mt-6 rounded-lg overflow-hidden'}`}
+            sx={{
+              background: 'transparent',
+              bgcolor: 'transparent',
+              backdropFilter: 'none',
+              border: 'none',
+              ...(isMobile ? { borderRadius: '20px', marginTop: '24px' } : {})
+            }}
           >
             <Box className={`${isMobile ? 'mobile-p-4' : 'p-6'}`}>
               {/* Header */}
@@ -147,19 +146,19 @@ export default function Personnel() {
                 <div>
                   <Typography 
                     variant={isMobile ? "h5" : "h4"} 
-                    className={`${isMobile ? 'mobile-title' : 'font-semibold text-gray-900'}`}
-                    sx={isMobile ? {
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                      backgroundClip: 'text',
-                      fontWeight: 700,
-                      textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-                    } : {}}
+                    className={`${isMobile ? 'font-semibold text-gray-50' : 'font-semibold text-gray-50'}`}
+                    // sx={isMobile ? {
+                    //   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    //   WebkitBackgroundClip: 'text',
+                    //   WebkitTextFillColor: 'transparent',
+                    //   backgroundClip: 'text',
+                    //   fontWeight: 700,
+                    //   textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                    // } : {}}
                   >
                     Gestion du Personnel
                   </Typography>
-                  <Typography variant="body2" className={`${isMobile ? 'text-gray-600 mt-2' : 'text-gray-500 mt-1'}`}>
+                  <Typography variant="body2" className={`${isMobile ? 'text-gray-100 mt-2' : 'text-gray-100 mt-1'}`}>
                     Gérez les membres de votre entreprise
                   </Typography>
                 </div>
@@ -201,23 +200,21 @@ export default function Personnel() {
                   <Grid item xs={12} sm={6} md={4} key={post.id} className={`${isMobile ? `mobile-stagger-${(index % 6) + 1}` : ''}`}>
                     <Link to={`/entreprise/personnel/modif/${post.uuid}`} className={isMobile ? 'mobile-card-link' : ''}>
                       <MainCard 
-                        className={`${isMobile ? 'mobile-personnel-card' : 'transition-all duration-200 hover:shadow-md'}`}
-                        sx={{ 
+                        className={`${isMobile ? 'mobile-personnel-card' : 'transition-all duration-200 hover:shadow-md mobile-personnel-card'}`}
+                        sx={{
                           height: '100%',
-                          ...(isMobile ? {
-                            borderRadius: '16px',
-                            backdropFilter: 'blur(10px)',
-                            background: 'rgba(255, 255, 255, 0.95)',
-                            border: '1px solid rgba(255, 255, 255, 0.2)',
-                            transition: 'all 0.3s ease',
-                            animation: 'scaleIn 0.6s ease-out',
-                            overflow: 'hidden',
-                            '&:hover': {
-                              transform: 'translateY(-8px)',
-                              boxShadow: '0 16px 32px rgba(0, 0, 0, 0.15)',
-                              animation: 'cardHover 0.3s ease-out forwards'
-                            }
-                          } : {})
+                          background: 'transparent',
+                          bgcolor: 'transparent',
+                          backdropFilter: 'none',
+                          border: 'none',
+                          borderRadius: isMobile ? '16px' : 2,
+                          overflow: 'hidden',
+                          transition: 'transform 0.25s ease, box-shadow 0.25s ease',
+                          ...(isMobile ? { animation: 'scaleIn 0.6s ease-out' } : {}),
+                          '&:hover': {
+                            transform: isMobile ? 'none' : 'translateY(-6px)',
+                            boxShadow: isMobile ? 'none' : '0 10px 30px rgba(2,6,23,0.12)'
+                          }
                         }}
                         content={false}
                       >
