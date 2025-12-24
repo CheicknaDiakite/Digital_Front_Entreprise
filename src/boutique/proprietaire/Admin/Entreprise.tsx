@@ -84,8 +84,8 @@ const IconsGrid: FC<IconsGridProps> = ({ icon, title, description, image }) => (
       />
     </div>
     <h4 className="text-lg sm:text-xl font-semibold mb-3 flex items-center justify-center gap-2 text-gray-800">
-      <span className="text-blue-600">{title}</span>
-      {icon}
+      <span className="text-blue-600 inline-block truncate max-w-[140px] sm:max-w-[220px]">{title}</span>
+      <span className="flex-shrink-0">{icon}</span>
     </h4>
     <div className="text-gray-600 text-sm sm:text-base">{description}</div>
   </div>

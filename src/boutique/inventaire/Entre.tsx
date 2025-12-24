@@ -223,7 +223,7 @@ export default function Entre() {
             // className={`${isMobile ? 'mobile-header-container' : 'mt-6 rounded-lg overflow-hidden'}`}
             sx={ {
               // background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7))',
-              backdropFilter: 'blur(10px)',
+              backdropFilter: 'blur(5px)',
               border: '1px solid rgba(255, 255, 255, 0.2)',
               borderRadius: '20px',
               marginTop: '24px',
@@ -237,14 +237,7 @@ export default function Entre() {
                   <Typography 
                     variant={isMobile ? "h5" : "h4"} 
                     className={'font-semibold text-gray-50'}
-                    // sx={isMobile ? {
-                    //   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    //   WebkitBackgroundClip: 'text',
-                    //   WebkitTextFillColor: 'transparent',
-                    //   backgroundClip: 'text',
-                    //   fontWeight: 700,
-                    //   textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-                    // } : {}}
+                    
                   >
                     Gestion des Entrées
                   </Typography>

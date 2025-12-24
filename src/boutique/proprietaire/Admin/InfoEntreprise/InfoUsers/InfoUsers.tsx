@@ -80,10 +80,10 @@ export default function InfoUsers() {
   return (
     <Container maxWidth="md" className={`py-8 ${isMobile ? 'mobile-users-container' : ''}`}>
       <div className={`mb-6 ${isMobile ? 'mobile-animate-in' : ''}`}>
-        <Typography variant="h4" className={`font-semibold text-gray-900 mb-2 ${isMobile ? 'mobile-users-title' : ''}`}>
+        <Typography variant="h4" className={`font-semibold text-gray-50 mb-2 ${isMobile ? 'mobile-users-title' : ''}`}>
           Utilisateurs de l'entreprise
         </Typography>
-        <Typography variant="body1" className={`text-gray-500 ${isMobile ? 'mobile-users-subtitle' : ''}`}>
+        <Typography variant="body1" className={`text-gray-100 ${isMobile ? 'mobile-users-subtitle' : ''}`}>
           {entrepriseUsers?.length || 0} utilisateur{entrepriseUsers?.length !== 1 ? 's' : ''} enregistré{entrepriseUsers?.length !== 1 ? 's' : ''}
         </Typography>
       </div>

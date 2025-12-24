@@ -11,10 +11,13 @@ import {
   Box,
   IconButton,
   Alert,
-  Switch
+  Switch,
+  InputAdornment,
 } from '@mui/material'
 import { connect } from '../../_services/account.service'
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
+import LocalAtmIcon from '@mui/icons-material/LocalAtm';
+import InventoryIcon from '@mui/icons-material/Inventory';
 import { useDeleteEntre, useFetchEntre, useUpdateEntre } from '../../usePerso/fonction.entre'
 import { useFetchUser } from '../../usePerso/fonction.user'
 import { useStoreUuid } from '../../usePerso/store'
@@ -149,8 +152,15 @@ export default function ModifEntre() {
                   type="number"
                   value={unEntre.qte}
                   onChange={onChange}
-                  fullWidth
                   className="bg-white"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <InventoryIcon color="error" fontSize="small" />
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{ width: { xs: '100%', sm: 220 } }}
                 />
 
                 <TextField
@@ -160,8 +170,15 @@ export default function ModifEntre() {
                   type="number"
                   value={unEntre.pu}
                   onChange={onChange}
-                  fullWidth
                   className="bg-white"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <LocalAtmIcon color="error" fontSize="small" />
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{ width: { xs: '100%', sm: 220 } }}
                 />
                 
                 {unUser.role === 1 && (
@@ -172,10 +189,35 @@ export default function ModifEntre() {
                     type="number"
                     value={unEntre.pu_achat}
                     onChange={onChange}
-                    fullWidth
                     className="bg-white"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <LocalAtmIcon color="error" fontSize="small" />
+                        </InputAdornment>
+                      ),
+                    }}
+                    sx={{ width: { xs: '100%', sm: 220 } }}
                   />
                 )}
+
+                <TextField
+                  label="Quantité Critique"
+                  variant="outlined"
+                  name="qte_critique"
+                  type="number"
+                  value={unEntre.qte_critique}
+                  onChange={onChange}
+                  className="bg-white"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <InventoryIcon color="primary" fontSize="small" />
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{ width: { xs: '100%', sm: 220 } }}
+                />
 
                 {showAncien && (
                   <TextField

@@ -113,7 +113,8 @@ export const logout = () => {
   toast.success("Déconneter");
 };
 
-export const getBgClass = (qte: number): string => {
+export const getBgClass = (qte: number, qte_critique?: number): string => {
+  if (qte === qte_critique) return 'bg-red-100';
   if (qte <= 5) return 'bg-red-600';
   if (qte <= 20) return 'bg-red-100';
   if (qte <= 50) return 'bg-orange-100';

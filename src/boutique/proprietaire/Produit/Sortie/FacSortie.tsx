@@ -31,7 +31,6 @@ import { useCreateFacSortie, useGetAllFacSortie } from '../../../../usePerso/fon
 import CardFacSortie from './CardFacSortie';
 import MyTextField from '../../../../_components/Input/MyTextField';
 import { FacSorType } from '../../../../typescript/fac';
-import Nav from '../../../../_components/Button/Nav';
 import { useStoreUuid } from '../../../../usePerso/store';
 import { RecupType } from '../../../../typescript/DataType';
 import M_Abonnement from '../../../../_components/Card/M_Abonnement';
@@ -167,18 +166,11 @@ export default function FacSortie() {
         {/* <Nav /> */}
         
         <div className={`${isMobile ? 'px-4 py-6' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'}`}>
-          <div className={`${isMobile ? 'mobile-header-container' : 'mb-8 flex justify-between items-center'}`}>
+          <div className={`mb-8 flex justify-between items-center`}>
             <Typography 
               variant={isMobile ? "h5" : "h4"} 
-              className={`${isMobile ? 'mobile-title' : 'font-semibold text-gray-900'}`}
-              sx={isMobile ? {
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                fontWeight: 700,
-                textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-              } : {}}
+              className={`font-semibold text-gray-50`}
+              
             >
               Factures de Sortie
             </Typography>
@@ -188,19 +180,7 @@ export default function FacSortie() {
                 startIcon={<AddIcon />}
                 onClick={functionopen}
                 className={`${isMobile ? 'mobile-button mobile-button-primary' : 'bg-blue-600 hover:bg-blue-700'}`}
-                sx={isMobile ? {
-                  borderRadius: '12px',
-                  fontWeight: 600,
-                  textTransform: 'none',
-                  transition: 'all 0.3s ease',
-                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                  background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                  '&:hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
-                    background: 'linear-gradient(135deg, #1d4ed8, #1e40af)'
-                  }
-                } : {}}
+                
               >
                 Nouvelle Facture
               </Button>
@@ -231,8 +211,8 @@ export default function FacSortie() {
                 }
               }}
             >
-              <Grid item xs={12} md={6}>
-                <Typography variant="subtitle2" className={`${isMobile ? 'mb-2 text-gray-700' : 'mb-2 text-gray-700'}`}>
+              <Grid item xs={12} md={6} className='m-3'>
+                <Typography variant="subtitle2" className={`mb-5 text-gray-700`}>
                   Filtrer par période
                 </Typography>
                 <Grid container spacing={isMobile ? 1 : 2}>

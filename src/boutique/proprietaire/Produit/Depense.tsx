@@ -170,14 +170,13 @@ export default function Depense() {
           </div>
           <Paper 
             elevation={0} 
-            className={`${isMobile ? 'mobile-header-container' : 'mt-6 rounded-lg overflow-hidden'}`}
-            sx={isMobile ? {
-              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7))',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              borderRadius: '20px',
-              marginTop: '24px'
-            } : {}}
+            className={`mt-6 rounded-lg overflow-hidden`}
+            sx={ {
+              background: 'transparent',   // totalement transparent
+              bgcolor: 'transparent',
+              backdropFilter: 'none',
+              border: 'none',
+            } }
           >
             <Box className={`${isMobile ? 'mobile-p-4' : 'p-6'}`}>
               {/* Header */}
@@ -185,19 +184,12 @@ export default function Depense() {
                 <div>
                   <Typography 
                     variant={isMobile ? "h5" : "h4"} 
-                    className={`${isMobile ? 'mobile-title' : 'font-semibold text-gray-900'}`}
-                    sx={isMobile ? {
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                      backgroundClip: 'text',
-                      fontWeight: 700,
-                      textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-                    } : {}}
+                    className={`font-semibold text-gray-50`}
+                    
                   >
                     Gestion des Dépenses
                   </Typography>
-                  <Typography variant="body2" className={`${isMobile ? 'text-gray-600 mt-2' : 'text-gray-500 mt-1'}`}>
+                  <Typography variant="body2" className={`text-gray-100 mt-2`}>
                     Gérez les dépenses de votre entreprise
                   </Typography>
                 </div>
@@ -323,47 +315,49 @@ export default function Depense() {
                       </Typography>
                     </Paper>
                   </Grid>
+                  
+                  {/* Table */}
+                  <Grid item xs={12} md={4}>
+                    <TableContainer 
+                      component={Paper} 
+                      elevation={0} 
+                      className={`${isMobile ? 'mobile-table-container' : 'border'}`}
+                      sx={isMobile ? {
+                        borderRadius: '16px',
+                        overflow: 'hidden',
+                        background: 'rgba(255, 255, 255, 0.95)',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        marginTop: '16px'
+                      } : {}}
+                    >
+                      <Table>
+                        <TableHead className={isMobile ? 'mobile-table-header' : 'bg-gray-100'}>
+                          <TableRow>
+                            <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} font-medium`}>Date</TableCell>
+                            <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} font-medium`}>Libellé</TableCell>
+                            <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} font-medium`}>Montant</TableCell>
+                            <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} font-medium`}>Actions</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {depensesBoutic?.length > 0 ? (
+                            depensesBoutic.map((row, index) => (
+                              <CardDepense key={index} row={row} />
+                            ))
+                          ) : (
+                            <TableRow>
+                              <TableCell colSpan={4} align="center" className={`${isMobile ? 'mobile-empty-card py-8' : 'py-8'} text-gray-500`}>
+                                Aucune dépense enregistrée
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </Grid>
                 </Grid>
-              </div>
-
-              {/* Table */}
-              <TableContainer 
-                component={Paper} 
-                elevation={0} 
-                className={`${isMobile ? 'mobile-table-container' : 'border'}`}
-                sx={isMobile ? {
-                  borderRadius: '16px',
-                  overflow: 'hidden',
-                  background: 'rgba(255, 255, 255, 0.95)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  marginTop: '16px'
-                } : {}}
-              >
-                <Table>
-                  <TableHead className={isMobile ? 'mobile-table-header' : 'bg-gray-50'}>
-                    <TableRow>
-                      <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} font-medium`}>Date</TableCell>
-                      <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} font-medium`}>Libellé</TableCell>
-                      <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} font-medium`}>Montant</TableCell>
-                      <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} font-medium`}>Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {depensesBoutic?.length > 0 ? (
-                      depensesBoutic.map((row, index) => (
-                        <CardDepense key={index} row={row} />
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={4} align="center" className={`${isMobile ? 'mobile-empty-card py-8' : 'py-8'} text-gray-500`}>
-                          Aucune dépense enregistrée
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+              </div>              
 
               {/* Pagination */}
               <div className={`${isMobile ? 'mobile-pagination' : 'flex justify-center mt-6'}`}>

@@ -15,6 +15,7 @@ type TypeForn = {
 type TypeNumForn = {
   pu: number;
   qte: number;
+  qte_critique?: number;
 }
 export type CategorieFormType = {
   entreprise_id: string;

@@ -279,6 +279,7 @@ const HistoryRow = ({ row }: HistoryRowProps) => {
                               </Box>
                             )}
                           </TableCell>
+                          
                           <TableCell align="right">{historyRow.action}</TableCell>
                         </TableRow>
                       );

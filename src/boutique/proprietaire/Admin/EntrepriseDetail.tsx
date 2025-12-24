@@ -13,7 +13,6 @@ import GroupIcon from '@mui/icons-material/Group';
 import SettingsIcon from '@mui/icons-material/Settings';
 import React, { useState, useEffect } from 'react';
 import { useFetchEntreprise } from '../../../usePerso/fonction.user';
-import Nav from '../../../_components/Button/Nav';
 import { a11yProps } from '../../../usePerso/fonctionPerso';
 import { CustomTabPanel } from '../../../usePerso/useEntreprise';
 import EtatProduit from './InfoEntreprise/EtatProduit/EtatProduit';
@@ -71,91 +70,71 @@ export default function EntrepriseDetail() {
 
   if (unEntreprise) {
     return (
-      <div 
-      // className={` ${isMobile ? 'mobile-admin-container' : ''}`}
-      >
-        {/* <Nav /> */}
         
-        <Box 
-          // className={`relative ${isMobile ? 'mobile-animate-in' : ''}`}
-          
-        >
-          <Container maxWidth="xl" className="relative z-10">
-            <Paper 
-            elevation={0} 
-            className={`border rounded-lg overflow-hidden ${isMobile ? 'mobile-modif-paper' : ''}`}
-            sx={ {
-                background: 'transparent',
-                bgcolor: 'transparent',
-                backdropFilter: 'none',
-                // backdropFilter: 'blur(8px)',
-                
-                // bgcolor: 'rgba(255,255,255,0.06)', // semi-transparent. Mettre 'transparent' pour totalement transparent
-                // backdropFilter: 'blur(8px)',
-              } }
-            >
-              <Box className={`border-b bg-white/80 backdrop-blur-sm ${isMobile ? 'mobile-admin-tabs' : ''}`}>
-                <Tabs 
-                  value={value} 
-                  onChange={handleChange} 
-                  variant="scrollable"
-                  scrollButtons="auto"
-                  allowScrollButtonsMobile
-                  aria-label="enterprise tabs"
-                  className={`min-h-[48px] ${isMobile ? 'mobile-admin-tabs' : ''}`}
-                >
-                  <Tab 
-                    label="Informations" 
-                    icon={<InfoIcon />} 
-                    iconPosition="start"
-                    {...a11yProps(0)} 
-                    className={`min-h-[48px] ${isMobile ? 'mobile-admin-tab' : ''}`}
-                  />
-                  <Tab 
-                    label="Utilisateurs" 
-                    icon={<GroupIcon />} 
-                    iconPosition="start"
-                    {...a11yProps(1)} 
-                    className={`min-h-[48px] ${isMobile ? 'mobile-admin-tab' : ''}`}
-                  />
-                  <Tab 
-                    label="Paramètres" 
-                    icon={<SettingsIcon />} 
-                    iconPosition="start"
-                    {...a11yProps(2)} 
-                    className={`min-h-[48px] ${isMobile ? 'mobile-admin-tab' : ''}`}
-                  />
-                </Tabs>
-              </Box>
+      <Box>
+        <Container maxWidth="xl" className="relative z-10">
+          <Paper 
+          elevation={0} 
+          // className={`border rounded-lg overflow-hidden ${isMobile ? 'mobile-modif-paper' : ''}`}
+          sx={ {
+              background: 'transparent',
+              bgcolor: 'transparent',
+              backdropFilter: 'none',
+              
+            } }
+          >
+            <Box className={`border-b bg-gray-100 backdrop-blur-sm ${isMobile ? 'mobile-admin-tabs' : ''}`}>
+              <Tabs 
+                value={value} 
+                onChange={handleChange} 
+                variant="scrollable"
+                scrollButtons="auto"
+                allowScrollButtonsMobile
+                aria-label="enterprise tabs"
+                className={`min-h-[48px] ${isMobile ? 'mobile-admin-tabs' : ''}`}
+              >
+                <Tab 
+                  label="Informations" 
+                  icon={<InfoIcon />} 
+                  iconPosition="start"
+                  {...a11yProps(0)} 
+                  className={`min-h-[48px] ${isMobile ? 'mobile-admin-tab' : ''}`}
+                />
+                <Tab 
+                  label="Utilisateurs" 
+                  icon={<GroupIcon />} 
+                  iconPosition="start"
+                  {...a11yProps(1)} 
+                  className={`min-h-[48px] ${isMobile ? 'mobile-admin-tab' : ''}`}
+                />
+                <Tab 
+                  label="Paramètres" 
+                  icon={<SettingsIcon />} 
+                  iconPosition="start"
+                  {...a11yProps(2)} 
+                  className={`min-h-[48px] ${isMobile ? 'mobile-admin-tab' : ''}`}
+                />
+              </Tabs>
+            </Box>
 
-              <Box 
-                className={`bg-white/95 backdrop-blur-sm ${isMobile ? 'mobile-fade-in' : ''}`}
-                sx={ {
-                  background: 'transparent',
-                  bgcolor: 'transparent',
-                  backdropFilter: 'none',
-                  // backdropFilter: 'blur(8px)',
-                  
-                  // bgcolor: 'rgba(255,255,255,0.06)', // semi-transparent. Mettre 'transparent' pour totalement transparent
-                  // backdropFilter: 'blur(8px)',
-                } }
-                >
-                <CustomTabPanel value={value} index={0}>
-                  <EtatProduit />
-                </CustomTabPanel>
-                
-                <CustomTabPanel value={value} index={1}>
-                  <InfoUsers />
-                </CustomTabPanel>
-                
-                <CustomTabPanel value={value} index={2}>
-                  <ModifEntreprise />
-                </CustomTabPanel>
-              </Box>
-            </Paper>
-          </Container>
-        </Box>
-      </div>
+            <Box 
+              >
+              <CustomTabPanel value={value} index={0}>
+                <EtatProduit />
+              </CustomTabPanel>
+              
+              <CustomTabPanel value={value} index={1}>
+                <InfoUsers />
+              </CustomTabPanel>
+              
+              <CustomTabPanel value={value} index={2}>
+                <ModifEntreprise />
+              </CustomTabPanel>
+            </Box>
+          </Paper>
+        </Container>
+      </Box>
+  
     );
   }
 }

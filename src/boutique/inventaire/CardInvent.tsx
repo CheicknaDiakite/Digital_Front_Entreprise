@@ -8,7 +8,6 @@ import { format } from 'date-fns';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useFetchUser } from '../../usePerso/fonction.user';
 import img from '../../../public/icon-192x192.png'
-import { connect } from '../../_services/account.service';
 import { BASE } from '../../_services/caller.service';
 import CloseIcon from "@mui/icons-material/Close"
 import QrCode2Icon from '@mui/icons-material/QrCode2';
@@ -62,7 +61,7 @@ export default function CardInvent({ row }: EntreProps) {
 
     return (
       <>
-        <TableRow className={getBgClass(row.qte)}>
+        <TableRow className={getBgClass(row.qte, row?.qte_critique)}>
           <TableCell align="right">
             <img src={url} alt="img" className="h-16 w-16" />
           </TableCell>

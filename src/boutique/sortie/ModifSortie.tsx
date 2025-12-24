@@ -1,11 +1,10 @@
 import { ChangeEvent, FormEvent, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { Button, Card, CardContent, DialogContent, DialogTitle, Stack, TextField, Typography, Alert } from '@mui/material'
+import { Button, Card, CardContent, DialogContent, DialogTitle, Stack, TextField, Typography, Alert, FormControlLabel, Switch } from '@mui/material'
 import { connect } from '../../_services/account.service'
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { useDeleteSortie, useFetchSortie, useUpdateSortie } from '../../usePerso/fonction.entre'
-import Nav from '../../_components/Button/Nav'
 import { useFetchUser } from '../../usePerso/fonction.user'
 import { useStoreUuid } from '../../usePerso/store';
 
@@ -23,6 +22,7 @@ export default function ModifSortie() {
 
   const [showConfirm, setShowConfirm] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [showAncien, setShowAncien] = useState(false);
 
   const handleDelete = () => {
     setShowConfirm(true);
@@ -112,6 +112,19 @@ export default function ModifSortie() {
           </Typography>
           <div className='flex justify-center items-center flex-col'>
           <DialogTitle>Modification Sortie</DialogTitle>
+
+          <FormControlLabel
+            control={
+              <Switch
+                checked={showAncien}
+                onChange={(e) => setShowAncien(e.target.checked)}
+                color="primary"
+                size="small"
+                inputProps={{ 'aria-label': 'Une motif de la mis en jour' }}
+              />
+            }
+            label="Une motif de la mis a jour"
+          />
           <DialogContent>
             {/* <DialogContentText>Categorie</DialogContentText> */}
           <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={onSubmit}>
@@ -141,6 +154,20 @@ export default function ModifSortie() {
               value={unSortie.qte} 
               name='qte'
                onChange={onChange}></TextField>
+
+               {showAncien && (
+                  <TextField
+                    fullWidth
+                    multiline
+                    rows={4}
+                    name="description"
+                    label="Ajoutez des notes ou des informations supplémentaires..."
+                    value={unSortie.description}
+                    onChange={onChange}
+                    variant="outlined"
+                    className="bg-slate-100 text-red-300"
+                  />
+                )}
 
                {(unUser.role === 1) &&     
                   <Button size="small" className='rounded-full shadow-md shadow-red-800/50' onClick={handleDelete}>

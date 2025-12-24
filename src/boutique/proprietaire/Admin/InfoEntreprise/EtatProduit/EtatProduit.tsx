@@ -112,17 +112,7 @@ export default function EtatProduit() {
   ];
 
   return (
-    <Container 
-    maxWidth="lg" 
-    className={`py-8`}
-    sx={ {
-                  
-      backdropFilter: 'blur(2px)',
-      
-      bgcolor: 'rgba(255,255,255,0.06)', // semi-transparent. Mettre 'transparent' pour totalement transparent
-      // backdropFilter: 'blur(8px)',
-    } }
-    >
+    <Container maxWidth="md" className={`py-8 ${isMobile ? 'mobile-users-container' : ''}`}>
       {/* <div className="flex flex-col items-center gap-2 mb-4">
         <LicenceTag type={unEntreprise.licence_type}>
           Licence {unEntreprise.licence_type} {getLicenceDuration(unEntreprise.licence_date_expiration)}
@@ -135,11 +125,11 @@ export default function EtatProduit() {
         )}
       </div> */}
 
-      <div className={`mb-6 ${isMobile ? 'mobile-animate-in' : ''}`}>
-        <Typography variant="h4" className={`font-semibold text-gray-900 mb-2 ${isMobile ? 'mobile-stats-title' : ''}`}>
+      <div className={`mb-6`}>
+        <Typography variant="h4" className={`font-semibold text-gray-50 mb-2 ${isMobile ? 'mobile-stats-title' : ''}`}>
           Statistiques de l'entreprise
         </Typography>
-        <Typography variant="body1" className={`text-gray-500 ${isMobile ? 'mobile-stats-subtitle' : ''}`}>
+        <Typography variant="body1" className={`text-gray-100 ${isMobile ? 'mobile-stats-subtitle' : ''}`}>
           Vue d'ensemble des mouvements de stock
         </Typography>
       </div>
@@ -149,7 +139,7 @@ export default function EtatProduit() {
           const StatContent = () => (
             <Paper
               elevation={0}
-              className={`border rounded-lg overflow-hidden h-full transition-all duration-200 hover:shadow-md bg-gradient-to-br ${stat.bgClass} ${isMobile ? 'mobile-stat-card' : ''} ${licenceExpiree ? 'opacity-60 grayscale' : ''}`}
+              // className={`border rounded-lg overflow-hidden h-full transition-all duration-200 hover:shadow-md bg-gradient-to-br ${stat.bgClass} ${isMobile ? 'mobile-stat-card' : ''} ${licenceExpiree ? 'opacity-60 grayscale' : ''}`}
               
             >
               <Box className={`p-6 ${isMobile ? 'mobile-responsive-stack' : ''}`}>

@@ -11,13 +11,18 @@ import {
   CircularProgress,
   Stack,
   Typography,
-  Chip
+  Chip,
+  Tooltip,
+  Dialog,
+  DialogTitle,
+  DialogContent
 } from '@mui/material';
 import { format } from 'date-fns';
 import { useHistorySuppEntreprise } from '../../../usePerso/fonction.user';
 import { useStoreUuid } from '../../../usePerso/store';
 import { formatNumberWithSpaces } from '../../../usePerso/fonctionPerso';
 import { HistoriqueType } from '../../../typescript/Account';
+import { useState } from 'react';
 
 // Components
 const LoadingSpinner = () => (
@@ -62,7 +67,10 @@ const EmptyState = () => (
   </Box>
 );
 
-const HistoryTable = ({ data }: { data: HistoriqueType[] }) => (
+const HistoryTable = ({ data }: { data: HistoriqueType[] }) => {
+  const [descDialog, setDescDialog] = useState<string | null>(null);
+  return <>
+  
   <TableContainer 
     component={Paper} 
     elevation={0}
@@ -115,8 +123,8 @@ const HistoryTable = ({ data }: { data: HistoriqueType[] }) => (
           <TableCell>Type</TableCell>
           <TableCell align="right">Quantité</TableCell>
           <TableCell align="right">Prix Unitaire</TableCell>
-          <TableCell align="right">Libellé</TableCell>
           <TableCell align="right">Catégorie</TableCell>
+          <TableCell align="right">Description</TableCell>
           <TableCell align="right">Action</TableCell>
         </TableRow>
       </TableHead>
@@ -143,15 +151,53 @@ const HistoryTable = ({ data }: { data: HistoriqueType[] }) => (
             </TableCell>
             <TableCell align="right">{row.qte}</TableCell>
             <TableCell align="right">{formatNumberWithSpaces(row.pu)}</TableCell>
-            <TableCell align="right">{row.libelle}</TableCell>
             <TableCell align="right">{row.categorie}</TableCell>
+            
+            <TableCell align="right">
+              <Typography variant="body2" sx={{ fontWeight: 600, textAlign: 'right' }}>
+                {row.libelle || '-'}
+              </Typography>
+
+              {row.description && (
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0.5 }}>
+                  <Tooltip title="Afficher la description complète">
+                    <Typography
+                      variant="caption"
+                      onClick={() => setDescDialog(row.description ?? null)}
+                      sx={{
+                        color: 'text.secondary',
+                        fontStyle: 'italic',
+                        maxWidth: 220,
+                        textOverflow: 'ellipsis',
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap',
+                        cursor: 'pointer',
+                        '&:hover': { textDecoration: 'underline' }
+                      }}
+                    >
+                      motif: {row.description.length > 80 ? `${row.description.slice(0, 80)}…` : row.description}
+                    </Typography>
+                  </Tooltip>
+                </Box>
+              )}
+            </TableCell>
             <TableCell align="right">{row.action}</TableCell>
           </TableRow>
         ))}
       </TableBody>
     </Table>
   </TableContainer>
-);
+
+  <Dialog open={!!descDialog} onClose={() => setDescDialog(null)} maxWidth="sm" fullWidth>
+    <DialogTitle>Motif</DialogTitle>
+    <DialogContent>
+      <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+        {descDialog}
+      </Typography>
+    </DialogContent>
+  </Dialog>
+  </>
+};
 
 export default function HistoriqueSupp() {
   const uuid = useStoreUuid((state) => state.selectedId);

@@ -1,8 +1,8 @@
-import { Autocomplete, Box, Button, Checkbox, FormControlLabel, Stack, TextField, Typography } from "@mui/material";
+import { Autocomplete, Box, Button, Checkbox, FormControlLabel, Stack, TextField, Typography, InputAdornment } from "@mui/material";
 import MyTextField from "../_components/Input/MyTextField";
 import { useFetchAllSousCate } from "./fonction.categorie";
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
-import QuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
+import InventoryIcon from '@mui/icons-material/Inventory';
 import { useState } from "react";
 import { useAllClients, useFetchUser } from "./fonction.user";
 import { useStoreUuid } from "./store";
@@ -103,38 +103,48 @@ export function AjoutEntreForm({
               },
             }}
           />
-          <Typography variant="h6" className='mx-2'>
-            Quantite <QuantityLimitsIcon color="error" fontSize='small' />
-          </Typography>
-          <MyTextField required
-            variant="outlined" 
-            type='number'
-            name='qte' 
+
+          <MyTextField
+            required
+            variant="outlined"
+            type="number"
+            label="Quantité"
+            name="qte"
             value={formValues.qte}
             onChange={onChange}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <InventoryIcon color="error" fontSize="small" />
+                </InputAdornment>
+              ),
+            }}
             sx={{
               "& .MuiFormLabel-asterisk": {
                 color: "red", // Personnalise la couleur de l'étoile en rouge
               },
             }}
           />
-          <Typography variant="h6" className='mx-2'>
-            Prix Unitaire (prix de vente) <LocalAtmIcon color="error" fontSize='small' />
-          </Typography>
-          
           <MyTextField
             required
             variant="outlined"
             type="number"
+            label="Prix Unitaire (prix de vente)"
             inputProps={{
               step: "0.01", // Décimales à deux chiffres
               min: "0", // Pas de valeurs négatives
               max: "9999999999.99", // Correspond à max_digits=10 dans Django
             }}
-            // label="Somme"
             name="pu"
             onChange={onChange}
             value={formValues.pu}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <LocalAtmIcon color="error" fontSize="small" />
+                </InputAdornment>
+              ),
+            }}
             sx={{
               "& .MuiFormLabel-asterisk": {
                 color: "red",
@@ -156,6 +166,28 @@ export function AjoutEntreForm({
             value={formValues.pu_achat}            
           />
           }
+
+          <MyTextField
+            required
+            variant="outlined"
+            type="number"
+            label="Quantité critique"
+            name="qte_critique"
+            value={formValues.qte_critique}
+            onChange={onChange}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <InventoryIcon color="primary" fontSize="small" />
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              "& .MuiFormLabel-asterisk": {
+                color: "primary",
+              },
+            }}
+          />
 
           {/* Autres champs ici */}
           <FormControlLabel

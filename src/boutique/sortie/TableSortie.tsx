@@ -86,7 +86,7 @@ export default function TableSortie({
         <div className="flex flex-col md:mt-1 py-3">
           <div className="my-2">
             <Stack direction="row" spacing={2}>
-              <QrCode2Icon onClick={functionopen} color="info" fontSize="large" />
+              <QrCode2Icon onClick={functionopen} color="error" fontSize="large" />
             </Stack>
 
             <Dialog open={open} onClose={closeopen} fullWidth maxWidth="xs">
@@ -104,7 +104,7 @@ export default function TableSortie({
           </div>
 
           <div className="my-2">
-            <Typography variant="h5" className="mb-2">
+            <Typography variant="h5" className="mb-2 text-gray-50">
               Client
             </Typography>
             <Select
@@ -121,7 +121,7 @@ export default function TableSortie({
           </div>
 
           <div className="my-2">
-            <Typography variant="h5" className="mb-2">
+            <Typography variant="h5" className="mb-2 text-gray-50">
               Designation : {scannedCode}
             </Typography>
             <Select
@@ -141,8 +141,8 @@ export default function TableSortie({
 
         <div className="md:grid grid-cols-3 gap-10">
           <div className="flex flex-col">
-            <Typography variant="h5" className="mb-2">
-              Quantite <QuantityLimitsIcon fontSize="large" />
+            <Typography variant="h5" className="mb-2 text-gray-50">
+              Quantite <QuantityLimitsIcon fontSize="large" color='primary' />
             </Typography>
             <MyTextField
               required
@@ -156,8 +156,8 @@ export default function TableSortie({
           </div>
 
           <div className="flex flex-col">
-            <Typography variant="h5" className="mb-2">
-              Prix Unitaire <LocalAtmIcon fontSize="large" />
+            <Typography variant="h5" className="mb-2 text-gray-50">
+              Prix Unitaire <LocalAtmIcon fontSize="large" color='primary' />
             </Typography>
             {formValues.is_prix ? 
               <MyTextField
@@ -201,9 +201,9 @@ export default function TableSortie({
             
           </div>
 
-          <div className="flex flex-col">
+          <div className="flex flex-col text-gray-50">
             <label htmlFor="amount">
-              Somme <Money size={40} className="inline" />
+              Somme <Money size={40} color='primary' />
             </label>
             <p>{formatNumberWithSpaces(amount)}</p>
           </div>

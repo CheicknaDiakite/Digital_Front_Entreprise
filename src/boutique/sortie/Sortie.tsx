@@ -453,12 +453,17 @@ export default function Sortie() {
                 elevation={0} 
                 // className={`${isMobile ? 'mobile-header-container' : 'rounded-lg overflow-hidden'}`}
                 sx={ {
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7))',
-                  backdropFilter: 'blur(8px)',
+                  // background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7))',
+                  // backdropFilter: 'blur(10px)',
+                  // border: '1px solid rgba(255, 255, 255, 0.2)',
+                  // borderRadius: '20px',
+                  // bgcolor: 'rgba(255,255,255,0.06)', // semi-transparent. Mettre 'transparent' pour totalement transparent
+                  // backdropFilter: 'blur(8px)',
+                  backdropFilter: 'blur(5px)',
                   border: '1px solid rgba(255, 255, 255, 0.2)',
                   borderRadius: '20px',
-                  bgcolor: 'rgba(255,255,255,0.06)', // semi-transparent. Mettre 'transparent' pour totalement transparent
-                  // backdropFilter: 'blur(8px)',
+                  marginTop: '24px',
+                  bgcolor: 'rgba(255,255,255,0.06)', 
                 } }
               >
                 <div className={`${isMobile ? 'mobile-p-4' : 'p-6'} space-y-6`}>
@@ -466,15 +471,15 @@ export default function Sortie() {
                   <div className={`${isMobile ? 'flex flex-col space-y-4' : 'flex justify-between items-center'} border-b pb-6`}>
                     <Typography 
                       variant={isMobile ? "h5" : "h4"} 
-                      className={`${isMobile ? 'mobile-title' : 'font-semibold text-gray-900'}`}
-                      sx={isMobile ? {
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        backgroundClip: 'text',
-                        fontWeight: 700,
-                        textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-                      } : {}}
+                      className={`${isMobile ? 'font-semibold text-gray-50' : 'font-semibold text-gray-50'}`}
+                      // sx={isMobile ? {
+                      //   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      //   WebkitBackgroundClip: 'text',
+                      //   WebkitTextFillColor: 'transparent',
+                      //   backgroundClip: 'text',
+                      //   fontWeight: 700,
+                      //   textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                      // } : {}}
                     >
                       Gestion des Sorties
                     </Typography>
@@ -813,7 +818,7 @@ export default function Sortie() {
 
                   {/* Notes Section */}
                   <div className={`${isMobile ? 'mobile-notes-section' : 'mt-6'}`}>
-                    <Typography variant={isMobile ? "h6" : "h6"} className="mb-2">
+                    <Typography variant={isMobile ? "h6" : "h6"} className="mb-2 text-gray-50">
                       Notes additionnelles
                     </Typography>
                     <TextField

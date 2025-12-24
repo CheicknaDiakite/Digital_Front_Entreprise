@@ -43,6 +43,7 @@ export type EntreRecupType = {
 export type SortieType = {
     user_id: string;
     client_id?: string;
+    description?: string;
     action?: string;
     entreprise_id?: string;
     categorie_libelle?: string;
@@ -58,6 +59,7 @@ export type SousType = {
 
 export type EntreType = {
     qte: number;
+    qte_critique?: number;
     pu: number;
     pu_achat?: number;
     facture?: File | undefined | null ;
@@ -203,6 +205,7 @@ export type RecupType = {
     pu?: number;
     pu_achat?: number;
     qte?: number;
+    qte_critique?: number;
     categorie_slug?: string;
     clientName?: string,
     clientAddress?: string,
