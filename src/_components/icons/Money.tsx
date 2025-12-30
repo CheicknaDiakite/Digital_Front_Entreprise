@@ -1,6 +1,6 @@
 import { ComponentPropsWithoutRef } from "react"
 
-export const Money = (props: ComponentPropsWithoutRef<"svg"> & {size?: number}) => {
+export const Money = (props: ComponentPropsWithoutRef<"svg"> & {size?: number, color?: string}) => {
     return (
         // <?xml version="1.0" encoding="UTF-8" standalone="no"?>
         <svg 
@@ -12,7 +12,7 @@ export const Money = (props: ComponentPropsWithoutRef<"svg"> & {size?: number}) 
         {...props}
         >
             <g transform="translate(0.000000,192.000000) scale(0.100000,-0.100000)"
-            fill="#000000" stroke="none">
+            fill={props.color ?? "#000000"} stroke="none">
             <path d="M478 1849 c-38 -73 -40 -99 -7 -99 13 0 28 19 50 61 22 45 35 60 47
             56 9 -2 192 -77 406 -166 343 -143 391 -161 404 -148 27 28 7 40 -208 127 -52
             21 -144 60 -205 85 -288 121 -379 155 -413 155 -36 0 -38 -3 -74 -71z"/>

@@ -32,6 +32,8 @@ import { useStoreUuid } from '../../../../../usePerso/store';
 import { BASE } from '../../../../../_services/caller.service';
 import img from '../../../../../../public/icon-192x192.png';
 import '../../mobile-admin.css';
+import { LicenceTag } from '../../Entreprise';
+import { getLicenceDuration } from '../../../../../usePerso/fonctionPerso';
 
 export default function ModifEntreprise() {
   const uuid = useStoreUuid((state) => state.selectedId);
@@ -183,6 +185,10 @@ export default function ModifEntreprise() {
                   >
                     Identifiant de l'entreprise : {unEntreprise.ref}
                   </Typography>
+
+                  <LicenceTag type={unEntreprise.licence_type}>
+                    Licence {unEntreprise.licence_type} {getLicenceDuration(unEntreprise.licence_date_expiration)}
+                  </LicenceTag>
 
                   <div className={isMobile ? '' : ''}>
                     <TextField

@@ -889,8 +889,7 @@ export function useCreateEntreprise() {
           }
         } else {
           useQ.invalidateQueries({ queryKey: ["UserEntreprises"] });
-          toast.success("Creation réussie");
-          
+          toast.success("Creation réussie");   
         }
     })
     },

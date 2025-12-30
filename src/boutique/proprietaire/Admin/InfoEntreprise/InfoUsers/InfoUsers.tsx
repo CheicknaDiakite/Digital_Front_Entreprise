@@ -14,7 +14,11 @@ import {
   Tooltip,
   Button,
   Typography,
-  Fade
+  Fade,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
@@ -30,6 +34,8 @@ export default function InfoUsers() {
   const { entrepriseUsers, isLoading, isError } = useGetEntrepriseUsers(uuid!);
   const { removeEntreprise } = useRemoveUserEntreprise();
   const [isMobile, setIsMobile] = useState(false);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -43,14 +49,25 @@ export default function InfoUsers() {
   }, []);
 
   const handleDelete = (userId: string) => {
-    const confirmation = window.confirm("Êtes-vous sûr de vouloir retirer cet utilisateur de l'entreprise ?");
-    if (confirmation) {
+    setUserToDelete(userId);
+    setShowConfirmDelete(true);
+  };
+
+  const confirmDelete = () => {
+    if (userToDelete) {
       removeEntreprise({
         entreprise_id: uuid!,
-        user_id: userId,
+        user_id: userToDelete,
         admin_id: connect,
       });
     }
+    setShowConfirmDelete(false);
+    setUserToDelete(null);
+  };
+
+  const cancelDelete = () => {
+    setShowConfirmDelete(false);
+    setUserToDelete(null);
   };
 
   if (isLoading) {
@@ -79,6 +96,24 @@ export default function InfoUsers() {
 
   return (
     <Container maxWidth="md" className={`py-8 ${isMobile ? 'mobile-users-container' : ''}`}>
+      <Dialog
+        open={showConfirmDelete}
+        onClose={cancelDelete}
+        aria-labelledby="confirm-delete-dialog"
+      >
+        <DialogTitle id="confirm-delete-dialog">Confirmer la suppression</DialogTitle>
+        <DialogContent>
+          <Typography>Êtes-vous sûr de vouloir retirer cet utilisateur de l'entreprise ?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={cancelDelete}>
+            Annuler
+          </Button>
+          <Button onClick={confirmDelete} color="error" variant="contained">
+            Confirmer
+          </Button>
+        </DialogActions>
+      </Dialog>
       <div className={`mb-6 ${isMobile ? 'mobile-animate-in' : ''}`}>
         <Typography variant="h4" className={`font-semibold text-gray-50 mb-2 ${isMobile ? 'mobile-users-title' : ''}`}>
           Utilisateurs de l'entreprise

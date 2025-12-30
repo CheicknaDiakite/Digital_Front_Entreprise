@@ -24,7 +24,6 @@ import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import Nav from "../../../../_components/Button/Nav";
 import { useFetchSousCate, useInfoSousCate } from "../../../../usePerso/fonction.categorie";
 import { formatNumberWithSpaces } from "../../../../usePerso/fonctionPerso";
 import { useState } from "react";
@@ -74,6 +73,8 @@ export default function Info() {
 
   const ent = infos?.filter(info => info.sortie !== undefined && info.sortie !== null)
     .flatMap(info => info.sortie);
+
+    console.log("iii", ent)
 
   const sumQteStock = infos?.filter(info => info.libelle !== undefined)
     .reduce((sum, sor) => sum + (sor.qte || 0), 0) || 0;
@@ -148,12 +149,12 @@ export default function Info() {
                 </Typography>
                 <Typography 
                   variant="body2" 
-                  className="text-gray-500 mt-1"
+                  className="text-green-500 mt-1"
                   sx={{ 
                     fontSize: { xs: '0.8rem', sm: '0.875rem' }
                   }}
                 >
-                  {formatNumberWithSpaces(totalPrice)} F
+                Chiffre d’affaires: {formatNumberWithSpaces(totalPrice)} F
                 </Typography>
               </div>
               <div className="bg-blue-200 p-3 rounded-full mobile-stats-icon">
@@ -195,6 +196,7 @@ export default function Info() {
                         {p.qte}
                       </Typography>
                       {unUser.role === 1 && (
+                        <>
                         <Typography 
                           variant="body2" 
                           className="text-gray-500 mt-1"
@@ -204,6 +206,18 @@ export default function Info() {
                         >
                           Prix d'achat: {formatNumberWithSpaces(p.pu_achat)} F
                         </Typography>
+
+                        <Typography 
+                          variant="body2" 
+                          className="text-red-500 mt-1"
+                          sx={{ 
+                            fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                          }}
+                        >
+                          Perte estimée: {formatNumberWithSpaces(p.prix_total)} F
+                        </Typography>
+                        
+                        </>
                       )}
                     </div>
                     <div className="bg-green-200 p-3 rounded-full mobile-stats-icon">

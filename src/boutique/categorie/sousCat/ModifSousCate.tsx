@@ -14,7 +14,6 @@ import DeleteIcon from '@mui/icons-material/DeleteOutline';
 import ImageIcon from '@mui/icons-material/Image';
 import { useFetchUser } from "../../../usePerso/fonction.user";
 import { useDeleteSousCate, useFetchSousCate, useUpdateSousCate } from "../../../usePerso/fonction.categorie";
-import Nav from "../../../_components/Button/Nav";
 import MyTextField from "../../../_components/Input/MyTextField";
 import { BASE } from '../../../_services/caller.service';
 import img from '../../../../public/icon-192x192.png';
@@ -86,6 +85,15 @@ export default function ModifSousCate() {
           <Alert 
             severity="warning" 
             className="mt-4"
+            sx={{
+              position: 'fixed',
+              top: 16,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 1400,
+              width: 'calc(100% - 32px)',
+              maxWidth: 600,
+            }}
             action={
               <div className="space-x-2">
                 <Button color="inherit" size="small" onClick={() => setShowConfirm(false)}>

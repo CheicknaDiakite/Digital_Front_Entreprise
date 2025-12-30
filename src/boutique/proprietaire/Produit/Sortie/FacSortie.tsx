@@ -162,10 +162,9 @@ export default function FacSortie() {
 
   if (facSortiesUtilisateur) {
     return (
-      <div className={`min-h-screen ${isMobile ? '' : ''}`}>
+      <div >
         {/* <Nav /> */}
         
-        <div className={`${isMobile ? 'px-4 py-6' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'}`}>
           <div className={`mb-8 flex justify-between items-center`}>
             <Typography 
               variant={isMobile ? "h5" : "h4"} 
@@ -475,7 +474,7 @@ export default function FacSortie() {
               </TableBody>
             </Table>
           </TableContainer>
-        </div>
+        
       </div>
     );
   }

@@ -44,6 +44,8 @@ export function getLicenceDuration(dateStr: string) {
   } else if (diffDays < 365) {
     const months = Math.round(diffDays / 30);
     return `${months} mois`;
+  } else if (diffDays >= 365 * 3) {
+    return 'illimitée';
   } else {
     const years = Math.round(diffDays / 365);
     return `${years} an${years > 1 ? 's' : ''}`;

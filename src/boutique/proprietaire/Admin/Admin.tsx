@@ -99,6 +99,15 @@ export default function Admin() {
         <Alert 
           severity="error"
           className="shadow-lg"
+          sx={{
+              position: 'fixed',
+              top: 16,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 1400,
+              width: 'calc(100% - 32px)',
+              maxWidth: 600,
+            }}
           action={
             <Button color="inherit" size="small" onClick={() => window.location.reload()}>
               Réessayer

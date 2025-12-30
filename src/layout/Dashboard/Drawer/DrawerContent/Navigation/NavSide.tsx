@@ -178,8 +178,6 @@ const NavSide: React.FC = () => {
     setFeedbackDialogOpen(false);
   };
 
-  const logoUrl = unEntreprise.image ? BASE(unEntreprise.image) : "/icon-192x192.png";
-
   return (
     <Card 
       sx={{ 
@@ -306,8 +304,15 @@ const NavSide: React.FC = () => {
 
               <NavItem
                 icon={null}
-                label="Sortie"
+                label="Ventes"
                 to="/entreprise/inventaire/sortie"
+                bgColor="text-white bg-gray-500"
+              />
+
+              <NavItem
+                icon={null}
+                label="Achats"
+                to="/entreprise/inventaire/entrer"
                 bgColor="text-white bg-gray-500"
               />
       

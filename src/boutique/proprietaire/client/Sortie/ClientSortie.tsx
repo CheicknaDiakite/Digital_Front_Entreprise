@@ -52,7 +52,7 @@ export default function ClientSortie(uuid: UuType) {
     user_id: connect,
     client_id: uuid.uuid,
   }
-  const {unUser} = useFetchUser(connect)
+  const {unUser} = useFetchUser()
   const {unClient} = useUnClient(uuid.uuid!);
   
     // const {ajoutEntre} = useCreateEntre()
@@ -242,7 +242,7 @@ export default function ClientSortie(uuid: UuType) {
       const [amount, setAmount] = useState<number>(0);
       useEffect(() => {
         const calculateAmount = () => {
-          setAmount(formValues.pu * formValues.qte);
+          setAmount(Number(formValues.pu) * Number(formValues.qte));
         };
     
         calculateAmount();
@@ -301,321 +301,263 @@ export default function ClientSortie(uuid: UuType) {
 
       if (entresEntreprise) {
         return (
-          <div className="min-h-screen bg-gray-50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-              <Paper elevation={0} className="rounded-lg overflow-hidden">
-                <div className="p-6 space-y-6">
-                  {/* Header Section */}
-                  <div className="flex justify-between items-center border-b pb-6">
-                    <div>
-                      <Typography variant="h4" className="font-semibold text-gray-900">
-                        Gestion des Ventes
-                      </Typography>
-                      <Typography variant="body2" className="text-gray-500 mt-1">
-                        Client : {unClient.nom}
-                      </Typography>
-                    </div>
-                    <div className="flex space-x-3">
-                      <Button
-                        variant="contained"
-                        onClick={() => {
-                          handleSaveSorties();
-                          handleOnClick();
-                        }}
-                        startIcon={<ReceiptIcon />}
-                        className="bg-blue-600 hover:bg-blue-700"
-                      >
-                        Créer Facture
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        onClick={handleOpenClick}
-                        startIcon={<CloseIcon />}
-                        className="border-red-500 text-red-500 hover:bg-red-50"
-                      >
-                        Annuler
-                      </Button>
-                    </div>
+          <div >
+           
+            <Paper 
+            elevation={0} 
+            // className="rounded-lg overflow-hidden"
+            sx={ {
+              background: 'transparent',
+              bgcolor: 'transparent',
+              backdropFilter: 'none',
+              
+            } }
+            >
+              <div className="space-y-6">
+                {/* Header Section */}
+                <div className="flex justify-between items-center border-b pb-6">
+                  <div>
+                    <Typography variant="h4" className="font-semibold text-gray-50">
+                      Gestion des Ventes
+                    </Typography>
+                    <Typography variant="body2" className="text-gray-100 mt-1">
+                      Client : {unClient.nom}
+                    </Typography>
                   </div>
-
-                  {/* Main Form Section */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <TextField
-                      fullWidth
-                      label="Numéro de Facture"
-                      name="numeroFac"
-                      variant="outlined"
-                      onChange={onChan}
-                      className="bg-white"
-                    />
-                    <TextField
-                      fullWidth
-                      label="Notes"
-                      name="notes"
-                      multiline
-                      rows={1}
-                      variant="outlined"
-                      onChange={onChan}
-                      className="bg-white"
-                    />
-                  </div>
-
-                  {/* Actions Section */}
-                  <div className="flex flex-wrap gap-4">
+                  <div className="flex space-x-3">
                     <Button
                       variant="contained"
-                      onClick={toggleModal}
-                      startIcon={<LocalAtmIcon />}
-                      className="bg-indigo-600 hover:bg-indigo-700"
+                      onClick={() => {
+                        handleSaveSorties();
+                        handleOnClick();
+                      }}
+                      startIcon={<ReceiptIcon />}
+                      className="bg-blue-600 hover:bg-blue-700"
                     >
-                      Appliquer Remise
+                      Créer Facture
                     </Button>
                     <Button
-                      variant="contained"
-                      onClick={toggleModalPay}
-                      className="bg-green-600 hover:bg-green-700"
+                      variant="outlined"
+                      onClick={handleOpenClick}
+                      startIcon={<CloseIcon />}
+                      className="border-red-500 text-red-500 hover:bg-red-50"
                     >
-                      Enregistrer Paiement
-                    </Button>
-                  </div>
-
-                  {/* Date Filter Section */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white p-4 rounded-lg shadow-sm">
-                    <TextField
-                      fullWidth
-                      label="Date de début"
-                      type="date"
-                      value={selectedStartDate}
-                      onChange={handleStartDateChange}
-                      InputLabelProps={{ shrink: true }}
-                      className="bg-white"
-                    />
-                    <TextField
-                      fullWidth
-                      label="Date de fin"
-                      type="date"
-                      value={selectedEndDate}
-                      onChange={handleEndDateChange}
-                      InputLabelProps={{ shrink: true }}
-                      className="bg-white"
-                    />
-                    {unUser.role === 1 && (
-                      <Paper elevation={0} className="p-4 bg-blue-50 rounded-lg">
-                        <div className="flex items-center space-x-2">
-                          <LocalAtmIcon color="primary" />
-                          <Typography variant="h6" className="text-gray-900">
-                            Total : {formatNumberWithSpaces(totalPrice)} F
-                          </Typography>
-                        </div>
-                      </Paper>
-                    )}
-                  </div>
-
-                  {/* New Sale Form */}
-                  <Paper elevation={0} className="p-6 bg-white rounded-lg">
-                    <form onSubmit={onSubmit} className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="col-span-1">
-                          <Autocomplete
-                            freeSolo
-                            options={entres}
-                            getOptionLabel={(option) => (typeof option === 'string' ? option : `${option.categorie_libelle} (${option.libelle}) [${option.qte}]` || '')}
-                            onChange={handleAutoCompleteChange}
-                            renderInput={(params) => (
-                              <TextField 
-                                {...params} 
-                                label="Désignation" 
-                                className="bg-white"
-                              />
-                            )}
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <div className="flex items-center space-x-2">
-                            <QuantityLimitsIcon color="primary" fontSize="small" />
-                            <Typography variant="subtitle2">Quantité</Typography>
-                          </div>
-                          <MyTextField
-                            required
-                            type="number"
-                            name="qte"
-                            value={formValues.qte}
-                            onChange={onChange}
-                            className="bg-white"
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <div className="flex items-center space-x-2">
-                            <LocalAtmIcon color="primary" fontSize="small" />
-                            <Typography variant="subtitle2">Prix Unitaire</Typography>
-                          </div>
-                          <MyTextField
-                            required
-                            type="number"
-                            name="pu"
-                            value={formValues.pu}
-                            onChange={onChange}
-                            disabled={formValues.is_prix}
-                            className="bg-white"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <Typography variant="h6" className="text-gray-700">
-                          Montant Total : {formatNumberWithSpaces(amount)} F
-                        </Typography>
-
-                        {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
-                          <Typography variant="subtitle1" color="error">
-                            L'abonnement de cette entreprise a expiré
-                          </Typography>
-                        ) : (
-                          <Button
-                            type="submit"
-                            variant="contained"
-                            className="bg-blue-600 hover:bg-blue-700"
-                          >
-                            Ajouter la vente
-                          </Button>
-                        )}
-                      </div>
-                    </form>
-                  </Paper>
-
-                  {/* Sales Table */}
-                  <TableContainer component={Paper} elevation={0}>
-                    <Table>
-                      <TableHead>
-                        <TableRow sx={{ backgroundColor: '#f8fafc' }}>
-                          <TableCell>Image</TableCell>
-                          <TableCell>Date</TableCell>
-                          <TableCell>Référence</TableCell>
-                          <TableCell>Désignation</TableCell>
-                          <TableCell align="right">Quantité</TableCell>
-                          <TableCell align="right">Prix Unitaire</TableCell>
-                          <TableCell align="right">Total</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {displayedBoutiques?.length > 0 ? (
-                          displayedBoutiques?.map((row, index) => (
-                            <CardClientSortie key={index} row={row} />
-                          ))
-                        ) : (
-                          <TableRow>
-                            <TableCell colSpan={7} align="center" className="py-8">
-                              <Typography variant="body1" className="text-gray-500">
-                                Aucune vente enregistrée
-                              </Typography>
-                            </TableCell>
-                          </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-
-                  {/* Pagination */}
-                  <div className="flex justify-center">
-                    <Pagination
-                      count={totalPages}
-                      page={currentPage}
-                      onChange={handlePageChange}
-                      color="primary"
-                      size="large"
-                    />
-                  </div>
-                </div>
-              </Paper>
-
-              {/* Modals */}
-              <Modal open={isModalOpen} onClose={toggleModal}>
-                <Box sx={style}>
-                  <Typography variant="h6" className="mb-4">
-                    Appliquer une remise
-                  </Typography>
-                  <div className="space-y-4">
-                    <TextField
-                      fullWidth
-                      label="Montant fixe"
-                      variant="outlined"
-                      value={fixedDiscount}
-                      onChange={(e) => setFixedDiscount(normalizeInput(e.target.value))}
-                      helperText="Ex: 1500 ou 85.45"
-                    />
-                    <TextField
-                      fullWidth
-                      label="Pourcentage"
-                      variant="outlined"
-                      value={percentageDiscount}
-                      onChange={(e) => setPercentageDiscount(normalizeInput(e.target.value))}
-                      helperText="Ex: 2% ou 5%"
-                    />
-                    <div className="flex justify-end space-x-3 pt-4">
-                      <Button variant="outlined" onClick={toggleModal}>
-                        Annuler
-                      </Button>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleApplyDiscount}
-                      >
-                        Appliquer
-                      </Button>
-                    </div>
-                  </div>
-                </Box>
-              </Modal>
-
-              <Modal open={isModalOpenPay} onClose={toggleModalPay}>
-                <Box sx={style}>
-                  <Typography variant="h6" className="mb-4">
-                    Enregistrer le paiement
-                  </Typography>
-                  <TextField
-                    fullWidth
-                    label="Montant payé"
-                    variant="outlined"
-                    value={payDiscount}
-                    onChange={(e) => setPayDiscount(normalizeInput(e.target.value))}
-                    helperText="Ex: 1500 ou 85.45"
-                    className="mb-4"
-                  />
-                  <div className="flex justify-end space-x-3">
-                    <Button variant="outlined" onClick={toggleModalPay}>
                       Annuler
                     </Button>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={handleApplyPayer}
-                    >
-                      Confirmer
-                    </Button>
                   </div>
-                </Box>
-              </Modal>
+                </div>
 
-              {/* Invoice Preview */}
-              {(showInvoice && entreprise) && (
-                <div className="mt-6">
-                  <Fact               
-                    clientName={unClient.nom}
-                    clientAddress={unClient.adresse}
-                    clientCoordonne={unClient.coordonne}
-                    invoiceNumber={unClient.numero}
-                    invoiceDate={itemDate}
-                    numeroFac={texte.numeroFac}
-                    notes={texte.notes}
-                    post={entreprise}
-                    discountedTotal={discountedTotal}
-                    payerTotal={payerTotal}
+                {/* Actions Section */}
+                <div className="flex flex-wrap gap-4">
+                  
+                  <Button
+                    variant="contained"
+                    onClick={toggleModalPay}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    Enregistrer Paiement
+                  </Button>
+                </div>
+
+                {/* Date Filter Section */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-lg shadow-sm">
+                  <TextField
+                    fullWidth
+                    label="Date de début"
+                    type="date"
+                    value={selectedStartDate}
+                    onChange={handleStartDateChange}
+                    InputLabelProps={{ shrink: true }}
+                    className="bg-white"
+                  />
+                  <TextField
+                    fullWidth
+                    label="Date de fin"
+                    type="date"
+                    value={selectedEndDate}
+                    onChange={handleEndDateChange}
+                    InputLabelProps={{ shrink: true }}
+                    className="bg-white"
+                  />
+                  {unUser.role === 1 && (
+                    <Paper elevation={0} className="p-4 bg-blue-50 rounded-lg">
+                      <div className="flex items-center space-x-2">
+                        <LocalAtmIcon color="primary" />
+                        <Typography variant="h6" className="text-gray-900">
+                          Total : {formatNumberWithSpaces(totalPrice)} F
+                        </Typography>
+                      </div>
+                    </Paper>
+                  )}
+                </div>
+
+                {/* New Sale Form */}
+                <Paper elevation={0} className="p-6 bg-white rounded-lg">
+                  <form onSubmit={onSubmit} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="col-span-1">
+                        <Autocomplete
+                          freeSolo
+                          options={entres}
+                          getOptionLabel={(option) => (typeof option === 'string' ? option : `${option.categorie_libelle} (${option.libelle}) [${option.qte}]` || '')}
+                          onChange={handleAutoCompleteChange}
+                          renderInput={(params) => (
+                            <TextField 
+                              {...params} 
+                              label="Désignation" 
+                              className="bg-white"
+                            />
+                          )}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <QuantityLimitsIcon color="primary" fontSize="small" />
+                          <Typography variant="subtitle2">Quantité</Typography>
+                        </div>
+                        <MyTextField
+                          required
+                          type="number"
+                          name="qte"
+                          value={formValues.qte}
+                          onChange={onChange}
+                          className="bg-white"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <LocalAtmIcon color="primary" fontSize="small" />
+                          <Typography variant="subtitle2">Prix Unitaire</Typography>
+                        </div>
+                        <MyTextField
+                          required
+                          type="number"
+                          name="pu"
+                          value={formValues.pu}
+                          onChange={onChange}
+                          disabled={formValues.is_prix}
+                          className="bg-white"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <Typography variant="h6" className="text-gray-700">
+                        Montant Total : {formatNumberWithSpaces(amount)} F
+                      </Typography>
+
+                      {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
+                        <Typography variant="subtitle1" color="error">
+                          L'abonnement de cette entreprise a expiré
+                        </Typography>
+                      ) : (
+                        <Button
+                          type="submit"
+                          variant="contained"
+                          className="bg-blue-600 hover:bg-blue-700"
+                        >
+                          Ajouter la vente
+                        </Button>
+                      )}
+                    </div>
+                    
+                  </form>
+                </Paper>
+
+                {/* Sales Table */}
+                <TableContainer component={Paper} elevation={0}>
+                  <Table>
+                    <TableHead>
+                      <TableRow sx={{ backgroundColor: '#f8fafc' }}>
+                        <TableCell>Image</TableCell>
+                        <TableCell>Date</TableCell>
+                        <TableCell>Référence</TableCell>
+                        <TableCell>Désignation</TableCell>
+                        <TableCell align="right">Quantité</TableCell>
+                        <TableCell align="right">Prix Unitaire</TableCell>
+                        <TableCell align="right">Total</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {displayedBoutiques?.length > 0 ? (
+                        displayedBoutiques?.map((row, index) => (
+                          <CardClientSortie key={index} row={row} />
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={7} align="center" className="py-8">
+                            <Typography variant="body1" className="text-gray-500">
+                              Aucune vente enregistrée
+                            </Typography>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+
+                {/* Pagination */}
+                <div className="flex justify-center">
+                  <Pagination
+                    count={totalPages}
+                    page={currentPage}
+                    onChange={handlePageChange}
+                    color="primary"
+                    size="large"
                   />
                 </div>
-              )}
-            </div>
+              </div>
+            </Paper>
+
+            <Modal open={isModalOpenPay} onClose={toggleModalPay}>
+              <Box sx={style}>
+                <Typography variant="h6" className="mb-4">
+                  Enregistrer le paiement
+                </Typography>
+                <TextField
+                  fullWidth
+                  label="Montant payé"
+                  variant="outlined"
+                  value={payDiscount}
+                  onChange={(e) => setPayDiscount(normalizeInput(e.target.value))}
+                  helperText="Ex: 1500 ou 85.45"
+                  className="mb-4"
+                />
+                <div className="flex justify-end space-x-3">
+                  <Button variant="outlined" onClick={toggleModalPay}>
+                    Annuler
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleApplyPayer}
+                  >
+                    Confirmer
+                  </Button>
+                </div>
+              </Box>
+            </Modal>
+
+            {/* Invoice Preview */}
+            {(showInvoice && entreprise) && (
+              <div className="mt-6">
+                <Fact               
+                  clientName={unClient.nom}
+                  clientAddress={unClient.adresse}
+                  clientCoordonne={unClient.coordonne}
+                  invoiceNumber={unClient.numero}
+                  invoiceDate={itemDate}
+                  numeroFac={texte.numeroFac}
+                  notes={texte.notes}
+                  post={entreprise}
+                  discountedTotal={discountedTotal}
+                  payerTotal={payerTotal}
+                />
+              </div>
+            )}
+           
           </div>
         );
       }

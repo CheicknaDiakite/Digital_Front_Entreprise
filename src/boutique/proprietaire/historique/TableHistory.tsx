@@ -324,8 +324,7 @@ export default function TableHistory() {
   if (!historique) return null;
 
   return (
-    <div className="min-h-screen py-6">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div >
         {/* <Nav /> */}
         <Paper elevation={0} className="mt-6">
           <TableContainer>
@@ -347,7 +346,7 @@ export default function TableHistory() {
             </Table>
           </TableContainer>
         </Paper>
-      </div>
+      
     </div>
   );
 }

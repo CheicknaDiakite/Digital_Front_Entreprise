@@ -1,5 +1,5 @@
 import { ToastContainer } from 'react-toastify'
-import { Dialog, DialogContent, DialogTitle, IconButton, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material'
+import { Dialog, DialogContent, DialogTitle, IconButton, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography, InputAdornment } from '@mui/material'
 import CardTableSortie from './CardTableSortie';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import QuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
@@ -65,9 +65,11 @@ export default function TableSortie({
   // il n'y a qu'un seul résultat, vous pouvez utiliser useEffect :
   useEffect(() => {
     if (filteredEnt && filteredEnt.length === 1) {
-      handleChange(filteredEnt[0]); // ou une fonction qui met à jour selectedOption
+      if (handleChange && typeof handleChange === 'function') {
+        handleChange(filteredEnt[0]); // met à jour selectedOption via le callback parent
+      }
     }
-  }, [filteredEnt]);
+  }, [filteredEnt, handleChange]);
 
   return (
     <>
@@ -126,7 +128,7 @@ export default function TableSortie({
             </Typography>
             <Select
               required
-              options={ent} // Ici, vous pouvez également filtrer si besoin
+              options={filteredEnt} // on utilise maintenant la liste filtrée par le code scanné
               value={selectedOption}
               onChange={handleChange}
               placeholder="Designation"
@@ -136,34 +138,49 @@ export default function TableSortie({
               }
               getOptionValue={(option: any) => option.uuid.toString()}
             />
+
+            {scannedCode && filteredEnt && filteredEnt.length === 0 && (
+              <Typography variant="body2" color="error" className="mt-2">
+                Aucun article trouvé pour le code scanné.
+              </Typography>
+            )}
           </div>
         </div>
 
         <div className="md:grid grid-cols-3 gap-10">
           <div className="flex flex-col">
             <Typography variant="h5" className="mb-2 text-gray-50">
-              Quantite <QuantityLimitsIcon fontSize="large" color='primary' />
+              Quantite 
             </Typography>
             <MyTextField
               required
               type="number"
               name="qte"
+              className='bg-white'
               value={formValues.qte}
               id="quantity"
               placeholder="Quantity"
               onChange={onChange}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <QuantityLimitsIcon color="error" />
+                  </InputAdornment>
+                ),
+              }}
             />
           </div>
 
           <div className="flex flex-col">
             <Typography variant="h5" className="mb-2 text-gray-50">
-              Prix Unitaire <LocalAtmIcon fontSize="large" color='primary' />
+              Prix Unitaire 
             </Typography>
             {formValues.is_prix ? 
               <MyTextField
                 disabled
                 variant="outlined"
                 type="number"
+                className='bg-white'
                 inputProps={{
                   step: '0.01',
                   min: '0',
@@ -172,6 +189,13 @@ export default function TableSortie({
                 name="pu"
                 onChange={onChange}
                 value={formValues.pu}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LocalAtmIcon color="error" />
+                    </InputAdornment>
+                  ),
+                }}
                 sx={{
                   '& .MuiFormLabel-asterisk': {
                     color: 'red',
@@ -182,6 +206,7 @@ export default function TableSortie({
               <MyTextField
                 disabled={formValues.is_prix}
                 variant="outlined"
+                className='bg-white'
                 type="number"
                 inputProps={{
                   step: '0.01',
@@ -191,6 +216,13 @@ export default function TableSortie({
                 name="pu"
                 onChange={onChange}
                 value={formValues.pu}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LocalAtmIcon color="error" />
+                    </InputAdornment>
+                  ),
+                }}
                 sx={{
                   '& .MuiFormLabel-asterisk': {
                     color: 'red',
@@ -203,7 +235,7 @@ export default function TableSortie({
 
           <div className="flex flex-col text-gray-50">
             <label htmlFor="amount">
-              Somme <Money size={40} color='primary' />
+              Somme <Money size={40} color='red' />
             </label>
             <p>{formatNumberWithSpaces(amount)}</p>
           </div>

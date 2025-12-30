@@ -162,8 +162,7 @@ export default function Depense() {
 
   if (depensesEntreprise) {
     return (
-      <div className={`min-h-screen ${isMobile ? '' : '' } py-6`}>
-        <div className={`${isMobile ? 'px-4' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'}`}>
+      <div >
           {/* <Nav /> */}
           <div className={isMobile ? 'mobile-chart-section' : ''}>
             <Chart_Dep />
@@ -317,7 +316,7 @@ export default function Depense() {
                   </Grid>
                   
                   {/* Table */}
-                  <Grid item xs={12} md={4}>
+                  <Grid item xs={12} md={12}>
                     <TableContainer 
                       component={Paper} 
                       elevation={0} 
@@ -558,7 +557,7 @@ export default function Depense() {
               </DialogContent>
             )}
           </Dialog>
-        </div>
+        
       </div>
     );
   }

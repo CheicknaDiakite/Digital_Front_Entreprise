@@ -1,49 +1,126 @@
-import { 
-  Alert, 
-  Box, 
-  CircularProgress, 
+import {
+  Alert,
+  Box,
+  CircularProgress,
   Container,
-  Grid, 
+  Grid,
   Paper,
   Typography,
-  Button
+  Button,
+  TextField
 } from '@mui/material';
+
 import { useFetchEntreprise, useStockEntreprise } from '../../../../../usePerso/fonction.user';
+import { useGetAllEntre, useGetAllSortie } from '../../../../../usePerso/fonction.entre';
 import { useStoreUuid } from '../../../../../usePerso/store';
 import { Link } from 'react-router-dom';
+
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
-import { useState, useEffect } from 'react';
-import '../../mobile-admin.css';
-import { LicenceTag } from '../../Entreprise';
-import { getLicenceDuration } from '../../../../../usePerso/fonctionPerso';
+import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 
-// Ajoute ta fonction utilitaire si besoin
-function isLicenceExpired(dateStr: string) {
+import { useEffect, useState } from 'react';
+import { RecupType } from '../../../../../typescript/DataType';
+import { formatNumberWithSpaces } from '../../../../../usePerso/fonctionPerso';
+
+import '../../mobile-admin.css';
+
+// ───────────────────────────────
+// Utils
+// ───────────────────────────────
+function isLicenceExpired(dateStr?: string) {
   if (!dateStr) return false;
-  const today = new Date();
-  const exp = new Date(dateStr);
-  return exp < today;
+  return new Date(dateStr) < new Date();
 }
 
-
+// ───────────────────────────────
+// Component
+// ───────────────────────────────
 export default function EtatProduit() {
   const uuid = useStoreUuid((state) => state.selectedId);
-  const { stockEntreprise, isLoading, isError } = useStockEntreprise(uuid || '');
-  const { unEntreprise } = useFetchEntreprise(uuid);
-  const [isMobile, setIsMobile] = useState(false);
 
+  const { stockEntreprise, isLoading, isError } = useStockEntreprise(uuid || '');
+  const { sortiesEntreprise = [] } = useGetAllSortie(uuid!);
+  const { entresEntreprise = [] } = useGetAllEntre(uuid!);
+  const { unEntreprise } = useFetchEntreprise(uuid);
+
+  const [isMobile, setIsMobile] = useState(false);
+  const [selectedStartDate, setSelectedStartDate] = useState('');
+  const [selectedEndDate, setSelectedEndDate] = useState('');
+
+  // ───────────────────────────────
+  // Responsive
+  // ───────────────────────────────
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // ───────────────────────────────
+  // FILTRAGE DATE - SORTIES
+  // ───────────────────────────────
+  const sortiesFiltrees = sortiesEntreprise.filter((item: RecupType) => {
+    if (!item.date) return false;
+
+    const itemDate = item.date.split('T')[0]; // YYYY-MM-DD
+
+    if (selectedStartDate && itemDate < selectedStartDate) return false;
+    if (selectedEndDate && itemDate > selectedEndDate) return false;
+
+    return true;
+  });
+
+  const sortiesValides = sortiesFiltrees.filter(
+    (item: RecupType) => item.is_remise === false
+  );
+
+  // ───────────────────────────────
+  // CHIFFRE D'AFFAIRES (VENTES)
+  // ───────────────────────────────
+  const totalCA = sortiesValides.reduce((acc, row) => {
+    const montant =
+      row.qte !== undefined && row.pu !== undefined
+        ? row.qte * row.pu
+        : 0;
+    return acc + montant;
+  }, 0);
+
+  // ───────────────────────────────
+  // FILTRAGE DATE - ENTREES
+  // ───────────────────────────────
+  const entresFiltrees = entresEntreprise.filter((item: RecupType) => {
+    if (!item.date) return false;
+
+    const itemDate = item.date.split('T')[0];
+
+    if (selectedStartDate && itemDate < selectedStartDate) return false;
+    if (selectedEndDate && itemDate > selectedEndDate) return false;
+
+    return true;
+  });
+
+  // ───────────────────────────────
+  // MONTANT DEPENSÉ (ACHATS)
+  // ───────────────────────────────
+  const totalMD = entresFiltrees.reduce((acc, row: RecupType) => {
+    const montant =
+      row.qte !== undefined && row.pu_achat !== undefined
+        ? row.qte * row.pu_achat
+        : 0;
+    return acc + montant;
+  }, 0);
+
+  const beneficeEstime = totalCA - totalMD;
+  const isPerte = beneficeEstime < 0;
+
+
+  // ───────────────────────────────
+  // Loading / Error
+  // ───────────────────────────────
   if (isLoading) {
     return (
       <Box className="flex items-center justify-center p-8">
@@ -54,16 +131,15 @@ export default function EtatProduit() {
 
   if (isError) {
     return (
-      <Alert 
-        severity="error" 
-        className="m-4"
+      <Alert
+        severity="error"
         action={
-          <Button color="inherit" size="small" onClick={() => window.location.reload()}>
+          <Button color="inherit" onClick={() => window.location.reload()}>
             Réessayer
           </Button>
         }
       >
-        Problème de connexion ! Veuillez réessayer.
+        Problème de connexion
       </Alert>
     );
   }
@@ -72,100 +148,143 @@ export default function EtatProduit() {
 
   const licenceExpiree = isLicenceExpired(unEntreprise.licence_date_expiration);
 
+  // ───────────────────────────────
+  // Stats cards
+  // ───────────────────────────────
   const stats = [
     {
-      title: "Quantités sorties",
+      title: 'Quantités sorties',
       value: stockEntreprise.somme_sortie_qte,
-      icon: <TrendingDownIcon className="text-red-600" />,
-      link: null,
-      bgClass: "from-red-50 to-red-100",
-      iconBgClass: "bg-red-100",
-      textClass: "text-red-600"
+      icon: <TrendingDownIcon color="error" />
     },
     {
-      title: "Quantités en stock",
+      title: 'Quantités en stock',
       value: stockEntreprise.somme_entrer_qte,
-      icon: <InventoryIcon className="text-green-600" />,
-      link: null,
-      bgClass: "from-green-50 to-green-100",
-      iconBgClass: "bg-green-100",
-      textClass: "text-green-600"
+      icon: <InventoryIcon color="success" />
     },
     {
-      title: "Sorties effectuées",
+      title: 'Sorties effectuées',
       value: stockEntreprise.nombre_sortie,
-      icon: <ShoppingCartIcon className="text-blue-600" />,
-      link: "/sortie",
-      bgClass: "from-blue-50 to-blue-100",
-      iconBgClass: "bg-blue-100",
-      textClass: "text-blue-600"
+      icon: <ShoppingCartIcon color="primary" />,
+      link: '/sortie'
     },
     {
-      title: "Entrées effectuées",
+      title: 'Entrées effectuées',
       value: stockEntreprise.nombre_entrer,
-      icon: <TrendingUpIcon className="text-indigo-600" />,
-      link: "/entre",
-      bgClass: "from-indigo-50 to-indigo-100",
-      iconBgClass: "bg-indigo-100",
-      textClass: "text-indigo-600"
+      icon: <TrendingUpIcon color="info" />,
+      link: '/entre'
     }
   ];
 
+  // ───────────────────────────────
+  // Render
+  // ───────────────────────────────
   return (
-    <Container maxWidth="md" className={`py-8 ${isMobile ? 'mobile-users-container' : ''}`}>
-      {/* <div className="flex flex-col items-center gap-2 mb-4">
-        <LicenceTag type={unEntreprise.licence_type}>
-          Licence {unEntreprise.licence_type} {getLicenceDuration(unEntreprise.licence_date_expiration)}
-        </LicenceTag>
-        
-        {licenceExpiree && (
-          <span className="inline-block bg-red-600 text-white text-xs font-bold px-3 py-1 rounded shadow mt-2">
-            Licence expirée
-          </span>
-        )}
-      </div> */}
+    <Container maxWidth="md" className="py-8">
+      <Typography variant="h4" className="text-gray-50 mb-4">
+        Statistiques de l’entreprise
+      </Typography>
 
-      <div className={`mb-6`}>
-        <Typography variant="h4" className={`font-semibold text-gray-50 mb-2 ${isMobile ? 'mobile-stats-title' : ''}`}>
-          Statistiques de l'entreprise
-        </Typography>
-        <Typography variant="body1" className={`text-gray-100 ${isMobile ? 'mobile-stats-subtitle' : ''}`}>
-          Vue d'ensemble des mouvements de stock
-        </Typography>
-      </div>
+      {/* Filtres date */}
+      <Grid container spacing={2} className="mb-4">
+        <Grid item xs={12} md={6}>
+          <TextField
+            fullWidth
+            className='bg-slate-200'
+            label="Date de début"
+            type="date"
+            value={selectedStartDate}
+            onChange={(e) => setSelectedStartDate(e.target.value)}
+            InputLabelProps={{ shrink: true }}
+          />
+        </Grid>
 
-      <Grid container spacing={3} className={isMobile ? 'mobile-stats-grid' : ''}>
+        <Grid item xs={12} md={6}>
+          <TextField
+            fullWidth
+            className='bg-slate-200'
+            label="Date de fin"
+            type="date"
+            value={selectedEndDate}
+            onChange={(e) => setSelectedEndDate(e.target.value)}
+            InputLabelProps={{ shrink: true }}
+          />
+        </Grid>
+      </Grid>
+
+      {/* CA */}
+      <Box className="flex items-center gap-2 mb-3">
+        <LocalAtmIcon color="primary" />
+        <Typography variant="h6" className="text-gray-50">
+          Chiffre d’affaires : {formatNumberWithSpaces(totalCA)}
+        </Typography>
+      </Box>
+
+      {/* Dépenses */}
+      <Box className="flex items-center gap-2 mb-6">
+        <LocalAtmIcon color="error" />
+        <Typography variant="h6" className="text-gray-50">
+          Somme des prix d'achats : {formatNumberWithSpaces(totalMD)}
+        </Typography>
+      </Box>
+
+      <Box className="flex items-center gap-2 mb-6">
+        <LocalAtmIcon color={isPerte ? 'info' : 'success'} />
+        <Typography
+          variant="h6"
+          sx={{
+            color: isPerte ? 'info.main' : 'success.main',
+            fontWeight: 600
+          }}
+        >
+          {isPerte ? 'Perte estimée' : 'Bénéfice estimé'} :{' '}
+          {formatNumberWithSpaces(Math.abs(beneficeEstime))}
+        </Typography>
+      </Box>
+
+      {/* <Box className="flex items-center gap-2 mb-6">
+        <LocalAtmIcon color={isPerte ? 'error' : 'success'} />
+        <Typography
+          variant="h6"
+          sx={{
+            color: isPerte ? 'error.main' : 'success.main',
+            fontWeight: 600
+          }}
+        >
+          {isPerte ? "Prix d'achat estimé" : 'Bénéfice estimé'} :{' '}
+          {formatNumberWithSpaces(Math.abs(beneficeEstime))}
+        </Typography>
+      </Box> */}
+
+
+      {/* Stats */}
+      <Grid container spacing={3}>
         {stats.map((stat, index) => {
-          const StatContent = () => (
+          const Card = (
             <Paper
-              elevation={0}
-              // className={`border rounded-lg overflow-hidden h-full transition-all duration-200 hover:shadow-md bg-gradient-to-br ${stat.bgClass} ${isMobile ? 'mobile-stat-card' : ''} ${licenceExpiree ? 'opacity-60 grayscale' : ''}`}
-              
+              elevation={3}
+              className={`p-4 ${
+                licenceExpiree ? 'opacity-50 grayscale' : ''
+              }`}
             >
-              <Box className={`p-6 ${isMobile ? 'mobile-responsive-stack' : ''}`}>
-                <div className={`flex items-center justify-between mb-4 ${isMobile ? 'mobile-stat-header' : ''}`}>
-                  <Typography variant="h6" className={`font-medium text-gray-900 ${isMobile ? 'mobile-stat-title' : ''}`}>
-                    {stat.title}
-                  </Typography>
-                  <div className={`p-2 rounded-full ${stat.iconBgClass} ${isMobile ? 'mobile-stat-icon' : ''}`}>
-                    {stat.icon}
-                  </div>
-                </div>
-                <Typography variant="h4" className={`font-semibold ${stat.textClass} ${isMobile ? 'mobile-stat-value' : ''}`}>
-                  {stat.value}
+              <Box className="flex justify-between items-center mb-2">
+                <Typography variant="subtitle1">
+                  {stat.title}
                 </Typography>
+                {stat.icon}
               </Box>
+              <Typography variant="h5">{stat.value}</Typography>
             </Paper>
           );
 
           return (
-            <Grid item xs={12} sm={6} md={3} key={index} className={isMobile ? 'mobile-animate-in' : ''}>
+            <Grid item xs={12} sm={6} md={3} key={index}>
               {stat.link && !licenceExpiree ? (
-                <Link to={stat.link} className="block h-full no-underline">
-                  <StatContent />
+                <Link to={stat.link} className="no-underline">
+                  {Card}
                 </Link>
               ) : (
-                <StatContent />
+                Card
               )}
             </Grid>
           );

@@ -47,8 +47,8 @@ export type SortieType = {
     action?: string;
     entreprise_id?: string;
     categorie_libelle?: string;
-    qte: number;
-    pu: number;
+    qte?: number | string;
+    pu?: number | string;
     is_prix?: boolean;
     entre_id?: string;
 }
@@ -218,6 +218,7 @@ export type RecupType = {
     first_name?: string,
     notes?: string,
     is_prix?: boolean,
+    is_remise?: boolean,
     image?: File | undefined | null ;
     code_barre?: File | undefined | null ;
     invoiceNumber?: number,

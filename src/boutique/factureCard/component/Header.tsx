@@ -21,7 +21,7 @@ export default function Header({
       {/* Company Header */}
       <div className="flex items-center justify-between bg-blue-400 mb-8 m-3">
         <div className="flex items-center space-x-4 m-3">
-          <img src={url} alt="Logo" className="h-20 w-20 object-contain" />
+          {url && <img src={url} className="h-20 w-20 object-contain" /> }
           <div>
             <Typography variant="h4" className="font-bold text-white">
               {nom}

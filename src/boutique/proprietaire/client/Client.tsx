@@ -140,14 +140,7 @@ export default function Client() {
                   <Typography 
                     variant={isMobile ? "h5" : "h4"} 
                     className={`${isMobile ? 'font-semibold text-gray-50' : 'font-semibold text-gray-50'}`}
-                    // sx={isMobile ? {
-                    //   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    //   WebkitBackgroundClip: 'text',
-                    //   WebkitTextFillColor: 'transparent',
-                    //   backgroundClip: 'text',
-                    //   fontWeight: 700,
-                    //   textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-                    // } : {}}
+                    
                   >
                     Gestion des Clients et Fournisseurs
               </Typography>

@@ -2,10 +2,8 @@ import { Alert, Box, CircularProgress, Grid, Stack, Typography } from '@mui/mate
 import { useStoreUuid } from '../../../../usePerso/store';
 import { useFetchUser, useStockEntreprise } from '../../../../usePerso/fonction.user';
 import { formatNumberWithSpaces } from '../../../../usePerso/fonctionPerso';
-import { connect } from '../../../../_services/account.service';
 import AnalyticEcommerce from '../../../../components/cards/statistics/AnalyticEcommerce';
 import { format } from 'date-fns';
-import Nav from '../../../../_components/Button/Nav';
 
 // Types
 
@@ -41,7 +39,7 @@ export default function SortieInventaire() {
         {/* <Nav /> */}
         <Grid container rowSpacing={4.5} columnSpacing={2.75}>
           <Grid item xs={12} sx={{ mb: -2.25 }}>
-            <Typography variant="h5" component="h1" gutterBottom>
+            <Typography variant="h5" className='text-gray-50' component="h1" gutterBottom>
               Statistiques des ventes mensuelles
             </Typography>
           </Grid>

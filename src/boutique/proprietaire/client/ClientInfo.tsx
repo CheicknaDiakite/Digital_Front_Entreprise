@@ -9,7 +9,6 @@ import EditIcon from '@mui/icons-material/Edit';
 import { useParams } from 'react-router-dom';
 import { ClientModif } from './ModifClient/ClientModif';
 import { useDeleteClient, useUnClient } from '../../../usePerso/fonction.user';
-import Nav from '../../../_components/Button/Nav';
 import { connect } from '../../../_services/account.service';
 import { a11yProps } from '../../../usePerso/fonctionPerso';
 import { CustomTabPanel } from '../../../usePerso/useEntreprise';
@@ -40,131 +39,135 @@ export default function ClientInfo() {
   };
 
   return (
-    <div className="min-h-screen py-6">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-6">
-          {/* <Nav>
-            <IconButton 
-              onClick={handleDelete}
-              className="text-red-600 hover:text-red-700 hover:bg-red-50"
-              size="small"
-            >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          </Nav> */}
-        </div>
+    <div>      
 
-        {showConfirm && (
-          <Alert 
-            severity="warning" 
-            className="mt-4"
-            action={
-              <div className="space-x-2">
-                <Button color="inherit" size="small" onClick={() => setShowConfirm(false)}>
-                  Annuler
-                </Button>
-                <Button color="error" size="small" onClick={confirmDelete}>
-                  Confirmer
-                </Button>
-              </div>
-            }
-          >
-            Êtes-vous sûr de vouloir supprimer ce client ?
-          </Alert>
-        )}
-
-        {/* Main Content */}
-        <Paper elevation={0} className="rounded-lg overflow-hidden">
-          <Box sx={{ width: '100%' }}>
-            {/* Tabs */}
-            <Box sx={{ 
-              borderBottom: 1, 
-              borderColor: 'divider',
-              backgroundColor: 'white',
-            }}>
-              <Tabs 
-                value={value} 
-                onChange={handleChange} 
-                variant="scrollable"
-                scrollButtons="auto"
-                allowScrollButtonsMobile
-                aria-label="client tabs"
-                sx={{
-                  '& .MuiTab-root': {
-                    minHeight: '64px',
-                    textTransform: 'none',
-                    fontSize: '0.95rem',
-                  },
-                  '& .Mui-selected': {
-                    color: '#1976d2',
-                  },
-                }}
-              >
-                <Tab 
-                  label={
-                    <div className="flex items-center space-x-2">
-                      <ShoppingCartIcon fontSize="small" />
-                      <span>Ventes (Client)</span>
-                    </div>
-                  }
-                  {...a11yProps(0)} 
-                />
-
-                <Tab 
-                  label={
-                    <div className="flex items-center space-x-2">
-                      <LocalShippingIcon fontSize="small" />
-                      <span>Achats (Fournisseur)</span>
-                    </div>
-                  }
-                  {...a11yProps(1)} 
-                />
-
-                <Tab 
-                  label={
-                    <div className="flex items-center space-x-2">
-                      <EditIcon fontSize="small" />
-                      <span>Modification</span>
-                    </div>
-                  }
-                  {...a11yProps(2)} 
-                />
-                
-                <Tab 
-                  label={
-                    <div className="flex items-center space-x-2">
-                      <IconButton 
-                        onClick={handleDelete}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        size="small"
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </div>
-                  }
-                  
-                />
-              </Tabs>
-            </Box>
-
-            {/* Tab Panels */}
-            <div className="bg-white">
-              <CustomTabPanel value={value} index={0}>
-                <ClientSortie uuid={uuid!} />
-              </CustomTabPanel>
-              
-              <CustomTabPanel value={value} index={1}>
-                <ClientEntrer uuid={uuid!} />
-              </CustomTabPanel>
-
-              <CustomTabPanel value={value} index={2}>
-                <ClientModif uuid={uuid!} />
-              </CustomTabPanel>
+      {showConfirm && (
+        <Alert 
+          severity="warning" 
+          className="mt-4"
+          sx={{
+            position: 'fixed',
+            top: 16,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 1400,
+            width: 'calc(100% - 32px)',
+            maxWidth: 600,
+          }}
+          action={
+            <div className="space-x-2">
+              <Button color="inherit" size="small" onClick={() => setShowConfirm(false)}>
+                Annuler
+              </Button>
+              <Button color="error" size="small" onClick={confirmDelete}>
+                Confirmer
+              </Button>
             </div>
-          </Box>
-        </Paper>
-      </div>
+          }
+        >
+          Êtes-vous sûr de vouloir supprimer ce client ?
+        </Alert>
+      )}
+
+      {/* Main Content */}
+      <Paper 
+      elevation={0}
+      // className="rounded-lg overflow-hidden"
+      sx={ {
+        background: 'transparent',
+        bgcolor: 'transparent',
+        backdropFilter: 'none',
+        
+      } }
+      >
+        
+        {/* Tabs */}
+        <Box 
+        className={`border-b bg-gray-100 backdrop-blur-sm `}
+        >
+          <Tabs 
+            value={value} 
+            onChange={handleChange} 
+            variant="scrollable"
+            scrollButtons="auto"
+            allowScrollButtonsMobile
+            aria-label="client tabs"
+            sx={{
+              '& .MuiTab-root': {
+                minHeight: '64px',
+                textTransform: 'none',
+                fontSize: '0.95rem',
+              },
+              '& .Mui-selected': {
+                color: '#1976d2',
+              },
+            }}
+          >
+            <Tab 
+              label={
+                <div className="flex items-center space-x-2">
+                  <ShoppingCartIcon fontSize="small" />
+                  <span>Ventes (Client)</span>
+                </div>
+              }
+              {...a11yProps(0)} 
+            />
+
+            <Tab 
+              label={
+                <div className="flex items-center space-x-2">
+                  <LocalShippingIcon fontSize="small" />
+                  <span>Achats (Fournisseur)</span>
+                </div>
+              }
+              {...a11yProps(1)} 
+            />
+
+            <Tab 
+              label={
+                <div className="flex items-center space-x-2">
+                  <EditIcon fontSize="small" />
+                  <span>Modification</span>
+                </div>
+              }
+              {...a11yProps(2)} 
+            />
+            
+            <Tab 
+              label={
+                <div className="flex items-center space-x-2">
+                  <IconButton 
+                    onClick={handleDelete}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    size="small"
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </div>
+              }
+              
+            />
+          </Tabs>
+        </Box>
+
+        <Box >
+          {/* Tab Panels */}
+          
+            <CustomTabPanel value={value} index={0}>
+              <ClientSortie uuid={uuid!} />
+            </CustomTabPanel>
+            
+            <CustomTabPanel value={value} index={1}>
+              <ClientEntrer uuid={uuid!} />
+            </CustomTabPanel>
+
+            <CustomTabPanel value={value} index={2}>
+              <ClientModif uuid={uuid!} />
+            </CustomTabPanel>
+          
+        </Box>
+      </Paper>
+     
     </div>
   );
 }

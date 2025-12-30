@@ -75,6 +75,15 @@ export default function ModifProduitEntre() {
           <Alert 
             severity="warning" 
             className="mt-4"
+            sx={{
+              position: 'fixed',
+              top: 16,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 1400,
+              width: 'calc(100% - 32px)',
+              maxWidth: 600,
+            }}
             action={
               <div className="space-x-2">
                 <Button color="inherit" size="small" onClick={() => setShowConfirm(false)}>

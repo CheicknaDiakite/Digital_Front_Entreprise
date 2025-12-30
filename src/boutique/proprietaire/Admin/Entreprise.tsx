@@ -62,7 +62,7 @@ interface LicenceTagProps {
 export const LicenceTag: FC<LicenceTagProps> = ({ type, children }) => (
   <span
     className={clsx(
-      "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset",
+      "inline-flex items-center justify-center text-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset",
       {
         "bg-red-50 text-red-700 ring-red-700/10": type === "Essai",
         "bg-yellow-50 text-yellow-700 ring-yellow-700/10": type === "Standard",
@@ -343,11 +343,11 @@ export default function Entreprise() {
             }`}
           >
             {/* Badge Expirée */}
-            {/* {expired && (
+            {expired && (
               <div className="absolute top-2 left-2 z-10 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded shadow-lg">
                 Licence expirée
               </div>
-            )} */}
+            )}
             <Link
               to={`/entreprise`}
               onClick={() => addId(post.uuid)}

@@ -13,8 +13,8 @@ type TypeForn = {
   image?:File | unknown;
 }
 type TypeNumForn = {
-  pu: number;
-  qte: number;
+  pu?: number;
+  qte?: number;
   qte_critique?: number;
 }
 export type CategorieFormType = {

@@ -1,4 +1,4 @@
-import { Autocomplete, Box, Button, Checkbox, FormControlLabel, Stack, TextField, Typography, InputAdornment } from "@mui/material";
+import { Autocomplete, Box, Button, Checkbox, FormControlLabel, Stack, TextField, InputAdornment } from "@mui/material";
 import MyTextField from "../_components/Input/MyTextField";
 import { useFetchAllSousCate } from "./fonction.categorie";
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
@@ -87,7 +87,7 @@ export function AjoutEntreForm({
             onChange={onChange}
           />
   
-          <MyTextField required
+          {/* <MyTextField 
             variant="outlined" 
             type='date' 
             label="Date de livraison" 
@@ -102,7 +102,7 @@ export function AjoutEntreForm({
                 color: "red", // Personnalise la couleur de l'étoile en rouge
               },
             }}
-          />
+          /> */}
 
           <MyTextField
             required
@@ -168,7 +168,6 @@ export function AjoutEntreForm({
           }
 
           <MyTextField
-            required
             variant="outlined"
             type="number"
             label="Quantité critique"
