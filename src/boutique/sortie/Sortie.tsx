@@ -148,24 +148,6 @@ export default function Sortie() {
         });
       };
 
-      const [texte, setNom] = useState<TypeText>({
-        clientName: '',
-        clientAddress: '',
-        clientCoordonne: '',
-        invoiceDate: '',
-        dueDate: '',
-        notes: '',
-        numeroFac: '',
-      });
-
-      const onChan = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setNom({
-          ...texte,
-          [name]: value,
-        });
-      };
-
       const [amount, setAmount] = useState<number>(0);
 
       useEffect(() => {
@@ -542,14 +524,8 @@ export default function Sortie() {
             {/* Invoice Preview Section */}
             {showInvoice && entreprise && (
               <div className={`${isMobile ? 'mobile-preview-section' : 'mt-8'}`}>
-                <Fact               
-                clientName={clientInfo.clientName || texte.clientName}
-                clientAddress={clientInfo.clientAddress || texte.clientAddress}
-                clientCoordonne={clientInfo.clientCoordonne || texte.clientCoordonne}
-                invoiceNumber={clientInfo.clientNumero || texte.invoiceNumber}
-                invoiceDate={texte.invoiceDate || itemDate}
-                numeroFac={texte.numeroFac}
-                dueDate={texte.dueDate}
+                <Fact              
+                invoiceDate={itemDate}
                 post={entreprise}
                 discountedTotal={discountedTotal}
                 payerTotal={payerTotal}

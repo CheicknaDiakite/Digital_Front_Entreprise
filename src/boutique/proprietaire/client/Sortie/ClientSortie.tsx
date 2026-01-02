@@ -2,10 +2,15 @@ import {
   Autocomplete, 
   Box, 
   Button, 
-  Modal, 
+  Dialog, 
+  DialogContent, 
+  DialogTitle, 
+  IconButton, 
+  InputAdornment, 
   Pagination, 
   Paper, 
   Skeleton, 
+  Stack, 
   Table, 
   TableBody, 
   TableCell, 
@@ -15,6 +20,7 @@ import {
   TextField, 
   Typography,
 } from '@mui/material';
+import QrCode2Icon from '@mui/icons-material/QrCode2';
 import { UuType } from '../../../../typescript/Account'
 import CardClientSortie from './CardClientSortie';
 import MyTextField from '../../../../_components/Input/MyTextField';
@@ -33,6 +39,7 @@ import Fact from '../../../factureCard/Fact';
 import { useStoreCart } from '../../../../usePerso/cart_store';
 import { TypeText } from '../../../sortie/Sortie';
 import { format } from 'date-fns';
+import BarcodeScanner from '../../../../_components/Input/BarcodeScanner';
 
 const style = {
   position: 'absolute',
@@ -48,17 +55,17 @@ const style = {
 };
 
 export default function ClientSortie(uuid: UuType) {
-  const top = {
-    user_id: connect,
-    client_id: uuid.uuid,
-  }
-  const {unUser} = useFetchUser()
-  const {unClient} = useUnClient(uuid.uuid!);
+    const top = {
+      user_id: connect,
+      client_id: uuid.uuid,
+    }
+    const {unUser} = useFetchUser()
+    const {unClient} = useUnClient(uuid.uuid!);
   
     // const {ajoutEntre} = useCreateEntre()
     const {ajoutSortie} = useCreateSortie()
     const entreprise_id = useStoreUuid((state) => state.selectedId)
-  const { unEntreprise } = useFetchEntreprise(entreprise_id);
+    const { unEntreprise } = useFetchEntreprise(entreprise_id);
     // Pour la remise
 
       const [texte, setNom] = useState<TypeText>({
@@ -72,25 +79,30 @@ export default function ClientSortie(uuid: UuType) {
       invoiceNumber: 0,
     });
 
-    const onChan = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const { name, value } = e.target;
-      setNom({
-        ...texte,
-        [name]: value,
-      });
-    };
-            
+         
     const selectedIds = useStoreCart(state => state.selectedIds)
     const sortiess = useStoreCart(state => state.sorties);
-    const selectSorties = sortiess.filter((sor) => sor.id !== undefined && selectedIds.has(sor.id as number));
-    
+    const [stockError, setStockError] = useState<string>('');
     const {unEntreprise: entreprise} = useFetchEntreprise(entreprise_id!)
+
+    const [formValues, setFormValues] = useState<SortieType>({
+      user_id: '',
+      qte: 0,
+      pu: 0,
+      entre_id: '',
+      });
+
+    const [amount, setAmount] = useState<number>(0);
+    const [scannedCode, setScannedCode] = useState<string>('');
+    const [open, openchange] = useState(false);
     
-    const {entresEntreprise: entres} = useGetAllEntre(entreprise_id!)
+    const {entresEntreprise: ent} = useGetAllEntre(entreprise_id!)
+    const entres = ent.filter(info => info.qte !== 0 && info.is_sortie);
+    
     // const {entresEntreprise, isLoading, isError} = useGetAllEntre(connect)
     // const {sortiesEntreprise: entresEntreprise , isLoading, isError} = useGetAllSortie(connect)
     const {sorties: entresEntreprise , isLoading, isError} = useFetchAllSortie(top)
-
+    const [stockDisponible, setStockDisponible] = useState<number>(0);
     const [showInvoice, setShowInvoice] = useState(false); // État pour afficher ou masquer la section de facture
     const setSorties = useStoreCart(state => state.setSorties)
     const top_st = {
@@ -110,65 +122,6 @@ export default function ClientSortie(uuid: UuType) {
     const handleSaveSorties = () => {
       setSorties(sorties);
     };
-
-    // Ouvrir/fermer le modal
-    // Normaliser la saisie (remplace ',' par '.')
-    const normalizeInput = (value: string) => value.replace(",", ".");
-
-    const total = selectSorties?.reduce((acc, sortie) => {
-      // Convertir prix_total en nombre ou utiliser 0 si invalide
-      const prixTotal = sortie.prix_total ? parseFloat(String(sortie.prix_total)) : 0;
-      return acc + prixTotal;
-    }, 0);
-
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isModalOpenPay, setIsModalOpenPay] = useState(false);
-    const [fixedDiscount, setFixedDiscount] = useState<number | string>(""); // Remise fixe
-    const [payDiscount, setPayDiscount] = useState<number | string>(""); // Remise fixe
-    const [percentageDiscount, setPercentageDiscount] = useState<number | string>(""); // Remise en %
-    const [discountedTotal, setDiscountedTotal] = useState(total); // Total avec remise
-    const [payerTotal, setPayerTotal] = useState(total); // Total avec remise
-
-    // Calculer le nouveau total
-    const calculateDiscountedTotal = () => {
-      let newTotal = total;
-      const fixed = parseFloat(normalizeInput(fixedDiscount as string)) || 0;
-      const percentage = parseFloat(normalizeInput(percentageDiscount as string)) || 0;
-  
-      if (fixed) {
-        newTotal -= fixed;
-      }
-      if (percentage) {
-        newTotal -= (percentage / 100) * total;
-      }
-      setDiscountedTotal(Math.max(0, newTotal)); // Empêche un total négatif
-    };
-
-    const calculatePayerTotal = () => {
-      let newTotal = total;
-      const fixed = parseFloat(normalizeInput(payDiscount as string)) || 0;
-      
-      if (fixed) {
-        newTotal -= fixed;
-      }
-      
-      setPayerTotal(Math.max(0, newTotal)); // Empêche un total négatif
-    };
-
-    const toggleModal = () => setIsModalOpen(!isModalOpen);
-    const toggleModalPay = () => setIsModalOpenPay(!isModalOpenPay);
-
-    // Appliquer la remise
-      const handleApplyDiscount = () => {
-        calculateDiscountedTotal();
-        calculatePayerTotal();
-        toggleModal();
-      };
-      const handleApplyPayer = () => {
-        calculatePayerTotal();
-        toggleModalPay();
-      };
-      // fin
 
       // États pour les dates de recherche
     const [selectedStartDate, setSelectedStartDate] = useState<string>('');
@@ -190,20 +143,20 @@ export default function ClientSortie(uuid: UuType) {
     const [currentPage, setCurrentPage] = useState(1);
   
     // Filtrage entre les deux dates sélectionnées
-  const filteredBoutiques = entresEntreprise?.filter((item) => {
-    if (!item.date) {
-      return false; // Ignore les éléments sans date valide
-    }
-  
-    const itemDate = new Date(item.date).getTime();
-    const startDate = selectedStartDate ? new Date(selectedStartDate).getTime() : null;
-    const endDate = selectedEndDate ? new Date(selectedEndDate).getTime() : null;
-  
-    return (
-      (startDate === null || itemDate >= startDate) &&
-      (endDate === null || itemDate <= endDate)
-    );
-  });
+    const filteredBoutiques = entresEntreprise?.filter((item) => {
+      if (!item.date) {
+        return false; // Ignore les éléments sans date valide
+      }
+    
+      const itemDate = new Date(item.date).getTime();
+      const startDate = selectedStartDate ? new Date(selectedStartDate).getTime() : null;
+      const endDate = selectedEndDate ? new Date(selectedEndDate).getTime() : null;
+    
+      return (
+        (startDate === null || itemDate >= startDate) &&
+        (endDate === null || itemDate <= endDate)
+      );
+    });
   
     // Inverser les boutiques pour que les plus récentes apparaissent en premier
     const reversedBoutiques = filteredBoutiques?.slice().sort((a: RecupType, b: RecupType) => {
@@ -232,21 +185,14 @@ export default function ClientSortie(uuid: UuType) {
   
     // Gestion du changement de date
   
-    const [formValues, setFormValues] = useState<SortieType>({
-      user_id: '',
-      qte: 0,
-      pu: 0,
-      entre_id: '',
-      });
-
-      const [amount, setAmount] = useState<number>(0);
-      useEffect(() => {
-        const calculateAmount = () => {
-          setAmount(Number(formValues.pu) * Number(formValues.qte));
-        };
     
-        calculateAmount();
-      }, [amount, formValues.pu, formValues.qte, setAmount]);
+    useEffect(() => {
+      const calculateAmount = () => {
+        setAmount(Number(formValues.pu) * Number(formValues.qte));
+      };
+  
+      calculateAmount();
+    }, [amount, formValues.pu, formValues.qte, setAmount]);
 
     const onChange = (e: ChangeEvent<HTMLInputElement>) => {
       const { name, value } = e.target;
@@ -255,24 +201,69 @@ export default function ClientSortie(uuid: UuType) {
         [name]: value,
       });
     };
+
+    useEffect(() => {
+    if (Number(formValues?.qte) > stockDisponible) {
+      setStockError(`Stock insuffisant (disponible : ${stockDisponible})`);
+    } else {
+      setStockError('');
+    }
+    }, [formValues.qte, stockDisponible]);
   
-    const handleAutoCompleteChange = (_: SyntheticEvent<Element, Event>,
-      value: string | RecupType | null,
-      // reason: AutocompleteChangeReason
-      ) => {
-      if (typeof value === 'object' && value !== null) {
-        setFormValues({
-          ...formValues,
-          entre_id: value.uuid ?? '',
-        });
-      } else {
-        setFormValues({
-          ...formValues,
-          entre_id: '',
-        });
-      }
+    const handleAutoCompleteChange = (
+    _: SyntheticEvent,
+    value: string | RecupType | null
+  ) => {
+    if (typeof value === 'object' && value !== null) {
+      setFormValues({
+        ...formValues,
+        entre_id: value.uuid,
+        is_prix: value.is_prix,
+        pu: value.pu,
+        ref: value.ref,
+        qte: 1,
+      });
+      setStockDisponible(Number(value.qte));
+      setStockError('');
+    } else {
+      setFormValues({
+        ...formValues,
+        entre_id: '',
+        pu: 0,
+        qte: 0,
+      });
+      setStockDisponible(0);
+      setScannedCode("")
+    }
     };
 
+    const functionopen = () => {
+      openchange(true);
+    };
+    const closeopen = () => {
+      openchange(false);
+    };
+
+    const handleScanResult = (code: string) => {
+      setScannedCode(code);
+      
+      // Optionnel : fermer le dialog après scan
+      openchange(false);
+    };
+    
+    const filteredEnt = scannedCode
+    ? entres.filter((option: any) => 
+    {
+      // console.log('Code option :', option);
+      // console.log('Code scannedCode :', scannedCode);
+      return option.ref === scannedCode
+    }
+  )
+    : entres;
+    
+    useEffect(() => {
+      
+    }, [filteredEnt, handleAutoCompleteChange]);
     const itemDate = format(new Date(), 'dd/MM/yyyy');
     
     const onSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -281,9 +272,10 @@ export default function ClientSortie(uuid: UuType) {
       formValues["user_id"] = connect
       formValues["client_id"] = uuid.uuid
       ajoutSortie(formValues)
+      
       // window.location.reload();
     };
-  
+
     if (isLoading) {
       return <Box sx={{ width: 300 }}>
       <Skeleton />
@@ -347,18 +339,6 @@ export default function ClientSortie(uuid: UuType) {
                   </div>
                 </div>
 
-                {/* Actions Section */}
-                <div className="flex flex-wrap gap-4">
-                  
-                  <Button
-                    variant="contained"
-                    onClick={toggleModalPay}
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    Enregistrer Paiement
-                  </Button>
-                </div>
-
                 {/* Date Filter Section */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-lg shadow-sm">
                   <TextField
@@ -394,8 +374,32 @@ export default function ClientSortie(uuid: UuType) {
                 {/* New Sale Form */}
                 <Paper elevation={0} className="p-6 bg-white rounded-lg">
                   <form onSubmit={onSubmit} className="space-y-6">
+
+                    <div className="my-2">
+                      <Stack direction="row" spacing={2}>
+                        <QrCode2Icon onClick={functionopen} color="error" fontSize="large" />
+                      </Stack>
+          
+                      <Dialog open={open} onClose={closeopen} fullWidth maxWidth="xs">
+                        <DialogTitle>
+                          Barre Code
+                          <IconButton onClick={closeopen} style={{ float: 'right' }}>
+                            <CloseIcon color="primary" />
+                          </IconButton>
+                        </DialogTitle>
+          
+                        <DialogContent>
+                          <BarcodeScanner onScan={handleScanResult} />
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                    
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <div className="col-span-1">
+
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <Typography variant="subtitle2">Nom du produit</Typography>
+                        </div>
                         <Autocomplete
                           freeSolo
                           options={entres}
@@ -405,7 +409,7 @@ export default function ClientSortie(uuid: UuType) {
                             <TextField 
                               {...params} 
                               label="Désignation" 
-                              className="bg-white"
+                              className="bg-gray-200"
                             />
                           )}
                         />
@@ -413,32 +417,52 @@ export default function ClientSortie(uuid: UuType) {
 
                       <div className="space-y-2">
                         <div className="flex items-center space-x-2">
-                          <QuantityLimitsIcon color="primary" fontSize="small" />
                           <Typography variant="subtitle2">Quantité</Typography>
                         </div>
                         <MyTextField
                           required
                           type="number"
                           name="qte"
+                          className='bg-white'
                           value={formValues.qte}
+                          id="quantity"
+                          placeholder="Quantity"
                           onChange={onChange}
-                          className="bg-white"
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <QuantityLimitsIcon color="error" />
+                              </InputAdornment>
+                            ),
+                          }}
                         />
                       </div>
 
                       <div className="space-y-2">
                         <div className="flex items-center space-x-2">
-                          <LocalAtmIcon color="primary" fontSize="small" />
                           <Typography variant="subtitle2">Prix Unitaire</Typography>
                         </div>
+                        
                         <MyTextField
-                          required
+                          disabled={formValues.is_prix}
+                          variant="outlined"
+                          className='bg-white'
                           type="number"
                           name="pu"
-                          value={formValues.pu}
                           onChange={onChange}
-                          disabled={formValues.is_prix}
-                          className="bg-white"
+                          value={formValues.pu}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <LocalAtmIcon color="error" />
+                              </InputAdornment>
+                            ),
+                          }}
+                          sx={{
+                            '& .MuiFormLabel-asterisk': {
+                              color: 'red',
+                            },
+                          }}
                         />
                       </div>
                     </div>
@@ -465,6 +489,70 @@ export default function ClientSortie(uuid: UuType) {
                     
                   </form>
                 </Paper>
+
+                {/* FORM */}
+                {/* <Paper className="p-6">
+                  <form onSubmit={onSubmit} className="space-y-6">
+                    <div className="grid md:grid-cols-3 gap-6">
+                      
+                      <Autocomplete
+                        
+                        options={entres}
+                        getOptionLabel={(o) =>
+                          typeof o === 'string'
+                            ? o
+                            : `${o.categorie_libelle} - ${o.libelle} (Stock: ${o.qte})`
+                        }
+                        onChange={handleAutoCompleteChange}
+                        renderInput={(params) => (
+                          <TextField {...params} label="Désignation" />
+                        )}
+                      />
+
+                      <div>
+                        <QuantityLimitsIcon fontSize="small" />
+                        <MyTextField
+                          type="number"
+                          name="qte"
+                          value={formValues.qte}
+                          onChange={onChange}
+                          error={!!stockError}
+                          helperText={stockError}
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <LocalAtmIcon fontSize="small" />
+                        <MyTextField
+                          type="number"
+                          name="pu"
+                          value={formValues.pu}
+                          disabled
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <Typography variant="h6">
+                      Montant total : {formatNumberWithSpaces(amount)} F
+                    </Typography>
+
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      disabled={
+                        !formValues.entre_id ||
+                        formValues?.qte <= 0 ||
+                        !!stockError ||
+                        isLicenceExpired(unEntreprise?.licence_date_expiration)
+                      }
+                    >
+                      Ajouter la vente
+                    </Button>
+                  </form>
+                </Paper> */}
+
 
                 {/* Sales Table */}
                 <TableContainer component={Paper} elevation={0}>
@@ -511,35 +599,6 @@ export default function ClientSortie(uuid: UuType) {
               </div>
             </Paper>
 
-            <Modal open={isModalOpenPay} onClose={toggleModalPay}>
-              <Box sx={style}>
-                <Typography variant="h6" className="mb-4">
-                  Enregistrer le paiement
-                </Typography>
-                <TextField
-                  fullWidth
-                  label="Montant payé"
-                  variant="outlined"
-                  value={payDiscount}
-                  onChange={(e) => setPayDiscount(normalizeInput(e.target.value))}
-                  helperText="Ex: 1500 ou 85.45"
-                  className="mb-4"
-                />
-                <div className="flex justify-end space-x-3">
-                  <Button variant="outlined" onClick={toggleModalPay}>
-                    Annuler
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleApplyPayer}
-                  >
-                    Confirmer
-                  </Button>
-                </div>
-              </Box>
-            </Modal>
-
             {/* Invoice Preview */}
             {(showInvoice && entreprise) && (
               <div className="mt-6">
@@ -552,8 +611,6 @@ export default function ClientSortie(uuid: UuType) {
                   numeroFac={texte.numeroFac}
                   notes={texte.notes}
                   post={entreprise}
-                  discountedTotal={discountedTotal}
-                  payerTotal={payerTotal}
                 />
               </div>
             )}

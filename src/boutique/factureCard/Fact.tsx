@@ -157,6 +157,7 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
   const handleApplyPayer = () => {
     calculatePayerTotal();
     toggleModalPay();
+    
   };
   
   // Pour la remise des facture
@@ -568,6 +569,7 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
               total={totalPrix}
               discountedTotal={finalDiscountedTotal}
               payerTotal={finalPayerTotal}
+              payDiscount={payDiscount}
               />
               </div>
 

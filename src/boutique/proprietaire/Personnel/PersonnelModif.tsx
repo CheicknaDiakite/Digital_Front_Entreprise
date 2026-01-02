@@ -21,7 +21,6 @@ import { useParams } from "react-router-dom";
 import { connect } from "../../../_services/account.service";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { useDeleteUser, useFetchUnUser, useUpdateUser } from "../../../usePerso/fonction.user";
-import Nav from "../../../_components/Button/Nav";
 import MyTextField from "../../../_components/Input/MyTextField";
 import { useStoreUuid } from "../../../usePerso/store";
 

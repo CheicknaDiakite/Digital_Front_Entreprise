@@ -179,12 +179,12 @@ export default function Info() {
                     <div>
                       <Typography 
                         variant="subtitle2" 
-                        className="text-green-600 mb-1"
+                        className="text-indigo-400 mb-1"
                         sx={{ 
                           fontSize: { xs: '0.8rem', sm: '0.875rem' }
                         }}
                       >
-                        {p.libelle}
+                      Stock restant {p.libelle}
                       </Typography>
                       <Typography 
                         variant="h4" 

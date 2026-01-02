@@ -451,12 +451,12 @@ export default function FacEntre() {
             } : {}}
           >
             <Table>
-              <TableHead className={isMobile ? 'mobile-table-header' : 'bg-gray-50'}>
+              <TableHead className={isMobile ? 'mobile-table-header' : 'bg-gray-100'}>
                 <TableRow>
-                  <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} font-semibold`}>Date</TableCell>
-                  <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} font-semibold`}>Libellé</TableCell>
-                  <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} font-semibold`}>Référence</TableCell>
-                  <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} font-semibold`}>Actions</TableCell>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Libellé</TableCell>
+                  <TableCell>Référence</TableCell>
+                  <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

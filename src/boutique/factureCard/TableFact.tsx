@@ -14,10 +14,12 @@ interface TableFactProps {
   total: number;
   discountedTotal: number;
   payerTotal: number;
+  payDiscount?: number | string;
 }
 
-const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, payerTotal }) => {
-  const resteAPayer = (total - ((total - discountedTotal) + (total - payerTotal)));
+const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, payerTotal, payDiscount }) => {
+  const resteAPayer = (total - ((total - discountedTotal) + (Number(payDiscount))));
+  // const restTota = (total - )
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
@@ -105,7 +107,8 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
                   Montant Payé
                 </td>
                 <td className="text-right p-4 font-semibold text-green-600">
-                  {formatNumberWithSpaces(total - payerTotal)} F
+                  {/* {formatNumberWithSpaces(total - payerTotal)} F */}
+                  {formatNumberWithSpaces(payDiscount)} F
                 </td>
               </tr>
             )}
@@ -115,14 +118,36 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
                 colSpan={2} 
                 className="text-right p-4 text-gray-900 font-semibold border-r border-gray-200"
               >
-                {(total - payerTotal) > 0 ? "Reste à Payer" : "Total à Payer"}
+                {/* {(total - payerTotal) > 0 ? "Reste à Payer" : "Total à Payer"} */}
+                {(resteAPayer >= 0) ? 
+                  (total - payerTotal) > 0 ? 
+                    formatNumberWithSpaces(payDiscount) === formatNumberWithSpaces(total) ?
+                      "Total" 
+                      :
+                      "Reste"
+                    : 
+                    "Total" 
+                : 
+                "Total à Payer"}
               </td>
               <td className="text-right p-4 font-bold text-lg text-gray-900">
-                {formatNumberWithSpaces(resteAPayer)} F
+                {/* {formatNumberWithSpaces(resteAPayer)} F */}
+                {resteAPayer > 0 ? 
+                formatNumberWithSpaces(resteAPayer) :
+                formatNumberWithSpaces(discountedTotal) 
+                } F
               </td>
+              
             </tr>
           </tbody>
         </table>
+       {/* {resteAPayer < 0 && <>money du reste de l'argent {formatNumberWithSpaces(resteAPayer)} F </> } */}
+        {resteAPayer < 0 && (
+          <span className="block mt-2 px-4 py-2 rounded-md bg-green-100 text-green-700 font-semibold">
+            Monnaie à rendre : {formatNumberWithSpaces(Math.abs(resteAPayer))} F
+          </span>
+        )}
+
       </div>
     </div>
   );

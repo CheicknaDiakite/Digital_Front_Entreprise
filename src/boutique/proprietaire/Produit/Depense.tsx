@@ -333,10 +333,10 @@ export default function Depense() {
                       <Table>
                         <TableHead className={isMobile ? 'mobile-table-header' : 'bg-gray-100'}>
                           <TableRow>
-                            <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} font-medium`}>Date</TableCell>
-                            <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} font-medium`}>Libellé</TableCell>
-                            <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} font-medium`}>Montant</TableCell>
-                            <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} font-medium`}>Actions</TableCell>
+                            <TableCell>Date</TableCell>
+                            <TableCell>Libellé</TableCell>
+                            <TableCell>Montant</TableCell>
+                            <TableCell>Actions</TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>

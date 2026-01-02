@@ -43,6 +43,7 @@ export type EntreRecupType = {
 export type SortieType = {
     user_id: string;
     client_id?: string;
+    ref?: string;
     description?: string;
     action?: string;
     entreprise_id?: string;
