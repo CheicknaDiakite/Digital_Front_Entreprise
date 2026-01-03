@@ -114,12 +114,13 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
             )}
 
             <tr className="border-t-2 border-gray-900 bg-gray-300">
+              
               <td 
                 colSpan={2} 
                 className="text-right p-4 text-gray-900 font-semibold border-r border-gray-200"
               >
                 {/* {(total - payerTotal) > 0 ? "Reste à Payer" : "Total à Payer"} */}
-                {(resteAPayer >= 0) ? 
+                {/* {(resteAPayer >= 0) ? 
                   (total - payerTotal) > 0 ? 
                     formatNumberWithSpaces(payDiscount) === formatNumberWithSpaces(total) ?
                       "Total" 
@@ -128,14 +129,22 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
                     : 
                     "Total" 
                 : 
-                "Total à Payer"}
+                "Total à Payer"} */}
+                {resteAPayer > 0 && "Reste à payer"}
+                {resteAPayer === 0 && "Total"}
+                {resteAPayer < 0 && "Total"}
               </td>
+              
               <td className="text-right p-4 font-bold text-lg text-gray-900">
                 {/* {formatNumberWithSpaces(resteAPayer)} F */}
-                {resteAPayer > 0 ? 
+                {/* {resteAPayer > 0 ? 
                 formatNumberWithSpaces(resteAPayer) :
                 formatNumberWithSpaces(discountedTotal) 
-                } F
+                } F */}
+                {resteAPayer > 0 && formatNumberWithSpaces(resteAPayer)}
+                {resteAPayer === 0 && formatNumberWithSpaces(resteAPayer)}
+                {resteAPayer < 0 && formatNumberWithSpaces(discountedTotal)}
+                {" "}F
               </td>
               
             </tr>

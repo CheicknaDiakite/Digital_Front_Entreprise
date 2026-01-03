@@ -34,8 +34,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import { Link } from "react-router-dom";
 import { connect } from "../../../../../_services/account.service";
-import { useAddAvis, useFetchEntreprise, useFetchUser, useGetUserEntreprises } from "../../../../../usePerso/fonction.user";
-import { logout } from "../../../../../usePerso/fonctionPerso";
+import { useAddAvis, useFetchEntreprise, useFetchUser, useGetUserEntreprises, useRestructionUsers } from "../../../../../usePerso/fonction.user";
+import { isAccessAllowed, logout } from "../../../../../usePerso/fonctionPerso";
 import { useStoreUuid } from "../../../../../usePerso/store";
 import { BASE } from "../../../../../_services/caller.service";
 import MyTextField from "../../../../../_components/Input/MyTextField";
@@ -143,7 +143,7 @@ const NavSide: React.FC = () => {
   const [expandedSection, setExpandedSection] = useState<number>(0);
   const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
   const [helpDialogOpen, setHelpDialogOpen] = useState(false);
-
+  const { getRestruction } = useRestructionUsers();
   const { unUser } = useFetchUser();
   const uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise } = useFetchEntreprise(uuid);
@@ -191,17 +191,7 @@ const NavSide: React.FC = () => {
         backdropFilter: 'blur(3px)'
       }}
     >
-      {/* header / top (logo, actions, etc.) */}
-      {/* <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
-        <img src={logoUrl} alt="Logo" style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }} />
-        <Typography variant="h6" sx={{ flex: 1, color: 'white' }}>
-          {unEntreprise.nom}
-        </Typography>
-        <IconButton color="inherit" size="small">
-          <PowerIcon />
-        </IconButton>
-      </Box> */}
-
+      
       {/* wrapper scrollable pour la liste */}
       <Box 
       sx={{
@@ -271,12 +261,18 @@ const NavSide: React.FC = () => {
                         />
                       </>
                     )}
-                    <NavItem
-                      icon={<ExitToAppIcon color="error" />}
-                      label="Sortie (Vente)"
-                      to="/sortie"
-                      bgColor="text-white bg-red-500"
-                    />
+                    {(() => {
+                      if (!getRestruction) return null; // Or loading state
+                        if (isAccessAllowed(getRestruction)) {
+                          return <NavItem
+                            icon={<ExitToAppIcon color="error" />}
+                            label="Sortie (Vente)"
+                            to="/sortie"
+                            bgColor="text-white bg-red-500"
+                          />
+                        }
+                    })()}
+                    
                     <NavItem
                       icon={<ExitToAppIcon color="error" />}
                       label="Remise Facture"

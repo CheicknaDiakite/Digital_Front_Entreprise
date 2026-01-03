@@ -17,7 +17,7 @@ const userRegister = async (post: FormValueType): Promise<RegisterResponse> => {
 const userClient = async (post: ClienType): Promise<RegisterResponse> => {
     try {
         const response = await Axios.post('/entreprise/client/add',
-             post,{ withCredentials: true });
+            post, { withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching boutiques:", error);
@@ -47,7 +47,7 @@ const userLogin = async (post: LoginType): Promise<RegisterResponse> => {
 }
 
 const userUnGet = async () => {
-    
+
     try {
         const response = await Axios.get(`/utilisateur/user/profil`, { withCredentials: true });
         return response;
@@ -58,7 +58,7 @@ const userUnGet = async () => {
 };
 
 const userUnClient = async (id: string) => {
-    
+
     try {
         const response = await Axios.get(`/entreprise/client/get_un/${id}`, { withCredentials: true });
         return response;
@@ -71,35 +71,35 @@ const userUnClient = async (id: string) => {
 
 const userGet = async (post: string) => {
     try {
-        const response = await Axios.post(`utilisateur/profile/get`, post,{ withCredentials: true });
+        const response = await Axios.post(`utilisateur/profile/get`, post, { withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching user profile:", error);
         throw error;
     }
-    
+
 }
 
 const avisGet = async (post: string) => {
     try {
-        const response = await Axios.post(`entreprise/avis/get`, post,{ withCredentials: true });
+        const response = await Axios.post(`entreprise/avis/get`, post, { withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching user profile:", error);
         throw error;
     }
-    
+
 }
 
 const userAll = async (data?: TypeSlug): Promise<ReponseUser> => {
     try {
-        const response = await Axios.post(`utilisateur/get`, data,{ withCredentials: true });
+        const response = await Axios.post(`utilisateur/get`, data, { withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching user profile:", error);
         throw error;
     }
-    
+
 }
 
 const allUsers = async (data: string) => {
@@ -110,7 +110,7 @@ const allUsers = async (data: string) => {
         console.error("Error fetching user profile:", error);
         throw error;
     }
-    
+
 }
 
 const unUser = async (data: string) => {
@@ -121,7 +121,32 @@ const unUser = async (data: string) => {
         console.error("Error fetching user profile:", error);
         throw error;
     }
-    
+
+}
+
+const userRestrictionDetail = async (uuid: string, data?: any) => {
+    try {
+        if (data) {
+            const response = await Axios.post(`utilisateur/api/user/restriction/${uuid}/`, data, { withCredentials: true });
+            return response;
+        } else {
+            const response = await Axios.get(`utilisateur/api/user/restriction/${uuid}/`, { withCredentials: true });
+            return response;
+        }
+    } catch (error) {
+        console.error("Error fetching user restriction:", error);
+        throw error;
+    }
+}
+
+const userRestriction = async () => {
+    try {
+        const response = await Axios.get(`utilisateur/api/user/restriction/`, { withCredentials: true });
+        return response;
+    } catch (error) {
+        console.error("Error fetching user restriction:", error);
+        throw error;
+    }
 }
 
 const allMesUsers = async (data: string) => {
@@ -132,7 +157,7 @@ const allMesUsers = async (data: string) => {
         console.error("Error fetching user profile:", error);
         throw error;
     }
-    
+
 }
 
 const allClients = async (data: string) => {
@@ -143,67 +168,67 @@ const allClients = async (data: string) => {
         console.error("Error fetching user profile:", error);
         throw error;
     }
-    
+
 }
 
 const userUpdate = async (post: UserType): Promise<ReponseUser> => {
     try {
-        const response = await Axios.post('utilisateur/profile/set', post,{ withCredentials: true });
+        const response = await Axios.post('utilisateur/profile/set', post, { withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching user profile:", error);
         throw error;
     }
-    
+
 }
 
 const clientUpdate = async (post: FormClienType): Promise<ReponseClient> => {
-    
+
     try {
-        const response = await Axios.post('entreprise/client/set', post,{ withCredentials: true });
+        const response = await Axios.post('entreprise/client/set', post, { withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching user profile:", error);
         throw error;
     }
-    
+
 }
 
 const userDelete = async (post: UtilisateurType): Promise<ReponseUser> => {
-    try{
-        const response = await Axios.post('utilisateur/profile/del', post,{ withCredentials: true });
+    try {
+        const response = await Axios.post('utilisateur/profile/del', post, { withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching user profile:", error);
         throw error;
     }
-    
+
 }
 
 const clientDelete = async (post: FormClienType): Promise<ReponseUser> => {
-    try{
-        const response = await Axios.post('entreprise/client/del', post,{ withCredentials: true });
+    try {
+        const response = await Axios.post('entreprise/client/del', post, { withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching user profile:", error);
         throw error;
     }
-    
+
 }
 
 const avisDelete = async (post: FormClienType): Promise<ReponseUser> => {
-    try{
-        const response = await Axios.post('entreprise/avis/del', post,{ withCredentials: true });
+    try {
+        const response = await Axios.post('entreprise/avis/del', post, { withCredentials: true });
         return response;
     } catch (error) {
         console.error("Error fetching user profile:", error);
         throw error;
     }
-    
+
 }
 
 const userForgot = (post: FormType) => {
-    return Axios.post('utilisateur/forgot-password', post,{ withCredentials: true });
+    return Axios.post('utilisateur/forgot-password', post, { withCredentials: true });
 }
 
 const userLogout = () => {
@@ -216,12 +241,12 @@ export const userService = {
     userAll, userLogout, userUnGet, userAdminRegister, allUsers,
     userForgot, avisDelete, avisGet, avisCreate, allMesUsers,
     allClients, userClient, userUnClient, clientUpdate, clientDelete,
-    userCabinetRegister, unUser
+    userCabinetRegister, unUser, userRestrictionDetail, userRestriction
 }
 
 const saveToken = (token: string, tok?: string) => {
-    localStorage.setItem('token',token)
-    localStorage.setItem('token_1',tok|| '')
+    localStorage.setItem('token', token)
+    localStorage.setItem('token_1', tok || '')
 }
 
 const logout = () => {

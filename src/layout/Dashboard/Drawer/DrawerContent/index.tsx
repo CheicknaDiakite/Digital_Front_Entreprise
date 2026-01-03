@@ -22,7 +22,6 @@ export default function DrawerContent() {
   const drawerOpen = menuMaster?.isDashboardDrawerOpened;
 
   const logoUrl = unEntreprise.image ? BASE(unEntreprise.image) : "/icon-192x192.png";
-  console.log("Logo URL:", BASE(unEntreprise.image));
   
   return (
     <>

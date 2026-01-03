@@ -23,7 +23,7 @@ import {
 import { Link } from "react-router-dom";
 import { ChangeEvent, Fragment, useState, useEffect } from "react";
 import CloseIcon from "@mui/icons-material/Close";
-import { useAllClients, useCreateClient, useFetchEntreprise } from "../../../usePerso/fonction.user";
+import { useAllClients, useCreateClient, useFetchEntreprise, useRestructionUsers } from "../../../usePerso/fonction.user";
 import { connect } from "../../../_services/account.service";
 import MyTextField from "../../../_components/Input/MyTextField";
 import { useStoreUuid } from "../../../usePerso/store";

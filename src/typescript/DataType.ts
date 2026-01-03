@@ -239,3 +239,10 @@ export type DonneType = {
 export interface RouteParams extends Record<string, string>  {
     slug: string;
   }
+export type RestrictionType = {
+    active: boolean;
+    day_start: number;
+    day_end: number;
+    hour_start: string;
+    hour_end: string;
+}

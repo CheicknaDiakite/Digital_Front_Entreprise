@@ -11,6 +11,8 @@ import {
   IconButton,
   Divider,
   Alert,
+  FormControlLabel,
+  Switch,
 } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
 import SaveIcon from '@mui/icons-material/Save';
@@ -18,8 +20,8 @@ import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
 import { useParams } from "react-router-dom";
-import { connect } from "../../../_services/account.service";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { connect, userService } from "../../../_services/account.service";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useDeleteUser, useFetchUnUser, useUpdateUser } from "../../../usePerso/fonction.user";
 import MyTextField from "../../../_components/Input/MyTextField";
 import { useStoreUuid } from "../../../usePerso/store";
@@ -29,7 +31,24 @@ export function PersonnelModif() {
   const entreprise_id = useStoreUuid((state) => state.selectedId);
   const { unUser, setUnUser } = useFetchUnUser(uuid!);
   const [showConfirm, setShowConfirm] = useState(false);
-  
+  const [restriction, setRestriction] = useState({
+    active: false,
+    day_start: 0,
+    day_end: 4,
+    hour_start: "08:00",
+    hour_end: "18:00",
+  });
+
+  useEffect(() => {
+    if (uuid) {
+      userService.userRestrictionDetail(uuid).then((res) => {
+        if (res.data) {
+          setRestriction((prev) => ({ ...prev, ...res.data }));
+        }
+      });
+    }
+  }, [uuid]);
+
   unUser["user_id"] = connect;
   const { updateUser } = useUpdateUser();
   const { deleteUser } = useDeleteUser();
@@ -42,7 +61,7 @@ export function PersonnelModif() {
     deleteUser(unUser);
     setShowConfirm(false);
   };
-  
+
   const onChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setUnUser({
@@ -58,19 +77,20 @@ export function PersonnelModif() {
     });
   };
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     unUser["entreprise_id"] = entreprise_id!;
     updateUser(unUser);
+    await userService.userRestrictionDetail(uuid!, restriction);
   };
 
   return (
     <div className="min-h-screen py-6">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {showConfirm && (
-          <Alert 
-            severity="warning" 
+          <Alert
+            severity="warning"
             className="mt-4"
             sx={{
               position: 'fixed',
@@ -116,7 +136,7 @@ export function PersonnelModif() {
                     <Typography variant="subtitle2">Informations personnelles</Typography>
                   </div>
                   <div className="space-y-4">
-                    <MyTextField 
+                    <MyTextField
                       fullWidth
                       disabled
                       label="Nom d'utilisateur"
@@ -127,7 +147,7 @@ export function PersonnelModif() {
                       className="bg-gray-50"
                     />
 
-                    <MyTextField 
+                    <MyTextField
                       fullWidth
                       label="Nom"
                       variant="outlined"
@@ -137,7 +157,7 @@ export function PersonnelModif() {
                       className="bg-white"
                     />
 
-                    <MyTextField 
+                    <MyTextField
                       fullWidth
                       label="Prénom"
                       variant="outlined"
@@ -155,7 +175,7 @@ export function PersonnelModif() {
                     <Typography variant="subtitle2">Contact</Typography>
                   </div>
                   <div className="space-y-4">
-                    <MyTextField 
+                    <MyTextField
                       fullWidth
                       label="Email"
                       variant="outlined"
@@ -168,7 +188,7 @@ export function PersonnelModif() {
                       className="bg-white"
                     />
 
-                    <MyTextField 
+                    <MyTextField
                       fullWidth
                       label="Numéro"
                       type="number"
@@ -207,6 +227,79 @@ export function PersonnelModif() {
                       <MenuItem value={4}>Pas de rôle</MenuItem>
                     </Select>
                   </FormControl>
+                </div>
+
+                <Divider />
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Typography variant="subtitle2" className="text-gray-700">
+                      Restrictions d'accès
+                    </Typography>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={restriction.active}
+                          onChange={(e) => setRestriction({ ...restriction, active: e.target.checked })}
+                          name="active"
+                          color="primary"
+                        />
+                      }
+                      label="Activer les restrictions"
+                    />
+                  </div>
+
+                  {restriction.active && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-md border border-gray-200">
+                      <FormControl fullWidth size="small" className="bg-white">
+                        <InputLabel>Jour de début</InputLabel>
+                        <Select
+                          value={restriction.day_start}
+                          label="Jour de début"
+                          onChange={(e) => setRestriction({ ...restriction, day_start: Number(e.target.value) })}
+                        >
+                          {["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"].map((day, index) => (
+                            <MenuItem key={index} value={index}>{day}</MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+
+                      <FormControl fullWidth size="small" className="bg-white">
+                        <InputLabel>Jour de fin</InputLabel>
+                        <Select
+                          value={restriction.day_end}
+                          label="Jour de fin"
+                          onChange={(e) => setRestriction({ ...restriction, day_end: Number(e.target.value) })}
+                        >
+                          {["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"].map((day, index) => (
+                            <MenuItem key={index} value={index}>{day}</MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+
+                      <MyTextField
+                        label="Heure de début"
+                        type="time"
+                        value={restriction.hour_start}
+                        onChange={(e) => setRestriction({ ...restriction, hour_start: e.target.value })}
+                        InputLabelProps={{ shrink: true }}
+                        fullWidth
+                        size="small"
+                        className="bg-white"
+                      />
+
+                      <MyTextField
+                        label="Heure de fin"
+                        type="time"
+                        value={restriction.hour_end}
+                        onChange={(e) => setRestriction({ ...restriction, hour_end: e.target.value })}
+                        InputLabelProps={{ shrink: true }}
+                        fullWidth
+                        size="small"
+                        className="bg-white"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -252,16 +345,16 @@ export function PersonnelModif() {
                   Enregistrer les modifications
                 </Button>
 
-                
-                {unUser.uuid !== connect && (
-                  <IconButton 
-                    onClick={handleDelete}                    
+
+                {/* {unUser.uuid !== connect && (
+                  <IconButton
+                    onClick={handleDelete}
                     size="small"
                     className="text-red-600 hover:bg-red-50"
                   >
                     <DeleteIcon />
                   </IconButton>
-                )}
+                )} */}
               </div>
             </form>
           </Box>

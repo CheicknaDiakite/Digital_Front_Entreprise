@@ -24,7 +24,7 @@ import { ChangeEvent, Fragment, useState, useEffect } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { FormValueType } from "../../../typescript/FormType";
 // import VisibilityIcon from '@mui/icons-material/Visibility';
-import { useCreateAdminUser, useFetchAllUsers, useFetchEntreprise } from "../../../usePerso/fonction.user";
+import { useCreateAdminUser, useFetchAllUsers, useFetchEntreprise, useRestructionUsers } from "../../../usePerso/fonction.user";
 import MyTextField from "../../../_components/Input/MyTextField";
 import { useStoreUuid } from "../../../usePerso/store";
 // import { format } from "date-fns";
@@ -38,13 +38,13 @@ import '../mobile-personnel-client.css';
 
 export default function Personnel() {
   const uuid = useStoreUuid((state) => state.selectedId)
-  const {unEntreprise} = useFetchEntreprise(uuid)
+  const { unEntreprise } = useFetchEntreprise(uuid)
   const [isMobile, setIsMobile] = useState(false);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValueType>();
-  
+
   const [open, setOpen] = useState(false);
-    
+
   const functionopen = () => setOpen(true);
   const closeopen = () => {
     reset(); // Réinitialise le formulaire à la fermeture
@@ -56,10 +56,10 @@ export default function Personnel() {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768);
     };
-    
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
+
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
@@ -68,8 +68,10 @@ export default function Personnel() {
     // user_id: connect,
     user_id: localStorage.getItem('token'),
   };
-  
+
   const { getUser, isLoading, isError } = useFetchAllUsers(top);
+  const { getRestruction } = useRestructionUsers();
+  console.log("getRestruction ..", getRestruction)
   // const {getUsers} = useAllUsers()
   // const {unEntreprise} = useFetchEntreprise(uuid!)
   // const { userEntreprises } = useGetUserEntreprises(connect);
@@ -95,7 +97,7 @@ export default function Personnel() {
 
 
     createAdmin(data);
-    
+
     closeopen();
   };
 
@@ -124,13 +126,13 @@ export default function Personnel() {
       <div className={`min-h-screen ${isMobile ? '' : ''} py-6`}>
         <div className={`${isMobile ? 'px-4' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'}`}>
           {/* <Nav /> */}
-          
+
           <div className={isMobile ? 'mobile-chart-section' : ''}>
             <Chart_3 />
           </div>
 
-          <Paper 
-            elevation={0} 
+          <Paper
+            elevation={0}
             className={`${isMobile ? 'mt-6 rounded-lg overflow-hidden' : 'mt-6 rounded-lg overflow-hidden'}`}
             sx={{
               background: 'transparent',
@@ -144,17 +146,17 @@ export default function Personnel() {
               {/* Header */}
               <div className={`${isMobile ? 'flex flex-col space-y-4' : 'flex justify-between items-center'} border-b pb-6 mb-6`}>
                 <div>
-                  <Typography 
-                    variant={isMobile ? "h5" : "h4"} 
+                  <Typography
+                    variant={isMobile ? "h5" : "h4"}
                     className={`${isMobile ? 'font-semibold text-gray-50' : 'font-semibold text-gray-50'}`}
-                    // sx={isMobile ? {
-                    //   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    //   WebkitBackgroundClip: 'text',
-                    //   WebkitTextFillColor: 'transparent',
-                    //   backgroundClip: 'text',
-                    //   fontWeight: 700,
-                    //   textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-                    // } : {}}
+                  // sx={isMobile ? {
+                  //   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  //   WebkitBackgroundClip: 'text',
+                  //   WebkitTextFillColor: 'transparent',
+                  //   backgroundClip: 'text',
+                  //   fontWeight: 700,
+                  //   textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                  // } : {}}
                   >
                     Gestion du Personnel
                   </Typography>
@@ -186,8 +188,8 @@ export default function Personnel() {
               </div>
 
               {/* Grid of Personnel Cards */}
-              <Grid 
-                container 
+              <Grid
+                container
                 spacing={isMobile ? 2 : 3}
                 className={isMobile ? 'mobile-grid' : ''}
                 sx={{
@@ -199,7 +201,7 @@ export default function Personnel() {
                 {getUs.map((post: any, index: number) => (
                   <Grid item xs={12} sm={6} md={4} key={post.id} className={`${isMobile ? `mobile-stagger-${(index % 6) + 1}` : ''}`}>
                     <Link to={`/entreprise/personnel/modif/${post.uuid}`} className={isMobile ? 'mobile-card-link' : ''}>
-                      <MainCard 
+                      <MainCard
                         className={`${isMobile ? 'mobile-personnel-card' : 'transition-all duration-200 hover:shadow-md mobile-personnel-card'}`}
                         sx={{
                           height: '100%',
@@ -220,8 +222,8 @@ export default function Personnel() {
                       >
                         <ListItem alignItems="flex-start" className={`${isMobile ? 'mobile-list-item' : 'h-full'}`}>
                           <ListItemAvatar>
-                            <Avatar 
-                              {...stringAvatar(`${post.last_name} ${post.first_name}`)} 
+                            <Avatar
+                              {...stringAvatar(`${post.last_name} ${post.first_name}`)}
                               className={isMobile ? 'mobile-avatar' : ''}
                               sx={isMobile ? {
                                 transition: 'all 0.3s ease',
@@ -231,8 +233,8 @@ export default function Personnel() {
                           </ListItemAvatar>
                           <ListItemText
                             primary={
-                              <Typography 
-                                variant="subtitle1" 
+                              <Typography
+                                variant="subtitle1"
                                 className={`${isMobile ? 'mobile-card-text font-medium' : 'font-medium'}`}
                               >
                                 {post.username}
@@ -254,8 +256,8 @@ export default function Personnel() {
                                     <Chip
                                       label={
                                         post.role === 1 ? "Admin" :
-                                        post.role === 2 ? "Superviseur" :
-                                        post.role === 3 ? "Caissier(e)" : "Pas de rôle"
+                                          post.role === 2 ? "Superviseur" :
+                                            post.role === 3 ? "Caissier(e)" : "Pas de rôle"
                                       }
                                       variant="outlined"
                                       color={post.role === 1 ? "primary" : post.role === 2 ? "primary" : "info"}
@@ -304,10 +306,10 @@ export default function Personnel() {
           </Paper>
 
           {/* Add Member Dialog */}
-          <Dialog 
-            open={open} 
-            onClose={closeopen} 
-            fullWidth 
+          <Dialog
+            open={open}
+            onClose={closeopen}
+            fullWidth
             maxWidth="xs"
             PaperProps={{
               elevation: 0,
@@ -445,8 +447,8 @@ export default function Personnel() {
                   />
 
                   <div className={`${isMobile ? 'mobile-action-buttons' : 'pt-4 flex justify-end space-x-3'}`}>
-                    <Button 
-                      onClick={closeopen} 
+                    <Button
+                      onClick={closeopen}
                       variant="outlined"
                       className={isMobile ? 'mobile-button' : ''}
                       sx={isMobile ? {

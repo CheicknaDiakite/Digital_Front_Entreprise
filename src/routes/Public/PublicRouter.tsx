@@ -43,6 +43,7 @@ import { Box } from '@mui/material'
 import { useStoreUuid } from '../../usePerso/store'
 import { useFetchEntreprise } from '../../usePerso/fonction.user'
 import { BASE } from '../../_services/caller.service'
+import FactureDetail from '../../boutique/sortie/FactureDetail'
 
 
 export default function PublicRouter() {
@@ -160,7 +161,7 @@ export default function PublicRouter() {
           <Route path='sortie' >
             <Route index element={<Sortie />} />
             
-            <Route path='remise' element={<RemiseFacture />} />
+            <Route path='remise' element={<FactureDetail />} />
             <Route path='entreprise/:uuid' element={<Sortie />} />
             {/* <Route path='entreprise' element={<EseSortie />} /> */}
             <Route path='modif/:uuid' element={<ModifSortie />} />

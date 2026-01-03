@@ -1,23 +1,23 @@
 import toast from "react-hot-toast";
-import { RecupType } from "../typescript/DataType";
+import { RecupType, RestrictionType } from "../typescript/DataType";
 import { useEffect } from "react";
 import { accountService, userService } from "../_services/account.service";
 
 export function ccyFormat(num: number) {
-    return `${num.toFixed(2)}`;
-  }
+  return `${num.toFixed(2)}`;
+}
 
 // Pour retouner la multiplication de deux numbres
 export function priceRow(qte: number, pu: number) {
-    return qte * pu;
-  }
+  return qte * pu;
+}
 
 export function subtotal(items: readonly RecupType[]) {
   return items
     .map(({ prix_total }) => prix_total || 0) // Assurez-vous que prix_total est défini
     .reduce((sum, i) => (sum ?? 0) + (i ?? 0), 0); // Assurez-vous que sum et i sont définis
 }
-  
+
 
 export const generateOrderNumber = (): string => {
   return 'FAC-' + Math.floor(Math.random() * 1000000).toString();
@@ -53,15 +53,15 @@ export function getLicenceDuration(dateStr: string) {
 }
 
 export function isRecupType(value: unknown): value is RecupType {
-    return typeof value === 'object' && value !== null && 'all' in value && typeof (value as RecupType).all === 'string';
-  }
+  return typeof value === 'object' && value !== null && 'all' in value && typeof (value as RecupType).all === 'string';
+}
 
 export function reloadOnce() {
   const hasReloaded = localStorage.getItem('hasReloaded');
 
   if (!hasReloaded) {
-      localStorage.setItem('hasReloaded', 'true');
-      window.location.reload();
+    localStorage.setItem('hasReloaded', 'true');
+    window.location.reload();
   }
 }
 export function notClick() {
@@ -102,10 +102,10 @@ export function formatNumberWithSpaces(number: string | number | null | undefine
   return formattedNumber.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 }
 
-export function foncError(error: any)  {
+export function foncError(error: any) {
 
   const message = error?.response?.data?.message || error.message || "Une erreur est survenue";
-  
+
   return toast.error(message);
 }
 
@@ -165,3 +165,27 @@ export function a11yProps(index: number) {
   };
 }
 
+export const isAccessAllowed = (getRestruction: RestrictionType) => {
+  if (!getRestruction.active) return true;
+
+  const now = new Date();
+  // Backend: 0 = Lundi (Monday). JS: 0 = Sunday, 1 = Monday.
+  const jsDay = now.getDay();
+  const backendDay = jsDay === 0 ? 6 : jsDay - 1;
+
+  if (backendDay < getRestruction.day_start || backendDay > getRestruction.day_end) {
+    return false;
+  }
+
+  const currentHour = now.getHours();
+  const currentMinute = now.getMinutes();
+  const currentTime = currentHour * 60 + currentMinute;
+
+  const [startH, startM] = getRestruction.hour_start.split(':').map(Number);
+  const startTime = startH * 60 + startM;
+
+  const [endH, endM] = getRestruction.hour_end.split(':').map(Number);
+  const endTime = endH * 60 + endM;
+
+  return currentTime >= startTime && currentTime <= endTime;
+};

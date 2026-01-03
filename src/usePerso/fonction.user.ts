@@ -27,56 +27,56 @@ const handleAuthError = (error: any, navigate: any) => {
 // Avis
 
 export function useAddAvis() {
-    
+
   const useQ = useQueryClient();
 
   const ajoutAvis = useMutation({
-      mutationFn: (post: AvisType) => {
-        return userService.avisCreate(post)
+    mutationFn: (post: AvisType) => {
+      return userService.avisCreate(post)
         .then((res) => {
-          if (res.data.etat===false) {
-            if(res.data.message !== "requette invalide"){
+          if (res.data.etat === false) {
+            if (res.data.message !== "requette invalide") {
               toast.error(res.data.message);
             }
           } else {
             useQ.invalidateQueries({ queryKey: ["AvisGet"] });
             toast.success("Votre avis a ete envoyer.");
           }
-      })
-      },
-    });
+        })
+    },
+  });
 
-    const createAvis = (post: AvisType) => {
+  const createAvis = (post: AvisType) => {
 
-      ajoutAvis.mutate(post);
-    };
+    ajoutAvis.mutate(post);
+  };
 
   return { createAvis }
 }
 
 export function useAvisGet() {
-    
+
   const useQ = useQueryClient();
 
   const avisGet = useMutation({
-      mutationFn: (post: string) => {
-        return userService.avisGet(post)
+    mutationFn: (post: string) => {
+      return userService.avisGet(post)
         .then((res) => {
-          if (res.data.etat===false) {
-            if(res.data.message !== "requette invalide"){
+          if (res.data.etat === false) {
+            if (res.data.message !== "requette invalide") {
               toast.error(res.data.message);
             }
           } else {
             useQ.invalidateQueries({ queryKey: ["AvisGet"] });
             toast.success("Inscription réussie");
           }
-      })
-      },
-    });
+        })
+    },
+  });
 
-    const getAvis = (post: string) => {
-      avisGet.mutate(post);
-    };
+  const getAvis = (post: string) => {
+    avisGet.mutate(post);
+  };
 
   return { getAvis }
 }
@@ -84,7 +84,7 @@ export function useAvisGet() {
 export function useDeleteAvis() {
   // const navigate = useNavigate();
   const useQ = useQueryClient();
-  
+
   const del = useMutation({
     mutationFn: (post: FormClienType) => {
       return userService.avisDelete(post).then((res) => {
@@ -107,238 +107,258 @@ export function useDeleteAvis() {
     // console.log("delete ..",post)
   };
 
-  return {deleteAvis}
+  return { deleteAvis }
 }
 
 // Pour l'utilisateur
 export function useFetchUser() {
-  
-    const [unUser, setUnUser] = useState<UtilisateurType>({
-      avatar:'',
-      email:'',
-      uuid:'',
-      first_name:'',
-      role: 0,
-      last_name:'',
-      user_id: '',
-      numero:0,
-      username:'',
-    });
-  
-    const { data: us, isLoading, isError } = useQuery({
-      queryKey: ["User",],
-      queryFn: () =>
-        userService.userUnGet().then((res) => {
-          if (res.data.etat === true) {
-            return res.data.donnee as UnUserType;
-          } else {
-            throw new Error("Les identifiants sont incorrects");
-          }
-        }),
-    });
-  
-    useEffect(() => {
-      if (us) {
-        setUnUser(us);
-      }
-    }, [us]);
 
-    return { us ,unUser, setUnUser, isLoading, isError };
-  }
+  const [unUser, setUnUser] = useState<UtilisateurType>({
+    avatar: '',
+    email: '',
+    uuid: '',
+    first_name: '',
+    role: 0,
+    last_name: '',
+    user_id: '',
+    numero: 0,
+    username: '',
+  });
+
+  const { data: us, isLoading, isError } = useQuery({
+    queryKey: ["User",],
+    queryFn: () =>
+      userService.userUnGet().then((res) => {
+        if (res.data.etat === true) {
+          return res.data.donnee as UnUserType;
+        } else {
+          throw new Error("Les identifiants sont incorrects");
+        }
+      }),
+  });
+
+  useEffect(() => {
+    if (us) {
+      setUnUser(us);
+    }
+  }, [us]);
+
+  return { us, unUser, setUnUser, isLoading, isError };
+}
 
 export function useFetchUnUser(slug: string) {
-  
-    const [unUser, setUnUser] = useState<UtilisateurType>({
-      avatar:'',
-      email:'',
-      uuid:'',
-      first_name:'',
-      role: 0,
-      last_name:'',
-      user_id: '',
-      numero:0,
-      username:'',
-    });
-  
-    const { data: us, isLoading, isError } = useQuery({
-      queryKey: ["User", slug],
-      queryFn: () =>
-        userService.unUser(slug).then((res) => {
-          if (res.data.etat === true) {
-            return res.data.donnee as UnUserType;
-          } else {
-            throw new Error("Les identifiants sont incorrects");
-          }
-        }),
-    });
-  
-    useEffect(() => {
-      if (us) {
-        setUnUser(us);
-      }
-    }, [us]);
 
-    return { us ,unUser, setUnUser, isLoading, isError };
-  }
+  const [unUser, setUnUser] = useState<UtilisateurType>({
+    avatar: '',
+    email: '',
+    uuid: '',
+    first_name: '',
+    role: 0,
+    last_name: '',
+    user_id: '',
+    numero: 0,
+    username: '',
+  });
 
-  
+  const { data: us, isLoading, isError } = useQuery({
+    queryKey: ["User", slug],
+    queryFn: () =>
+      userService.unUser(slug).then((res) => {
+        if (res.data.etat === true) {
+          return res.data.donnee as UnUserType;
+        } else {
+          throw new Error("Les identifiants sont incorrects");
+        }
+      }),
+  });
+
+  useEffect(() => {
+    if (us) {
+      setUnUser(us);
+    }
+  }, [us]);
+
+  return { us, unUser, setUnUser, isLoading, isError };
+}
+
+
 export function useFetchAllUsers(slug: TypeSlug) {
-  
-    const [getUser, setUser] = useState<UtilisateurType[]>([]);
 
-    const {data: us, isLoading, isError} = useQuery({
-      queryKey: ["UserGet", slug],
-      queryFn: async () => {
-        const res = await userService.userAll(slug);
-          if (res.data.etat === true) {
-            const donnees = res.data.donnee as unknown as UtilisateurType[]; // Si c'est un tableau
-            return donnees || [];
-          } else {
-            toast.error(res.data.message);
-            return [];
-          }
-        }
-      });
-        
+  const [getUser, setUser] = useState<UtilisateurType[]>([]);
 
-    useEffect(() => {
-        if (us) {
-          setUser(us);
-        }
-      }, [us]);
+  const { data: us, isLoading, isError } = useQuery({
+    queryKey: ["UserGet", slug],
+    queryFn: async () => {
+      const res = await userService.userAll(slug);
+      if (res.data.etat === true) {
+        const donnees = res.data.donnee as unknown as UtilisateurType[]; // Si c'est un tableau
+        return donnees || [];
+      } else {
+        toast.error(res.data.message);
+        return [];
+      }
+    }
+  });
 
-    return { getUser, setUser, isLoading, isError };
+
+  useEffect(() => {
+    if (us) {
+      setUser(us);
+    }
+  }, [us]);
+
+  return { getUser, setUser, isLoading, isError };
+}
+
+export function useRestructionUsers() {
+  const [getRestruction, setRestruction] = useState<any>(null);
+
+  const { data: us, isLoading, isError } = useQuery({
+    queryKey: ["UserRestriction"],
+    queryFn: () =>
+      userService.userRestriction().then((res) => {
+        return res.data;
+      }),
+  });
+
+  useEffect(() => {
+    if (us) {
+      setRestruction(us);
+    }
+  }, [us]);
+
+  return { getRestruction, setRestruction, isLoading, isError };
 }
 
 export function useAllUsers(slug: string) {
-    const [getUsers, setUsers] = useState([]);
+  const [getUsers, setUsers] = useState([]);
 
-    const {data: us, isLoading, isError} = useQuery({
-      queryKey: ["UserGet", slug],
-      queryFn: () =>
-        userService.allUsers(slug).then((res) => {
-          if (res.data.etat === true) {
-            return res.data.donnee;
-          } else {
-            // toast.error("Les identifiants sont incorrects");
-          }
-        }),
-    });
-
-    useEffect(() => {
-        if (us) {
-          setUsers(us);
+  const { data: us, isLoading, isError } = useQuery({
+    queryKey: ["UserGet", slug],
+    queryFn: () =>
+      userService.allUsers(slug).then((res) => {
+        if (res.data.etat === true) {
+          return res.data.donnee;
+        } else {
+          // toast.error("Les identifiants sont incorrects");
         }
-      }, [us]);
+      }),
+  });
 
-    return { getUsers, setUsers, isLoading, isError };
+  useEffect(() => {
+    if (us) {
+      setUsers(us);
+    }
+  }, [us]);
+
+  return { getUsers, setUsers, isLoading, isError };
 }
 
 export function useAllMesUsers(slug: string) {
-    const [getMesUsers, setMesUsers] = useState([]);
+  const [getMesUsers, setMesUsers] = useState([]);
 
-    const {data: us, isLoading, isError} = useQuery({
-      queryKey: ["MesUserGet", slug],
-      queryFn: () =>
-        userService.allMesUsers(slug).then((res) => {
-          if (res.data.etat === true) {
-            return res.data.donnee;
-          } else {
-            // toast.error("Les identifiants sont incorrects");
-          }
-        }),
-    });
-
-    useEffect(() => {
-        if (us) {
-          setMesUsers(us);
+  const { data: us, isLoading, isError } = useQuery({
+    queryKey: ["MesUserGet", slug],
+    queryFn: () =>
+      userService.allMesUsers(slug).then((res) => {
+        if (res.data.etat === true) {
+          return res.data.donnee;
+        } else {
+          // toast.error("Les identifiants sont incorrects");
         }
-      }, [us]);
+      }),
+  });
 
-    return { getMesUsers, setMesUsers, isLoading, isError };
+  useEffect(() => {
+    if (us) {
+      setMesUsers(us);
+    }
+  }, [us]);
+
+  return { getMesUsers, setMesUsers, isLoading, isError };
 }
 
 export function useCreateUser() {
-    const navigate = useNavigate();
-    const useQ = useQueryClient();
-    
-    const ajout = useMutation({
-      mutationFn: (post: FormValueType) => {
-        return userService
-          .userRegister(post)
-          .then((res) => {
-            if (res.data.etat === false) {
-              if (res.data.message === "L'utilisateur existe déjà") {
-                toast.error("Cet utilisateur existe déjà. Veuillez vous connecter.");
-              } else if (res.data.message !== "requette invalide") {
-                toast.error(res.data.message);
-              }
-            } else {
-              // Met à jour les requêtes et redirige
-              useQ.invalidateQueries({ queryKey: ["AddUser"] });
-              toast.success('Inscription réussie ! Vérifiez votre email.');
-  
-              // Enregistre un indicateur dans localStorage
-              localStorage.setItem("inscriptionSuccess", "true");
-  
-              // Redirige l'utilisateur
-              navigate("/");
-              window.location.reload(); // Rechargement pour déclencher les toasts
-            }
-          })
-          .catch((error) => {
-            if (error.code === "ECONNABORTED") {
-              toast.error("La requête a pris trop de temps, veuillez réessayer.");
-            } else {
-              toast.error("Une erreur s'est produite lors de l'inscription");
-            }
-          });
-      },
-    });
-  
-      const create = (post: FormValueType) => {
-        ajout.mutate(post);
-      };
+  const navigate = useNavigate();
+  const useQ = useQueryClient();
 
-      return { create }
+  const ajout = useMutation({
+    mutationFn: (post: FormValueType) => {
+      return userService
+        .userRegister(post)
+        .then((res) => {
+          if (res.data.etat === false) {
+            if (res.data.message === "L'utilisateur existe déjà") {
+              toast.error("Cet utilisateur existe déjà. Veuillez vous connecter.");
+            } else if (res.data.message !== "requette invalide") {
+              toast.error(res.data.message);
+            }
+          } else {
+            // Met à jour les requêtes et redirige
+            useQ.invalidateQueries({ queryKey: ["AddUser"] });
+            toast.success('Inscription réussie ! Vérifiez votre email.');
+
+            // Enregistre un indicateur dans localStorage
+            localStorage.setItem("inscriptionSuccess", "true");
+
+            // Redirige l'utilisateur
+            navigate("/");
+            window.location.reload(); // Rechargement pour déclencher les toasts
+          }
+        })
+        .catch((error) => {
+          if (error.code === "ECONNABORTED") {
+            toast.error("La requête a pris trop de temps, veuillez réessayer.");
+          } else {
+            toast.error("Une erreur s'est produite lors de l'inscription");
+          }
+        });
+    },
+  });
+
+  const create = (post: FormValueType) => {
+    ajout.mutate(post);
+  };
+
+  return { create }
 }
 
 export function useUpdateUser() {
-    
-    const useQ = useQueryClient();
 
-    const modif = useMutation({
-      mutationFn: (post: UserType) => {
-        return userService
-          .userUpdate(post)
-          .then((res) => {
-            if (res.data.etat === true) {
-              toast.success("Modification reuissi");
-              useQ.invalidateQueries({ queryKey: ["User"] });
-              // navigate("/admin/formation/index")
-              
-            } else {
-              toast.error("Nom trouver");
-            }
-          })
-          .catch((err) => console.log(err));
-      },
-      onError: (error) => {
-       foncError(error);
-      },
-    });
-    const updateUser = (post: UserType) => {
-      modif.mutate(post);
+  const useQ = useQueryClient();
 
-    };
+  const modif = useMutation({
+    mutationFn: (post: UserType) => {
+      return userService
+        .userUpdate(post)
+        .then((res) => {
+          if (res.data.etat === true) {
+            toast.success("Modification reuissi");
+            useQ.invalidateQueries({ queryKey: ["User"] });
+            // navigate("/admin/formation/index")
 
-      return {updateUser}
+          } else {
+            toast.error("Nom trouver");
+          }
+        })
+        .catch((err) => console.log(err));
+    },
+    onError: (error) => {
+      foncError(error);
+    },
+  });
+  const updateUser = (post: UserType) => {
+    modif.mutate(post);
+
+  };
+
+  return { updateUser }
 }
 
 export function useDeleteUser() {
   const navigate = useNavigate();
   const useQ = useQueryClient();
-  
+
   const del = useMutation({
     mutationFn: (post: UtilisateurType) => {
       return userService.userDelete(post).then((res) => {
@@ -354,7 +374,7 @@ export function useDeleteUser() {
     onError: (error) => {
       foncError(error);
     },
-    
+
   });
 
   const deleteUser = (post: UtilisateurType) => {
@@ -362,44 +382,44 @@ export function useDeleteUser() {
     // console.log("delete ..",post)
   };
 
-  return {deleteUser}
+  return { deleteUser }
 }
 
 export function useLoginUser() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const connexion = useMutation({
-        mutationFn: (post: FormType) => {
-          return userService.userLogin(post)
-          .then((res) => {            
-            if (res.data.etat===false) {
-              if(res.data.message !== "requette invalide"){
-                toast.error(res.data.message);
-              }
-            } else {                     
-              accountService.saveToken(res.data.id!, res.data.access)
-              navigate('/')
-              toast.success("Connexion réussie");
+  const connexion = useMutation({
+    mutationFn: (post: FormType) => {
+      return userService.userLogin(post)
+        .then((res) => {
+          if (res.data.etat === false) {
+            if (res.data.message !== "requette invalide") {
+              toast.error(res.data.message);
             }
+          } else {
+            accountService.saveToken(res.data.id!, res.data.access)
+            navigate('/')
+            toast.success("Connexion réussie");
+          }
         })
-        },
-      });
-      
-      const login = (post: FormType) => {
-        connexion.mutate(post);
-      };
+    },
+  });
 
-      return {login}
+  const login = (post: FormType) => {
+    connexion.mutate(post);
+  };
+
+  return { login }
 }
 
 export function useForgotUser() {
 
   const connexion = useMutation({
-      mutationFn: (post: FormType) => {
-        return userService.userForgot(post)
+    mutationFn: (post: FormType) => {
+      return userService.userForgot(post)
         .then((res) => {
-          if (res.data.etat===false) {
-            if(res.data.message !== "requette invalide"){
+          if (res.data.etat === false) {
+            if (res.data.message !== "requette invalide") {
               toast.error(res.data.message);
             }
           } else {
@@ -409,115 +429,115 @@ export function useForgotUser() {
               icon: '👏',
             });
           }
-      })
-      },
-    });
-    
-    const forgout = (post: FormType) => {
-      connexion.mutate(post);
-      console.log("forgot ..",post)
-    };
+        })
+    },
+  });
 
-    return {forgout}
+  const forgout = (post: FormType) => {
+    connexion.mutate(post);
+    console.log("forgot ..", post)
+  };
+
+  return { forgout }
 }
 
 export function useCreateAdminUser() {
-    
-    const useQ = useQueryClient();
 
-    const ajoutAdmin = useMutation({
-        mutationFn: (post: FormValueType) => {
-          return userService.userAdminRegister(post)
-          .then((res) => {
-            if (res.data.etat===false) {
-              if(res.data.message !== "requette invalide"){
-                toast.error(res.data.message);
-              }
-            } else {
-              useQ.invalidateQueries({ queryKey: ["UserGet"] });
-              toast.success("Inscription réussie");
+  const useQ = useQueryClient();
+
+  const ajoutAdmin = useMutation({
+    mutationFn: (post: FormValueType) => {
+      return userService.userAdminRegister(post)
+        .then((res) => {
+          if (res.data.etat === false) {
+            if (res.data.message !== "requette invalide") {
+              toast.error(res.data.message);
             }
+          } else {
+            useQ.invalidateQueries({ queryKey: ["UserGet"] });
+            toast.success("Inscription réussie");
+          }
         })
-        },
-      });
-  
-      const createAdmin = (post: FormValueType) => {
-        ajoutAdmin.mutate(post);
-      };
+    },
+  });
 
-    return { createAdmin }
+  const createAdmin = (post: FormValueType) => {
+    ajoutAdmin.mutate(post);
+  };
+
+  return { createAdmin }
 }
 
 export function useCreateCabinetUser() {
-    
-    const useQ = useQueryClient();
 
-    const ajoutAdmin = useMutation({
-        mutationFn: (post: FormValueType) => {
-          return userService.userCabinetRegister(post)
-          .then((res) => {
-            if (res.data.etat===false) {
-              if(res.data.message !== "requette invalide"){
-                toast.error(res.data.message);
-              }
-            } else {
-              useQ.invalidateQueries({ queryKey: ["UserCabinetGet"] });
-              toast.success("Inscription réussie");
+  const useQ = useQueryClient();
+
+  const ajoutAdmin = useMutation({
+    mutationFn: (post: FormValueType) => {
+      return userService.userCabinetRegister(post)
+        .then((res) => {
+          if (res.data.etat === false) {
+            if (res.data.message !== "requette invalide") {
+              toast.error(res.data.message);
             }
+          } else {
+            useQ.invalidateQueries({ queryKey: ["UserCabinetGet"] });
+            toast.success("Inscription réussie");
+          }
         })
-        },
-      });
-  
-      const createCabinetAdmin = (post: FormValueType) => {
-        ajoutAdmin.mutate(post);
-      };
+    },
+  });
 
-    return { createCabinetAdmin }
+  const createCabinetAdmin = (post: FormValueType) => {
+    ajoutAdmin.mutate(post);
+  };
+
+  return { createCabinetAdmin }
 }
 
 // Pour les clients
 
 export function useCreateClient() {
-  
+
   const useQ = useQueryClient();
-  
+
   const ajout = useMutation({
-      mutationFn: (post: ClienType) => {
-        
-        return userService.userClient(post)
+    mutationFn: (post: ClienType) => {
+
+      return userService.userClient(post)
         .then((res) => {
           if (res.data.etat === false) {
             if (res.data.message === "L'utilisateur existe déjà") {
-                toast.error("Cet utilisateur existe déjà. Veuillez vous connecter.");
+              toast.error("Cet utilisateur existe déjà. Veuillez vous connecter.");
             } else if (res.data.message !== "requette invalide") {
-                toast.error(res.data.message);
+              toast.error(res.data.message);
             }
           } else {
             useQ.invalidateQueries({ queryKey: ["ClientGet"] });
             toast.success("Creation réussie");
-    
+
           }
-      })
-      .catch((error) => {
-        
-        if (error.code === 'ECONNABORTED') {
+        })
+        .catch((error) => {
+
+          if (error.code === 'ECONNABORTED') {
             toast.error("La requête a pris trop de temps, veuillez réessayer.");
-        } else {
+          } else {
             toast.error("Une erreur s'est produite lors de l'inscription");
-        }
-    });
-      },
-    });
+          }
+        });
+    },
+  });
 
-    const createClient = (post: ClienType) => {
-      ajout.mutate(post);
-    };
+  const createClient = (post: ClienType) => {
+    ajout.mutate(post);
+  };
 
-    return { createClient }
+  return { createClient }
 }
 
 export function useUnClient(slug: string) {
-  
+
   const [unClient, setUnClient] = useState<FormClienType>({
     nom: '',
     adresse: '',
@@ -546,7 +566,7 @@ export function useUnClient(slug: string) {
     }
   }, [us]);
 
-  return { us ,unClient, setUnClient, isLoading, isError };
+  return { us, unClient, setUnClient, isLoading, isError };
 }
 
 export function useUpdateClient() {
@@ -554,40 +574,40 @@ export function useUpdateClient() {
   const useQ = useQueryClient();
 
   const modif = useMutation({
-      mutationFn: (post: FormClienType) => {
-        return userService
-          .clientUpdate(post)
-          .then((res) => {
-            if (res.data.etat === true) {
-              toast.success("Modification reuissi");
-              useQ.invalidateQueries({ queryKey: ["ClientGet"] });
-              navigate(-1);
-            } else {
-              toast.error("Nom trouver");
-            }
-          })
-          .catch((err) => console.log(err));
-      },
-      onError: (error) => {
-       foncError(error);
-      },
-    });
-    const updateClient = (post: FormClienType) => {
-      modif.mutate(post);
+    mutationFn: (post: FormClienType) => {
+      return userService
+        .clientUpdate(post)
+        .then((res) => {
+          if (res.data.etat === true) {
+            toast.success("Modification reuissi");
+            useQ.invalidateQueries({ queryKey: ["ClientGet"] });
+            navigate(-1);
+          } else {
+            toast.error("Nom trouver");
+          }
+        })
+        .catch((err) => console.log(err));
+    },
+    onError: (error) => {
+      foncError(error);
+    },
+  });
+  const updateClient = (post: FormClienType) => {
+    modif.mutate(post);
 
-    };
+  };
 
-    return {updateClient}
+  return { updateClient }
 }
 
 export function useDeleteClient() {
   const navigate = useNavigate();
   const useQ = useQueryClient();
-  
+
   const del = useMutation({
     mutationFn: (post: FormClienType) => {
       return userService.clientDelete(post).then((res) => {
-        
+
         if (res.data.etat !== true) {
           toast.error(res.data.message);
         } else {
@@ -607,14 +627,14 @@ export function useDeleteClient() {
     // console.log("delete ..",post)
   };
 
-  return {deleteClient}
+  return { deleteClient }
 }
 
 
 export function useAllClients(slug: string) {
   const [getClients, setClients] = useState<ClienType[]>([]);
 
-  const {data: us, isLoading, isError} = useQuery({
+  const { data: us, isLoading, isError } = useQuery({
     queryKey: ["ClientGet", slug],
     queryFn: () =>
       userService.allClients(slug).then((res) => {
@@ -627,10 +647,10 @@ export function useAllClients(slug: string) {
   });
 
   useEffect(() => {
-      if (us) {
-        setClients(us);
-      }
-    }, [us]);
+    if (us) {
+      setClients(us);
+    }
+  }, [us]);
 
   return { getClients, setClients, isLoading, isError };
 }
@@ -641,16 +661,16 @@ export function useAllClients(slug: string) {
 export function useFetchEntreprise(slug: string | null | undefined) {
   const [unEntreprise, setUnEntreprise] = useState<TypeEntreprise>({
     adresse: '',
-    coordonne:'',
-    email:'',
-    id:'',
-    image:'',
-    licence_code:'',
-    licence_date_expiration:'',
-    licence_type:'',
-    nom:'',
-    numero:0,
-    });
+    coordonne: '',
+    email: '',
+    id: '',
+    image: '',
+    licence_code: '',
+    licence_date_expiration: '',
+    licence_type: '',
+    nom: '',
+    numero: 0,
+  });
 
   const { data: us, isLoading, isError } = useQuery({
     queryKey: ["User", slug],
@@ -728,7 +748,7 @@ export function useHistorySuppEntreprise(slug: string) {
 }
 
 export function useStockEntreprise(entreprise_id: string) {
-  
+
   const [stockEntreprise, setStockEntreprise] = useState<StockType>({
     somme_entrer_pu: 0,
     somme_entrer_qte: 0,
@@ -736,7 +756,7 @@ export function useStockEntreprise(entreprise_id: string) {
     somme_sortie_qte: 0,
     nombre_entrer: 0,
     nombre_sortie: 0,
-    });
+  });
 
   const { data: us, isLoading, isError } = useQuery({
     queryKey: ["Stock", entreprise_id],
@@ -761,7 +781,7 @@ export function useStockEntreprise(entreprise_id: string) {
 }
 
 export function useSortieUserEntreprise(entreprise_id: string) {
-  
+
   const [sortiesUser, setSortiesUser] = useState<SortieUserType>({
     user_id: '',
     total_nombre_vente: [],
@@ -792,7 +812,7 @@ export function useSortieUserEntreprise(entreprise_id: string) {
 }
 
 export function useStockSemaine(entreprise_id: string) {
-  
+
   const [stockSemaine, setStockSemaine] = useState<StockType>({
     somme_entrer_pu: 0,
     somme_entrer_qte: 0,
@@ -800,13 +820,13 @@ export function useStockSemaine(entreprise_id: string) {
     somme_sortie_qte: 0,
     nombre_entrer: 0,
     nombre_sortie: 0,
-    });
+  });
 
   const { data: us, isLoading, isError } = useQuery({
     queryKey: ["StockSemaine", entreprise_id],
     queryFn: () =>
       entrepriseService.stockCateSemaine(entreprise_id).then((res) => {
-        
+
         if (res.data.etat === true) {
           return res.data.donnee;
         } else {
@@ -828,7 +848,7 @@ export function useStockSemaine(entreprise_id: string) {
 export function useFetchAllEntreprise(slug: string) {
   const [entreprises, setEntreprise] = useState<RecupType[]>([]);
 
-  const {data: us, isLoading, isError} = useQuery({
+  const { data: us, isLoading, isError } = useQuery({
     queryKey: ["bouti", slug],
     queryFn: () =>
       entrepriseService.allEntreprise(slug).then((res) => {
@@ -842,10 +862,10 @@ export function useFetchAllEntreprise(slug: string) {
   });
 
   useEffect(() => {
-      if (us) {
-          setEntreprise(us);
-      }
-    }, [us]);
+    if (us) {
+      setEntreprise(us);
+    }
+  }, [us]);
 
   return { entreprises, setEntreprise, isLoading, isError };
 }
@@ -853,7 +873,7 @@ export function useFetchAllEntreprise(slug: string) {
 export function useAllUserEntreprise(slug: string) {
   const [userEntreprises, setUserEntreprise] = useState<RecupType[]>([]);
 
-  const {data: us, isLoading, isError} = useQuery({
+  const { data: us, isLoading, isError } = useQuery({
     queryKey: ["bouti", slug],
     queryFn: () =>
       entrepriseService.allUserEntreprise(slug).then((res) => {
@@ -867,46 +887,46 @@ export function useAllUserEntreprise(slug: string) {
   });
 
   useEffect(() => {
-      if (us) {
-          setUserEntreprise(us);
-      }
-    }, [us]);
+    if (us) {
+      setUserEntreprise(us);
+    }
+  }, [us]);
 
   return { userEntreprises, setUserEntreprise, isLoading, isError };
 }
 
 export function useCreateEntreprise() {
-  
+
   const useQ = useQueryClient();
-  
+
   const ajout = useMutation({
     mutationFn: (data: EntrepriseType) => {
       return entrepriseService.addEntreprise(data)
-      .then((res) => {
-        if (res.data.etat===false) {
-          if(res.data.message !== "requette invalide"){
-            toast.error(res.data.message);
+        .then((res) => {
+          if (res.data.etat === false) {
+            if (res.data.message !== "requette invalide") {
+              toast.error(res.data.message);
+            }
+          } else {
+            useQ.invalidateQueries({ queryKey: ["UserEntreprises"] });
+            toast.success("Creation réussie");
           }
-        } else {
-          useQ.invalidateQueries({ queryKey: ["UserEntreprises"] });
-          toast.success("Creation réussie");   
-        }
-    })
+        })
     },
     onError: (error) => {
       foncError(error);
     },
   });
 
-    const ajoutEntreprise = (post: EntrepriseType) => {
-      ajout.mutate(post);
-    };
+  const ajoutEntreprise = (post: EntrepriseType) => {
+    ajout.mutate(post);
+  };
 
-    return { ajoutEntreprise }
+  return { ajoutEntreprise }
 }
 
 export function useUpdateEntreprise() {
-  
+
   const useQ = useQueryClient();
 
   const modif = useMutation({
@@ -934,11 +954,11 @@ export function useUpdateEntreprise() {
     modif.mutate(chap);
   };
 
-  return {updateEntreprise}
+  return { updateEntreprise }
 }
 
 export function useRemoveUserEntreprise() {
-  
+
   const useQ = useQueryClient();
 
   const modif = useMutation({
@@ -949,7 +969,7 @@ export function useRemoveUserEntreprise() {
           if (res.data.etat === true) {
             toast.success("Modification reuissi");
             useQ.invalidateQueries({ queryKey: ["EntreModif"] });
-            
+
           } else {
             toast.error(res.data.message);
           }
@@ -965,13 +985,13 @@ export function useRemoveUserEntreprise() {
     modif.mutate(chap);
   };
 
-  return {removeEntreprise}
+  return { removeEntreprise }
 }
 
 export function useDeleteEntreprise() {
-  
+
   const useQ = useQueryClient();
-  
+
   const del = useMutation({
     mutationFn: (post: TypeEntreprise) => {
       return entrepriseService.deleteEntreprise(post).then((res) => {
@@ -995,14 +1015,14 @@ export function useDeleteEntreprise() {
     // console.log(post);
   };
 
-  return {deleteEntreprise}
+  return { deleteEntreprise }
 }
 
 // Pour tous les utilisateurs d'un Entreprise 
 export function useGetEntrepriseUsers(slug: string) {
   const [entrepriseUsers, setEntrepriseUsers] = useState<RecupType[]>([]);
 
-  const {data: us, isLoading, isError} = useQuery({
+  const { data: us, isLoading, isError } = useQuery({
     queryKey: ["entrepriseUsers", slug],
     queryFn: () =>
       entrepriseService.getEntrepriseUsers(slug).then((res) => {
@@ -1016,10 +1036,10 @@ export function useGetEntrepriseUsers(slug: string) {
   });
 
   useEffect(() => {
-      if (us) {
-          setEntrepriseUsers(us);
-      }
-    }, [us]);
+    if (us) {
+      setEntrepriseUsers(us);
+    }
+  }, [us]);
 
   return { entrepriseUsers, setEntrepriseUsers, isLoading, isError };
 }
@@ -1027,8 +1047,8 @@ export function useGetEntrepriseUsers(slug: string) {
 // Pour tous les Entreprises d'un utilisateur 
 export function useGetUserEntreprises() {
   const [userEntreprises, setUserEntreprises] = useState<TypeEntreprise[]>([]);
-  
-  const {data: us, isLoading, isError} = useQuery({
+
+  const { data: us, isLoading, isError } = useQuery({
     queryKey: ["UserEntreprises"],
     queryFn: () =>
       entrepriseService.getUserEntreprises().then((res) => {
@@ -1042,10 +1062,10 @@ export function useGetUserEntreprises() {
   });
 
   useEffect(() => {
-      if (us) {
-        setUserEntreprises(us);
-      }
-    }, [us]);
+    if (us) {
+      setUserEntreprises(us);
+    }
+  }, [us]);
 
   return { userEntreprises, setUserEntreprises, isLoading, isError };
 }

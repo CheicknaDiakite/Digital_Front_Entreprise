@@ -38,8 +38,7 @@ export default function Chart_3() {
     // Récupérer le mois le plus récent
     const monthlyData = sortiesUser.mensuel_par_utilisateur as MonthlyData[];
     const latestMonth = monthlyData[monthlyData.length - 1];
-    console.log('Données du mois le plus récent:', sortiesUser);
-
+    
     if (!latestMonth) {
       return (
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
