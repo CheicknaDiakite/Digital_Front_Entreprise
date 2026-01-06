@@ -1,4 +1,5 @@
-import { Box, Grid, Stack, Typography } from '@mui/material';
+import { useState } from 'react';
+import { Box, Grid, Stack, TextField, Typography } from '@mui/material';
 import { format } from 'date-fns';
 import Nav from '../../../_components/Button/Nav';
 import MainCard from '../../../components/MainCard';
@@ -16,7 +17,7 @@ const MAX_MONTHS_TO_DISPLAY = 12;
 
 const MonthlyProductChart = ({ saleData }: { saleData: ProductSaleDetails }) => {
   const saleDate = new Date(saleData.month);
-  
+
   return (
     <MainCard sx={{ mt: 2 }} content={false}>
       <Box sx={{ p: 3, pb: 0 }}>
@@ -31,28 +32,40 @@ const MonthlyProductChart = ({ saleData }: { saleData: ProductSaleDetails }) => 
   );
 };
 
+
+
 export default function EtaProduits() {
   const uuid = useStoreUuid((state) => state.selectedId);
+  const [annee, setAnnee] = useState(new Date().getFullYear());
 
-  const { stockSemaine } = useStockSemaine(uuid!);
-
-  const hasSales = stockSemaine?.sorties_par_mois && stockSemaine.sorties_par_mois.length > 0;
+  const { stockSemaine } = useStockSemaine(uuid!, annee);
   
+  const hasSales = stockSemaine?.sorties_par_mois && stockSemaine.sorties_par_mois.length > 0;
+
   return (
     <>
       {/* <Nav /> */}
       <Grid container spacing={3}>
-        <Grid item xs={12}>
-          <Typography variant="h5" component="h1" gutterBottom>
+        <Grid item xs={12} display="flex" justifyContent="space-between" alignItems="center">
+          <Typography variant="h5" className='text-gray-50' component="h1">
             Statistiques des ventes de produits par mois
           </Typography>
+          <TextField
+            label="Année"
+            type="number"
+            className='bg-yellow-100'
+            size="small"
+            value={annee}
+            onChange={(e) => setAnnee(Number(e.target.value))}
+            sx={{ width: 120 }}
+          />
         </Grid>
 
         <Grid item xs={12}>
           {!hasSales ? (
-            <Typography 
-              variant="h6" 
-              color="text.secondary" 
+            <Typography
+              variant="h6"
+              color="text.secondary"
               align="center"
               sx={{ mt: 2 }}
             >

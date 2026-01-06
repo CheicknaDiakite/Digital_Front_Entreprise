@@ -1,14 +1,11 @@
-import React, { ChangeEvent, FormEvent, SyntheticEvent, useState } from 'react'
+import React, { FormEvent, SyntheticEvent, useEffect, useState } from 'react'
 import { UuType } from '../../../../typescript/Account'
 import {
-  Autocomplete,
   Box,
   Button,
-  Checkbox,
   Dialog,
   DialogContent,
   DialogTitle,
-  FormControlLabel,
   IconButton,
   Pagination,
   Paper,
@@ -23,19 +20,18 @@ import {
   Typography,
 } from '@mui/material';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
-import QuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from '@mui/icons-material/Add';
-import MyTextField from '../../../../_components/Input/MyTextField';
 import { connect } from '../../../../_services/account.service';
 import { RecupType } from '../../../../typescript/DataType';
 import { EntreFormType } from '../../../../typescript/FormType';
 import { useCreateEntre, useFetchAllEntre } from '../../../../usePerso/fonction.entre';
-import { useFetchAllSousCate } from '../../../../usePerso/fonction.categorie';
 import CardClientEntrer from './CardClientEntrer';
-import { useUnClient } from '../../../../usePerso/fonction.user';
+import { useFetchEntreprise, useUnClient } from '../../../../usePerso/fonction.user';
 import { useStoreUuid } from '../../../../usePerso/store';
-import { formatNumberWithSpaces } from '../../../../usePerso/fonctionPerso';
+import { formatNumberWithSpaces, isLicenceExpired } from '../../../../usePerso/fonctionPerso';
+import { AjoutEntreForm, useFormValues } from '../../../../usePerso/useEntreprise';
+import M_Abonnement from '../../../../_components/Card/M_Abonnement';
 
 export default function ClientEntrer(uuid: UuType) {
 
@@ -46,18 +42,31 @@ export default function ClientEntrer(uuid: UuType) {
   const {unClient} = useUnClient(uuid.uuid!);
   const {ajoutEntre} = useCreateEntre()
   const entreprise_id = useStoreUuid((state) => state.selectedId)
-  const {souscategories} = useFetchAllSousCate(entreprise_id!)
-
+  const {unEntreprise} = useFetchEntreprise(entreprise_id);
+  const [isMobile, setIsMobile] = useState(false);
   const [ajout_terminer, setTerminer] = useState(false);
-
-  const Ajout_Terminer = () => {
-    ajout_terminer ? setTerminer(false) : setTerminer(true);
-  };
+  const [is_sortie, setSortie] = useState(true);
+  const [is_prix, setPrix] = useState(true);
+  // Détection mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   // const {entresEntreprise, isLoading, isError} = useGetAllEntre(connect)
   const {entres: entresEntreprise, isLoading, isError} = useFetchAllEntre(top)
   
   const itemsPerPage = 10; // Nombre d'éléments par page
+
+  const Ajout_Terminer = () => setTerminer(!ajout_terminer);
+  const Is_Sortie = () => setSortie(!is_sortie);
+  const Is_Prix = () => setPrix(!is_prix);
 
   // État pour la page courante et les éléments par page
   const [currentPage, setCurrentPage] = useState(1);
@@ -80,7 +89,7 @@ export default function ClientEntrer(uuid: UuType) {
 
   // Calculer la somme des "price" pour la date sélectionnée
   const totalPrice = reversedBoutiques?.reduce((acc, row: RecupType) => {
-    const price = (row.qte !== undefined && row.pu !== undefined) ? row.qte * row.pu : 0;
+    const price = (row.qte !== undefined && row.pu_achat !== undefined) ? row.qte * row.pu_achat : 0;
     return acc + price;
   }, 0);
 
@@ -102,38 +111,19 @@ export default function ClientEntrer(uuid: UuType) {
     // setUserInteracted(false); // Réinitialiser l'interaction utilisateur
   };
   
-  const [open, openchange]= useState(false);
-  const functionopen = () => {
-    openchange(true)
-  }
-  const closeopen = () => {
-    openchange(false)
-  }
+  const [open, setOpen] = useState(false);
+  const functionopen = () => setOpen(true);
+  const closeopen = () => setOpen(false);
 
-  const [formValues, setFormValues] = useState<EntreFormType>({
+  const [formValues, handleInputChange, setFormValues] = useFormValues<EntreFormType>({
     libelle: '',
     cumuler_quantite: false,
-    categorie_slug: '',
     user_id: '',
     date: '',
-    pu: 0,
-    qte: 0,
   });
-
-  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormValues({
-      ...formValues,
-      [name]: value,
-    });
-  };
-
-  const handleAutoCompleteChange = (_: SyntheticEvent<Element, Event>,
-    value: string | RecupType | null,
-    // reason: AutocompleteChangeReason
-    ) => {
+  
+  const handleAutoCompleteChange = (_: SyntheticEvent<Element, Event>, value: string | RecupType | null) => {
     if (typeof value === 'object' && value !== null) {
-      
       setFormValues({
         ...formValues,
         categorie_slug: value.uuid ?? '',
@@ -145,17 +135,34 @@ export default function ClientEntrer(uuid: UuType) {
       });
     }
   };
-  
+
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    formValues["cumuler_quantite"] = ajout_terminer
-    formValues["user_id"] = connect
-    formValues["client_id"] = uuid.uuid
+    formValues["cumuler_quantite"] = ajout_terminer;
+    formValues["is_sortie"] = is_sortie;
+    formValues["is_prix"] = is_prix;
+    formValues["user_id"] = connect;
+    formValues["client_id"] = uuid.uuid;
     
-    ajoutEntre(formValues)
-    // window.location.reload();
+    ajoutEntre(formValues);
+    
+    setTerminer(false);
+    setSortie(true);
+    setPrix(true);
+    setFormValues({
+      libelle: '',
+      cumuler_quantite: false,
+      is_sortie: true,
+      is_prix: true,
+      user_id: '',
+      date: '',
+      pu: 0,
+      pu_achat: 0,
+      qte: 0,
+    });
+    closeopen();
   };
+
 
   if (isLoading) {
     return <Box sx={{ width: 300 }}>
@@ -176,7 +183,7 @@ export default function ClientEntrer(uuid: UuType) {
         <div className="space-y-6">
           {/* Header Section */}
           <div className="flex justify-between items-center">
-            <Typography variant="h5" className="font-semibold text-gray-900">
+            <Typography variant="h5" className="font-semibold text-gray-50">
               Gestion des Entrées
             </Typography>
             <Button
@@ -229,7 +236,7 @@ export default function ClientEntrer(uuid: UuType) {
                   <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Désignation</TableCell>
                   <TableCell align="right" sx={{ fontWeight: 600 }}>Quantité</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 600 }}>Prix Unitaire</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 600 }}>Prix Unitaire (Achat)</TableCell>
                   <TableCell align="right" sx={{ fontWeight: 600 }}>Total</TableCell>
                 </TableRow>
               </TableHead>
@@ -253,123 +260,45 @@ export default function ClientEntrer(uuid: UuType) {
 
           {/* Add Entry Modal */}
           <Dialog 
-            open={open} 
-            onClose={closeopen} 
-            fullWidth 
-            maxWidth="sm"
-            PaperProps={{
-              elevation: 0,
-              className: "rounded-lg"
-            }}
-          >
-            <DialogTitle className="flex justify-between items-center border-b pb-3">
-              <Typography variant="h6" className="font-semibold">
-                Ajouter une nouvelle entrée
-              </Typography>
-              <IconButton onClick={closeopen} size="small">
-                <CloseIcon />
-              </IconButton>
-            </DialogTitle>
-            
-            <DialogContent className="mt-4">
-              <form onSubmit={onSubmit} className="space-y-4">
-                <Autocomplete
-                  freeSolo
-                  options={souscategories}
-                  getOptionLabel={(option) => (typeof option === 'string' ? option : option.libelle || '')}
-                  onChange={handleAutoCompleteChange}
-                  renderInput={(params) => (
-                    <TextField 
-                      {...params} 
-                      required
-                      label="Catégorie"
-                      name="categorie_slug"
-                      onChange={onChange}
-                      className="bg-white"
-                    />
-                  )}
-                />
+          open={open} 
+          onClose={closeopen} 
+          fullWidth 
+          maxWidth="sm"
+          PaperProps={{
+            elevation: 0,
+            className: "rounded-10",
+            sx: isMobile ? {
+              borderRadius: '20px',
+              background: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(10px)'
+            } : {}
+          }}
+        >
+          <DialogTitle className={`flex justify-between items-center bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700 text-white border-b pb-3`}>
+            <Typography variant="h6" className="font-semibold">
+              Nouvelle Entrée
+            </Typography>
+            <IconButton onClick={closeopen} size="small">
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
 
-                <MyTextField
-                  label="Libellé"
-                  name="libelle"
-                  onChange={onChange}
-                  fullWidth
-                  className="bg-white"
-                />
-
-                <MyTextField
-                  required
-                  type="date"
-                  label="Date"
-                  name="date"
-                  onChange={onChange}
-                  InputLabelProps={{ shrink: true }}
-                  fullWidth
-                  className="bg-white"
-                />
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <QuantityLimitsIcon color="primary" fontSize="small" />
-                      <Typography variant="subtitle2">Quantité</Typography>
-                    </div>
-                    <MyTextField
-                      required
-                      type="number"
-                      name="qte"
-                      onChange={onChange}
-                      fullWidth
-                      className="bg-white"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <LocalAtmIcon color="primary" fontSize="small" />
-                      <Typography variant="subtitle2">Prix Unitaire</Typography>
-                    </div>
-                    <MyTextField
-                      required
-                      type="number"
-                      name="pu"
-                      onChange={onChange}
-                      fullWidth
-                      className="bg-white"
-                    />
-                  </div>
-                </div>
-
-                <FormControlLabel
-                  control={
-                    <Checkbox 
-                      checked={ajout_terminer}
-                      onChange={Ajout_Terminer}
-                      color="primary"
-                    />
-                  }
-                  label="Ajouter au stock existant"
-                />
-
-                <div className="pt-4 flex justify-end space-x-3">
-                  <Button 
-                    onClick={closeopen}
-                    variant="outlined"
-                  >
-                    Annuler
-                  </Button>
-                  <Button 
-                    type="submit" 
-                    variant="contained"
-                    className="bg-blue-600 hover:bg-blue-700"
-                  >
-                    Enregistrer
-                  </Button>
-                </div>
-              </form>
+          {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
+            <M_Abonnement />
+          ) : (
+            <DialogContent className={`${isMobile ? 'mobile-p-4' : 'mt-4'}`}>
+              <AjoutEntreForm
+                onSubmit={onSubmit}
+                formValues={formValues}
+                onChange={handleInputChange}
+                handleAutoCompleteChange={handleAutoCompleteChange}
+                Ajout_Terminer={Ajout_Terminer}
+                Is_Sortie={Is_Sortie}
+                Is_Prix={Is_Prix}
+              />
             </DialogContent>
-          </Dialog>
+          )}
+        </Dialog>
         </div>
       );
     }

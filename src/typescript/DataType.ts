@@ -3,7 +3,7 @@ export type TypeSlug = {
     all?: string | undefined;
     user_id?: string | null | undefined;
     client_id?: string;
-  }
+}
 export type DataType = {
     user_id: string;
     libelle?: string;
@@ -63,7 +63,7 @@ export type EntreType = {
     qte_critique?: number;
     pu: number;
     pu_achat?: number;
-    facture?: File | undefined | null ;
+    facture?: File | undefined | null;
     date?: string;
     description?: string;
     ref?: string;
@@ -80,7 +80,7 @@ export type DepenseType = {
     date: string;
     slug?: string;
     somme: number;
-    facture?: File | undefined | null ;
+    facture?: File | undefined | null;
     boutique_id?: number;
     user_id?: string;
     entreprise_id?: string;
@@ -101,12 +101,12 @@ export type SlugType = {
 }
 
 export type CateBouType = {
-    id:number;
-    libelle:string;
-    uuid:string;
-    sous_categorie_count:number;
+    id: number;
+    libelle: string;
+    uuid: string;
+    sous_categorie_count: number;
     length: number;
-    image?: File | undefined | null ;
+    image?: File | undefined | null;
 } & SlugType
 
 
@@ -114,17 +114,17 @@ export type TypeEntreprise = {
     adresse: string;
     ref?: string;
     libelle?: string;
-    coordonne:string;
-    email:string;
-    uuid?:string;
-    id:string;
-    image:File | unknown;
-    licence_active?:boolean;
-    licence_code:string;
-    licence_date_expiration:string;
-    licence_type:string;
-    nom:string;
-    numero:number;
+    coordonne: string;
+    email: string;
+    uuid?: string;
+    id: string;
+    image: File | unknown;
+    licence_active?: boolean;
+    licence_code: string;
+    licence_date_expiration: string;
+    licence_type: string;
+    nom: string;
+    numero: number;
     user_id?: string;
     pays?: string;
 }
@@ -144,13 +144,13 @@ type Detail = {
     pu: number;
     prix_total: number;
     created_at: string; // ou Date si converti avant utilisation
-  };
-  
-  // Type pour les détails organisés par mois
-  type DetailsParMois = {
+};
+
+// Type pour les détails organisés par mois
+type DetailsParMois = {
     [mois: string]: Detail[]; // Une clé dynamique représentant un mois (e.g., "December 2024")
-  };
-  
+};
+
 export type StockType = {
     somme_entrer_pu: number;
     somme_entrer_qte: number;
@@ -220,25 +220,26 @@ export type RecupType = {
     notes?: string,
     is_prix?: boolean,
     is_remise?: boolean,
-    image?: File | undefined | null ;
-    code_barre?: File | undefined | null ;
+    remise_code?: string,
+    image?: File | undefined | null;
+    code_barre?: File | undefined | null;
     invoiceNumber?: number,
     all_inventaire?: number,
     post?: TypeEntreprise;
 
-} 
+}
 
 export type CategoriesProps = {
     categories: RecupType[];
-  }
-
-export type DonneType = {
-    onClick?: ({username, password}: FormType) => void;
 }
 
-export interface RouteParams extends Record<string, string>  {
+export type DonneType = {
+    onClick?: ({ username, password }: FormType) => void;
+}
+
+export interface RouteParams extends Record<string, string> {
     slug: string;
-  }
+}
 export type RestrictionType = {
     active: boolean;
     day_start: number;

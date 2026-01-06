@@ -47,7 +47,7 @@ import FactureDetail from '../../boutique/sortie/FactureDetail'
 
 
 export default function PublicRouter() {
-  // notClick()
+  notClick()
 
   const uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise } = useFetchEntreprise(uuid);

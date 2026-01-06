@@ -3,7 +3,7 @@ import { Typography } from '@mui/material';
 import { formatNumberWithSpaces } from '../../usePerso/fonctionPerso'
 
 interface TableFactProps {
-  list: { 
+  list: {
     categorie_libelle: string;
     qte: number;
     pu: number;
@@ -46,18 +46,18 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
           {/* Table Body */}
           <tbody className="print-table-body">
             {list.map((post, index) => (
-              <tr 
+              <tr
                 key={index}
                 className="hover:bg-gray-50 transition-colors duration-200 border-b border-gray-900"
               >
                 <td className="p-4 border-r border-gray-200">
-                  <div className="space-y-1">
+                  <div>
                     <Typography variant="body2" className="font-medium text-gray-900">
-                      {post.ref}
+                        {post.categorie_libelle}
                     </Typography>
-                    <Typography variant="body2" className="text-gray-500">
-                      {post.categorie_libelle}
-                    </Typography>
+                    {/* <Typography variant="body2" className="text-gray-400">
+                        {post.ref}
+                    </Typography>                       */}
                   </div>
                 </td>
                 <td className="text-right p-4 border-r border-gray-200">
@@ -75,8 +75,8 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
             {/* Summary Rows */}
             <tr className="border-b border-gray-900">
               <td rowSpan={4} className="border-r border-gray-200"></td>
-              <td 
-                colSpan={2} 
+              <td
+                colSpan={2}
                 className="text-right p-4 text-gray-600 font-semibold border-r border-gray-200"
               >
                 Sous-total
@@ -87,8 +87,8 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
             </tr>
 
             <tr className="border-b border-gray-900">
-              <td 
-                colSpan={2} 
+              <td
+                colSpan={2}
                 className="text-right p-4 text-gray-600 font-semibold border-r border-gray-200"
               >
                 Remise
@@ -100,8 +100,8 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
 
             {(total - payerTotal) > 0 && (
               <tr className="border-b border-gray-900">
-                <td 
-                  colSpan={2} 
+                <td
+                  colSpan={2}
                   className="text-right p-4 text-gray-600 font-semibold border-r border-gray-200"
                 >
                   Montant Payé
@@ -114,9 +114,9 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
             )}
 
             <tr className="border-t-2 border-gray-900 bg-gray-300">
-              
-              <td 
-                colSpan={2} 
+
+              <td
+                colSpan={2}
                 className="text-right p-4 text-gray-900 font-semibold border-r border-gray-200"
               >
                 {/* {(total - payerTotal) > 0 ? "Reste à Payer" : "Total à Payer"} */}
@@ -134,7 +134,7 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
                 {resteAPayer === 0 && "Total"}
                 {resteAPayer < 0 && "Total"}
               </td>
-              
+
               <td className="text-right p-4 font-bold text-lg text-gray-900">
                 {/* {formatNumberWithSpaces(resteAPayer)} F */}
                 {/* {resteAPayer > 0 ? 
@@ -146,13 +146,13 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
                 {resteAPayer < 0 && formatNumberWithSpaces(discountedTotal)}
                 {" "}F
               </td>
-              
+
             </tr>
           </tbody>
         </table>
-       {/* {resteAPayer < 0 && <>money du reste de l'argent {formatNumberWithSpaces(resteAPayer)} F </> } */}
+        {/* {resteAPayer < 0 && <>money du reste de l'argent {formatNumberWithSpaces(resteAPayer)} F </> } */}
         {resteAPayer < 0 && (
-          <span className="block mt-2 px-4 py-2 rounded-md bg-green-100 text-green-700 font-semibold">
+          <span className="block mt-2 px-4 py-2 rounded-md bg-yellow-100 text-yellow-700 font-semibold text-center">
             Monnaie à rendre : {formatNumberWithSpaces(Math.abs(resteAPayer))} F
           </span>
         )}

@@ -51,7 +51,7 @@ export type TypeText = {
 
 function ChildModal() {
   const reset = useStoreCart(state => state.reset)
-  const {updateSortie} = useUpdateSortie()
+  const { updateSortie } = useUpdateSortie()
   const selectedIds = useStoreCart(state => state.selectedIds)
   const sortiess = useStoreCart(state => state.sorties);
   const selectSorties = sortiess.filter((sor) => sor.id !== undefined && selectedIds.has(sor.id as number));
@@ -84,11 +84,11 @@ function ChildModal() {
   );
 }
 
-export default function Fact({clientName, invoiceNumber, invoiceDate, notes, numeroFac, post, discountedTotal, payerTotal}: RecupType | any) {
+export default function Fact({ clientName, invoiceNumber, invoiceDate, notes, numeroFac, post, discountedTotal, payerTotal }: RecupType | any) {
   // let url = BASE(post.image);
-  
+
   const url = post.image ? BASE(post.image) : post.image;
-  
+
   const selectedIds = useStoreCart(state => state.selectedIds)
   const reset = useStoreCart(state => state.reset)
   const sorties = useStoreCart(state => state.sorties);
@@ -102,7 +102,7 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
   }, 0);
 
   const total = totalPrix || 0;
-  
+
   // États pour les remises et paiements
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpenPay, setIsModalOpenPay] = useState(false);
@@ -111,20 +111,20 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
   const [percentageDiscount, setPercentageDiscount] = useState<number | string>(""); // Remise en %
   const [localDiscountedTotal, setLocalDiscountedTotal] = useState(total); // Total avec remise
   const [localPayerTotal, setLocalPayerTotal] = useState(total); // Total avec remise
-  
+
   // Utiliser les valeurs locales si elles sont définies, sinon utiliser les props
   const finalDiscountedTotal = localDiscountedTotal !== total ? localDiscountedTotal : (discountedTotal || total);
   const finalPayerTotal = localPayerTotal !== total ? localPayerTotal : (payerTotal || total);
-  
+
   // Normaliser la saisie (remplace ',' par '.')
   const normalizeInput = (value: string) => value.replace(",", ".");
-  
+
   // Calculer le nouveau total
   const calculateDiscountedTotal = () => {
     let newTotal = total;
     const fixed = parseFloat(normalizeInput(fixedDiscount as string)) || 0;
     const percentage = parseFloat(normalizeInput(percentageDiscount as string)) || 0;
-    
+
     if (fixed) {
       newTotal -= fixed;
     }
@@ -137,18 +137,18 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
   const calculatePayerTotal = () => {
     let newTotal = finalDiscountedTotal;
     const fixed = parseFloat(normalizeInput(payDiscount as string)) || 0;
-    
+
     if (fixed) {
       newTotal -= fixed;
     }
-    
+
     setLocalPayerTotal(Math.max(0, newTotal)); // Empêche un total négatif
   };
-  
+
   // Ouvrir/fermer le modal
   const toggleModal = () => setIsModalOpen(!isModalOpen);
   const toggleModalPay = () => setIsModalOpenPay(!isModalOpenPay);
-  
+
   // Appliquer la remise
   const handleApplyDiscount = () => {
     calculateDiscountedTotal();
@@ -157,9 +157,9 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
   const handleApplyPayer = () => {
     calculatePayerTotal();
     toggleModalPay();
-    
+
   };
-  
+
   // Pour la remise des facture
   const [openF, setOpenF] = useState(false);
   const handleOpenRemise = () => {
@@ -168,7 +168,7 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
   const handleCloseRemise = () => {
     setOpenF(false);
   };
-  
+
   const [isMobile, setIsMobile] = useState(false);
   const [fac, setNom] = useState<TypeText>({
     clientName: '',
@@ -187,24 +187,24 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
       [name]: value,
     });
   };
-  
+
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768);
     };
-    
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
+
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-  
+
   // Mettre à jour les totaux locaux quand le total change
   useEffect(() => {
     setLocalDiscountedTotal(total);
     setLocalPayerTotal(total);
   }, [total]);
-    
+
   const [quantity] = useState<number>(0);
   const [price] = useState<number>(0);
   const [amount, setAmount] = useState<number>(0);
@@ -242,7 +242,7 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
       // Générer le PDF à partir du composant
       const element = componentRef.current;
       if (!element) throw new Error('Aperçu facture introuvable');
-      
+
       // Options html2pdf
       const opt = {
         margin: 0.2,
@@ -251,16 +251,18 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
         html2canvas: { scale: 2 },
         jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
       };
-      
-      // Attendre que l'image soit chargée
-      await waitImageLoad(url);
-      
+
+      // Attendre que l'image soit chargée si elle existe
+      if (url) {
+        await waitImageLoad(url);
+      }
+
       // Détecter si on est sur iOS/Safari
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
       const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
-      
+
       let pdfBlob: Blob;
-      
+
       if (isIOS || isSafari) {
         // Méthode alternative pour iOS/Safari
         try {
@@ -282,7 +284,7 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
         // Méthode normale pour les autres navigateurs
         pdfBlob = await html2pdf().from(element).set(opt).outputPdf('blob');
       }
-      
+
       // Préparer le formData
       const user_id = connect;
       const entreprise_id = post.entreprise_id || post.uuid || '';
@@ -292,7 +294,7 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
         entreprise_id,
         facture: new File([pdfBlob], opt.filename, { type: 'application/pdf' })
       };
-      
+
       await ajoutFacSortie(formData);
       setForm({ libelle: '', ref: '', date: '' });
       setOpenModal(false);
@@ -321,8 +323,8 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
           <div className="p-2 sm:p-6">
             {/* Actions Bar */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-4 mb-4 sm:mb-6">
-              
-              <button 
+
+              <button
                 onClick={() => reset()}
                 className="inline-flex items-center justify-center px-3 py-2 border border-red-500 text-red-500 rounded-md hover:bg-red-50 transition-colors duration-200 text-sm sm:text-base"
               >
@@ -370,11 +372,11 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
                 <span>Ajouter Facture de Sortie</span>
               </button>
 
-              
+
             </div>
-            <Grid 
-              container 
-              spacing={isMobile ? 2 : 3} 
+            <Grid
+              container
+              spacing={isMobile ? 2 : 3}
               className={isMobile ? 'mt-3' : ''}
               sx={{
                 '& .MuiGrid-item': {
@@ -404,7 +406,7 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
                   } : {}}
                 />
               </Grid>
-              
+
               <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
@@ -482,8 +484,41 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
             </Grid>
 
             {/* <div className={`${isMobile ? 'mobile-notes-section' : 'mt-6'}`}> */}
-              
-            {/* </div> */}
+
+            {/* Invoice Content */}
+            <div
+              ref={componentRef}
+              className="bg-white p-2 sm:p-8 rounded-lg shadow-sm border border-gray-100 print-container"
+            >
+              <Header
+                // orderNumber={orderNumber}
+                nom={post.nom}
+                numeroFac={numeroFac || fac.numeroFac}
+                url={url}
+                email={post.email}
+                address={post.adresse}
+                numero={post.numero}
+                coordonne={post.coordonne}
+                clientName={clientName || fac.clientName}
+                invoiceDate={invoiceDate}
+                invoiceNumber={invoiceNumber || fac.invoiceNumber}
+              />
+
+              <div className="overflow-x-auto w-full">
+                <TableFact
+                  list={selectSorties}
+                  total={totalPrix}
+                  discountedTotal={finalDiscountedTotal}
+                  payerTotal={finalPayerTotal}
+                  payDiscount={payDiscount}
+                />
+              </div>
+
+              <Notes
+                notes={fac.notes}
+              />
+
+            </div>
 
             {/* Modal d'ajout de facture de sortie */}
             <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="sm" fullWidth>
@@ -527,15 +562,7 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
                     <Button onClick={() => setOpenModal(false)} color="secondary" disabled={loadingPdf}>
                       Annuler
                     </Button>
-                    {/* <Button 
-                      onClick={downloadPdfForIOS}
-                      variant="outlined" 
-                      color="primary" 
-                      disabled={loadingPdf}
-                      sx={{ mr: 1 }}
-                    >
-                      Télécharger PDF
-                    </Button> */}
+
                     <Button type="submit" variant="contained" color="primary" disabled={loadingPdf}>
                       {loadingPdf ? 'Génération...' : 'Ajouter'}
                     </Button>
@@ -544,44 +571,9 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
               </DialogContent>
             </Dialog>
 
-            {/* Invoice Content */}
-            <div 
-              ref={componentRef} 
-              className="bg-white p-2 sm:p-8 rounded-lg shadow-sm border border-gray-100 print-container"
-            >
-              <Header
-              // orderNumber={orderNumber}
-              nom={post.nom}
-              numeroFac={numeroFac || fac.numeroFac}
-              url={url}
-              email={post.email}
-              address={post.adresse}
-              numero={post.numero}
-              coordonne={post.coordonne}
-              clientName={clientName || fac.clientName}
-              invoiceDate={invoiceDate}
-              invoiceNumber={invoiceNumber || fac.invoiceNumber}
-              />
-
-              <div className="overflow-x-auto w-full">
-              <TableFact
-              list={selectSorties}
-              total={totalPrix}
-              discountedTotal={finalDiscountedTotal}
-              payerTotal={finalPayerTotal}
-              payDiscount={payDiscount}
-              />
-              </div>
-
-              <Notes 
-              notes={fac.notes}
-              />
-
-            </div>
-
             {/* Modal Appliquer Remise */}
             <Modal open={isModalOpen} onClose={toggleModal}>
-              <Box 
+              <Box
                 sx={isMobile ? {
                   ...style,
                   borderRadius: '20px',
@@ -639,8 +631,8 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
                     } : {}}
                   />
                   <div className={`${isMobile ? 'mobile-action-buttons' : 'flex justify-end space-x-3 pt-4'}`}>
-                    <Button 
-                      variant="outlined" 
+                    <Button
+                      variant="outlined"
                       onClick={toggleModal}
                       className={isMobile ? 'mobile-button' : ''}
                       sx={isMobile ? {
@@ -685,7 +677,7 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
 
             {/* Modal Paiement */}
             <Modal open={isModalOpenPay} onClose={toggleModalPay}>
-              <Box 
+              <Box
                 sx={isMobile ? {
                   ...style,
                   borderRadius: '20px',
@@ -721,8 +713,8 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
                   } : {}}
                 />
                 <div className={`${isMobile ? 'mobile-action-buttons' : 'flex justify-end space-x-3'}`}>
-                  <Button 
-                    variant="outlined" 
+                  <Button
+                    variant="outlined"
                     onClick={toggleModalPay}
                     className={isMobile ? 'mobile-button' : ''}
                     sx={isMobile ? {
@@ -785,8 +777,8 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
                   animation: 'bounceIn 0.6s ease-out'
                 })
               }}
-              className={isMobile ? 'mobile-confirmation-section' : ''}
-            >
+                className={isMobile ? 'mobile-confirmation-section' : ''}
+              >
                 <div className="space-y-6">
                   {/* Header */}
                   <div className={`${isMobile ? 'mobile-modal-header' : 'border-b pb-4'}`}>
@@ -870,53 +862,53 @@ export default function Fact({clientName, invoiceNumber, invoiceDate, notes, num
                           </TableRow>
                         ))}
 
-                          {/* Summary Rows */}
-                          <TableRow className={isMobile ? 'mobile-total-row' : ''} sx={{ backgroundColor: '#f8fafc !important' }}>
-                            <TableCell rowSpan={3} />
-                            <TableCell
-                              colSpan={2}
-                              align="right"
-                              sx={{ color: '#64748b', fontWeight: 600 }}
-                            >
-                              Prix Total
-                            </TableCell>
-                            <TableCell
-                              align="right"
-                              sx={{ color: '#0f172a', fontWeight: 600 }}
-                            >
-                              {formatNumberWithSpaces(total)} F
-                            </TableCell>
-                          </TableRow>
-                          <TableRow className={isMobile ? 'mobile-total-row' : ''} sx={{ backgroundColor: '#f8fafc !important' }}>
-                            <TableCell
-                              colSpan={2}
-                              align="right"
-                              sx={{ color: '#64748b', fontWeight: 600 }}
-                            >
-                              Remise Appliquée
-                            </TableCell>
-                            <TableCell
-                              align="right"
-                              sx={{ color: '#dc2626', fontWeight: 600 }}
-                            >
-                              - {formatNumberWithSpaces(total - finalDiscountedTotal)} F
-                            </TableCell>
-                          </TableRow>
-                          <TableRow className={isMobile ? 'mobile-total-row' : ''} sx={{ backgroundColor: '#f8fafc !important' }}>
-                            <TableCell
-                              colSpan={2}
-                              align="right"
-                              sx={{ color: '#64748b', fontWeight: 600 }}
-                            >
-                              Montant Final
-                            </TableCell>
-                            <TableCell
-                              align="right"
-                              sx={{ color: '#059669', fontWeight: 600, fontSize: '1.1em' }}
-                            >
-                              {formatNumberWithSpaces(finalDiscountedTotal)} F
-                            </TableCell>
-                          </TableRow>
+                        {/* Summary Rows */}
+                        <TableRow className={isMobile ? 'mobile-total-row' : ''} sx={{ backgroundColor: '#f8fafc !important' }}>
+                          <TableCell rowSpan={3} />
+                          <TableCell
+                            colSpan={2}
+                            align="right"
+                            sx={{ color: '#64748b', fontWeight: 600 }}
+                          >
+                            Prix Total
+                          </TableCell>
+                          <TableCell
+                            align="right"
+                            sx={{ color: '#0f172a', fontWeight: 600 }}
+                          >
+                            {formatNumberWithSpaces(total)} F
+                          </TableCell>
+                        </TableRow>
+                        <TableRow className={isMobile ? 'mobile-total-row' : ''} sx={{ backgroundColor: '#f8fafc !important' }}>
+                          <TableCell
+                            colSpan={2}
+                            align="right"
+                            sx={{ color: '#64748b', fontWeight: 600 }}
+                          >
+                            Remise Appliquée
+                          </TableCell>
+                          <TableCell
+                            align="right"
+                            sx={{ color: '#dc2626', fontWeight: 600 }}
+                          >
+                            - {formatNumberWithSpaces(total - finalDiscountedTotal)} F
+                          </TableCell>
+                        </TableRow>
+                        <TableRow className={isMobile ? 'mobile-total-row' : ''} sx={{ backgroundColor: '#f8fafc !important' }}>
+                          <TableCell
+                            colSpan={2}
+                            align="right"
+                            sx={{ color: '#64748b', fontWeight: 600 }}
+                          >
+                            Montant Final
+                          </TableCell>
+                          <TableCell
+                            align="right"
+                            sx={{ color: '#059669', fontWeight: 600, fontSize: '1.1em' }}
+                          >
+                            {formatNumberWithSpaces(finalDiscountedTotal)} F
+                          </TableCell>
+                        </TableRow>
                       </TableBody>
                     </Table>
                   </TableContainer>

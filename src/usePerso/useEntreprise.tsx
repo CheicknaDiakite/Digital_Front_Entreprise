@@ -47,7 +47,8 @@ export function AjoutEntreForm({
     return (
       <form onSubmit={onSubmit}>
         <Stack spacing={2} margin={2}>
-        <Autocomplete
+        {handleAutoFourChange && 
+          <Autocomplete
             id="free-solo-demo"
             freeSolo
             options={fournisseurs}
@@ -61,6 +62,7 @@ export function AjoutEntreForm({
                         />}
             
             />
+        }
           <Autocomplete
             id="categorie_slug"
             freeSolo

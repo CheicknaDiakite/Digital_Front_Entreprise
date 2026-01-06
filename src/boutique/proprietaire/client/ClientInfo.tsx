@@ -6,6 +6,7 @@ import DeleteIcon from '@mui/icons-material/DeleteOutline';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import EditIcon from '@mui/icons-material/Edit';
+import HistoryIcon from '@mui/icons-material/History';
 import { useParams } from 'react-router-dom';
 import { ClientModif } from './ModifClient/ClientModif';
 import { useDeleteClient, useUnClient } from '../../../usePerso/fonction.user';
@@ -14,14 +15,15 @@ import { a11yProps } from '../../../usePerso/fonctionPerso';
 import { CustomTabPanel } from '../../../usePerso/useEntreprise';
 import ClientEntrer from './Entrer/ClientEntrer';
 import ClientSortie from './Sortie/ClientSortie';
+import ClientHistorique from './ClientHistorique';
 
 export default function ClientInfo() {
   const { uuid } = useParams();
-  const {unClient} = useUnClient(uuid!);
-  
+  const { unClient } = useUnClient(uuid!);
+
   unClient["user_id"] = connect;
-  
-  const {deleteClient} = useDeleteClient();
+
+  const { deleteClient } = useDeleteClient();
   const [value, setValue] = React.useState(0);
   const [showConfirm, setShowConfirm] = React.useState(false);
 
@@ -39,11 +41,11 @@ export default function ClientInfo() {
   };
 
   return (
-    <div>      
+    <div>
 
       {showConfirm && (
-        <Alert 
-          severity="warning" 
+        <Alert
+          severity="warning"
           className="mt-4"
           sx={{
             position: 'fixed',
@@ -70,24 +72,24 @@ export default function ClientInfo() {
       )}
 
       {/* Main Content */}
-      <Paper 
-      elevation={0}
-      // className="rounded-lg overflow-hidden"
-      sx={ {
-        background: 'transparent',
-        bgcolor: 'transparent',
-        backdropFilter: 'none',
-        
-      } }
+      <Paper
+        elevation={0}
+        // className="rounded-lg overflow-hidden"
+        sx={{
+          background: 'transparent',
+          bgcolor: 'transparent',
+          backdropFilter: 'none',
+
+        }}
       >
-        
+
         {/* Tabs */}
-        <Box 
-        className={`border-b bg-gray-100 backdrop-blur-sm `}
+        <Box
+          className={`border-b bg-gray-100 backdrop-blur-sm `}
         >
-          <Tabs 
-            value={value} 
-            onChange={handleChange} 
+          <Tabs
+            value={value}
+            onChange={handleChange}
             variant="scrollable"
             scrollButtons="auto"
             allowScrollButtonsMobile
@@ -103,40 +105,50 @@ export default function ClientInfo() {
               },
             }}
           >
-            <Tab 
+            <Tab
               label={
                 <div className="flex items-center space-x-2">
                   <ShoppingCartIcon fontSize="small" />
                   <span>Ventes (Client)</span>
                 </div>
               }
-              {...a11yProps(0)} 
+              {...a11yProps(0)}
             />
 
-            <Tab 
+            <Tab
               label={
                 <div className="flex items-center space-x-2">
                   <LocalShippingIcon fontSize="small" />
                   <span>Achats (Fournisseur)</span>
                 </div>
               }
-              {...a11yProps(1)} 
+              {...a11yProps(1)}
             />
 
-            <Tab 
+            <Tab
               label={
                 <div className="flex items-center space-x-2">
                   <EditIcon fontSize="small" />
                   <span>Modification</span>
                 </div>
               }
-              {...a11yProps(2)} 
+              {...a11yProps(2)}
             />
-            
-            <Tab 
+
+            <Tab
               label={
                 <div className="flex items-center space-x-2">
-                  <IconButton 
+                  <HistoryIcon fontSize="small" />
+                  <span>Historique</span>
+                </div>
+              }
+              {...a11yProps(3)}
+            />
+
+            <Tab
+              label={
+                <div className="flex items-center space-x-2">
+                  <IconButton
                     onClick={handleDelete}
                     className="text-red-600 hover:text-red-700 hover:bg-red-50"
                     size="small"
@@ -145,29 +157,33 @@ export default function ClientInfo() {
                   </IconButton>
                 </div>
               }
-              
+
             />
           </Tabs>
         </Box>
 
         <Box >
           {/* Tab Panels */}
-          
-            <CustomTabPanel value={value} index={0}>
-              <ClientSortie uuid={uuid!} />
-            </CustomTabPanel>
-            
-            <CustomTabPanel value={value} index={1}>
-              <ClientEntrer uuid={uuid!} />
-            </CustomTabPanel>
 
-            <CustomTabPanel value={value} index={2}>
-              <ClientModif uuid={uuid!} />
-            </CustomTabPanel>
-          
+          <CustomTabPanel value={value} index={0}>
+            <ClientSortie uuid={uuid!} />
+          </CustomTabPanel>
+
+          <CustomTabPanel value={value} index={1}>
+            <ClientEntrer uuid={uuid!} />
+          </CustomTabPanel>
+
+          <CustomTabPanel value={value} index={2}>
+            <ClientModif uuid={uuid!} />
+          </CustomTabPanel>
+
+          <CustomTabPanel value={value} index={3}>
+            <ClientHistorique uuid={uuid!} />
+          </CustomTabPanel>
+
         </Box>
       </Paper>
-     
+
     </div>
   );
 }

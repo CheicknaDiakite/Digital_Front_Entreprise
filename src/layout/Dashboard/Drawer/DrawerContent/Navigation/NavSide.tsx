@@ -31,6 +31,7 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import AddBusinessIcon from '@mui/icons-material/AddBusiness';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import CloseIcon from "@mui/icons-material/Close";
+import HistoryIcon from '@mui/icons-material/History';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import { Link } from "react-router-dom";
 import { connect } from "../../../../../_services/account.service";
@@ -146,7 +147,6 @@ const NavSide: React.FC = () => {
   const { getRestruction } = useRestructionUsers();
   const { unUser } = useFetchUser();
   const uuid = useStoreUuid((state) => state.selectedId);
-  const { unEntreprise } = useFetchEntreprise(uuid);
   const { userEntreprises } = useGetUserEntreprises();
   const addId = useStoreUuid(state => state.addId);
   const { createAvis } = useAddAvis();
@@ -336,7 +336,7 @@ const NavSide: React.FC = () => {
           <>
           {/*  */}
           <NavItem
-            icon={<HistoryEduIcon color="primary" />}
+            icon={<HistoryIcon color="primary" />}
             label="Historique"
             onClick={() => handleSectionExpand(3)}
             bgColor="text-white bg-gray-900"

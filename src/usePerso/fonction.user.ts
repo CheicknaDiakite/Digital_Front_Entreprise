@@ -747,6 +747,32 @@ export function useHistorySuppEntreprise(slug: string) {
   return { suppH, setSuppH, isLoading, isError };
 }
 
+export function useHistoryClientEntreprise(slug: string) {
+  const [clientH, setClientH] = useState<HistoriqueType[]>([]);
+
+  const { data: us, isLoading, isError } = useQuery({
+    queryKey: ["HistoryClient", slug],
+
+    queryFn: () =>
+      entrepriseService.historyClientEntreprise(slug).then((res) => {
+        if (res.data.etat === true) {
+          return res.data.donnee;
+        } else {
+          // throw new Error("Les identifiants sont incorrects");
+          toast.error(res.data.message);
+        }
+      }),
+  });
+
+  useEffect(() => {
+    if (us) {
+      setClientH(us);
+    }
+  }, [us]);
+
+  return { clientH, setClientH, isLoading, isError };
+}
+
 export function useStockEntreprise(entreprise_id: string) {
 
   const [stockEntreprise, setStockEntreprise] = useState<StockType>({
@@ -811,7 +837,7 @@ export function useSortieUserEntreprise(entreprise_id: string) {
   return { sortiesUser, setSortiesUser, isLoading, isError };
 }
 
-export function useStockSemaine(entreprise_id: string) {
+export function useStockSemaine(entreprise_id: string, annee?: number) {
 
   const [stockSemaine, setStockSemaine] = useState<StockType>({
     somme_entrer_pu: 0,
@@ -823,9 +849,9 @@ export function useStockSemaine(entreprise_id: string) {
   });
 
   const { data: us, isLoading, isError } = useQuery({
-    queryKey: ["StockSemaine", entreprise_id],
+    queryKey: ["StockSemaine", entreprise_id, annee],
     queryFn: () =>
-      entrepriseService.stockCateSemaine(entreprise_id).then((res) => {
+      entrepriseService.stockCateSemaine(entreprise_id, annee).then((res) => {
 
         if (res.data.etat === true) {
           return res.data.donnee;
