@@ -296,7 +296,6 @@ export default function Entreprise() {
   if (isError) {
     return <ErrorState />
   }
-  console.log("userEntreprises", userEntreprises,)
   if (userEntreprises) {
   return (
     <div 

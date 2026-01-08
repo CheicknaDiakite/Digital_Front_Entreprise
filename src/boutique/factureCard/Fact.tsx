@@ -84,7 +84,7 @@ function ChildModal() {
   );
 }
 
-export default function Fact({ clientName, invoiceNumber, invoiceDate, notes, numeroFac, post, discountedTotal, payerTotal }: RecupType | any) {
+export default function Fact({ clientName, invoiceNumber, invoiceDate, numeroFac, post, discountedTotal, payerTotal }: RecupType | any) {
   // let url = BASE(post.image);
 
   const url = post.image ? BASE(post.image) : post.image;
@@ -107,7 +107,7 @@ export default function Fact({ clientName, invoiceNumber, invoiceDate, notes, nu
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpenPay, setIsModalOpenPay] = useState(false);
   const [fixedDiscount, setFixedDiscount] = useState<number | string>(""); // Remise fixe
-  const [payDiscount, setPayDiscount] = useState<number | string>(""); // Remise fixe
+  const [payDiscount, setPayDiscount] = useState<number | string>(0); // Remise fixe
   const [percentageDiscount, setPercentageDiscount] = useState<number | string>(""); // Remise en %
   const [localDiscountedTotal, setLocalDiscountedTotal] = useState(total); // Total avec remise
   const [localPayerTotal, setLocalPayerTotal] = useState(total); // Total avec remise

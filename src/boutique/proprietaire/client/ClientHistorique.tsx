@@ -65,12 +65,16 @@ export default function ClientHistorique(props: UuType) {
 
   // Calculate total sum
   const totalSum = clientHistoryFiltered?.reduce((acc: number, item: any) => {
-    const qte = Number(item.qte) || 0;
+    const ancien = Number(item.ancien_qte) || 0;
+    const qteRaw = Number(item.qte) || 0;
+
+    const delta = item.cumuler_qe ? qteRaw : qteRaw - ancien;
+    const deltaText = `${delta > 0 ? '+' : ''}${delta}`;
+
+    const qte = Number(deltaText) || 0;
     const pu = Number(item.pu_achat) || 0;
     return acc + (qte * pu);
   }, 0) || 0;
-
-  console.log('Filtered Client History:', clientHistoryFiltered);
 
   if (isLoading) return <div>Chargement...</div>;
   if (isError) return <div>Erreur lors du chargement de l'historique</div>;
@@ -129,10 +133,10 @@ export default function ClientHistorique(props: UuType) {
         </Paper>
       ) : (
         <TableContainer
-         component={Paper} 
-         elevation={0} 
+          component={Paper}
+          elevation={0}
         //  sx={{ background: 'transparent' }}
-         >
+        >
           <Table>
             <TableHead>
               <TableRow sx={{ backgroundColor: '#f8fafc' }}>
@@ -150,20 +154,19 @@ export default function ClientHistorique(props: UuType) {
                 const ancien = Number(row.ancien_qte) || 0;
                 const qteRaw = Number(row.qte) || 0;
 
-                const qteAffiche = row.cumuler_qe ? ancien + qteRaw : qteRaw;
                 const delta = row.cumuler_qe ? qteRaw : qteRaw - ancien;
                 const deltaText = `${delta > 0 ? '+' : ''}${delta}`;
-                console.log('Row Data:', qteAffiche, deltaText, delta, row);
                 return <TableRow key={index} hover>
                   <TableCell>{row.date ? new Date(row.date).toLocaleDateString() : '-'}</TableCell>
                   <TableCell>{row.action || row.type}</TableCell>
                   <TableCell>{row.libelle}</TableCell>
                   <TableCell>{row.categorie}</TableCell>
-                  <TableCell align="right" className="font-bold">{row.qte}</TableCell>
+                  <TableCell align="right" className="font-bold">{deltaText}</TableCell>
                   <TableCell align="right">{row.pu_achat ? formatNumberWithSpaces(Number(row.pu_achat)) : '-'}</TableCell>
                   <TableCell align="right" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-                    {formatNumberWithSpaces(Number(row.qte || 0) * Number(row.pu_achat || 0))}
+                    {formatNumberWithSpaces(Number(deltaText || 0) * Number(row.pu_achat || 0))}
                   </TableCell>
+
                 </TableRow>
               })}
             </TableBody>

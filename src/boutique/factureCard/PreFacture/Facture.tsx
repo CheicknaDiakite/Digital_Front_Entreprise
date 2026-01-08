@@ -7,8 +7,6 @@ import toast from 'react-hot-toast'
 import { uniqueId } from 'lodash'
 import { useFetchEntreprise } from '../../../usePerso/fonction.user'
 import { generateOrderNumber } from '../../../usePerso/fonctionPerso'
-import Nav from '../../../_components/Button/Nav'
-import { BASE } from '../../../_services/caller.service'
 import { Box, Button, Grid, Skeleton, Typography, Paper, TextField, Tooltip, Fade } from '@mui/material'
 import TableList from '../component/Table'
 import MyTextField from '../../../_components/Input/MyTextField'
@@ -50,8 +48,7 @@ export default function Facture() {
 
   const {unEntreprise, isLoading, isError} = useFetchEntreprise(uuid)
   // const {userEntreprises, isLoading, isError} = useGetUserEntreprises(String(connect))
-  let url = BASE(unEntreprise.image as string | File);
-
+  
   const [amount, setAmount] = useState<number>(0);
   const [list, setList] = useState<Array<ItemType>>([]);
   const [total] = useState<number>(0);
@@ -290,7 +287,6 @@ export default function Facture() {
                 <Header 
                   nom={unEntreprise.nom}
                   numeroFac={orderNumber}
-                  url={url}
                   email={unEntreprise.email}
                   address={unEntreprise.adresse}
                   numero={unEntreprise.numero}

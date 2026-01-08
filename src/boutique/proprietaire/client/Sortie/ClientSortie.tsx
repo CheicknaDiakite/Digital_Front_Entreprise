@@ -269,7 +269,7 @@ export default function ClientSortie(uuid: UuType) {
     const onSubmit = (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
   
-      formValues["user_id"] = connect
+      formValues["user_id"] = connect!
       formValues["client_id"] = uuid.uuid
       ajoutSortie(formValues)
       

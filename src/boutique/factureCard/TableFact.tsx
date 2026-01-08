@@ -20,7 +20,7 @@ interface TableFactProps {
 const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, payerTotal, payDiscount }) => {
   const resteAPayer = (total - ((total - discountedTotal) + (Number(payDiscount))));
   // const restTota = (total - )
-
+ 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
       <div className="overflow-x-auto">
@@ -142,7 +142,7 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
                 formatNumberWithSpaces(discountedTotal) 
                 } F */}
                 {resteAPayer > 0 && formatNumberWithSpaces(resteAPayer)}
-                {resteAPayer === 0 && formatNumberWithSpaces(resteAPayer)}
+                {resteAPayer === 0 && formatNumberWithSpaces(payDiscount)}
                 {resteAPayer < 0 && formatNumberWithSpaces(discountedTotal)}
                 {" "}F
               </td>
