@@ -27,7 +27,7 @@ export default function ClientHistorique(props: UuType) {
   const { uuid } = props;
   const entreprise_uuid = useStoreUuid((state) => state.selectedId);
   const { clientH, isLoading, isError } = useHistoryClientEntreprise(entreprise_uuid!);
-
+  
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');

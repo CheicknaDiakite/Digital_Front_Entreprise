@@ -253,8 +253,8 @@ export default function TableSortie({
         )}
       </form>
 
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 700 }} aria-label="spanning table">
+      <TableContainer component={Paper} sx={{ maxHeight: 600 }}>
+        <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
               <TableCell>Image</TableCell>

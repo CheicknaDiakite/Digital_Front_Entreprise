@@ -35,7 +35,6 @@ import EtaVente from '../../boutique/categorie/eta/EtaVente'
 import Avis from '../../boutique/proprietaire/users/Avis'
 import EtaProduits from '../../boutique/categorie/eta/EtaProduits'
 import VenteUsers from '../../boutique/categorie/eta/VenteUsers'
-import RemiseFacture from '../../boutique/sortie/RemiseFacture'
 import MesInscrit from '../../boutique/proprietaire/users/MesInscrit'
 import backgroundImage from '../../../public/assets/img/img.jpg'
 import { notClick } from '../../usePerso/fonctionPerso'
@@ -44,6 +43,7 @@ import { useStoreUuid } from '../../usePerso/store'
 import { useFetchEntreprise } from '../../usePerso/fonction.user'
 import { BASE } from '../../_services/caller.service'
 import FactureDetail from '../../boutique/sortie/FactureDetail'
+import Historique from '../../boutique/proprietaire/historique/Historique'
 
 
 export default function PublicRouter() {
@@ -80,7 +80,7 @@ export default function PublicRouter() {
             
             <Route element={<ProtectedRoute requiredRole={[1, 2]} redirectPath="/" />}>          
               <Route path='detail' element={<EntrepriseDetail />} />
-              <Route path='historique' element={<TableHistory />} />
+              <Route path='historique' element={<Historique />} />
               <Route path='inventaire/sortie' element={<SortieInventaire />} />
               <Route path='inventaire/entrer' element={<EntrerInventaire />} />
               <Route path='historique/sppression' element={<HistoriqueSupp />} />

@@ -55,15 +55,7 @@ export default function Header() {
 
   // common header
   const mainHeader = (
-    <Toolbar 
-      // style={{ 
-      //   background: `linear-gradient(rgba(128, 128, 128, 0.7), rgba(128, 128, 128, 0.7)), url(${backgroundImage}) center center`, 
-      //   backgroundSize: 'contain', // Peut être 'cover' ou 'contain' selon votre besoin
-      //   backgroundPosition: 'center',
-      //   backgroundRepeat: 'no-repeat',
-        
-      // }}
-      >
+    <Toolbar>
       {/* bouton gauche */}
       {isHome ? null : isEntreprise ? (
         <IconButton

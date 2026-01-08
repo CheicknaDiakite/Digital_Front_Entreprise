@@ -73,20 +73,11 @@ const HistoryTable = ({ data }: { data: HistoriqueType[] }) => {
   
   <TableContainer 
     component={Paper} 
-    elevation={0}
-    sx={{ 
-      borderRadius: 2,
-      overflow: 'hidden',
-      /* permettre le scroll horizontal au toucher sur mobile */
-      overflowX: 'auto',
-      WebkitOverflowScrolling: 'touch',
-      touchAction: 'pan-x',
-      overscrollBehaviorX: 'auto'
-    }}
+    sx={{ maxHeight: 600 }}
   >
     <Table 
-      sx={{ minWidth: 700, display: 'table' }} 
-      aria-label="tableau historique des suppressions"
+      
+      stickyHeader aria-label="sticky table"
     >
       <TableHead>
         <TableRow>

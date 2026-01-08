@@ -397,89 +397,97 @@ export default function Entre() {
                   <InventoryIcon className={`${isMobile ? 'mobile-stats-icon' : 'text-blue-500'}`} />
                 </Paper>
               </Grid>
+
+              {/* Table */}
+              <Grid item xs={12} md={12} lg={12}>
+                <Paper 
+                  elevation={0} 
+                  className={`${isMobile ? 'mobile-table-container' : 'overflow-hidden rounded-lg'}`}
+                  sx={isMobile ? {
+                    borderRadius: '16px',
+                    overflow: 'hidden',
+                    background: 'rgba(255, 255, 255, 0.95)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    marginTop: '16px'
+                  } : {}}
+                >
+                  <TableContainer sx={{ maxHeight: 600 }}>
+                    <Table stickyHeader aria-label="sticky table">
+                      <TableHead >
+                        <TableRow className={isMobile ? 'mobile-table-header' : ''} sx={isMobile ? { backgroundColor: 'rgba(59, 130, 246, 0.1)' } : { backgroundColor: '#f8fafc' }}>
+                          <TableCell >Image</TableCell>
+                          <TableCell >Référence</TableCell>
+                          <TableCell >Date</TableCell>
+                          <TableCell >Fournisseurs</TableCell>
+                          <TableCell >Désignations</TableCell>
+                          <TableCell align="right" >Quantité</TableCell>
+                          <TableCell align="right" >Prix Unitaire (vente)</TableCell>
+                          {unUser.role === 1 && (
+                            <>              
+                              <TableCell align="right" >Prix Unitaire (achat)</TableCell>
+                              <TableCell align="right" >Total</TableCell>
+                            </>
+                          )}
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {filteredBoutiques?.length > 0 ? (
+                          filteredBoutiques?.map((row, index) => (
+                            <CardInvent key={index} row={row} />
+                          ))
+                        ) : (
+                          <TableRow>
+                            <TableCell colSpan={9} align="center" className={`${isMobile ? 'mobile-empty-card py-8' : 'py-8'}`}>
+                              <Typography variant="body1" className="text-gray-500">
+                                Aucune entrée enregistrée
+                              </Typography>
+                            </TableCell>
+                          </TableRow>
+                        )}
+
+                        {unUser.role === 1 && filteredBoutiques?.length > 0 && (
+                          <>
+                            <TableRow className={isMobile ? 'mobile-total-row' : ''}>
+                              <TableCell colSpan={5} />
+                              <TableCell align="right" className="font-medium">Total Quantité:</TableCell>
+                              <TableCell align="right" className="font-medium">{totalQte}</TableCell>
+                              <TableCell />
+                              <TableCell align="right" className="font-medium">
+                                {formatNumberWithSpaces(totalPrice)} <LocalAtmIcon color="primary" fontSize="small" />
+                              </TableCell>
+                            </TableRow>
+                          </>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Paper>
+              </Grid>
+
+              <Grid item xs={12}>
+                {/* Pagination */}
+                <Box className={`flex justify-center mt-6 mobile-pagination`}>
+                  <Pagination
+                    count={totalPages}
+                    page={currentPage}
+                    onChange={handlePageChange}
+                    color="primary"
+                    size={isMobile ? "medium" : "large"}
+                    sx={isMobile ? {
+                      '& .MuiPaginationItem-root': {
+                        borderRadius: '8px',
+                        margin: '0 2px'
+                      }
+                    } : {}}
+                  />
+                </Box>
+              </Grid>
             </Grid>
 
-            {/* Table */}
-            <Paper 
-              elevation={0} 
-              className={`${isMobile ? 'mobile-table-container' : 'overflow-hidden rounded-lg'}`}
-              sx={isMobile ? {
-                borderRadius: '16px',
-                overflow: 'hidden',
-                background: 'rgba(255, 255, 255, 0.95)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                marginTop: '16px'
-              } : {}}
-            >
-              <TableContainer>
-                <Table sx={{ minWidth: isMobile ? 600 : 700 }}>
-                  <TableHead >
-                    <TableRow className={isMobile ? 'mobile-table-header' : ''} sx={isMobile ? { backgroundColor: 'rgba(59, 130, 246, 0.1)' } : { backgroundColor: '#f8fafc' }}>
-                      <TableCell >Image</TableCell>
-                      <TableCell >Référence</TableCell>
-                      <TableCell >Date</TableCell>
-                      <TableCell >Fournisseurs</TableCell>
-                      <TableCell >Désignations</TableCell>
-                      <TableCell align="right" >Quantité</TableCell>
-                      <TableCell align="right" >Prix Unitaire (vente)</TableCell>
-                      {unUser.role === 1 && (
-                        <>              
-                          <TableCell align="right" >Prix Unitaire (achat)</TableCell>
-                          <TableCell align="right" >Total</TableCell>
-                        </>
-                      )}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {filteredBoutiques?.length > 0 ? (
-                      filteredBoutiques?.map((row, index) => (
-                        <CardInvent key={index} row={row} />
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={9} align="center" className={`${isMobile ? 'mobile-empty-card py-8' : 'py-8'}`}>
-                          <Typography variant="body1" className="text-gray-500">
-                            Aucune entrée enregistrée
-                          </Typography>
-                        </TableCell>
-                      </TableRow>
-                    )}
+            
 
-                    {unUser.role === 1 && filteredBoutiques?.length > 0 && (
-                      <>
-                        <TableRow className={isMobile ? 'mobile-total-row' : ''}>
-                          <TableCell colSpan={5} />
-                          <TableCell align="right" className="font-medium">Total Quantité:</TableCell>
-                          <TableCell align="right" className="font-medium">{totalQte}</TableCell>
-                          <TableCell />
-                          <TableCell align="right" className="font-medium">
-                            {formatNumberWithSpaces(totalPrice)} <LocalAtmIcon color="primary" fontSize="small" />
-                          </TableCell>
-                        </TableRow>
-                      </>
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Paper>
-
-            {/* Pagination */}
-            <Box className={`${isMobile ? 'mobile-pagination' : 'flex justify-center mt-6'}`}>
-              <Pagination
-                count={totalPages}
-                page={currentPage}
-                onChange={handlePageChange}
-                color="primary"
-                size={isMobile ? "medium" : "large"}
-                sx={isMobile ? {
-                  '& .MuiPaginationItem-root': {
-                    borderRadius: '8px',
-                    margin: '0 2px'
-                  }
-                } : {}}
-              />
-            </Box>
+            
           </Box>
         </Paper>
 

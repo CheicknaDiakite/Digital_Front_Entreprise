@@ -8,7 +8,6 @@ import { Link } from 'react-router-dom';
 import { useStoreUuid } from '../../../../usePerso/store';
 import { useFetchEntreprise } from '../../../../usePerso/fonction.user';
 import { BASE } from '../../../../_services/caller.service';
-import { PowerIcon } from '@heroicons/react/20/solid';
 import { handlerDrawerOpen, useGetMenuMaster } from '../../../../api/menu';
 import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 

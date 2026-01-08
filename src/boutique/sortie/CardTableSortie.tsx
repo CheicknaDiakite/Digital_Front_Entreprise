@@ -6,14 +6,13 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import { Link } from 'react-router-dom';
 import { useFetchUser } from '../../usePerso/fonction.user';
-import { connect } from '../../_services/account.service';
 import { formatNumberWithSpaces } from '../../usePerso/fonctionPerso';
 import { BASE } from '../../_services/caller.service';
 import img from '../../../public/icon-192x192.png'
 export default function CardTableSortie({row}: any) {
   const url = row.image ? BASE(row.image) : img;
   const [checked, setChecked] = useState(false);
-  const {unUser} = useFetchUser(connect)
+  const {unUser} = useFetchUser()
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
   setChecked(event.target.checked);
   };

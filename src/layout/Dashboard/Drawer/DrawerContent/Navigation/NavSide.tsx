@@ -1,7 +1,6 @@
 import React, { ChangeEvent, FormEvent, useState } from "react";
 import {
   Card,
-  CardContent,
   Typography,
   List,
   ListItem,
@@ -35,10 +34,9 @@ import HistoryIcon from '@mui/icons-material/History';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import { Link } from "react-router-dom";
 import { connect } from "../../../../../_services/account.service";
-import { useAddAvis, useFetchEntreprise, useFetchUser, useGetUserEntreprises, useRestructionUsers } from "../../../../../usePerso/fonction.user";
+import { useAddAvis, useFetchUser, useGetUserEntreprises, useRestructionUsers } from "../../../../../usePerso/fonction.user";
 import { isAccessAllowed, logout } from "../../../../../usePerso/fonctionPerso";
 import { useStoreUuid } from "../../../../../usePerso/store";
-import { BASE } from "../../../../../_services/caller.service";
 import MyTextField from "../../../../../_components/Input/MyTextField";
 import { AvisType } from "../../../../../typescript/UserType";
 import Example from "../../../../../boutique/Ct";
@@ -350,6 +348,12 @@ const NavSide: React.FC = () => {
                 to="/entreprise/historique"
                 bgColor="text-white bg-gray-500"
               />
+              {/* <NavItem
+                icon={null}
+                label="Historique"
+                to="/entreprise/histori"
+                bgColor="text-white bg-gray-500"
+              /> */}
                         
               <NavItem
                 icon={null}

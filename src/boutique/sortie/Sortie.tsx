@@ -502,7 +502,7 @@ export default function Sortie() {
                 </div>
 
                 {/* Pagination */}
-                <div className={`${isMobile ? 'mobile-pagination' : 'flex justify-center mt-6'}`}>
+                <div className={`flex justify-center mt-6 mobile-pagination`}>
                   <Pagination
                     count={totalPages}
                     page={currentPage}
