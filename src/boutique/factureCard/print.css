@@ -82,5 +82,49 @@
       font-weight: 600;
       color: #374151;
     }
+
+    /* Classes de format dynamiques */
+    .print-container.format-a4 {
+      width: 210mm;
+      min-height: 297mm;
+    }
+
+    .print-container.format-a5 {
+      width: 148mm;
+      min-height: 210mm;
+    }
+
+    .print-container.format-thermal {
+      width: 80mm;
+      padding: 2mm !important;
+      font-size: 10px !important;
+    }
+
+    /* Ajustements pour format thermique */
+    .format-thermal .MuiTypography-root {
+      font-size: 0.8rem !important;
+    }
+
+    .format-thermal .MuiTypography-h4 {
+      font-size: 1rem !important;
+    }
+
+    .format-thermal .MuiTypography-h5 {
+      font-size: 0.9rem !important;
+    }
+
+    .format-thermal .p-4 {
+      padding: 4px !important;
+    }
+
+    .format-thermal .mb-8 {
+      margin-bottom: 1rem !important;
+    }
+
+    .format-thermal img {
+      height: 40px !important;
+      width: 40px !important;
+    }
   }
+
   

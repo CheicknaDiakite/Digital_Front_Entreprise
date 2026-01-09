@@ -208,6 +208,7 @@ export default function Fact({ clientName, invoiceNumber, invoiceDate, numeroFac
   const [quantity] = useState<number>(0);
   const [price] = useState<number>(0);
   const [amount, setAmount] = useState<number>(0);
+  const [printFormat, setPrintFormat] = useState<'A4' | 'A5' | 'Thermal'>('A4');
 
   // const componentRef = useRef();
   const componentRef = useRef<HTMLDivElement>(null);
@@ -244,12 +245,18 @@ export default function Fact({ clientName, invoiceNumber, invoiceDate, numeroFac
       if (!element) throw new Error('Aperçu facture introuvable');
 
       // Options html2pdf
+      const formatOptions = {
+        'A4': { unit: 'in', format: 'a4', orientation: 'portrait' },
+        'A5': { unit: 'in', format: 'a5', orientation: 'portrait' },
+        'Thermal': { unit: 'mm', format: [80, 297], orientation: 'portrait' }
+      };
+
       const opt = {
-        margin: 0.2,
+        margin: printFormat === 'Thermal' ? 0.1 : 0.2,
         filename: `facture-${form.ref || Date.now()}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+        jsPDF: formatOptions[printFormat],
       };
 
       // Attendre que l'image soit chargée si elle existe
@@ -321,58 +328,85 @@ export default function Fact({ clientName, invoiceNumber, invoiceDate, numeroFac
       <div className="max-w-full sm:max-w-[1200px] mx-auto px-2 sm:px-4">
         <Paper elevation={0} className="bg-white rounded-lg overflow-hidden">
           <div className="p-2 sm:p-6">
-            {/* Actions Bar */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-4 mb-4 sm:mb-6">
+            {/* Redesigned Actions Bar */}
+            <div className="flex flex-col space-y-4 mb-8">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100 shadow-sm transition-all duration-300 hover:shadow-md">
 
-              <button
-                onClick={() => reset()}
-                className="inline-flex items-center justify-center px-3 py-2 border border-red-500 text-red-500 rounded-md hover:bg-red-50 transition-colors duration-200 text-sm sm:text-base"
-              >
-                <RemoveIcon className="w-5 h-5 mr-2" />
-                <span>Annuler</span>
-              </button>
-
-              <button
-                onClick={toggleModal}
-                className="inline-flex items-center justify-center px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors duration-200 text-sm sm:text-base"
-              >
-                <LocalAtmIcon className="w-5 h-5 mr-2" />
-                <span>Appliquer Remise</span>
-              </button>
-
-              <button
-                onClick={toggleModalPay}
-                className="inline-flex items-center justify-center px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200 text-sm sm:text-base"
-              >
-                <span>Paiement</span>
-              </button>
-
-              <button
-                onClick={handleOpenRemise}
-                className="inline-flex items-center justify-center px-3 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors duration-200 text-sm sm:text-base"
-              >
-                <span>Remise Facture</span>
-              </button>
-
-              <ReactToPrint
-                trigger={() => (
-                  <button className="inline-flex items-center justify-center px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200 text-sm sm:text-base">
-                    <PrintIcon className="w-5 h-5 mr-2" />
-                    <span>Imprimer / Télécharger</span>
+                {/* Cancel Group */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => reset()}
+                    className="group inline-flex items-center justify-center px-4 py-2 text-red-500 bg-white border border-red-100 rounded-xl hover:bg-red-50 hover:border-red-200 transition-all duration-300 shadow-sm"
+                  >
+                    <RemoveIcon className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300" />
+                    <span className="font-semibold text-sm">Annuler</span>
                   </button>
-                )}
-                content={() => componentRef.current}
-              />
-              {/* Nouveau bouton pour ouvrir le modal */}
-              <button
-                onClick={() => setOpenModal(true)}
-                className="inline-flex items-center justify-center px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200 text-sm sm:text-base"
-              >
-                <AddIcon className="w-5 h-5 mr-2" />
-                <span>Ajouter Facture de Sortie</span>
-              </button>
+                </div>
 
+                {/* Financial Actions Group */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={handleOpenRemise}
+                    className="inline-flex items-center justify-center px-4 py-2 bg-white text-purple-600 border border-purple-100 rounded-xl hover:bg-purple-50 transition-all duration-300 shadow-sm"
+                  >
+                    <span className="font-semibold text-sm">Remise Facture</span>
+                  </button>
 
+                  <button
+                    onClick={toggleModal}
+                    className="inline-flex items-center justify-center px-4 py-2 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-xl hover:bg-indigo-100 transition-all duration-300 shadow-sm"
+                  >
+                    <LocalAtmIcon className="w-5 h-5 mr-2" />
+                    <span className="font-semibold text-sm">Remise Art.</span>
+                  </button>
+
+                  <button
+                    onClick={toggleModalPay}
+                    className="inline-flex items-center justify-center px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl hover:from-emerald-600 hover:to-green-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                  >
+                    <LocalAtmIcon className="w-5 h-5 mr-2" />
+                    <span className="font-bold text-sm">Paiement</span>
+                  </button>
+                </div>
+
+                {/* Print & Export Group */}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-white p-1 rounded-2xl border border-gray-100 shadow-inner">
+                  <div className="flex items-center gap-2">
+                    <ReactToPrint
+                      trigger={() => (
+                        <button className="inline-flex items-center justify-center px-4 py-2 bg-white text-blue-600 border border-blue-100 rounded-xl hover:bg-blue-50 transition-all duration-300 shadow-sm">
+                          <PrintIcon className="w-5 h-5 mr-2" />
+                          <span className="font-semibold text-sm">Imprimer</span>
+                        </button>
+                      )}
+                      content={() => componentRef.current}
+                    />
+
+                    <button
+                      onClick={() => setOpenModal(true)}
+                      className="inline-flex items-center justify-center px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl hover:from-blue-700 hover:to-indigo-800 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                    >
+                      <AddIcon className="w-5 h-5 mr-2" />
+                      <span className="font-bold text-sm">Valider & PDF</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              {/* Format Selector inside Print Group */}
+              <div className="flex items-center bg-gray-50 rounded-xl p-1 gap-1">
+                {(['A4', 'A5', 'Thermal'] as const).map((format) => (
+                  <button
+                    key={format}
+                    onClick={() => setPrintFormat(format)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-300 ${printFormat === format
+                      ? 'bg-white text-blue-600 shadow-sm scale-105'
+                      : 'text-gray-400 hover:text-gray-600'
+                      }`}
+                  >
+                    {format === 'Thermal' ? 'Ticket' : format}
+                  </button>
+                ))}
+              </div>
             </div>
             <Grid
               container
@@ -488,7 +522,7 @@ export default function Fact({ clientName, invoiceNumber, invoiceDate, numeroFac
             {/* Invoice Content */}
             <div
               ref={componentRef}
-              className="bg-white p-2 sm:p-8 rounded-lg shadow-sm border border-gray-100 print-container"
+              className={`bg-white p-2 sm:p-8 rounded-lg shadow-sm border border-gray-100 print-container format-${printFormat.toLowerCase()}`}
             >
               <Header
                 // orderNumber={orderNumber}
@@ -502,6 +536,7 @@ export default function Fact({ clientName, invoiceNumber, invoiceDate, numeroFac
                 clientName={clientName || fac.clientName}
                 invoiceDate={invoiceDate}
                 invoiceNumber={invoiceNumber || fac.invoiceNumber}
+                printFormat={printFormat}
               />
 
               <div className="overflow-x-auto w-full">
@@ -511,6 +546,7 @@ export default function Fact({ clientName, invoiceNumber, invoiceDate, numeroFac
                   discountedTotal={finalDiscountedTotal}
                   payerTotal={finalPayerTotal}
                   payDiscount={payDiscount}
+                  printFormat={printFormat}
                 />
               </div>
 

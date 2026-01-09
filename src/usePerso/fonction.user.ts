@@ -806,19 +806,20 @@ export function useStockEntreprise(entreprise_id: string) {
   return { stockEntreprise, setStockEntreprise, isLoading, isError };
 }
 
-export function useSortieUserEntreprise(entreprise_id: string) {
+export function useSortieUserEntreprise(entreprise_id: string, user_uuid?: string, start_date?: string, end_date?: string) {
 
   const [sortiesUser, setSortiesUser] = useState<SortieUserType>({
     user_id: '',
     total_nombre_vente: [],
     total_par_utilisateur: [],
-    mensuel_par_utilisateur: []
+    mensuel_par_utilisateur: [],
+    derniere_ventes: []
   });
 
   const { data: us, isLoading, isError } = useQuery({
-    queryKey: ["SortiesUser", entreprise_id],
+    queryKey: ["SortiesUser", entreprise_id, user_uuid, start_date, end_date],
     queryFn: () =>
-      entrepriseService.sortieUserEntreprise(entreprise_id).then((res) => {
+      entrepriseService.sortieUserEntreprise(entreprise_id, user_uuid, start_date, end_date).then((res) => {
         if (res.data.etat === true) {
           return res.data.donnee;
         } else {
@@ -836,6 +837,7 @@ export function useSortieUserEntreprise(entreprise_id: string) {
 
   return { sortiesUser, setSortiesUser, isLoading, isError };
 }
+
 
 export function useStockSemaine(entreprise_id: string, annee?: number) {
 

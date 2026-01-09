@@ -15,29 +15,31 @@ interface TableFactProps {
   discountedTotal: number;
   payerTotal: number;
   payDiscount?: number | string;
+  printFormat?: string;
 }
 
-const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, payerTotal, payDiscount }) => {
+const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, payerTotal, payDiscount, printFormat = 'A4' }) => {
+  const isThermal = printFormat === 'Thermal';
   const resteAPayer = (total - ((total - discountedTotal) + (Number(payDiscount))));
   // const restTota = (total - )
- 
+
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
       <div className="overflow-x-auto">
         <table className="w-full print-table">
           {/* Table Header */}
           <thead className="print-table-header">
-            <tr className="bg-gray-600 border-b-2 border-gray-900">
-              <th className="text-left p-4 font-semibold text-gray-50 border-r border-gray-100">
+            <tr className={`${isThermal ? 'bg-gray-100' : 'bg-gray-600'} border-b-2 border-gray-900`}>
+              <th className={`text-left ${isThermal ? 'p-1 text-gray-900' : 'p-4 text-gray-50'} font-semibold border-r border-gray-100`}>
                 Désignation
               </th>
-              <th className="text-right p-4 font-semibold text-gray-50 border-r border-gray-100">
-                Quantité
+              <th className={`text-right ${isThermal ? 'p-1 text-gray-900' : 'p-4 text-gray-50'} font-semibold border-r border-gray-100`}>
+                Qté
               </th>
-              <th className="text-right p-4 font-semibold text-gray-50 border-r border-gray-100">
-                Prix unitaire
+              <th className={`text-right ${isThermal ? 'p-1 text-gray-900' : 'p-4 text-gray-50'} font-semibold border-r border-gray-100`}>
+                P.U
               </th>
-              <th className="text-right p-4 font-semibold text-gray-50">
+              <th className={`text-right ${isThermal ? 'p-1 text-gray-900' : 'p-4 text-gray-50'} font-semibold`}>
                 Total
               </th>
             </tr>
@@ -50,24 +52,24 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
                 key={index}
                 className="hover:bg-gray-50 transition-colors duration-200 border-b border-gray-900"
               >
-                <td className="p-4 border-r border-gray-200">
+                <td className={`${isThermal ? 'p-1' : 'p-4'} border-r border-gray-200`}>
                   <div>
-                    <Typography variant="body2" className="font-medium text-gray-900">
-                        {post.categorie_libelle}
+                    <Typography variant={isThermal ? "caption" : "body2"} className="font-medium text-gray-900 leading-tight">
+                      {post.categorie_libelle}
                     </Typography>
                     {/* <Typography variant="body2" className="text-gray-400">
                         {post.ref}
                     </Typography>                       */}
                   </div>
                 </td>
-                <td className="text-right p-4 border-r border-gray-200">
+                <td className={`text-right ${isThermal ? 'p-1' : 'p-4'} border-r border-gray-200`}>
                   {post.qte}
                 </td>
-                <td className="text-right p-4 border-r border-gray-200">
-                  {formatNumberWithSpaces(post.pu)} F
+                <td className={`text-right ${isThermal ? 'p-1' : 'p-4'} border-r border-gray-200`}>
+                  {formatNumberWithSpaces(post.pu)}
                 </td>
-                <td className="text-right p-4 font-medium">
-                  {formatNumberWithSpaces(post.prix_total)} F
+                <td className={`text-right ${isThermal ? 'p-1' : 'p-4'} font-medium`}>
+                  {formatNumberWithSpaces(post.prix_total)}
                 </td>
               </tr>
             ))}
@@ -77,24 +79,24 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
               <td rowSpan={4} className="border-r border-gray-200"></td>
               <td
                 colSpan={2}
-                className="text-right p-4 text-gray-600 font-semibold border-r border-gray-200"
+                className={`text-right ${isThermal ? 'p-1' : 'p-4'} text-gray-600 font-semibold border-r border-gray-200`}
               >
                 Sous-total
               </td>
-              <td className="text-right p-4 font-semibold text-gray-900">
-                {formatNumberWithSpaces(total)} F
+              <td className={`text-right ${isThermal ? 'p-1' : 'p-4'} font-semibold text-gray-900`}>
+                {formatNumberWithSpaces(total)}
               </td>
             </tr>
 
             <tr className="border-b border-gray-900">
               <td
                 colSpan={2}
-                className="text-right p-4 text-gray-600 font-semibold border-r border-gray-200"
+                className={`text-right ${isThermal ? 'p-1' : 'p-4'} text-gray-600 font-semibold border-r border-gray-200`}
               >
                 Remise
               </td>
-              <td className="text-right p-4 font-semibold text-red-600">
-                - {formatNumberWithSpaces(total - discountedTotal)} F
+              <td className={`text-right ${isThermal ? 'p-1' : 'p-4'} font-semibold text-red-600`}>
+                - {formatNumberWithSpaces(total - discountedTotal)}
               </td>
             </tr>
 
@@ -102,13 +104,13 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
               <tr className="border-b border-gray-900">
                 <td
                   colSpan={2}
-                  className="text-right p-4 text-gray-600 font-semibold border-r border-gray-200"
+                  className={`text-right ${isThermal ? 'p-1' : 'p-4'} text-gray-600 font-semibold border-r border-gray-200`}
                 >
                   Montant Payé
                 </td>
-                <td className="text-right p-4 font-semibold text-green-600">
+                <td className={`text-right ${isThermal ? 'p-1' : 'p-4'} font-semibold text-green-600`}>
                   {/* {formatNumberWithSpaces(total - payerTotal)} F */}
-                  {formatNumberWithSpaces(payDiscount)} F
+                  {formatNumberWithSpaces(payDiscount)}
                 </td>
               </tr>
             )}
@@ -117,7 +119,7 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
 
               <td
                 colSpan={2}
-                className="text-right p-4 text-gray-900 font-semibold border-r border-gray-200"
+                className={`text-right ${isThermal ? 'p-1' : 'p-4'} text-gray-900 font-bold border-r border-gray-200`}
               >
                 {/* {(total - payerTotal) > 0 ? "Reste à Payer" : "Total à Payer"} */}
                 {/* {(resteAPayer >= 0) ? 
@@ -135,7 +137,7 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
                 {resteAPayer < 0 && "Total"}
               </td>
 
-              <td className="text-right p-4 font-bold text-lg text-gray-900">
+              <td className={`text-right ${isThermal ? 'p-1 text-base' : 'p-4 text-lg'} font-bold text-gray-900`}>
                 {/* {formatNumberWithSpaces(resteAPayer)} F */}
                 {/* {resteAPayer > 0 ? 
                 formatNumberWithSpaces(resteAPayer) :

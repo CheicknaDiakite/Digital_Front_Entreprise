@@ -327,7 +327,7 @@ export default function Sortie() {
                 bgcolor: 'rgba(255,255,255,0.06)', 
               } }
             >
-              <div className={`${isMobile ? 'mobile-p-4' : 'p-6'} space-y-6`}>
+              <div className={`${isMobile ? 'mobile-p-3' : 'p-3'} space-y-6`}>
                 {/* Header Section */}
                 <div className={`${isMobile ? 'flex flex-col space-y-4' : 'flex justify-between items-center'} border-b pb-6`}>
                   <Typography 
@@ -394,7 +394,7 @@ export default function Sortie() {
                     spacing={isMobile ? 2 : 3} 
                     // className={isMobile ? 'mobile-grid' : ''}
                   >
-                    <Grid item xs={12} md={6}>
+                    <Grid item xs={6} md={3}>
                       <TextField
                         label="Date de début"
                         type="date"
@@ -416,7 +416,7 @@ export default function Sortie() {
                         } : {}}
                       />
                     </Grid>
-                    <Grid item xs={12} md={6}>
+                    <Grid item xs={6} md={3}>
                       <TextField
                         label="Date de fin"
                         type="date"
@@ -446,7 +446,7 @@ export default function Sortie() {
                 {unUser.role === 1 && (
                   <Paper 
                     elevation={1} 
-                    className={`${isMobile ? 'mobile-stats-card' : 'p-4 bg-blue-50'}`}
+                    className={`${isMobile ? 'mobile-stats-card' : 'p-4 mobile-stats-card'}`}
                     sx={isMobile ? {
                       borderRadius: '16px',
                       backdropFilter: 'blur(10px)',
@@ -478,7 +478,7 @@ export default function Sortie() {
                 )}
 
                 {/* Table Section */}
-                <div className={`${isMobile ? 'mobile-m-4' : 'mt-6'}`}>
+                <div className={`${isMobile ? '' : ''}`}>
                   <TableSortie 
                   onSubmit={onSubmit}
                   onChange={onChange}

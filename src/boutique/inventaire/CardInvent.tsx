@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogTitle, IconButton, Stack, TableCell, TableRow } from '@mui/material'
+import { Avatar, Dialog, DialogContent, DialogTitle, IconButton, Stack, TableCell, TableRow } from '@mui/material'
 import { Link } from 'react-router-dom';
 import { formatNumberWithSpaces, getBgClass, priceRow } from '../../usePerso/fonctionPerso';
 import { RecupType } from '../../typescript/DataType';
@@ -63,7 +63,12 @@ export default function CardInvent({ row }: EntreProps) {
       <>
         <TableRow className={getBgClass(row.qte, row?.qte_critique)}>
           <TableCell align="right">
-            <img src={url} alt="img" className="h-16 w-16" />
+            {/* <img src={url} alt="img" className="h-16 w-16" /> */}
+            <Avatar
+              alt="Remy Sharp"
+              src={url}
+              sx={{ width: 56, height: 56 }}
+            />
           </TableCell>
           <TableCell>{row.ref}</TableCell>
           <TableCell>{format(new Date(validDate), 'dd/MM/yyyy')}</TableCell>

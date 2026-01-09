@@ -168,22 +168,38 @@ export type StockType = {
 export type SortieUserType = {
     user_id?: string;
     total_nombre_vente: Array<{
-        created_by__id: number | null;
-        created_by__username: string | null;
+        user_id: number | null;
+        user_uuid: string | null;
+        username: string | null;
         total: number;
     }>;
     total_par_utilisateur: Array<{
+        user_id: number | null;
+        user_uuid: string | null;
         username: string | null;
         total_qte: number;
+        total_montant: number;
     }>;
     mensuel_par_utilisateur: Array<{
         month: string;
         details: Array<{
+            user_id: number | null;
+            user_uuid: string | null;
             username: string | null;
             total_qte: number;
+            total_montant: number;
         }>;
     }>;
+    derniere_ventes?: Array<{
+        uuid: string;
+        produit: string;
+        qte: number;
+        pu: number;
+        total: number;
+        date: string;
+    }>;
 }
+
 
 
 export type RecupType = {

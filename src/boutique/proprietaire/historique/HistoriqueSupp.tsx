@@ -15,7 +15,8 @@ import {
   Tooltip,
   Dialog,
   DialogTitle,
-  DialogContent
+  DialogContent,
+  Pagination
 } from '@mui/material';
 import { format } from 'date-fns';
 import { useHistorySuppEntreprise } from '../../../usePerso/fonction.user';
@@ -69,6 +70,14 @@ const EmptyState = () => (
 
 const HistoryTable = ({ data }: { data: HistoriqueType[] }) => {
   const [descDialog, setDescDialog] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 50;
+
+  const totalPages = Math.ceil((data?.length ?? 0) / rowsPerPage);
+  const paginatedHistorique = data?.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
   return <>
   
   <TableContainer 
@@ -120,7 +129,7 @@ const HistoryTable = ({ data }: { data: HistoriqueType[] }) => {
         </TableRow>
       </TableHead>
       <TableBody>
-        {data.map((row, index) => (
+        {paginatedHistorique.map((row, index) => (
           <TableRow 
             key={`history-${index}`}
             hover
@@ -130,7 +139,7 @@ const HistoryTable = ({ data }: { data: HistoriqueType[] }) => {
               {format(new Date(row.date ?? new Date()), 'dd/MM/yyyy HH:mm:ss')}
             </TableCell>
             <TableCell>
-              <Chip
+              {/* <Chip
                 label={row.type}
                 size="small"
                 sx={{
@@ -138,7 +147,14 @@ const HistoryTable = ({ data }: { data: HistoriqueType[] }) => {
                   color: row.type === 'entrer' ? '#15803d' : '#1e40af',
                   fontWeight: 'medium'
                 }}
-              />
+              /> */}
+              <span className={`px-2 py-1 rounded-full text-sm ${
+                row.type === 'entrer'
+                  ? 'bg-green-50 text-green-700'
+                  : 'bg-red-50 text-red-700'
+              }`}>
+                {row.type}
+              </span>
             </TableCell>
             <TableCell align="right">{row.qte}</TableCell>
             <TableCell align="right">{formatNumberWithSpaces(row.pu)}</TableCell>
@@ -178,6 +194,18 @@ const HistoryTable = ({ data }: { data: HistoriqueType[] }) => {
       </TableBody>
     </Table>
   </TableContainer>
+
+  {totalPages > 1 && (
+    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }} className={`flex justify-center mt-6 mobile-pagination`}>
+      <Pagination        
+          count={totalPages}
+          page={currentPage}
+          onChange={(_, page) => setCurrentPage(page)}
+          color="primary"
+          size="large"
+      />
+    </Box>
+  )}
 
   <Dialog open={!!descDialog} onClose={() => setDescDialog(null)} maxWidth="sm" fullWidth>
     <DialogTitle>Motif</DialogTitle>

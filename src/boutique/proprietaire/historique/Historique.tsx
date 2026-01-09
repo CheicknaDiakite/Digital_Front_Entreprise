@@ -177,7 +177,7 @@ export default function Historique() {
                             <span className={`px-2 py-1 rounded-full text-sm ${
                               historyRow.type === 'entrer'
                                 ? 'bg-green-50 text-green-700'
-                                : 'bg-blue-50 text-blue-700'
+                                : 'bg-red-50 text-red-700'
                             }`}>
                               {historyRow.type}
                             </span>
@@ -245,7 +245,7 @@ export default function Historique() {
       )}
 
         {totalPages > 1 && (
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }} className={`flex justify-center mt-6 mobile-pagination`}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }} className={`flex justify-center mt-6 mobile-pagination`}>
             <Pagination
             
                 count={totalPages}
@@ -254,7 +254,7 @@ export default function Historique() {
                 color="primary"
                 size="large"
             />
-            </Box>
+          </Box>
         )}
     </Box>
 

@@ -71,7 +71,7 @@ export default function Personnel() {
 
   const { getUser, isLoading, isError } = useFetchAllUsers(top);
   const { getRestruction } = useRestructionUsers();
-  console.log("getRestruction ..", getRestruction)
+
   // const {getUsers} = useAllUsers()
   // const {unEntreprise} = useFetchEntreprise(uuid!)
   // const { userEntreprises } = useGetUserEntreprises(connect);
@@ -200,7 +200,7 @@ export default function Personnel() {
               >
                 {getUs.map((post: any, index: number) => (
                   <Grid item xs={12} sm={6} md={4} key={post.id} className={`${isMobile ? `mobile-stagger-${(index % 6) + 1}` : ''}`}>
-                    <Link to={`/entreprise/personnel/modif/${post.uuid}`} className={isMobile ? 'mobile-card-link' : ''}>
+                    <Link to={`/entreprise/personnel/info/${post.uuid}`} className={isMobile ? 'mobile-card-link' : ''}>
                       <MainCard
                         className={`${isMobile ? 'mobile-personnel-card' : 'transition-all duration-200 hover:shadow-md mobile-personnel-card'}`}
                         sx={{

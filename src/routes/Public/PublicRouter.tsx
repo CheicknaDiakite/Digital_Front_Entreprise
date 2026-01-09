@@ -29,6 +29,7 @@ import Entreprise from '../../boutique/proprietaire/Admin/Entreprise'
 import EntrepriseDetail from '../../boutique/proprietaire/Admin/EntrepriseDetail'
 import Personnel from '../../boutique/proprietaire/Personnel/Personnel'
 import { PersonnelModif } from '../../boutique/proprietaire/Personnel/PersonnelModif'
+import PersonnelInfo from '../../boutique/proprietaire/Personnel/PersonnelInfo'
 import SortieInventaire from '../../boutique/proprietaire/historique/inventaire/SortieInventaire'
 import EntrerInventaire from '../../boutique/proprietaire/historique/inventaire/EntrerInventaire'
 import EtaVente from '../../boutique/categorie/eta/EtaVente'
@@ -53,10 +54,10 @@ export default function PublicRouter() {
   const { unEntreprise } = useFetchEntreprise(uuid);
   const url = unEntreprise.image ? BASE(unEntreprise.image) : backgroundImage;
   // const url = backgroundImage;
-  
+
   return (
-    <Box 
-      
+    <Box
+
       sx={{
         background: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.55)), url(${url})`,
         backgroundSize: 'cover',
@@ -67,9 +68,9 @@ export default function PublicRouter() {
     >
       <Routes>
         <Route element={<Dashboard />}>
-        <Route index element={ <Entreprise />} />
+          <Route index element={<Entreprise />} />
           {/* <Route index element={ <DashboardDefault />} /> */}
-          
+
           <Route path='entreprise'>
             <Route index element={<DashboardDefault />} />
             <Route path='Avis' element={<Facture />} />
@@ -77,8 +78,8 @@ export default function PublicRouter() {
             <Route path='EtaDeVente' element={<EtaVente />} />
             <Route path='inventaire/EtaDesProduits' element={<EtaProduits />} />
             <Route path='inventaire/VenteUsers' element={<VenteUsers />} />
-            
-            <Route element={<ProtectedRoute requiredRole={[1, 2]} redirectPath="/" />}>          
+
+            <Route element={<ProtectedRoute requiredRole={[1, 2]} redirectPath="/" />}>
               <Route path='detail' element={<EntrepriseDetail />} />
               <Route path='historique' element={<Historique />} />
               <Route path='inventaire/sortie' element={<SortieInventaire />} />
@@ -96,33 +97,34 @@ export default function PublicRouter() {
               <Route element={<ProtectedRoute requiredRole={1} redirectPath="/" />}>
                 <Route index element={<Personnel />} />
                 <Route path='modif/:uuid' element={<PersonnelModif />} />
-              </Route>      
+                <Route path='info/:uuid' element={<PersonnelInfo />} />
+              </Route>
 
             </Route>
 
             <Route path='produit'>
               {/* <Route index element={<Produit />} /> */}
-              
-                <Route element={<ProtectedRoute requiredRole={[1, 2]} redirectPath="/" />}>
-                  <Route path='entre'>
-                    <Route index element={<FacEntre />} />
-                    <Route path='modif/:uuid' element={<ModifProduitEntre />} />
-                  </Route>
-                </Route>
 
-                <Route element={<ProtectedRoute requiredRole={[1, 2, 3]} redirectPath="/" />}>
-                  <Route path='sortie'>
-                    <Route index element={<FacSortie />} />
-                    <Route path='modif/:uuid' element={<ModifProduitSortie />} />
-                  </Route>
+              <Route element={<ProtectedRoute requiredRole={[1, 2]} redirectPath="/" />}>
+                <Route path='entre'>
+                  <Route index element={<FacEntre />} />
+                  <Route path='modif/:uuid' element={<ModifProduitEntre />} />
                 </Route>
-              
+              </Route>
+
+              <Route element={<ProtectedRoute requiredRole={[1, 2, 3]} redirectPath="/" />}>
+                <Route path='sortie'>
+                  <Route index element={<FacSortie />} />
+                  <Route path='modif/:uuid' element={<ModifProduitSortie />} />
+                </Route>
+              </Route>
+
               <Route path='modif/:slug' element={<ModifEntre />} />
             </Route>
 
             <Route path='client' >
               {/* <Route element={<ProtectedRoute requiredRole={1} redirectPath="/" />}> */}
-                <Route index element={<Client />} />
+              <Route index element={<Client />} />
               {/* </Route> */}
               <Route path='info/:uuid' element={<ClientInfo />} />
             </Route>
@@ -136,20 +138,20 @@ export default function PublicRouter() {
               <Route path='modif/:uuid' element={<Admin />} />
             </Route>
           </Route>
-          
-          <Route element={<ProtectedRoute requiredRole={[1, 2]} redirectPath="/" />}>        
+
+          <Route element={<ProtectedRoute requiredRole={[1, 2]} redirectPath="/" />}>
             <Route path='categorie' >
               <Route index element={<ComponentShadow />} />
               <Route path=':slug' element={<Sortie />} />
-              <Route path='modif/:uuid' element={<ModifCate />} /> 
+              <Route path='modif/:uuid' element={<ModifCate />} />
 
               <Route path='sous'>
-                <Route path=':uuid'  element={<SousCat />} />
-                <Route path='modif/:uuid'  element={<ModifSousCate />} />
+                <Route path=':uuid' element={<SousCat />} />
+                <Route path='modif/:uuid' element={<ModifSousCate />} />
               </Route>
 
-              <Route path='info/:uuid'  element={<Info />} />
-                      
+              <Route path='info/:uuid' element={<Info />} />
+
             </Route>
           </Route>
 
@@ -160,7 +162,7 @@ export default function PublicRouter() {
 
           <Route path='sortie' >
             <Route index element={<Sortie />} />
-            
+
             <Route path='remise' element={<FactureDetail />} />
             <Route path='entreprise/:uuid' element={<Sortie />} />
             {/* <Route path='entreprise' element={<EseSortie />} /> */}
@@ -170,9 +172,9 @@ export default function PublicRouter() {
           <Route path='user'>
 
             <Route element={<ProtectedRoute requiredRole={1} redirectPath="/" />}>
-              <Route path="admin" element={<Users />} />            
+              <Route path="admin" element={<Users />} />
               <Route path="avis" element={<Avis />} />
-              
+
             </Route>
 
             <Route path="mesInscrit" element={<MesInscrit />} />

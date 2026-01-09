@@ -125,11 +125,15 @@ const stockEntreprise = async (entreprise_id: string) => {
 
 }
 
-const sortieUserEntreprise = async (entreprise_id: string) => {
+const sortieUserEntreprise = async (entreprise_id: string, user_uuid?: string, start_date?: string, end_date?: string) => {
 
     try {
-        const response = await Axios.get(`entreprise/count_sortie_par_utilisateur/${entreprise_id}`,
-            { withCredentials: true });
+        let url = `entreprise/count_sortie_par_utilisateur/${entreprise_id}?`;
+        if (user_uuid) url += `user_uuid=${user_uuid}&`;
+        if (start_date) url += `start_date=${start_date}&`;
+        if (end_date) url += `end_date=${end_date}&`;
+
+        const response = await Axios.get(url, { withCredentials: true });
         return response;
     } catch (error) {
         // console.error("Error fetching user profile:", error);
@@ -137,6 +141,7 @@ const sortieUserEntreprise = async (entreprise_id: string) => {
     }
 
 }
+
 
 const stockCateSemaine = async (entreprise_id: string, annee?: number) => {
 

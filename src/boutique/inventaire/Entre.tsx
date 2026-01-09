@@ -229,8 +229,7 @@ export default function Entre() {
               <div>
                 <Typography 
                   variant={isMobile ? "h5" : "h4"} 
-                  className={'font-semibold text-gray-50'}
-                  
+                  className={'font-semibold text-gray-50'}      
                 >
                   Gestion des Entrées
                 </Typography>
