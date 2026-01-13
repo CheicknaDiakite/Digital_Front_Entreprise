@@ -23,7 +23,9 @@ import { Alert, Box, CircularProgress, Stack, Paper, Container, Button, useMedia
 import MonthlyBarChart from './MonthlyBarChart';
 import './mobile-dashboard.css';
 import { ChartSection } from './components/ChartSection';
-import MonthlyTarget from './MonthlyTarget';
+import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
+import PaymentsIcon from '@mui/icons-material/Payments';
+import { StatCard } from '../../usePerso/useEntreprise';
 
 // import Logo from '../../components/logo/LogoMain';
 
@@ -38,21 +40,22 @@ interface NavigationCardType {
   description: string;
   to: string;
   className: string;
+  disabled?: boolean;
 }
 
 // type NavigationCardOrNull = NavigationCardType | null;
 
-const NavigationCard: FC<NavigationCardType> = ({ icon, title, description, className, to }) => (
-  <Link to={to} className="block h-full">
+const NavigationCard: FC<NavigationCardType> = ({ icon, title, description, className, to, disabled }) => {
+  const CardContent = (
     <Paper
-      elevation={2}
-      className={`h-full transition-all duration-300 hover:shadow-xl hover:scale-105 rounded-2xl border-0 mobile-nav-card mobile-hover-effect ${className} shadow-sm bg-white`}
+      elevation={disabled ? 0 : 2}
+      className={`h-full transition-all duration-300 ${disabled ? 'opacity-60 grayscale cursor-not-allowed' : 'hover:shadow-xl hover:scale-105'} rounded-2xl border-0 mobile-nav-card mobile-hover-effect ${className} shadow-sm bg-white`}
       sx={{
         minHeight: { xs: '140px', sm: '160px' },
-        cursor: 'pointer',
-        '&:hover': {
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        '&:hover': !disabled ? {
           transform: 'translateY(-4px)',
-        }
+        } : {}
       }}
     >
       <Box className="p-4 text-center h-full flex flex-col justify-center items-center">
@@ -75,8 +78,18 @@ const NavigationCard: FC<NavigationCardType> = ({ icon, title, description, clas
         </Typography>
       </Box>
     </Paper>
-  </Link>
-);
+  );
+
+  if (disabled) {
+    return CardContent;
+  }
+
+  return (
+    <Link to={to} className="block h-full">
+      {CardContent}
+    </Link>
+  );
+};
 
 export default function DashboardDefault() {
   const theme = useTheme();
@@ -116,7 +129,7 @@ export default function DashboardDefault() {
   }
 
   const { getRestruction } = useRestructionUsers();
-  
+
   // Protection contre les données manquantes
   if (!unUser || !unEntreprise) {
     return (
@@ -211,24 +224,26 @@ export default function DashboardDefault() {
       title: "Factures sorties (ventes)",
       description: "Factures des produits de l'entreprise",
       className: "bg-gradient-to-br from-amber-50 to-amber-100",
-      to: "/entreprise/produit/sortie"
+      to: "/entreprise/produit/sortie",
+      disabled: (unEntreprise.licence_type === "Stock Simple")
     },
     (safeUnUser.role === 1 || safeUnUser.role === 2) && {
       icon: <FileOpenIcon fontSize="inherit" />,
       title: "Factures entrées (achat)",
       description: "Factures des produits de l'entreprise",
       className: "bg-gradient-to-br from-slate-50 to-slate-100",
-      to: "/entreprise/produit/entre"
+      to: "/entreprise/produit/entre",
+      disabled: (unEntreprise.licence_type === "Stock Simple")
     },
     (safeUnUser.role === 1 || safeUnUser.role === 2 || safeUnUser.role === 3) && {
       icon: <MonetizationOnIcon fontSize="inherit" />,
       title: "Dépense(s)",
       description: "Ajout des dépenses de l'entreprise",
       className: "bg-gradient-to-br from-orange-50 to-orange-100",
-      to: "/entreprise/depense"
+      to: "/entreprise/depense",
+      disabled: (unEntreprise.licence_type === "Stock Simple")
     }
   ].filter((card): card is NavigationCardType => Boolean(card));
-
   return (
     <Box className="min-h-screen mobile-container">
       <Container maxWidth="xl" sx={{ padding: { xs: 0, sm: 1 } }}>
@@ -285,114 +300,81 @@ export default function DashboardDefault() {
 
                 <Grid container spacing={2} sx={{ width: '100%', mb: 3 }} className='flex justify-center'>
 
-                  <Grid item md={3} sm={6}>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <StatCard
+                      title="Chiffre d'Affaires du mois"
+                      description="montant brut (hors remises)"
+                      value={(() => {
+                        if (stockEntreprise && stockEntreprise.details_sortie_par_mois) {
+                          const months = Object.keys(stockEntreprise.details_sortie_par_mois);
+                          const lastMonth = months[months.length - 1];
+                          const details = stockEntreprise.details_sortie_par_mois[lastMonth];
 
-                    <Paper
-                      elevation={3}
-                      sx={{
-                        p: 3,
-                        borderRadius: 3,
-                        boxShadow: '0 4px 24px rgba(0,0,0,0.07)',
-                        minWidth: 200,
-                        flex: 1,
-                        maxWidth: 350,
-                        // bgcolor: 'rgba(255,255,255,0.06)', // semi-transparent. Mettre 'transparent' pour totalement transparent
-                        // backdropFilter: 'blur(8px)'        
-                      }}
-
-                    >
-                      <Typography variant="subtitle2" color="text.secondary">
-                        CA du mois
-                      </Typography>
-
-                      <Typography variant="h5" className="font-bold" sx={{ color: 'primary.main', mt: 1 }}>
-                        {(() => {
-                          if (stockEntreprise && stockEntreprise.details_sortie_par_mois) {
-                            const months = Object.keys(stockEntreprise.details_sortie_par_mois);
-                            const lastMonth = months[months.length - 1];
-                            const details = stockEntreprise.details_sortie_par_mois[lastMonth];
-
-                            if (details) {
-                              return formatNumberWithSpaces((details as any).somme_prix_total || 0);
-                            }
+                          if (details) {
+                            return formatNumberWithSpaces((details as any).somme_prix_total || 0);
                           }
-                          return '--';
-                        })()}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                        montant brut (hors remises)
-                      </Typography>
-                    </Paper>
+                        }
+                        return '--';
+                      })()}
+
+                      icon={<PaymentsIcon sx={{ color: '#2e7d32' }} />}
+                    />
                   </Grid>
 
-                  <Grid item md={3} sm={6}>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <StatCard
+                      title="Ventes Totales du mois"
+                      value={(() => {
+                        if (stockEntreprise && stockEntreprise.details_sortie_par_mois) {
+                          const months = Object.keys(stockEntreprise.details_sortie_par_mois);
+                          const lastMonth = months[months.length - 1];
+                          const details = stockEntreprise.details_sortie_par_mois[lastMonth];
 
-                    <Paper elevation={3} sx={{ p: 3, borderRadius: 3, boxShadow: '0 4px 24px rgba(0,0,0,0.07)', bgcolor: 'white', minWidth: 200, flex: 1, maxWidth: 350 }}>
-                      <Typography variant="subtitle2" color="text.secondary">
-                        Dépenses du mois
-                      </Typography>
-
-                      <Typography variant="h5" className="font-bold" sx={{ color: 'error.main', mt: 1 }}>
-                        {(() => {
-                          if (depensesSum && depensesSum.length > 0) {
-                            // Trier par mois (du plus récent au plus ancien)
-                            const sortedDepenses = depensesSum.sort((a, b) => {
-                              const dateA = new Date(a.mois + '-01');
-                              const dateB = new Date(b.mois + '-01');
-                              return dateB.getTime() - dateA.getTime();
-                            });
-
-                            // Prendre le total du dernier mois
-                            const lastMonthTotal = sortedDepenses[0].total || 0;
-                            return formatNumberWithSpaces(lastMonthTotal);
+                          if (details) {
+                            return (details as any).somme_qte || 0;
                           }
-                          return '--';
-                        })()}
-                      </Typography>
-
-                    </Paper>
+                        }
+                        return '--';
+                      })()}
+                      icon={<ShoppingBagIcon color="primary" />}
+                    />
                   </Grid>
 
-                  <Grid item md={3} sm={6}>
-
-                    <Paper elevation={3} sx={{ p: 3, borderRadius: 3, boxShadow: '0 4px 24px rgba(0,0,0,0.07)', bgcolor: 'white', minWidth: 200, flex: 1, maxWidth: 350 }}>
-                      <Typography variant="subtitle2" color="text.secondary">Ventes ce mois</Typography>
-                      <Typography variant="h5" className="font-bold" sx={{ color: 'success.main', mt: 1 }}>
-                        {(() => {
-                          if (stockEntreprise && stockEntreprise.details_sortie_par_mois) {
-                            const months = Object.keys(stockEntreprise.details_sortie_par_mois);
-                            const lastMonth = months[months.length - 1];
-                            const details = stockEntreprise.details_sortie_par_mois[lastMonth];
-
-                            if (details) {
-                              return (details as any).somme_qte || 0;
-                            }
-                          }
-                          return '--';
-                        })()}
-                      </Typography>
-                    </Paper>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <StatCard
+                      title="Clients"
+                      value={getClients ? getClients.filter(client => client.role === 1 || client.role === 3).length : '--'}
+                      icon={<PeopleOutlineRoundedIcon />}
+                    />
                   </Grid>
 
-                  <Grid item md={3} sm={6}>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <StatCard
+                      title="Dépenses du mois"
+                      value={(() => {
+                        if (depensesSum && depensesSum.length > 0) {
+                          // Trier par mois (du plus récent au plus ancien)
+                          const sortedDepenses = depensesSum.sort((a, b) => {
+                            const dateA = new Date(a.mois + '-01');
+                            const dateB = new Date(b.mois + '-01');
+                            return dateB.getTime() - dateA.getTime();
+                          });
 
-                    <Paper elevation={3} sx={{ p: 3, borderRadius: 3, boxShadow: '0 4px 24px rgba(0,0,0,0.07)', bgcolor: 'white', minWidth: 200, flex: 1, maxWidth: 350 }}>
-                      <Typography variant="subtitle2" color="text.secondary">Clients</Typography>
-                      <Typography variant="h5" className="font-bold" sx={{ color: 'info.main', mt: 1 }}>
-                        {getClients ? getClients.filter(client => client.role === 1 || client.role === 3).length : '--'}
-                      </Typography>
-                      {/* <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                      (rôle 1 ou 3 uniquement)
-                    </Typography> */}
-                    </Paper>
+                          // Prendre le total du dernier mois
+                          const lastMonthTotal = sortedDepenses[0].total || 0;
+                          return formatNumberWithSpaces(lastMonthTotal);
+                        }
+                        return '--';
+                      })()}
 
+                      icon={<PaymentsIcon sx={{ color: '#2e7d32' }} />}
+                    />
                   </Grid>
+
                 </Grid>
 
                 {/* </Box> */}
               </Grid>
-
-              {/* Grille principale pour les 3 sections */}
 
               {/* Monthly Sales */}
               <Grid item xs={12} md={8}>
@@ -446,7 +428,6 @@ export default function DashboardDefault() {
               {/* Sales Statistics */}
               <Grid item xs={12} md={4}>
 
-
                 {/* <Box className={`border rounded-2xl overflow-hidden ${isMobile ? 'mobile-stats-card mt-3' : 'ml-3'} `}> */}
                 {(() => {
                   try {
@@ -465,12 +446,7 @@ export default function DashboardDefault() {
                 })()}
                 {/* </Box> */}
 
-                {/* <div className="col-span-12 xl:col-span-5">
-                    <MonthlyTarget />
-                  </div> */}
-
               </Grid>
-
 
               <Grid item xs={12}>
                 {/* Navigation Section */}

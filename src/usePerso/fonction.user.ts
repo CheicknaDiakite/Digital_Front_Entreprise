@@ -123,6 +123,7 @@ export function useFetchUser() {
     user_id: '',
     numero: 0,
     username: '',
+    typeRole: 0,
   });
 
   const { data: us, isLoading, isError } = useQuery({
@@ -158,6 +159,7 @@ export function useFetchUnUser(slug: string) {
     user_id: '',
     numero: 0,
     username: '',
+    typeRole: 0,
   });
 
   const { data: us, isLoading, isError } = useQuery({

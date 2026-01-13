@@ -64,6 +64,7 @@ export function reloadOnce() {
     window.location.reload();
   }
 }
+
 export function notClick() {
   return useEffect(() => {
     const handleContextMenu = (e: MouseEvent) => {
@@ -79,16 +80,6 @@ export function notClick() {
   }, []);
 }
 
-// export function formatNumberWithSpaces(number: number): string {
-//   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-// }
-
-// export function formatNumberWithSpaces(number: number | null | undefined): string {
-//   if (number == null || isNaN(number)) return '0,00';
-
-//   const formattedNumber = number.toFixed(2).replace('.', ',');
-//   return formattedNumber.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-// }
 export function formatNumberWithSpaces(number: string | number | null | undefined): string {
   if (number == null || isNaN(Number(number))) return '0,00';
 
@@ -189,3 +180,4 @@ export const isAccessAllowed = (getRestruction: RestrictionType) => {
 
   return currentTime >= startTime && currentTime <= endTime;
 };
+

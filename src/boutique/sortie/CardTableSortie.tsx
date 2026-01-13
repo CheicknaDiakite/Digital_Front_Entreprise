@@ -66,7 +66,7 @@ export default function CardTableSortie({ row }: any) {
       <TableCell>
         {row.categorie_libelle}
       </TableCell>
-      <TableCell >{row.qte}</TableCell>
+      <TableCell >{row.qte} {row.unite === 'kilos' ? '' : row.unite}</TableCell>
       <TableCell >{formatNumberWithSpaces(row.pu)}</TableCell>
       <TableCell >{formatNumberWithSpaces(row.prix_total)} <LocalAtmIcon color="primary" fontSize='small' /></TableCell>
       {/* {ccyFormat(price)} */}

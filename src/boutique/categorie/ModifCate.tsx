@@ -17,14 +17,15 @@ import Nav from '../../_components/Button/Nav';
 import MyTextField from '../../_components/Input/MyTextField';
 import { BASE } from '../../_services/caller.service';
 import img from '../../../public/icon-192x192.png';
-import { useFetchUser } from '../../usePerso/fonction.user';
+import { useFetchEntreprise, useFetchUser } from '../../usePerso/fonction.user';
+import { useStoreUuid } from '../../usePerso/store';
 
 export default function ModifCate() {
   const { uuid } = useParams<RouteParams>()
-  
+  const entreprise_uuid = useStoreUuid((state) => state.selectedId);
+  const { unEntreprise } = useFetchEntreprise(entreprise_uuid);
   // const {unCategorie, setCategorie, updateCategorie, deleteCategorie} = useCategorie(slug!)
   const { unCategorie, setUnCategorie } = useFetchCategorie(uuid!)
-  
   unCategorie["user_id"] = connect
   const {unUser} = useFetchUser()
   const { updateCategorie } = useUpdateCategorie()
@@ -77,7 +78,7 @@ export default function ModifCate() {
         <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
           <div className="flex items-center space-x-4">
             
-            <Typography variant="h5" className="font-semibold text-gray-900">
+            <Typography variant="h5" className="font-semibold text-gray-50">
               Modifier l'article
             </Typography>
           </div>
@@ -129,7 +130,9 @@ export default function ModifCate() {
                     required
                   />
                 </div>
-
+                
+                {(unEntreprise.licence_type != "Stock Simple") && 
+                
                 <div>
                   <Typography variant="subtitle2" className="mb-2 text-gray-600">
                     Image de l'article
@@ -155,6 +158,8 @@ export default function ModifCate() {
                     />
                   </div>
                 </div>
+                }
+
               </div>
             </div>
 

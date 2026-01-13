@@ -1,9 +1,9 @@
-import { ChangeEvent, FormEvent, useState } from 'react'
+import { ChangeEvent, FormEvent, useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { RouteParams } from '../../typescript/DataType'
-import { 
-  Button,  
-  Checkbox,  
+import {
+  Button,
+  Checkbox,
   FormControlLabel,
   TextField,
   Typography,
@@ -13,6 +13,7 @@ import {
   Alert,
   Switch,
   InputAdornment,
+  Autocomplete,
 } from '@mui/material'
 import { connect } from '../../_services/account.service'
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
@@ -24,23 +25,30 @@ import { useStoreUuid } from '../../usePerso/store'
 import SaveIcon from '@mui/icons-material/Save';
 
 export default function ModifEntre() {
-  const {uuid} = useParams<RouteParams>()
+  const { uuid } = useParams<RouteParams>()
   const entreprise_id = useStoreUuid((state) => state.selectedId)
 
-  const {unEntre, setUnEntre} = useFetchEntre(uuid!)
-  const {unUser} = useFetchUser()
-  const {updateEntre} = useUpdateEntre()
-  const {deleteEntre} = useDeleteEntre()
+  const { unEntre, setUnEntre } = useFetchEntre(uuid!)
+  const { unUser } = useFetchUser()
+  const { updateEntre } = useUpdateEntre()
+  const { deleteEntre } = useDeleteEntre()
 
   const [ajout_terminer, setTerminer] = useState(true);
   const [showAncien, setShowAncien] = useState(false);
-  
+
   const Ajout_Terminer = () => setTerminer(!ajout_terminer);
 
   const [is_prix, setPrix] = useState(true);
-  
+
   const Is_Prix = () => setPrix(!is_prix);
-  
+
+  useEffect(() => {
+    if (unEntre) {
+      if (unEntre.is_sortie !== undefined) setTerminer(unEntre.is_sortie);
+      if (unEntre.is_prix !== undefined) setPrix(unEntre.is_prix);
+    }
+  }, [unEntre]);
+
   const [showConfirm, setShowConfirm] = useState(false);
 
   const handleDelete = () => {
@@ -52,8 +60,21 @@ export default function ModifEntre() {
     setShowConfirm(false);
   };
 
+  const UNITE_CHOICES = [
+    { label: 'Kilos', value: 'kilos' },
+    { label: 'Litre', value: 'litre' },
+    { label: 'Mètres', value: 'mètres' }
+  ];
+
+  const handleAutoCompleteChange = (_event: any, newValue: any) => {
+    setUnEntre({
+      ...unEntre,
+      unite: newValue ? newValue.value : 'kilos'
+    });
+  };
+
   // const {souscategories} = useFetchAllSousCate(top)
-  
+
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setUnEntre({
@@ -69,18 +90,18 @@ export default function ModifEntre() {
 
     unEntre["is_sortie"] = ajout_terminer
     unEntre["is_prix"] = is_prix
-    
+
     updateEntre(unEntre)
-    
+
   };
 
   return (
     <div className="min-h-screen py-6">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {showConfirm && (
-          <Alert 
-            severity="warning" 
+          <Alert
+            severity="warning"
             className="mt-4"
             sx={{
               position: 'fixed',
@@ -154,6 +175,22 @@ export default function ModifEntre() {
                   className="bg-white"
                 />
 
+                <Autocomplete
+                  options={UNITE_CHOICES}
+                  getOptionLabel={(option) => option.label}
+                  value={UNITE_CHOICES.find(option => option.value === (unEntre.unite || 'kilos')) || null}
+                  onChange={handleAutoCompleteChange}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Unité"
+                      variant="outlined"
+                      fullWidth
+                    />
+                  )}
+                  sx={{ width: { xs: '100%', sm: 220 } }}
+                />
+
                 <TextField
                   label="Quantité"
                   variant="outlined"
@@ -162,6 +199,7 @@ export default function ModifEntre() {
                   value={unEntre.qte}
                   onChange={onChange}
                   className="bg-white"
+                  inputProps={{ step: "0.01", min: "0" }}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -189,7 +227,7 @@ export default function ModifEntre() {
                   }}
                   sx={{ width: { xs: '100%', sm: 220 } }}
                 />
-                
+
                 {unUser.role === 1 && (
                   <TextField
                     label="Prix d'achat"
@@ -218,6 +256,7 @@ export default function ModifEntre() {
                   value={unEntre.qte_critique}
                   onChange={onChange}
                   className="bg-white"
+                  inputProps={{ step: "0.01", min: "0" }}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -245,7 +284,7 @@ export default function ModifEntre() {
                 <div className="space-y-4 pt-2">
                   <FormControlLabel
                     control={
-                      <Checkbox 
+                      <Checkbox
                         checked={!is_prix}
                         onChange={Is_Prix}
                         color="primary"
@@ -257,7 +296,7 @@ export default function ModifEntre() {
 
                   <FormControlLabel
                     control={
-                      <Checkbox 
+                      <Checkbox
                         checked={!ajout_terminer}
                         onChange={Ajout_Terminer}
                         color="primary"
@@ -280,7 +319,7 @@ export default function ModifEntre() {
                 </Button>
 
                 {(unUser.role === 1 || unUser.role === 2) && (
-                  <IconButton 
+                  <IconButton
                     onClick={handleDelete}
                     size="small"
                     className="text-red-600 hover:bg-red-50"

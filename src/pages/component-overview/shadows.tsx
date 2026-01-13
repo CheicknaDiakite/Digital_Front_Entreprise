@@ -88,7 +88,7 @@ function ShadowBox({ shadow }: ShadowBoxProps) {
       </Link>
       
       <div className="absolute top-2 right-2">
-        <Tooltip title="Modifier" arrow TransitionComponent={Fade}>
+        {/* <Tooltip title="Modifier" arrow TransitionComponent={Fade}> */}
           <Link to={`/categorie/modif/${shadow.uuid}`}>
             <IconButton 
               size="small" 
@@ -100,7 +100,7 @@ function ShadowBox({ shadow }: ShadowBoxProps) {
               <EditIcon fontSize="small" className="text-blue-600" />
             </IconButton>
           </Link>
-        </Tooltip>
+        {/* </Tooltip> */}
       </div>
     </Paper>
   );
@@ -114,8 +114,7 @@ export default function ComponentShadow() {
 
   const { unEntreprise } = useFetchEntreprise(uuid);
   const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm<CategorieFormType>();
-
-
+  
   const [open, setOpen] = useState(false);
 
   const functionopen = () => setOpen(true);
@@ -331,6 +330,8 @@ export default function ComponentShadow() {
                     }}
                   />
 
+                  {(unEntreprise.licence_type != "Stock Simple") &&
+                  
                   <MyTextField
                     fullWidth
                     label="Image"
@@ -347,6 +348,8 @@ export default function ComponentShadow() {
                       }
                     }}
                   />
+                  }
+
 
                   <div className="pt-4 border-t flex justify-end">
                     <Button

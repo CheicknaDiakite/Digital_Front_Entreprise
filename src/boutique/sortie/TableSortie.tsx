@@ -53,7 +53,7 @@ export default function TableSortie({
   const sortedList = sortedLi.filter((post: any) =>
     post?.ref?.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  
+
 
   // Filtrer la liste "ent" en fonction de scannedCode
   // On suppose ici que chaque option de "ent" possède une propriété "ref"
@@ -150,12 +150,16 @@ export default function TableSortie({
         <div className="md:grid grid-cols-3 gap-10">
           <div className="flex flex-col">
             <Typography variant="h5" className="mb-2 text-gray-50">
-              Quantite 
+              Quantite {formValues.unite === "kilos" ? '' : `(${formValues.unite})`}
             </Typography>
             <MyTextField
               required
               type="number"
               name="qte"
+              inputProps={{
+                step: '0.01',
+                min: '0',
+              }}
               className='bg-white'
               value={formValues.qte}
               id="quantity"
@@ -173,9 +177,9 @@ export default function TableSortie({
 
           <div className="flex flex-col">
             <Typography variant="h5" className="mb-2 text-gray-50">
-              Prix Unitaire 
+              Prix Unitaire
             </Typography>
-            {formValues.is_prix ? 
+            {formValues.is_prix ?
               <MyTextField
                 disabled
                 variant="outlined"
@@ -201,8 +205,8 @@ export default function TableSortie({
                     color: 'red',
                   },
                 }}
-              /> 
-              : 
+              />
+              :
               <MyTextField
                 disabled={formValues.is_prix}
                 variant="outlined"
@@ -230,7 +234,7 @@ export default function TableSortie({
                 }}
               />
             }
-            
+
           </div>
 
           <div className="flex flex-col text-gray-50">
@@ -254,7 +258,7 @@ export default function TableSortie({
       </form>
 
       <TableContainer component={Paper} sx={{ maxHeight: 600 }}>
-        <Table stickyHeader aria-label="sticky table">
+        <Table aria-label="sticky table">
           <TableHead>
             <TableRow>
               <TableCell>Image</TableCell>

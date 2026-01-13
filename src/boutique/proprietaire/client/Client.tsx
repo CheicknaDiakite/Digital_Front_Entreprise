@@ -357,8 +357,8 @@ export default function Client() {
             ))}
           </Grid>
 
-              {/* Pagination */}
-              <Box className={`${isMobile ? 'mobile-pagination' : 'flex justify-center mt-6'}`}>
+          {/* Pagination */}
+          <Box className={`${isMobile ? 'mobile-pagination' : 'flex justify-center mt-6'}`}>
           <Pagination
             count={totalPages}
             page={currentPage}
@@ -372,8 +372,8 @@ export default function Client() {
                     }
                   } : {}}
           />
-              </Box>
             </Box>
+          </Box>
           </Paper>
 
           {/* Add Client/Supplier Dialog */}
@@ -587,7 +587,7 @@ export default function Client() {
             </form>
           </DialogContent>
             )}
-        </Dialog>
+          </Dialog>
         </div>
       </div>
     );

@@ -10,7 +10,7 @@ type TypeForn = {
   uuid?: string;
   client_id?: string;
   libelle: string;
-  image?:File | unknown;
+  image?: File | unknown;
 }
 type TypeNumForn = {
   pu?: number;
@@ -31,6 +31,7 @@ export type EntreFormType = {
   is_prix?: boolean;
   date: string;
   categorie_slug?: string;
+  unite?: string;
 } & TypeForn & TypeNumForn;
 
 export type FormValueType = {

@@ -17,7 +17,7 @@ export type LoginType = {
     password?: string;
 }
 
-export type UserType = {     
+export type UserType = {
     first_name: string;
     last_name: string;
     email: string;
@@ -41,12 +41,13 @@ export type UtilisateurType = {
     is_superuser?: boolean;
     is_sortie?: boolean;
     is_cabinet?: boolean;
+    typeRole?: number;
     repassword?: string,
     password?: string,
-  };
+};
 
-  export type ClienType = {
-    
+export type ClienType = {
+
     email: string;
     nom: string;
     libelle?: string;
@@ -59,20 +60,20 @@ export type UtilisateurType = {
     entreprise_id?: string;
     role: number;
     numero: number;
-    
-  };
-  export type AvisType = {
+
+};
+export type AvisType = {
     libelle: string;
     description: string;
     user_id: string
-  }
+}
 
 export type UnUserType = UtilisateurType; // ou réutilisez le même type directement
 
 type UsType = {
     etat: boolean;
     message: string;
-    donnee: UtilisateurType 
+    donnee: UtilisateurType
 }
 export interface ReponseUser {
     // Ajoutez ici les propriétés de la réponse selon votre API
@@ -93,5 +94,5 @@ export interface RegisterResponse {
 
 export interface UserResponse {
     // Ajoutez ici les propriétés de la réponse selon votre API
-    data: UserType;    
+    data: UserType;
 }

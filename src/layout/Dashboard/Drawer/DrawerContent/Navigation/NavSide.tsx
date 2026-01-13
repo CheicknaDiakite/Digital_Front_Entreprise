@@ -13,7 +13,9 @@ import {
   DialogContent,
   Stack,
   Box,
-  DialogActions
+  DialogActions,
+  Backdrop,
+  CircularProgress
 } from "@mui/material";
 import {
   BarChart as DashboardIcon,
@@ -34,7 +36,7 @@ import HistoryIcon from '@mui/icons-material/History';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import { Link } from "react-router-dom";
 import { connect } from "../../../../../_services/account.service";
-import { useAddAvis, useFetchUser, useGetUserEntreprises, useRestructionUsers } from "../../../../../usePerso/fonction.user";
+import { useAddAvis, useFetchEntreprise, useFetchUser, useGetUserEntreprises, useRestructionUsers } from "../../../../../usePerso/fonction.user";
 import { isAccessAllowed, logout } from "../../../../../usePerso/fonctionPerso";
 import { useStoreUuid } from "../../../../../usePerso/store";
 import MyTextField from "../../../../../_components/Input/MyTextField";
@@ -62,8 +64,8 @@ interface FeedbackDialogProps {
 // Components
 const NavItem: React.FC<NavItemProps> = ({ icon, label, onClick, to, bgColor, isExpanded }) => {
   const content = (
-    <ListItem 
-      button 
+    <ListItem
+      button
       onClick={onClick}
       sx={{
         borderRadius: 1,
@@ -76,7 +78,7 @@ const NavItem: React.FC<NavItemProps> = ({ icon, label, onClick, to, bgColor, is
       <ListItemIcon sx={{ minWidth: 40 }}>
         {icon}
       </ListItemIcon>
-      <Typography 
+      <Typography
         className={`${bgColor} px-2 py-1 rounded transition-colors duration-200`}
       >
         {label}
@@ -91,8 +93,8 @@ const NavItem: React.FC<NavItemProps> = ({ icon, label, onClick, to, bgColor, is
 };
 
 const FeedbackDialog: React.FC<FeedbackDialogProps> = ({ open, onClose, onSubmit, values, onChange }) => (
-  <Dialog 
-    open={open} 
+  <Dialog
+    open={open}
     onClose={onClose}
     maxWidth="sm"
     fullWidth
@@ -142,10 +144,13 @@ const NavSide: React.FC = () => {
   const [expandedSection, setExpandedSection] = useState<number>(0);
   const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
   const [helpDialogOpen, setHelpDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { getRestruction } = useRestructionUsers();
   const { unUser } = useFetchUser();
   const uuid = useStoreUuid((state) => state.selectedId);
   const { userEntreprises } = useGetUserEntreprises();
+
+  const { unEntreprise } = useFetchEntreprise(uuid)
   const addId = useStoreUuid(state => state.addId);
   const { createAvis } = useAddAvis();
 
@@ -177,31 +182,31 @@ const NavSide: React.FC = () => {
   };
 
   return (
-    <Card 
-      sx={{ 
+    <Card
+      sx={{
         display: 'flex',               // <-- ajout
         flexDirection: 'column',       // <-- ajout
-        height: "calc(100vh - 2rem)", 
-        maxWidth: "20rem", 
-        p: 2, 
+        height: "calc(100vh - 2rem)",
+        maxWidth: "20rem",
+        p: 2,
         boxShadow: 3,
         bgcolor: 'rgba(255,255,255,0.06)',
         backdropFilter: 'blur(3px)'
       }}
     >
-      
+
       {/* wrapper scrollable pour la liste */}
-      <Box 
-      sx={{
-        flex: 1,
-        overflowY: 'auto',
-        overflowX: 'hidden',
-        WebkitOverflowScrolling: 'touch',
-        pr: 1,
-        '&::-webkit-scrollbar': { width: 8 },
-        '&::-webkit-scrollbar-thumb': { backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 2 },
-        '&::-webkit-scrollbar-track': { backgroundColor: 'transparent' }
-      }}
+      <Box
+        sx={{
+          flex: 1,
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          WebkitOverflowScrolling: 'touch',
+          pr: 1,
+          '&::-webkit-scrollbar': { width: 8 },
+          '&::-webkit-scrollbar-thumb': { backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 2 },
+          '&::-webkit-scrollbar-track': { backgroundColor: 'transparent' }
+        }}
       >
         <List>
           <NavItem
@@ -220,6 +225,7 @@ const NavSide: React.FC = () => {
                   icon={null}
                   label={entreprise.nom}
                   onClick={() => {
+                    setLoading(true);
                     addId(entreprise.uuid!);
                     window.location.reload();
                   }}
@@ -261,16 +267,16 @@ const NavSide: React.FC = () => {
                     )}
                     {(() => {
                       if (!getRestruction) return null; // Or loading state
-                        if (isAccessAllowed(getRestruction)) {
-                          return <NavItem
-                            icon={<ExitToAppIcon color="error" />}
-                            label="Sortie (Vente)"
-                            to="/sortie"
-                            bgColor="text-white bg-red-500"
-                          />
-                        }
+                      if (isAccessAllowed(getRestruction)) {
+                        return <NavItem
+                          icon={<ExitToAppIcon color="error" />}
+                          label="Sortie (Vente)"
+                          to="/sortie"
+                          bgColor="text-white bg-red-500"
+                        />
+                      }
                     })()}
-                    
+
                     <NavItem
                       icon={<ExitToAppIcon color="error" />}
                       label="Remise Facture"
@@ -283,118 +289,147 @@ const NavSide: React.FC = () => {
             </>
           )}
 
-          {((unUser.role === 1 || unUser.role === 2) && uuid) && 
-          <>        
-          {/* Inventaier Par moi */}
-          <NavItem
-            icon={<HistoryEduIcon color="primary" />}
-            label="Inventaire"
-            onClick={() => handleSectionExpand(2)}
-            bgColor="text-white bg-gray-900"
-            isExpanded={expandedSection === 2}
-          />
-          <Collapse in={expandedSection === 2} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
+          {((unUser.role === 1 || unUser.role === 2) && uuid) &&
+            <>
+              {/* Inventaier Par moi */}
+              <NavItem
+                icon={<HistoryEduIcon color="primary" />}
+                label="Inventaire"
+                onClick={() => handleSectionExpand(2)}
+                bgColor="text-white bg-gray-900"
+                isExpanded={expandedSection === 2}
+              />
+              <Collapse in={expandedSection === 2} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  {(unEntreprise.licence_type != "Stock Simple") ?
+                    <NavItem
+                      icon={null}
+                      label="Ventes"
+                      to="/entreprise/inventaire/sortie"
+                      bgColor="text-white bg-gray-500"
+                    />
+                    :
+                    <NavItem
+                      icon={null}
+                      label="Ventes"
+                      bgColor="text-white bg-gray-500"
+                    />
+                  }
+                  {(unEntreprise.licence_type != "Stock Simple") ?
+                    <NavItem
+                      icon={null}
+                      label="Achats"
+                      to="/entreprise/inventaire/entrer"
+                      bgColor="text-white bg-gray-500"
+                    />
+                    :
+                    <NavItem
+                      icon={null}
+                      label="Achats"
+                      bgColor="text-white bg-gray-500"
+                    />
+                  }
 
-              <NavItem
-                icon={null}
-                label="Ventes"
-                to="/entreprise/inventaire/sortie"
-                bgColor="text-white bg-gray-500"
-              />
+                  {(unEntreprise.licence_type != "Stock Simple") ?
+                    <NavItem
+                      icon={null}
+                      label="Etat des produits"
+                      to="/entreprise/inventaire/EtaDesProduits"
+                      bgColor="text-white bg-gray-500"
+                    />
+                    :
+                    <NavItem
+                      icon={null}
+                      label="Etat des produits"
+                      bgColor="text-white bg-gray-500"
+                    />
+                  }
+                  {(unUser.role === 1 && uuid) &&
+                    (unEntreprise.licence_type != "Stock Simple") ?
+                    <NavItem
+                      icon={null}
+                      label="Etat des utilisateurs"
+                      to="/entreprise/inventaire/VenteUsers"
+                      bgColor="text-white bg-gray-500"
+                    />
+                    :
+                    <NavItem
+                      icon={null}
+                      label="Etat des utilisateurs"
+                      bgColor="text-white bg-gray-500"
+                    />
+                  }
 
-              <NavItem
-                icon={null}
-                label="Achats"
-                to="/entreprise/inventaire/entrer"
-                bgColor="text-white bg-gray-500"
-              />
-      
-              <NavItem
-                icon={null}
-                label="Etat des produits"
-                to="/entreprise/inventaire/EtaDesProduits"
-                bgColor="text-white bg-gray-500"
-              />
-              {(unUser.role === 1 && uuid) && 
-                <NavItem
-                  icon={null}
-                  label="Etat des utilisateurs"
-                  to="/entreprise/inventaire/VenteUsers"
-                  bgColor="text-white bg-gray-500"
-                />
-              }
-            
-            </List>
-          </Collapse>
-          </>
+                </List>
+              </Collapse>
+            </>
           }
 
-          {(unUser.role === 1 && uuid) && 
-          <>
-          {/*  */}
-          <NavItem
-            icon={<HistoryIcon color="primary" />}
-            label="Historique"
-            onClick={() => handleSectionExpand(3)}
-            bgColor="text-white bg-gray-900"
-            isExpanded={expandedSection === 3}
-          />
-          <Collapse in={expandedSection === 3} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
+          {(unUser.role === 1 && uuid) &&
+            <>
+              {/*  */}
               <NavItem
-                icon={null}
-                label="Historique d'entrer et sortie"
-                to="/entreprise/historique"
-                bgColor="text-white bg-gray-500"
+                icon={<HistoryIcon color="primary" />}
+                label="Historique"
+                onClick={() => handleSectionExpand(3)}
+                bgColor="text-white bg-gray-900"
+                isExpanded={expandedSection === 3}
               />
-              {/* <NavItem
+              <Collapse in={expandedSection === 3} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  <NavItem
+                    icon={null}
+                    label="Historique d'entrer et sortie"
+                    to="/entreprise/historique"
+                    bgColor="text-white bg-gray-500"
+                  />
+                  {/* <NavItem
                 icon={null}
                 label="Historique"
                 to="/entreprise/histori"
                 bgColor="text-white bg-gray-500"
               /> */}
-                        
-              <NavItem
-                icon={null}
-                label="Historique des suppressions"
-                to="/entreprise/historique/sppression"
-                bgColor="text-white bg-gray-500"
-              />
-            
-            </List>
-          </Collapse>
-          </>
-          }
 
-          {(unUser.role === 1 && unUser.is_superuser ) && <>
-          
-              <NavItem
-                icon={<UserCircleIcon color="primary" />}
-                label="Les Admin"
-                to="/user/admin"
-                bgColor="text-white bg-blue-900"
-              />
-              
-              <NavItem
-                icon={<UserCircleIcon color="primary" />}
-                label="Les Avis"
-                to="/user/avis"
-                bgColor="text-white bg-blue-900"
-              />
+                  <NavItem
+                    icon={null}
+                    label="Historique des suppressions"
+                    to="/entreprise/historique/sppression"
+                    bgColor="text-white bg-gray-500"
+                  />
+
+                </List>
+              </Collapse>
             </>
           }
 
-          {(unUser.role === 1 && unUser.is_cabinet ) && <>        
-          <NavItem
-            icon={<UserCircleIcon color="primary" />}
-            label="Mes inscrits"
-            to="/user/mesInscrit"
-            bgColor="text-white bg-blue-900"
-          />
+          {(unUser.role === 1 && unUser.is_superuser) && <>
+
+            <NavItem
+              icon={<UserCircleIcon color="primary" />}
+              label="Les Admin"
+              to="/user/admin"
+              bgColor="text-white bg-blue-900"
+            />
+
+            <NavItem
+              icon={<UserCircleIcon color="primary" />}
+              label="Les Avis"
+              to="/user/avis"
+              bgColor="text-white bg-blue-900"
+            />
           </>
           }
-          
+
+          {(unUser.role === 1 && unUser.is_cabinet) && <>
+            <NavItem
+              icon={<UserCircleIcon color="primary" />}
+              label="Mes inscrits"
+              to="/user/mesInscrit"
+              bgColor="text-white bg-blue-900"
+            />
+          </>
+          }
+
           <NavItem
             icon={<DescriptionIcon color="primary" />}
             label="Documentation"
@@ -424,7 +459,7 @@ const NavSide: React.FC = () => {
             onClick={logout}
             bgColor="text-white bg-red-600"
           />
-          
+
         </List>
 
         <Typography variant="h5" className="text-white bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700 px-2 py-1 rounded border border-dashed animate-border-rotate">
@@ -440,7 +475,7 @@ const NavSide: React.FC = () => {
         </Typography>
       </Box>
 
-      
+
       <FeedbackDialog
         open={feedbackDialogOpen}
         onClose={() => setFeedbackDialogOpen(false)}
@@ -467,6 +502,16 @@ const NavSide: React.FC = () => {
           <Example />
         </DialogContent>
       </Dialog>
+
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1301, flexDirection: 'column', gap: 2 }}
+        open={loading}
+      >
+        <CircularProgress color="inherit" />
+        <Typography variant="h6" component="div">
+          Rechargement en cours...
+        </Typography>
+      </Backdrop>
     </Card>
   );
 };

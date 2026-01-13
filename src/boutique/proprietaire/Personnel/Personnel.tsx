@@ -70,8 +70,7 @@ export default function Personnel() {
   };
 
   const { getUser, isLoading, isError } = useFetchAllUsers(top);
-  const { getRestruction } = useRestructionUsers();
-
+  
   // const {getUsers} = useAllUsers()
   // const {unEntreprise} = useFetchEntreprise(uuid!)
   // const { userEntreprises } = useGetUserEntreprises(connect);
@@ -149,14 +148,7 @@ export default function Personnel() {
                   <Typography
                     variant={isMobile ? "h5" : "h4"}
                     className={`${isMobile ? 'font-semibold text-gray-50' : 'font-semibold text-gray-50'}`}
-                  // sx={isMobile ? {
-                  //   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  //   WebkitBackgroundClip: 'text',
-                  //   WebkitTextFillColor: 'transparent',
-                  //   backgroundClip: 'text',
-                  //   fontWeight: 700,
-                  //   textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-                  // } : {}}
+                  
                   >
                     Gestion du Personnel
                   </Typography>
@@ -200,6 +192,7 @@ export default function Personnel() {
               >
                 {getUs.map((post: any, index: number) => (
                   <Grid item xs={12} sm={6} md={4} key={post.id} className={`${isMobile ? `mobile-stagger-${(index % 6) + 1}` : ''}`}>
+                    {(unEntreprise.licence_type != "Stock Simple") ? 
                     <Link to={`/entreprise/personnel/info/${post.uuid}`} className={isMobile ? 'mobile-card-link' : ''}>
                       <MainCard
                         className={`${isMobile ? 'mobile-personnel-card' : 'transition-all duration-200 hover:shadow-md mobile-personnel-card'}`}
@@ -282,6 +275,90 @@ export default function Personnel() {
                         </ListItem>
                       </MainCard>
                     </Link>
+                    :
+                    <Link to={`/entreprise/personnel/modif/${post.uuid}`} className={isMobile ? 'mobile-card-link' : ''}>
+                      <MainCard
+                        className={`${isMobile ? 'mobile-personnel-card' : 'transition-all duration-200 hover:shadow-md mobile-personnel-card'}`}
+                        sx={{
+                          height: '100%',
+                          background: 'transparent',
+                          bgcolor: 'transparent',
+                          backdropFilter: 'none',
+                          border: 'none',
+                          borderRadius: isMobile ? '16px' : 2,
+                          overflow: 'hidden',
+                          transition: 'transform 0.25s ease, box-shadow 0.25s ease',
+                          ...(isMobile ? { animation: 'scaleIn 0.6s ease-out' } : {}),
+                          '&:hover': {
+                            transform: isMobile ? 'none' : 'translateY(-6px)',
+                            boxShadow: isMobile ? 'none' : '0 10px 30px rgba(2,6,23,0.12)'
+                          }
+                        }}
+                        content={false}
+                      >
+                        <ListItem alignItems="flex-start" className={`${isMobile ? 'mobile-list-item' : 'h-full'}`}>
+                          <ListItemAvatar>
+                            <Avatar
+                              {...stringAvatar(`${post.last_name} ${post.first_name}`)}
+                              className={isMobile ? 'mobile-avatar' : ''}
+                              sx={isMobile ? {
+                                transition: 'all 0.3s ease',
+                                filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))'
+                              } : {}}
+                            />
+                          </ListItemAvatar>
+                          <ListItemText
+                            primary={
+                              <Typography
+                                variant="subtitle1"
+                                className={`${isMobile ? 'mobile-card-text font-medium' : 'font-medium'}`}
+                              >
+                                {post.username}
+                              </Typography>
+                            }
+                            secondary={
+                              <Fragment>
+                                <div className="space-y-1 mt-1">
+                                  <Typography variant="body2" color="text.secondary" className={isMobile ? 'mobile-card-text' : ''}>
+                                    Nom complet : {post.last_name} {post.first_name}
+                                  </Typography>
+                                  <Typography variant="body2" color="text.secondary" className={isMobile ? 'mobile-card-text' : ''}>
+                                    Tél : {post.numero}
+                                  </Typography>
+                                  <Typography variant="body2" color="text.secondary" className={isMobile ? 'mobile-card-text' : ''}>
+                                    Email : {post.email_user}
+                                  </Typography>
+                                  <div className="mt-2">
+                                    <Chip
+                                      label={
+                                        post.role === 1 ? "Admin" :
+                                          post.role === 2 ? "Superviseur" :
+                                            post.role === 3 ? "Caissier(e)" : "Pas de rôle"
+                                      }
+                                      variant="outlined"
+                                      color={post.role === 1 ? "primary" : post.role === 2 ? "primary" : "info"}
+                                      size="small"
+                                      className={isMobile ? 'mobile-role-chip' : ''}
+                                      sx={isMobile ? {
+                                        borderRadius: '8px',
+                                        fontWeight: 600,
+                                        transition: 'all 0.3s ease',
+                                        backdropFilter: 'blur(10px)',
+                                        '&:hover': {
+                                          transform: 'scale(1.05)',
+                                          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
+                                        }
+                                      } : {}}
+                                    />
+                                  </div>
+                                </div>
+                              </Fragment>
+                            }
+                          />
+                        </ListItem>
+                      </MainCard>
+                    </Link>
+                     }
                   </Grid>
                 ))}
               </Grid>

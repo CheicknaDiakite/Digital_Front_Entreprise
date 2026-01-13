@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Box,
   Paper,
@@ -28,6 +28,7 @@ import PaymentsIcon from '@mui/icons-material/Payments';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import EditIcon from '@mui/icons-material/Edit';
 import { format } from 'date-fns';
+import { StatCard } from '../../../usePerso/useEntreprise';
 
 export default function PersonnelInfo() {
   const { uuid: user_uuid } = useParams();
@@ -53,7 +54,7 @@ export default function PersonnelInfo() {
   };
 
   const totalVentes = sortiesUser.total_nombre_vente.find(u => u.user_uuid === user_uuid)?.total || 0;
-
+  console.log('Sorties User:', sortiesUser);
   return (
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       {/* Header with Back Button */}
@@ -69,7 +70,14 @@ export default function PersonnelInfo() {
       <Grid container spacing={4}>
         {/* Profile Card */}
         <Grid item xs={12} md={4}>
-          <Card sx={{ borderRadius: 4, height: '100%', bgcolor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)' }}>
+          <Card sx={{ 
+            borderRadius: 4, 
+            height: '100%', 
+            bgcolor: 'rgba(255,255,255,0.06)',
+            backdropFilter: 'blur(5px)' 
+            }}
+            className='text-gray-50'
+            >
             <CardContent>
               <Box display="flex" flexDirection="column" alignItems="center" py={2}>
                 <Avatar
@@ -79,7 +87,7 @@ export default function PersonnelInfo() {
                 <Typography variant="h5" fontWeight="bold">
                   {unUser.first_name} {unUser.last_name}
                 </Typography>
-                <Typography color="text.secondary" gutterBottom>
+                <Typography gutterBottom>
                   @{unUser.username}
                 </Typography>
                 <Chip
@@ -96,10 +104,10 @@ export default function PersonnelInfo() {
               <Divider sx={{ my: 2 }} />
 
               <Box sx={{ px: 2 }}>
-                <Typography variant="subtitle2" color="text.secondary">Email</Typography>
+                <Typography variant="subtitle2">Email</Typography>
                 <Typography variant="body1" gutterBottom>{unUser.email_user || 'Non renseigné'}</Typography>
 
-                <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 2 }}>Téléphone</Typography>
+                <Typography variant="subtitle2" sx={{ mt: 2 }}>Téléphone</Typography>
                 <Typography variant="body1" gutterBottom>{unUser.numero || 'Non renseigné'}</Typography>
 
                 <Button
@@ -108,6 +116,7 @@ export default function PersonnelInfo() {
                   startIcon={<EditIcon />}
                   onClick={() => navigate(`/entreprise/personnel/modif/${user_uuid}`)}
                   sx={{ mt: 4, borderRadius: 2 }}
+                  className='text-slate-100'
                 >
                   Modifier le profil
                 </Button>
@@ -211,7 +220,7 @@ export default function PersonnelInfo() {
                     sortiesUser.derniere_ventes.map((vente) => (
                       <TableRow key={vente.uuid} hover>
                         <TableCell sx={{ fontSize: '0.875rem' }}>{format(new Date(vente.date), 'dd/MM/yyyy')}</TableCell>
-                        <TableCell>{vente.produit}</TableCell>
+                        <TableCell>{vente.produit} {vente.libelle ? `(${vente.libelle})` : '' }</TableCell>
                         <TableCell align="center">{vente.qte}</TableCell>
                         <TableCell align="right">{vente.pu.toLocaleString()}</TableCell>
                         <TableCell align="right"><b>{vente.total.toLocaleString()}</b></TableCell>
@@ -228,26 +237,10 @@ export default function PersonnelInfo() {
               </Table>
             </TableContainer>
           </Paper>
+          
         </Grid>
       </Grid>
     </Box>
   );
 }
 
-function StatCard({ title, value, icon }: { title: string, value: string | number, icon: React.ReactNode }) {
-  return (
-    <Card sx={{ borderRadius: 4, bgcolor: 'rgba(255, 255, 255, 0.9)' }}>
-      <CardContent>
-        <Box display="flex" alignItems="center" mb={1}>
-          {icon}
-          <Typography variant="subtitle2" color="text.secondary" sx={{ ml: 1 }}>
-            {title}
-          </Typography>
-        </Box>
-        <Typography variant="h5" fontWeight="bold">
-          {value}
-        </Typography>
-      </CardContent>
-    </Card>
-  );
-}

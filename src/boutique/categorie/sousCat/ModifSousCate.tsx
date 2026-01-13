@@ -12,14 +12,18 @@ import { ChangeEvent, FormEvent, useState } from "react";
 import { connect } from "../../../_services/account.service";
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
 import ImageIcon from '@mui/icons-material/Image';
-import { useFetchUser } from "../../../usePerso/fonction.user";
+import { useFetchEntreprise, useFetchUser } from "../../../usePerso/fonction.user";
 import { useDeleteSousCate, useFetchSousCate, useUpdateSousCate } from "../../../usePerso/fonction.categorie";
 import MyTextField from "../../../_components/Input/MyTextField";
 import { BASE } from '../../../_services/caller.service';
 import img from '../../../../public/icon-192x192.png';
+import { useStoreUuid } from "../../../usePerso/store";
 
 export default function ModifSousCate() {
   const { uuid } = useParams<RouteParams>()
+
+  const entreprise_uuid = useStoreUuid((state) => state.selectedId);
+  const { unEntreprise } = useFetchEntreprise(entreprise_uuid);
 
   // const {unSousCate, setUnSousCate, updateSousCate, deleteSousCate} = useSousCategorie(slug!)
   const { unSousCate, setUnSousCate } = useFetchSousCate(uuid!)
@@ -74,7 +78,7 @@ export default function ModifSousCate() {
       <div className="max-w-full sm:max-w-4xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
         <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
           <div className="flex items-center space-x-4">
-            <Typography variant="h5" className="font-semibold text-gray-900">
+            <Typography variant="h5" className="font-semibold text-gray-50">
               Modifier le produit
             </Typography>
           </div>
@@ -126,7 +130,8 @@ export default function ModifSousCate() {
                     required
                   />
                 </div>
-
+                {(unEntreprise.licence_type != "Stock Simple") && 
+                
                 <div>
                   <Typography variant="subtitle2" className="mb-2 text-gray-600">
                     Image du produit
@@ -152,6 +157,7 @@ export default function ModifSousCate() {
                     />
                   </div>
                 </div>
+                }
               </div>
             </div>
 

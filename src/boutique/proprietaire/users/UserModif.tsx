@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, FormEvent, useState } from "react";
+import { ChangeEvent, FC, FormEvent, useEffect, useState } from "react";
 import {
   Card,
   Typography,
@@ -25,18 +25,24 @@ import MyTextField from "../../../_components/Input/MyTextField";
 export const UserModif: FC = () => {
   const { uuid } = useParams();
   const { unUser, setUnUser } = useFetchUnUser(uuid!);
- 
+
   unUser["user_id"] = connect;
   const { updateUser } = useUpdateUser();
-  const {deleteUser} = useDeleteUser()
+  const { deleteUser } = useDeleteUser()
 
   const [is_cab, setCab] = useState(false);
 
+  useEffect(() => {
+    if (unUser.is_cabinet !== undefined) {
+      setCab(unUser.is_cabinet);
+    }
+  }, [unUser.is_cabinet]);
+
   const Is_Cab = () => {
-    is_cab ? setCab(false) : setCab(true);
+    setCab(!is_cab);
   };
 
-  const onChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement >) => {
+  const onChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setUnUser({
       ...unUser,
@@ -55,7 +61,7 @@ export const UserModif: FC = () => {
     e.preventDefault();
     unUser["is_cabinet"] = is_cab;
     // unUser["boutique_id"] = selectedBoutique;
-    
+
     updateUser(unUser);
   };
 
@@ -141,14 +147,30 @@ export const UserModif: FC = () => {
                 </Select>
               </FormControl>
 
+              <FormControl fullWidth>
+                <InputLabel id="typeRole-label">Type de Role (Abonnement)</InputLabel>
+                <Select
+                  labelId="typeRole-label"
+                  id="typeRole-select"
+                  name="typeRole"
+                  value={unUser.typeRole || 1}
+                  onChange={onSelectChange}
+                  label="Type de Role (Abonnement)"
+                >
+                  <MenuItem value={1}>Simple</MenuItem>
+                  <MenuItem value={2}>Basic</MenuItem>
+                  <MenuItem value={3}>Prenium</MenuItem>
+                </Select>
+              </FormControl>
+
               <FormControlLabel
-                control={<Checkbox 
-                  onChange={Is_Cab} // Appelle la fonction Ajout_Terminer lors du changement
+                control={<Checkbox
+                  checked={is_cab}
+                  onChange={Is_Cab}
                 />
                 }
                 label="Intermediere ?"
                 labelPlacement="end"
-                onClick={Is_Cab}       
               />
 
               <Button
@@ -174,4 +196,3 @@ export const UserModif: FC = () => {
     </Box>
   );
 };
-  

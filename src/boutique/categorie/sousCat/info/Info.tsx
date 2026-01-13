@@ -74,8 +74,6 @@ export default function Info() {
   const ent = infos?.filter(info => info.sortie !== undefined && info.sortie !== null)
     .flatMap(info => info.sortie);
 
-    console.log("iii", ent)
-
   const sumQteStock = infos?.filter(info => info.libelle !== undefined)
     .reduce((sum, sor) => sum + (sor.qte || 0), 0) || 0;
 

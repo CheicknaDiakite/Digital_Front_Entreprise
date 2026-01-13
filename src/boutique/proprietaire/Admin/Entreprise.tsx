@@ -5,10 +5,9 @@ import Typography from '@mui/material/Typography';
 import { Box, Dialog, DialogContent, DialogTitle, IconButton, SelectChangeEvent, Skeleton, Stack } from '@mui/material';
 import { EntrepriseType } from '../../../typescript/Account';
 import { connect } from '../../../_services/account.service';
-import EntrepriseIcon from '@mui/icons-material/ProductionQuantityLimits';
 import { Link } from 'react-router-dom';
 import { useCreateEntreprise, useFetchUser, useGetUserEntreprises } from '../../../usePerso/fonction.user';
-import { getLicenceDuration, isLicenceExpired } from '../../../usePerso/fonctionPerso';
+import { isLicenceExpired } from '../../../usePerso/fonctionPerso';
 import { BASE } from '../../../_services/caller.service';
 import MyTextField from '../../../_components/Input/MyTextField';
 // import countryList from 'react-select-country-list';
@@ -44,7 +43,7 @@ import backgroundImage from '../../../../public/assets/img/img.jpg'
 // );
 
 interface IconsGridProps {
-  icon: ReactNode;
+  icon?: ReactNode;
   title: string;
   image: string;
   description: ReactNode;
@@ -64,9 +63,9 @@ export const LicenceTag: FC<LicenceTagProps> = ({ type, children }) => (
     className={clsx(
       "inline-flex items-center justify-center text-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset",
       {
-        "bg-red-50 text-red-700 ring-red-700/10": type === "Essai",
-        "bg-yellow-50 text-yellow-700 ring-yellow-700/10": type === "Standard",
-        "bg-green-50 text-green-700 ring-green-700/10": type === "Premium",
+        "bg-red-50 text-red-700 ring-red-700/10": type === "Stock Simple",
+        "bg-yellow-50 text-yellow-700 ring-yellow-700/10": type === "Stock Pro",
+        "bg-green-50 text-green-700 ring-green-700/10": type === "Stock Premium",
       }
     )}
   >
@@ -360,7 +359,7 @@ export default function Entreprise() {
               aria-disabled={expired}
             >
               <IconsGrid
-                icon={<EntrepriseIcon fontSize="small" className="text-blue-500" />}
+                // icon={<EntrepriseIcon fontSize="small" className="text-blue-500" />}
                 image={url}
                 title={post.nom}
                 description={

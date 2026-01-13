@@ -1,4 +1,4 @@
-import { Autocomplete, Box, Button, Checkbox, FormControlLabel, Stack, TextField, InputAdornment } from "@mui/material";
+import { Autocomplete, Box, Button, Checkbox, FormControlLabel, Stack, TextField, InputAdornment, Card, CardContent, Typography } from "@mui/material";
 import MyTextField from "../_components/Input/MyTextField";
 import { useFetchAllSousCate } from "./fonction.categorie";
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
@@ -15,39 +15,39 @@ interface TabPanelProps {
 
 
 export function useFormValues<T>(initialValues: T) {
-    const [values, setValues] = useState<T>(initialValues);
-  
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { name, value } = e.target;
-      setValues({
-        ...values,
-        [name]: value,
-      });
-    };
-  
-    return [values, handleChange, setValues] as const;
-  }
-  
+  const [values, setValues] = useState<T>(initialValues);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setValues({
+      ...values,
+      [name]: value,
+    });
+  };
+
+  return [values, handleChange, setValues] as const;
+}
+
 export function AjoutEntreForm({
-    onSubmit,
-    onChange,
-    formValues,
-    handleAutoCompleteChange,
-    handleAutoFourChange,
-    Ajout_Terminer,
-    Is_Sortie,
-    Is_Prix
-  }: any) {
-    const uuid = useStoreUuid((state) => state.selectedId)
-    const {souscategories} = useFetchAllSousCate(uuid!)
-    const {unUser} = useFetchUser()
-    const { getClients } = useAllClients(uuid!);
-    const fournisseurs = getClients.filter(info => info.role == 2 || info.role == 3);
-   
-    return (
-      <form onSubmit={onSubmit}>
-        <Stack spacing={2} margin={2}>
-        {handleAutoFourChange && 
+  onSubmit,
+  onChange,
+  formValues,
+  handleAutoCompleteChange,
+  handleAutoFourChange,
+  Ajout_Terminer,
+  Is_Sortie,
+  Is_Prix
+}: any) {
+  const uuid = useStoreUuid((state) => state.selectedId)
+  const { souscategories } = useFetchAllSousCate(uuid!)
+  const { unUser } = useFetchUser()
+  const { getClients } = useAllClients(uuid!);
+  const fournisseurs = getClients.filter(info => info.role == 2 || info.role == 3);
+
+  return (
+    <form onSubmit={onSubmit}>
+      <Stack spacing={2} margin={2}>
+        {handleAutoFourChange &&
           <Autocomplete
             id="free-solo-demo"
             freeSolo
@@ -55,41 +55,41 @@ export function AjoutEntreForm({
             getOptionLabel={(option) => (typeof option === 'string' ? option : option.nom || '')}
             onChange={handleAutoFourChange}
             renderInput={(params) => <TextField {...params}
-                            name='client_id'
-                            onChange={onChange} 
-                            label="Fournisseur"
-                            
-                        />}
-            
-            />
+              name='client_id'
+              onChange={onChange}
+              label="Fournisseur"
+
+            />}
+
+          />
         }
-          <Autocomplete
-            id="categorie_slug"
-            freeSolo
-            options={souscategories}
-            getOptionLabel={(option) => (typeof option === 'string' ? option : option.libelle || '')}
-            onChange={handleAutoCompleteChange}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                required
-                label="Nom du produit"
+        <Autocomplete
+          id="categorie_slug"
+          freeSolo
+          options={souscategories}
+          getOptionLabel={(option) => (typeof option === 'string' ? option : option.libelle || '')}
+          onChange={handleAutoCompleteChange}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              required
+              label="Nom du produit"
 
-                sx={{
-                  "& .MuiFormLabel-asterisk": { color: "red" },
-                }}
-              />
-            )}
-          />
+              sx={{
+                "& .MuiFormLabel-asterisk": { color: "red" },
+              }}
+            />
+          )}
+        />
 
-          <MyTextField 
-            label={"libelle / ref"}
-            value={formValues.libelle}
-            name={"libelle"}
-            onChange={onChange}
-          />
-  
-          {/* <MyTextField 
+        <MyTextField
+          label={"libelle / ref"}
+          value={formValues.libelle}
+          name={"libelle"}
+          onChange={onChange}
+        />
+
+        {/* <MyTextField 
             variant="outlined" 
             type='date' 
             label="Date de livraison" 
@@ -106,54 +106,76 @@ export function AjoutEntreForm({
             }}
           /> */}
 
-          <MyTextField
-            required
-            variant="outlined"
-            type="number"
-            label="Quantité"
-            name="qte"
-            value={formValues.qte}
-            onChange={onChange}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <InventoryIcon color="error" fontSize="small" />
-                </InputAdornment>
-              ),
-            }}
-            sx={{
-              "& .MuiFormLabel-asterisk": {
-                color: "red", // Personnalise la couleur de l'étoile en rouge
-              },
-            }}
-          />
-          <MyTextField
-            required
-            variant="outlined"
-            type="number"
-            label="Prix Unitaire (prix de vente)"
-            inputProps={{
-              step: "0.01", // Décimales à deux chiffres
-              min: "0", // Pas de valeurs négatives
-              max: "9999999999.99", // Correspond à max_digits=10 dans Django
-            }}
-            name="pu"
-            onChange={onChange}
-            value={formValues.pu}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <LocalAtmIcon color="error" fontSize="small" />
-                </InputAdornment>
-              ),
-            }}
-            sx={{
-              "& .MuiFormLabel-asterisk": {
-                color: "red",
-              },
-            }}
-          />
-          {unUser.role === 1 &&           
+        <Autocomplete
+          id="unite"
+          options={['litre', 'kilos', 'mètres']}
+          value={formValues.unite || 'kilos'}
+          onChange={(_event, value) => {
+            onChange({ target: { name: 'unite', value: value || 'kilos' } } as any);
+          }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Unité"
+              sx={{
+                "& .MuiFormLabel-asterisk": { color: "red" },
+              }}
+            />
+          )}
+        />
+
+        <MyTextField
+          required
+          variant="outlined"
+          type="number"
+          label="Quantité"
+          name="qte"
+          inputProps={{
+            step: "0.01",
+            min: "0",
+          }}
+          value={formValues.qte}
+          onChange={onChange}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <InventoryIcon color="error" fontSize="small" />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            "& .MuiFormLabel-asterisk": {
+              color: "red", // Personnalise la couleur de l'étoile en rouge
+            },
+          }}
+        />
+        <MyTextField
+          required
+          variant="outlined"
+          type="number"
+          label="Prix Unitaire (prix de vente)"
+          inputProps={{
+            step: "0.01", // Décimales à deux chiffres
+            min: "0", // Pas de valeurs négatives
+            max: "9999999999.99", // Correspond à max_digits=10 dans Django
+          }}
+          name="pu"
+          onChange={onChange}
+          value={formValues.pu}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <LocalAtmIcon color="error" fontSize="small" />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            "& .MuiFormLabel-asterisk": {
+              color: "red",
+            },
+          }}
+        />
+        {unUser.role === 1 &&
           <MyTextField
             variant="outlined"
             type="number"
@@ -165,80 +187,101 @@ export function AjoutEntreForm({
             label="Prix Unitaire (prix d'achat)"
             name="pu_achat"
             onChange={onChange}
-            value={formValues.pu_achat}            
+            value={formValues.pu_achat}
+          />
+        }
+
+        <MyTextField
+          variant="outlined"
+          type="number"
+          label="Quantité critique"
+          name="qte_critique"
+          value={formValues.qte_critique}
+          onChange={onChange}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <InventoryIcon color="primary" fontSize="small" />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            "& .MuiFormLabel-asterisk": {
+              color: "primary",
+            },
+          }}
+        />
+
+        {/* Autres champs ici */}
+        <FormControlLabel
+          control={<Checkbox
+            onChange={Is_Prix} // Appelle la fonction Ajout_Terminer lors du changement
           />
           }
+          label="Prix de vente (Manuelle)"
+          labelPlacement="end"
+          onClick={Is_Prix}
+        />
 
-          <MyTextField
-            variant="outlined"
-            type="number"
-            label="Quantité critique"
-            name="qte_critique"
-            value={formValues.qte_critique}
-            onChange={onChange}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <InventoryIcon color="primary" fontSize="small" />
-                </InputAdornment>
-              ),
-            }}
-            sx={{
-              "& .MuiFormLabel-asterisk": {
-                color: "primary",
-              },
-            }}
+        <FormControlLabel
+          control={<Checkbox
+            onChange={Ajout_Terminer} // Appelle la fonction Ajout_Terminer lors du changement
           />
+          }
+          label="Ajouter aux derniers stocks ?"
+          labelPlacement="end"
+          onClick={Ajout_Terminer}
+        />
 
-          {/* Autres champs ici */}
-          <FormControlLabel
-            control={<Checkbox 
-              onChange={Is_Prix} // Appelle la fonction Ajout_Terminer lors du changement
-            />
-            }
-            label="Prix de vente (Manuelle)"
-            labelPlacement="end"
-            onClick={Is_Prix}       
+        <FormControlLabel
+          control={<Checkbox
+            onChange={Is_Sortie} // Appelle la fonction Ajout_Terminer lors du changement
           />
+          }
+          label="Vous ne voulez pas sortir ce produit ?"
+          labelPlacement="end"
+          onClick={Is_Sortie}
+        />
 
-          <FormControlLabel
-            control={<Checkbox 
-              onChange={Ajout_Terminer} // Appelle la fonction Ajout_Terminer lors du changement
-            />
-            }
-            label="Ajouter aux derniers stocks ?"
-            labelPlacement="end"
-            onClick={Ajout_Terminer}       
-          />
+        <Button type="submit" color="success" variant="outlined">Envoyer</Button>
+      </Stack>
+    </form>
+  );
+}
 
-          <FormControlLabel
-            control={<Checkbox 
-              onChange={Is_Sortie} // Appelle la fonction Ajout_Terminer lors du changement
-            />
-            }
-            label="Vous ne voulez pas sortir ce produit ?"
-            labelPlacement="end"
-            onClick={Is_Sortie}       
-          />
+export function CustomTabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
 
-          <Button type="submit" color="success" variant="outlined">Envoyer</Button>
-        </Stack>
-      </form>
-    );
-  }
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+    </div>
+  );
+}
 
- export function CustomTabPanel(props: TabPanelProps) {
-    const { children, value, index, ...other } = props;
-  
-    return (
-      <div
-        role="tabpanel"
-        hidden={value !== index}
-        id={`simple-tabpanel-${index}`}
-        aria-labelledby={`simple-tab-${index}`}
-        {...other}
-      >
-        {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-      </div>
-    );
-  }
+export function StatCard({ title, description, value, icon }: { title: string, description?: string, value: string | number, icon: React.ReactNode }) {
+  return (
+    <Card sx={{ borderRadius: 4, bgcolor: 'rgba(255, 255, 255, 0.9)' }}>
+      <CardContent>
+        <Box display="flex" alignItems="center" mb={1}>
+          {icon}
+          <Typography variant="subtitle2" color="text.secondary" sx={{ ml: 1 }}>
+            {title}
+          </Typography>
+        </Box>
+        <Typography variant="h5" fontWeight="bold">
+          {value}
+        </Typography>
+        <Typography variant="subtitle2" color="text.secondary" sx={{ ml: 1 }}>
+          {description}
+        </Typography>
+      </CardContent>
+    </Card>
+  );
+}

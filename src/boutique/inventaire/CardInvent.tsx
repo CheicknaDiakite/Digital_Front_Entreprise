@@ -22,14 +22,14 @@ import QrCode2Icon from '@mui/icons-material/QrCode2';
 //     }
 //     const blob = await response.blob();
 //     const blobUrl = URL.createObjectURL(blob);
-    
+
 //     // Création d'un lien temporaire pour lancer le téléchargement
 //     const link = document.createElement('a');
 //     link.href = blobUrl;
 //     link.download = filename;
 //     document.body.appendChild(link);
 //     link.click();
-    
+
 //     // Nettoyage : suppression du lien et révocation de l'URL blob
 //     document.body.removeChild(link);
 //     URL.revokeObjectURL(blobUrl);
@@ -51,7 +51,7 @@ export default function CardInvent({ row }: EntreProps) {
   const closeOpen = () => {
     setOpen(false);
   };
-
+  console.log("kkk", row);
   const url = row.image ? BASE(row.image) : img;
   const code_barre = row.code_barre ? BASE(row.code_barre) : img;
   const validDate = row.date ?? new Date();
@@ -81,13 +81,13 @@ export default function CardInvent({ row }: EntreProps) {
           </TableCell>
           <TableCell>
             {row.categorie_libelle}{' '}
-              {row.libelle && (
-                <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
-                  {row.libelle}
-                </span>
-              )}
+            {row.libelle && (
+              <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                {row.libelle}
+              </span>
+            )}
           </TableCell>
-          <TableCell align="right">{row.qte}</TableCell>
+          <TableCell align="right">{row.qte} {row.unite || 'kilos'}</TableCell>
           <TableCell align="right">{formatNumberWithSpaces(row.pu)}</TableCell>
           {unUser.role === 1 && (
             <>
@@ -123,25 +123,25 @@ export default function CardInvent({ row }: EntreProps) {
           </DialogTitle>
 
           <DialogContent style={{ textAlign: 'center' }}>
-  {/* Affichage de l'image du code barre */}
-  <img src={code_barre} alt="Code barre" className="h-50 w-50" />
-  {/* Bouton de téléchargement */}
-  <a href={code_barre} download>
-    <button
-      style={{
-        marginTop: '1rem',
-        padding: '0.5rem 1rem',
-        backgroundColor: '#1976d2',
-        color: '#fff',
-        border: 'none',
-        borderRadius: '4px',
-        cursor: 'pointer',
-      }}
-    >
-      Télécharger l'image
-    </button>
-  </a>
-</DialogContent>
+            {/* Affichage de l'image du code barre */}
+            <img src={code_barre} alt="Code barre" className="h-50 w-50" />
+            {/* Bouton de téléchargement */}
+            <a href={code_barre} download>
+              <button
+                style={{
+                  marginTop: '1rem',
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#1976d2',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                }}
+              >
+                Télécharger l'image
+              </button>
+            </a>
+          </DialogContent>
 
 
         </Dialog>

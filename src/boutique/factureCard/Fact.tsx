@@ -24,6 +24,8 @@ import html2pdf from 'html2pdf.js';
 import { toast } from 'react-hot-toast';
 import { useUpdateSortie } from '../../usePerso/fonction.entre';
 import { formatNumberWithSpaces } from '../../usePerso/fonctionPerso';
+import { useStoreUuid } from '../../usePerso/store';
+import { useFetchEntreprise } from '../../usePerso/fonction.user';
 
 const style = {
   position: 'absolute',
@@ -88,6 +90,9 @@ export default function Fact({ clientName, invoiceNumber, invoiceDate, numeroFac
   // let url = BASE(post.image);
 
   const url = post.image ? BASE(post.image) : post.image;
+
+  const entreprise_uuid = useStoreUuid((state) => state.selectedId);
+  const { unEntreprise } = useFetchEntreprise(entreprise_uuid);
 
   const selectedIds = useStoreCart(state => state.selectedIds)
   const reset = useStoreCart(state => state.reset)
@@ -154,6 +159,7 @@ export default function Fact({ clientName, invoiceNumber, invoiceDate, numeroFac
     calculateDiscountedTotal();
     toggleModal();
   };
+
   const handleApplyPayer = () => {
     calculatePayerTotal();
     toggleModalPay();
@@ -165,6 +171,7 @@ export default function Fact({ clientName, invoiceNumber, invoiceDate, numeroFac
   const handleOpenRemise = () => {
     setOpenF(true);
   };
+
   const handleCloseRemise = () => {
     setOpenF(false);
   };
@@ -178,6 +185,7 @@ export default function Fact({ clientName, invoiceNumber, invoiceDate, numeroFac
     dueDate: '',
     notes: '',
     numeroFac: '',
+    invoiceNumber: undefined,
   });
 
   const onChan = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -199,11 +207,20 @@ export default function Fact({ clientName, invoiceNumber, invoiceDate, numeroFac
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Mettre à jour les totaux locaux quand le total change
   useEffect(() => {
     setLocalDiscountedTotal(total);
     setLocalPayerTotal(total);
   }, [total]);
+
+  useEffect(() => {
+    if (clientName || invoiceNumber) {
+      setNom(prev => ({
+        ...prev,
+        clientName: clientName || prev.clientName,
+        invoiceNumber: invoiceNumber || prev.invoiceNumber
+      }));
+    }
+  }, [clientName, invoiceNumber]);
 
   const [quantity] = useState<number>(0);
   const [price] = useState<number>(0);
@@ -345,12 +362,15 @@ export default function Fact({ clientName, invoiceNumber, invoiceDate, numeroFac
 
                 {/* Financial Actions Group */}
                 <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    onClick={handleOpenRemise}
-                    className="inline-flex items-center justify-center px-4 py-2 bg-white text-purple-600 border border-purple-100 rounded-xl hover:bg-purple-50 transition-all duration-300 shadow-sm"
-                  >
-                    <span className="font-semibold text-sm">Remise Facture</span>
-                  </button>
+                  {(unEntreprise.licence_type != "Stock Simple") &&
+
+                    <button
+                      onClick={handleOpenRemise}
+                      className="inline-flex items-center justify-center px-4 py-2 bg-white text-purple-600 border border-purple-100 rounded-xl hover:bg-purple-50 transition-all duration-300 shadow-sm"
+                    >
+                      <span className="font-semibold text-sm">Remise Facture</span>
+                    </button>
+                  }
 
                   <button
                     onClick={toggleModal}
@@ -381,20 +401,21 @@ export default function Fact({ clientName, invoiceNumber, invoiceDate, numeroFac
                       )}
                       content={() => componentRef.current}
                     />
-
-                    <button
-                      onClick={() => setOpenModal(true)}
-                      className="inline-flex items-center justify-center px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl hover:from-blue-700 hover:to-indigo-800 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-                    >
-                      <AddIcon className="w-5 h-5 mr-2" />
-                      <span className="font-bold text-sm">Valider & PDF</span>
-                    </button>
+                    {(unEntreprise.licence_type != "Stock Simple") &&
+                      <button
+                        onClick={() => setOpenModal(true)}
+                        className="inline-flex items-center justify-center px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl hover:from-blue-700 hover:to-indigo-800 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                      >
+                        <AddIcon className="w-5 h-5 mr-2" />
+                        <span className="font-bold text-sm">Valider & PDF</span>
+                      </button>
+                    }
                   </div>
                 </div>
               </div>
               {/* Format Selector inside Print Group */}
               <div className="flex items-center bg-gray-50 rounded-xl p-1 gap-1">
-                {(['A4', 'A5', 'Thermal'] as const).map((format) => (
+                {(['A4', 'Thermal'] as const).map((format) => (
                   <button
                     key={format}
                     onClick={() => setPrintFormat(format)}
@@ -447,6 +468,7 @@ export default function Fact({ clientName, invoiceNumber, invoiceDate, numeroFac
                   label="Nom du Client"
                   name="clientName"
                   variant="outlined"
+                  value={fac.clientName}
                   onChange={onChan}
                   className={`${isMobile ? 'mobile-form-field' : 'bg-white'}`}
                   sx={isMobile ? {
@@ -470,6 +492,7 @@ export default function Fact({ clientName, invoiceNumber, invoiceDate, numeroFac
                   label="Numero du Client"
                   name="invoiceNumber"
                   variant="outlined"
+                  value={fac.invoiceNumber || ''}
                   onChange={onChan}
                   className={`${isMobile ? 'mobile-form-field' : 'bg-white'}`}
                   sx={isMobile ? {

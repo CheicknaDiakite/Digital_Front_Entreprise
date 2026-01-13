@@ -8,16 +8,16 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import CardInvent from './CardInvent';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
-import { 
-  Box, 
-  Button, 
-  Dialog, 
-  DialogContent, 
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogContent,
   DialogTitle,
-  IconButton, 
-  Pagination, 
-  Skeleton, 
-  TextField, 
+  IconButton,
+  Pagination,
+  Skeleton,
+  TextField,
   Typography,
   InputAdornment,
   Grid
@@ -40,9 +40,9 @@ import './mobile-entre.css';
 
 export default function Entre() {
   const uuid = useStoreUuid((state) => state.selectedId);
-  const {unUser} = useFetchUser();
-  const {unEntreprise} = useFetchEntreprise(uuid);
-  const {ajoutEntre} = useCreateEntre();
+  const { unUser } = useFetchUser();
+  const { unEntreprise } = useFetchEntreprise(uuid);
+  const { ajoutEntre } = useCreateEntre();
   const [ajout_terminer, setTerminer] = useState(false);
   const [is_sortie, setSortie] = useState(true);
   const [is_prix, setPrix] = useState(true);
@@ -53,18 +53,18 @@ export default function Entre() {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768);
     };
-    
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
+
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   const Ajout_Terminer = () => setTerminer(!ajout_terminer);
   const Is_Sortie = () => setSortie(!is_sortie);
   const Is_Prix = () => setPrix(!is_prix);
-  
-  const {entresEntreprise, isLoading, isError} = useGetAllEntre(uuid!);
+
+  const { entresEntreprise, isLoading, isError } = useGetAllEntre(uuid!);
   const itemsPerPage = isMobile ? 25 : 25;
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedStartDate, setSelectedStartDate] = useState<string>('');
@@ -98,7 +98,7 @@ export default function Entre() {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-  
+
   const handlePageChange = (_: React.ChangeEvent<unknown>, page: number) => {
     setCurrentPage(page);
   };
@@ -112,7 +112,7 @@ export default function Entre() {
     setSelectedEndDate(event.target.value);
     setCurrentPage(1);
   };
-  
+
   const [open, setOpen] = useState(false);
   const functionopen = () => setOpen(true);
   const closeopen = () => setOpen(false);
@@ -122,8 +122,9 @@ export default function Entre() {
     cumuler_quantite: false,
     user_id: '',
     date: '',
+    unite: 'kilos',
   });
-  
+
   const handleAutoCompleteChange = (_: SyntheticEvent<Element, Event>, value: string | RecupType | null) => {
     if (typeof value === 'object' && value !== null) {
       setFormValues({
@@ -156,16 +157,16 @@ export default function Entre() {
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
-  
+
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     formValues["cumuler_quantite"] = ajout_terminer;
     formValues["is_sortie"] = is_sortie;
     formValues["is_prix"] = is_prix;
     formValues["user_id"] = connect;
-    
+
     ajoutEntre(formValues);
-    
+
     setTerminer(false);
     setSortie(true);
     setPrix(true);
@@ -179,6 +180,7 @@ export default function Entre() {
       pu: 0,
       pu_achat: 0,
       qte: 0,
+      unite: 'kilos',
     });
     closeopen();
   };
@@ -206,30 +208,30 @@ export default function Entre() {
   if (entresEntreprise) {
     const filteredBoutiques = displayedBoutiques.filter((post) =>
       post?.categorie_libelle?.toLowerCase().includes(searchTerm.toLowerCase())
-    ); 
+    );
 
     return (
-      <div> 
-          
-        <Paper 
-          elevation={0} 
+      <div>
+
+        <Paper
+          elevation={0}
           // className={`${isMobile ? 'mobile-header-container' : 'mt-6 rounded-lg overflow-hidden'}`}
-          sx={ {
+          sx={{
             // background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7))',
             backdropFilter: 'blur(5px)',
             border: '1px solid rgba(255, 255, 255, 0.2)',
             borderRadius: '20px',
             marginTop: '24px',
-            bgcolor: 'rgba(255,255,255,0.06)', 
-          } }
+            bgcolor: 'rgba(255,255,255,0.06)',
+          }}
         >
           <Box className={`${isMobile ? 'mobile-p-4' : 'p-6'}`}>
             {/* Header */}
             <div className={`${isMobile ? 'flex flex-col space-y-4' : 'flex justify-between items-center'} border-b pb-6 mb-6`}>
               <div>
-                <Typography 
-                  variant={isMobile ? "h5" : "h4"} 
-                  className={'font-semibold text-gray-50'}      
+                <Typography
+                  variant={isMobile ? "h5" : "h4"}
+                  className={'font-semibold text-gray-50'}
                 >
                   Gestion des Entrées
                 </Typography>
@@ -265,9 +267,9 @@ export default function Entre() {
             </div>
 
             {/* Search and Filters */}
-            <Grid 
-              container 
-              spacing={isMobile ? 2 : 3} 
+            <Grid
+              container
+              spacing={isMobile ? 2 : 3}
               className={isMobile ? 'mobile-grid' : ''}
               sx={{
                 '& .MuiGrid-item': {
@@ -305,7 +307,7 @@ export default function Entre() {
                   } : {}}
                 />
               </Grid>
-              
+
               <Grid item xs={12} md={6} lg={3}>
                 <TextField
                   fullWidth
@@ -369,8 +371,8 @@ export default function Entre() {
               </Grid>
 
               <Grid item xs={12} md={6} lg={3}>
-                <Paper 
-                  elevation={0} 
+                <Paper
+                  elevation={0}
                   className={`${isMobile ? 'mobile-stats-card' : 'p-4 bg-blue-50 rounded-lg'} flex items-center justify-between`}
                   sx={isMobile ? {
                     borderRadius: '16px',
@@ -399,8 +401,8 @@ export default function Entre() {
 
               {/* Table */}
               <Grid item xs={12} md={12} lg={12}>
-                <Paper 
-                  elevation={0} 
+                <Paper
+                  elevation={0}
                   className={`${isMobile ? 'mobile-table-container' : 'overflow-hidden rounded-lg'}`}
                   sx={isMobile ? {
                     borderRadius: '16px',
@@ -423,7 +425,7 @@ export default function Entre() {
                           <TableCell align="right" >Quantité</TableCell>
                           <TableCell align="right" >Prix Unitaire (vente)</TableCell>
                           {unUser.role === 1 && (
-                            <>              
+                            <>
                               <TableCell align="right" >Prix Unitaire (achat)</TableCell>
                               <TableCell align="right" >Total</TableCell>
                             </>
@@ -484,17 +486,17 @@ export default function Entre() {
               </Grid>
             </Grid>
 
-            
 
-            
+
+
           </Box>
         </Paper>
 
         {/* Add Entry Dialog */}
-        <Dialog 
-          open={open} 
-          onClose={closeopen} 
-          fullWidth 
+        <Dialog
+          open={open}
+          onClose={closeopen}
+          fullWidth
           maxWidth="sm"
           PaperProps={{
             elevation: 0,
@@ -532,7 +534,7 @@ export default function Entre() {
             </DialogContent>
           )}
         </Dialog>
-      
+
       </div>
     );
   }

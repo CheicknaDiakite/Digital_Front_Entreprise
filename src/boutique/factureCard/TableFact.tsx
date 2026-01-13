@@ -6,6 +6,7 @@ interface TableFactProps {
   list: {
     categorie_libelle: string;
     qte: number;
+    unite?: string;
     pu: number;
     prix_total: number;
     date: string;
@@ -63,7 +64,7 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
                   </div>
                 </td>
                 <td className={`text-right ${isThermal ? 'p-1' : 'p-4'} border-r border-gray-200`}>
-                  {post.qte}
+                  {post.qte} {post.unite || 'kilos'}
                 </td>
                 <td className={`text-right ${isThermal ? 'p-1' : 'p-4'} border-r border-gray-200`}>
                   {formatNumberWithSpaces(post.pu)}

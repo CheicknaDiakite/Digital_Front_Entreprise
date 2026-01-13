@@ -37,6 +37,7 @@ export type EntreRecupType = {
     libelle: string;
     qte: number;
     pu: number;
+    unite?: string;
     categorie_slug: string;
 }
 
@@ -52,6 +53,7 @@ export type SortieType = {
     pu?: number | string;
     is_prix?: boolean;
     entre_id?: string;
+    unite?: string;
 }
 
 export type SousType = {
@@ -71,6 +73,7 @@ export type EntreType = {
     is_sortie?: boolean;
     is_prix?: boolean;
     entre_id?: number;
+    unite?: string;
 } & SousType
 
 export type DepenseType = {
@@ -193,6 +196,7 @@ export type SortieUserType = {
     derniere_ventes?: Array<{
         uuid: string;
         produit: string;
+        libelle?: string;
         qte: number;
         pu: number;
         total: number;
@@ -223,6 +227,7 @@ export type RecupType = {
     pu_achat?: number;
     qte?: number;
     qte_critique?: number;
+    unite?: string;
     categorie_slug?: string;
     clientName?: string,
     clientAddress?: string,

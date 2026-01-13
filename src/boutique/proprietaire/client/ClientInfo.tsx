@@ -9,22 +9,26 @@ import EditIcon from '@mui/icons-material/Edit';
 import HistoryIcon from '@mui/icons-material/History';
 import { useParams } from 'react-router-dom';
 import { ClientModif } from './ModifClient/ClientModif';
-import { useDeleteClient, useUnClient } from '../../../usePerso/fonction.user';
+import { useDeleteClient, useFetchEntreprise, useUnClient } from '../../../usePerso/fonction.user';
 import { connect } from '../../../_services/account.service';
 import { a11yProps } from '../../../usePerso/fonctionPerso';
 import { CustomTabPanel } from '../../../usePerso/useEntreprise';
 import ClientEntrer from './Entrer/ClientEntrer';
 import ClientSortie from './Sortie/ClientSortie';
 import ClientHistorique from './ClientHistorique';
+import { useStoreUuid } from '../../../usePerso/store';
 
 export default function ClientInfo() {
   const { uuid } = useParams();
   const { unClient } = useUnClient(uuid!);
 
+  const entreprise_uuid = useStoreUuid((state) => state.selectedId);
+  const { unEntreprise } = useFetchEntreprise(entreprise_uuid);
+
   unClient["user_id"] = connect;
 
   const { deleteClient } = useDeleteClient();
-  const [value, setValue] = React.useState(0);
+  const [value, setValue] = React.useState(unEntreprise.licence_type === "Stock Simple" ? 2 : 0);
   const [showConfirm, setShowConfirm] = React.useState(false);
 
   const handleDelete = () => {
@@ -105,27 +109,36 @@ export default function ClientInfo() {
               },
             }}
           >
-            <Tab
-              label={
-                <div className="flex items-center space-x-2">
-                  <ShoppingCartIcon fontSize="small" />
-                  <span>Ventes (Client)</span>
-                </div>
-              }
-              {...a11yProps(0)}
-            />
+            {(unEntreprise.licence_type != "Stock Simple") &&
+
+              <Tab
+                value={0}
+                label={
+                  <div className="flex items-center space-x-2">
+                    <ShoppingCartIcon fontSize="small" />
+                    <span>Ventes (Client)</span>
+                  </div>
+                }
+                {...a11yProps(0)}
+              />
+            }
+
+            {(unEntreprise.licence_type != "Stock Simple") &&
+
+              <Tab
+                value={1}
+                label={
+                  <div className="flex items-center space-x-2">
+                    <LocalShippingIcon fontSize="small" />
+                    <span>Achats (Fournisseur)</span>
+                  </div>
+                }
+                {...a11yProps(1)}
+              />
+            }
 
             <Tab
-              label={
-                <div className="flex items-center space-x-2">
-                  <LocalShippingIcon fontSize="small" />
-                  <span>Achats (Fournisseur)</span>
-                </div>
-              }
-              {...a11yProps(1)}
-            />
-
-            <Tab
+              value={2}
               label={
                 <div className="flex items-center space-x-2">
                   <EditIcon fontSize="small" />
@@ -135,51 +148,64 @@ export default function ClientInfo() {
               {...a11yProps(2)}
             />
 
-            <Tab
-              label={
-                <div className="flex items-center space-x-2">
-                  <HistoryIcon fontSize="small" />
-                  <span>Historique</span>
-                </div>
-              }
-              {...a11yProps(3)}
-            />
+            {(unEntreprise.licence_type != "Stock Simple") &&
+              <Tab
+                value={3}
+                label={
+                  <div className="flex items-center space-x-2">
+                    <HistoryIcon fontSize="small" />
+                    <span>Historique</span>
+                  </div>
+                }
+                {...a11yProps(3)}
+              />
+            }
 
-            <Tab
-              label={
-                <div className="flex items-center space-x-2">
-                  <IconButton
-                    onClick={handleDelete}
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    size="small"
-                  >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
-                </div>
-              }
-
-            />
+            {(unEntreprise.licence_type != "Stock Simple") &&
+              <Tab
+                value={4}
+                label={
+                  <div className="flex items-center space-x-2">
+                    <IconButton
+                      onClick={handleDelete}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      size="small"
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </div>
+                }
+              />
+            }
           </Tabs>
         </Box>
 
         <Box >
           {/* Tab Panels */}
+          {(unEntreprise.licence_type != "Stock Simple") &&
 
-          <CustomTabPanel value={value} index={0}>
-            <ClientSortie uuid={uuid!} />
-          </CustomTabPanel>
+            <CustomTabPanel value={value} index={0}>
+              <ClientSortie uuid={uuid!} />
+            </CustomTabPanel>
+          }
 
-          <CustomTabPanel value={value} index={1}>
-            <ClientEntrer uuid={uuid!} />
-          </CustomTabPanel>
+          {(unEntreprise.licence_type != "Stock Simple") &&
 
-          <CustomTabPanel value={value} index={2}>
+            <CustomTabPanel value={value} index={1}>
+              <ClientEntrer uuid={uuid!} />
+            </CustomTabPanel>
+          }
+
+          <CustomTabPanel value={value} index={unEntreprise.licence_type === "Stock Simple" ? 0 : 2}>
             <ClientModif uuid={uuid!} />
           </CustomTabPanel>
 
-          <CustomTabPanel value={value} index={3}>
-            <ClientHistorique uuid={uuid!} />
-          </CustomTabPanel>
+          {(unEntreprise.licence_type != "Stock Simple") &&
+
+            <CustomTabPanel value={value} index={3}>
+              <ClientHistorique uuid={uuid!} />
+            </CustomTabPanel>
+          }
 
         </Box>
       </Paper>

@@ -122,7 +122,7 @@ export default function ModifEntreprise() {
   }
 
   const url = unEntreprise.image ? BASE(unEntreprise.image) : img;
-  
+  console.log("oo ...", unEntreprise)
   return (
     <div className={`max-w-4xl mx-auto p-4 ${isMobile ? 'mobile-modif-container' : ''}`}>
       <div className={`mb-6 flex items-center justify-between ${isMobile ? 'mobile-modif-header' : ''}`}>
@@ -187,7 +187,7 @@ export default function ModifEntreprise() {
                   </Typography>
 
                   <LicenceTag type={unEntreprise.licence_type}>
-                    Licence {unEntreprise.licence_type} {getLicenceDuration(unEntreprise.licence_date_expiration)}
+                    Mode: {unEntreprise.licence_type} {getLicenceDuration(unEntreprise.licence_date_expiration)}
                   </LicenceTag>
 
                   <div className={isMobile ? '' : ''}>
@@ -208,7 +208,7 @@ export default function ModifEntreprise() {
                       name="libelle"
                       value={unEntreprise.libelle}
                       onChange={onChange}
-                      required
+                      
                     />
                   </div>
 

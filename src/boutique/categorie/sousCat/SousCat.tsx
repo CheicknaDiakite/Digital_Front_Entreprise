@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography';
 
 // project import
 
-import { Alert, Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Skeleton, TextField, Paper, Tooltip, Fade, alpha, useTheme, useMediaQuery } from '@mui/material';
+import { Alert, Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Skeleton, TextField, Paper, alpha, useTheme, useMediaQuery } from '@mui/material';
 import { ChangeEvent, useState } from 'react';
 import { RecupType, RouteParams } from '../../../typescript/DataType';
 import { connect } from '../../../_services/account.service';
@@ -45,6 +45,8 @@ interface ShadowBoxProps {
 
 function ShadowBox({ shadow }: ShadowBoxProps) {
   const url = shadow.image ? BASE(shadow.image) : img;
+  const entreprise_uuid = useStoreUuid((state) => state.selectedId);
+  const { unEntreprise } = useFetchEntreprise(entreprise_uuid);
   const { unUser } = useFetchUser();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -58,7 +60,7 @@ function ShadowBox({ shadow }: ShadowBoxProps) {
         minHeight: { xs: '140px', sm: '160px' }
       }}
     >
-      {(unUser.role === 1 || unUser.role === 2) ? (
+      {((unUser.role === 1 || unUser.role === 2) || (unEntreprise.licence_type != "Stock Simple")) ? (
         <Link to={`/categorie/info/${shadow.uuid}`} className="block">
           <div className="flex flex-col items-center space-y-3 p-2">
             <div className={`w-20 h-20 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center mobile-product-image`}>
@@ -117,7 +119,7 @@ function ShadowBox({ shadow }: ShadowBoxProps) {
       )}
       
       <div className="absolute top-2 right-2">
-        <Tooltip title="Modifier" arrow TransitionComponent={Fade}>
+        {/* <Tooltip title="Modifier" arrow TransitionComponent={Fade}> */}
           <Link to={`/categorie/sous/modif/${shadow.uuid}`}>
             <IconButton 
               size="small" 
@@ -129,7 +131,7 @@ function ShadowBox({ shadow }: ShadowBoxProps) {
               <EditIcon fontSize="small" className="text-blue-600" />
             </IconButton>
           </Link>
-        </Tooltip>
+        {/* </Tooltip> */}
       </div>
     </Paper>
   );
@@ -382,7 +384,8 @@ export default function SousCat() {
                       }
                     }}
                   />
-
+                  {(unEntreprise.licence_type != "Stock Simple") && 
+                  
                   <MyTextField
                     fullWidth
                     label="Image"
@@ -399,6 +402,7 @@ export default function SousCat() {
                       }
                     }}
                   />
+                  }
 
                   <div className="pt-4 border-t flex justify-end">
                     <Button
