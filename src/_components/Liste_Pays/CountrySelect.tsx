@@ -2,50 +2,50 @@ import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 
-export default function CountrySelect({onSelectChange, label}: any) {
+export default function CountrySelect({ onSelectChange, label }: any) {
   return (
     <Autocomplete
-    id="country-select-demo"
-    sx={{ width: 300 }}
-    options={countries}
-    onChange={onSelectChange}
-    autoHighlight
-    getOptionLabel={(option) => option.label}
-    renderOption={(props, option) => {
+      id="country-select-demo"
+      sx={{ width: 300 }}
+      options={countries}
+      onChange={onSelectChange}
+      autoHighlight
+      getOptionLabel={(option) => option.label}
+      renderOption={(props, option) => {
         const { key, ...optionProps } = props;
         return (
-        <Box
+          <Box
             key={key}
             component="li"
             sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
             {...optionProps}
-        >
+          >
             <img
-            loading="lazy"
-            width="20"
-            srcSet={`https://flagcdn.com/w40/${option.code.toLowerCase()}.png 2x`}
-            src={`https://flagcdn.com/w20/${option.code.toLowerCase()}.png`}
-            alt=""
+              loading="lazy"
+              width="20"
+              srcSet={`https://flagcdn.com/w40/${option.code.toLowerCase()}.png 2x`}
+              src={`https://flagcdn.com/w20/${option.code.toLowerCase()}.png`}
+              alt=""
             />
             {option.label} ({option.code}) +{option.phone}
-        </Box>
+          </Box>
         );
-    }}
-    renderInput={(params) => (
+      }}
+      renderInput={(params) => (
         <TextField
-        {...params}
-        label={label}
-        inputProps={{
+          {...params}
+          label={label}
+          inputProps={{
             ...params.inputProps,
             autoComplete: 'new-password', // disable autocomplete and autofill
-        }}
+          }}
         />
-    )}
+      )}
     />
 
   );
 }
-interface CountryType {
+export interface CountryType {
   code: string;
   label: string;
   phone: string;

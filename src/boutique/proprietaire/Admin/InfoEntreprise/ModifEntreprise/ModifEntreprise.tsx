@@ -1,5 +1,5 @@
 import { ChangeEvent, FormEvent, useState, useEffect } from 'react';
-import { 
+import {
   Alert,
   Box,
   Button,
@@ -32,8 +32,9 @@ import { useStoreUuid } from '../../../../../usePerso/store';
 import { BASE } from '../../../../../_services/caller.service';
 import img from '../../../../../../public/icon-192x192.png';
 import '../../mobile-admin.css';
-import { LicenceTag } from '../../Entreprise';
+// import { LicenceTag } from '../../Entreprise';
 import { getLicenceDuration } from '../../../../../usePerso/fonctionPerso';
+import { LicenceTag } from '../../Entreprise';
 
 export default function ModifEntreprise() {
   const uuid = useStoreUuid((state) => state.selectedId);
@@ -46,15 +47,15 @@ export default function ModifEntreprise() {
   const [isMobile, setIsMobile] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const options = countryList().getData();
-  
+
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth <= 768);
     };
-    
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
+
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
@@ -107,8 +108,8 @@ export default function ModifEntreprise() {
 
   if (isError) {
     return (
-      <Alert 
-        severity="error" 
+      <Alert
+        severity="error"
         className="m-4"
         action={
           <Button color="inherit" size="small" onClick={() => window.location.reload()}>
@@ -131,7 +132,7 @@ export default function ModifEntreprise() {
         </Typography>
 
         <Tooltip title="Supprimer l'entreprise" arrow TransitionComponent={Fade}>
-          <IconButton 
+          <IconButton
             onClick={handleDelete}
             className={`bg-white hover:bg-red-50 text-red-600 shadow-sm ${isMobile ? 'mobile-action-button' : ''}`}
           >
@@ -141,8 +142,8 @@ export default function ModifEntreprise() {
       </div>
 
       {showConfirm && (
-        <Alert 
-          severity="warning" 
+        <Alert
+          severity="warning"
           className="mt-4"
           action={
             <div className="space-x-2">
@@ -169,9 +170,9 @@ export default function ModifEntreprise() {
                 </Typography>
 
                 <Stack spacing={3} className={isMobile ? 'mobile-responsive-stack' : ''}>
-                  <Typography 
-                    variant="h6" 
-                    color="primary" 
+                  <Typography
+                    variant="h6"
+                    color="primary"
                     gutterBottom
                     className={isMobile ? 'mobile-text-center mobile-text-lg mobile-font-medium' : ''}
                     sx={{
@@ -208,7 +209,7 @@ export default function ModifEntreprise() {
                       name="libelle"
                       value={unEntreprise.libelle}
                       onChange={onChange}
-                      
+
                     />
                   </div>
 
@@ -241,9 +242,9 @@ export default function ModifEntreprise() {
                   <div className="space-y-4">
                     <Box className={`w-full aspect-video rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50 ${isMobile ? 'mobile-modif-image-container' : ''}`}>
                       {(previewUrl || url) && (
-                        <img 
-                          src={previewUrl || url} 
-                          alt={unEntreprise.nom} 
+                        <img
+                          src={previewUrl || url}
+                          alt={unEntreprise.nom}
                           className={`max-h-full object-contain ${isMobile ? 'mobile-modif-image' : ''}`}
                         />
                       )}

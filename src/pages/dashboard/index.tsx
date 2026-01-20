@@ -433,6 +433,7 @@ export default function DashboardDefault() {
                   try {
                     return <ChartSection className={`${isMobile ? 'mt-5' : 'ml-5'} `} title="Statistiques des ventes">
                       <SimpleCharts />
+                      
                     </ChartSection>
                     // <SimpleCharts />;
                   } catch (error) {

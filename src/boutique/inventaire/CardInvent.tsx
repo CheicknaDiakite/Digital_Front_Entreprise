@@ -51,7 +51,7 @@ export default function CardInvent({ row }: EntreProps) {
   const closeOpen = () => {
     setOpen(false);
   };
-  console.log("kkk", row);
+  
   const url = row.image ? BASE(row.image) : img;
   const code_barre = row.code_barre ? BASE(row.code_barre) : img;
   const validDate = row.date ?? new Date();
@@ -87,7 +87,7 @@ export default function CardInvent({ row }: EntreProps) {
               </span>
             )}
           </TableCell>
-          <TableCell align="right">{row.qte} {row.unite || 'kilos'}</TableCell>
+          <TableCell align="right">{row.qte} {row.unite === 'kilos' ? '' : row.unite}</TableCell>
           <TableCell align="right">{formatNumberWithSpaces(row.pu)}</TableCell>
           {unUser.role === 1 && (
             <>

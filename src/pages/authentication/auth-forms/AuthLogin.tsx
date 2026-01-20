@@ -12,80 +12,31 @@ import {
   Typography,
   Divider,
   InputAdornment,
-  IconButton
+  IconButton,
+  Alert,
+  Checkbox,
+  FormControlLabel
 } from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 import { useLoginUser } from '../../../usePerso/fonction.user';
-import { TypeAnimation } from 'react-type-animation';
 import Bienvenue from '../../../_components/Card/Bienvenue';
+
+// Note: Removed Bienvenue and scrolling text for a cleaner, more professional look.
 
 interface LoginFormData {
   username: string;
   password: string;
 }
 
-const CONTACT_MESSAGES = [
-  "En cas de besoin, contacter : +223 91 15 48 34",
-  "En cas de besoin, contacter : Pour plus d'information",
-] as const;
-
-const ContactAnimation: FC = () => (
-  <Box 
-    sx={{ 
-      display: 'flex', 
-      justifyContent: 'center',
-      mx: 5,
-      typography: {
-        fontSize: { xs: '1.25rem', sm: '1.5rem' },
-        fontWeight: 800
-      }
-    }}
-  >
-    <Typography
-      component="span"
-      // className='rounded border-x-2 animate-border-rotate'
-      // variant="h5"
-      sx={{
-        backgroundImage: 'linear-gradient(to right, #60A5FA, #86EFAC)',
-        backgroundClip: 'text',
-        // color: 'transparent',
-        // borderRadius: 1,
-        // border: 2,
-        // borderColor: 'primary.main',
-        px: 2,
-        py: 1,
-        // animation: 'border-rotate 3s linear infinite',
-        // '@keyframes border-rotate': {
-        //   '0%': {
-        //     borderColor: '#60A5FA'
-        //   },
-        //   '50%': {
-        //     borderColor: '#86EFAC'
-        //   },
-        //   '100%': {
-        //     borderColor: '#60A5FA'
-        //   }
-        // }
-      }}
-    >
-      <TypeAnimation
-        sequence={CONTACT_MESSAGES.map(msg => [msg, 1000]).flat()}
-        wrapper="span"
-        speed={50}
-        style={{ display: 'inline-block' }}
-        repeat={Infinity}
-      />
-    </Typography>
-  </Box>
-);
-
 const AuthLogin: FC = () => {
   const { login } = useLoginUser();
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const {
     register,
@@ -98,138 +49,178 @@ const AuthLogin: FC = () => {
       password: ''
     }
   });
-  
 
   useEffect(() => {
     const checkRegistrationSuccess = () => {
       const isSuccess = localStorage.getItem('inscriptionSuccess') === 'true';
       if (isSuccess) {
-        toast.success('Inscription réussie');
-        toast.success('Un mail vous a été envoyé');
+        toast.success('Inscription réussie', { duration: 5000 });
         localStorage.removeItem('inscriptionSuccess');
       }
     };
-
     checkRegistrationSuccess();
   }, []);
-
-  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   const onSubmit = async (data: LoginFormData) => {
     try {
       await login(data);
-      await delay(4000);
+      // Removed artificial delay for snappy UX
       reset();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Erreur lors de la connexion');
+      // Handled by interceptors mainly, but safe backup
+      console.error(error);
     }
   };
-  
+
   return (
     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
       <Card
-        elevation={6}
-        sx={{ width: '100%', maxWidth: 480, borderRadius: 3, overflow: 'hidden' }}
+        elevation={0}
+        sx={{
+          width: '100%',
+          maxWidth: 450,
+          borderRadius: 4,
+          border: '1px solid',
+          borderColor: 'divider',
+          boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.05)'
+        }}
       >
-        <CardContent sx={{ py: 4, px: 5 }} className='rounded border-x-2 animate-border-rotate'>
-          
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-            <Bienvenue />
-                        
-            <Avatar sx={{ bgcolor: 'primary.main', width: 56, height: 56 }}>
+        <CardContent sx={{ p: { xs: 3, sm: 5 } }}>
+
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
+            <Avatar
+              sx={{
+                bgcolor: 'primary.main',
+                width: 56,
+                height: 56,
+                mb: 2,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+              }}
+            >
               <LockOutlinedIcon fontSize="large" />
             </Avatar>
-            <Typography variant="h5" sx={{ fontWeight: 700 }}>Connexion</Typography>
-            <Typography variant="body2" color="text.secondary"><ContactAnimation /></Typography>
+            <Typography variant="h4" sx={{ fontWeight: 700, color: 'text.primary' }}>
+              Connexion
+            </Typography>
+
+            <Bienvenue />
           </Box>
 
-          <Divider sx={{ my: 3 }} />
-
           <form onSubmit={handleSubmit(onSubmit)}>
-            {isSubmitting && (
-              <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-                <CircularProgress size={36} color="primary" />
-              </Box>
-            )}
+            <Stack spacing={3}>
+              {errors.root && (
+                <Alert severity="error">{errors.root.message}</Alert>
+              )}
 
-            <Stack spacing={2}>
               <TextField
-                label="Nom d'utilisateur ou numéro"
+                label="Nom d'utilisateur"
+                placeholder="Entrez votre identifiant"
                 error={!!errors.username}
-                helperText={errors.username?.message || ''}
+                helperText={errors.username?.message}
                 {...register('username', {
-                  required: 'Le nom d\'utilisateur est requis'
-                })}
-                fullWidth
-                disabled={isSubmitting}
-              />
-
-              <TextField
-                label="Mot de passe"
-                type={showPassword ? 'text' : 'password'}
-                error={!!errors.password}
-                helperText={errors.password?.message || ''}
-                {...register('password', {
-                  required: 'Le mot de passe est requis'
+                  required: 'Ce champ est requis'
                 })}
                 fullWidth
                 disabled={isSubmitting}
                 InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PersonOutlineIcon color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+                variant="outlined"
+              />
+
+              <TextField
+                label="Mot de passe"
+                placeholder="Entrez votre mot de passe"
+                type={showPassword ? 'text' : 'password'}
+                error={!!errors.password}
+                helperText={errors.password?.message}
+                {...register('password', {
+                  required: 'Ce champ est requis'
+                })}
+                fullWidth
+                disabled={isSubmitting}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LockOutlinedIcon color="primary" />
+                    </InputAdornment>
+                  ),
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton
-                        color='error'
                         aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
                         onClick={() => setShowPassword(prev => !prev)}
                         edge="end"
-                        size="small"
+                        color='info'
                       >
                         {showPassword ? <VisibilityOff /> : <Visibility />}
                       </IconButton>
                     </InputAdornment>
                   )
                 }}
+                variant="outlined"
               />
 
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                
+              <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <FormControlLabel
+                  control={<Checkbox checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} color="primary" />}
+                  label="Se souvenir de moi"
+                />
                 <Typography
                   component={Link}
-                  to="/auth/register"
-                  variant="h5"
-                  sx={{ 
-                    textDecoration: 'none',
-                    transition: 'color 0.3s',
-                    '&:hover': {
-                      color: 'primary.dark'
-                    }
-                  }}
+                  to="/auth/mot_de_passe_oublier"
+                  variant="body2"
                   color="primary"
+                  sx={{ textDecoration: 'none', fontWeight: 600, '&:hover': { textDecoration: 'underline' } }}
                 >
-                  Inscription !
-                </Typography>
-
-                <Button variant="text" size="small" color='error' sx={{ textTransform: 'none' }} component={Link} to="/auth/mot_de_passe_oublier">
                   Mot de passe oublié ?
-                </Button>
-              </Box>
+                </Typography>
+              </Stack>
 
               <Button
                 type="submit"
                 variant="contained"
-                color="primary"
+                size="large"
                 disabled={isSubmitting}
-                sx={{ py: 1.5, textTransform: 'none', fontWeight: 700 }}
+                sx={{
+                  py: 1.5,
+                  textTransform: 'none',
+                  fontWeight: 700,
+                  fontSize: '1rem',
+                  boxShadow: '0 4px 14px 0 rgba(0,118,255,0.39)'
+                }}
               >
-                {isSubmitting ? 'Connexion en cours...' : 'Se connecter'}
+                {isSubmitting ? <CircularProgress size={24} color="inherit" /> : 'Se connecter'}
               </Button>
             </Stack>
           </form>
+
+          <Divider sx={{ my: 4 }}>
+            <Typography variant="caption" color="text.secondary">
+              OU
+            </Typography>
+          </Divider>
+
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1 }}>
+            <Typography variant="body2" color="text.secondary">
+              Vous n'avez pas de compte ?
+            </Typography>
+            <Typography
+              component={Link}
+              to="/auth/register"
+              variant="subtitle2"
+              color="primary"
+              sx={{ textDecoration: 'none', fontWeight: 700, '&:hover': { textDecoration: 'underline' } }}
+            >
+              S'inscrire
+            </Typography>
+          </Box>
+
         </CardContent>
-        {/* <Divider />
-        <Box sx={{ px: 4, py: 2, display: 'flex', justifyContent: 'center' }}>
-          <Typography variant="caption" color="text.secondary">Besoin d'aide ? Contactez le support</Typography>
-        </Box> */}
       </Card>
     </Box>
   );

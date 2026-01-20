@@ -324,7 +324,6 @@ export default function Sortie() {
           elevation={0}
           // className={`${isMobile ? 'mobile-header-container' : 'rounded-lg overflow-hidden'}`}
           sx={{
-
             backdropFilter: 'blur(5px)',
             border: '1px solid rgba(255, 255, 255, 0.2)',
             borderRadius: '20px',
@@ -394,34 +393,23 @@ export default function Sortie() {
             {/* Date Filter Section */}
             {(unUser.role === 1 || unUser.role === 2) && (
 
-              <Grid
-                container
-                spacing={isMobile ? 2 : 3}
+              <Grid container spacing={2} alignItems="center"
+                // container
+                // spacing={isMobile ? 2 : 3}
               // className={isMobile ? 'mobile-grid' : ''}
               >
-                <Grid item xs={6} md={3}>
+                <Grid item xs={6} sm={3}>
                   <TextField
                     label="Date de début"
                     type="date"
                     value={selectedStartDate}
                     onChange={handleStartDateChange}
-                    InputLabelProps={{ shrink: true }}
                     className={`${isMobile ? 'mobile-date-field' : 'bg-white'}`}
-                    sx={isMobile ? {
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '12px',
-                        background: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(10px)',
-                        transition: 'all 0.3s ease',
-                        '&:focus-within': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                        }
-                      }
-                    } : {}}
+                    InputLabelProps={{ shrink: true }}
+                    size="small"
                   />
                 </Grid>
-                <Grid item xs={6} md={3}>
+                <Grid item xs={6} sm={3}>
                   <TextField
                     label="Date de fin"
                     type="date"
@@ -429,18 +417,7 @@ export default function Sortie() {
                     onChange={handleEndDateChange}
                     InputLabelProps={{ shrink: true }}
                     className={`${isMobile ? 'mobile-date-field' : 'bg-white'}`}
-                    sx={isMobile ? {
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '12px',
-                        background: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(10px)',
-                        transition: 'all 0.3s ease',
-                        '&:focus-within': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                        }
-                      }
-                    } : {}}
+                    size="small"
                   />
                 </Grid>
               </Grid>

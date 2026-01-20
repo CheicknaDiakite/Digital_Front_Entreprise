@@ -444,14 +444,14 @@ const NavSide: React.FC = () => {
             bgColor="text-white bg-sky-900"
           />
 
-          {/* {(unUser.role === 1 || unUser.role === 2) &&        
+          {(unUser.role === 1 || unUser.role === 2) &&
             <NavItem
               icon={<HelpOutlineIcon color="primary" />}
               label="Abonnement ?"
               onClick={() => setHelpDialogOpen(true)}
               bgColor="text-white bg-sky-900"
             />
-          } */}
+          }
 
           <NavItem
             icon={<PowerIcon color="error" />}
@@ -489,11 +489,20 @@ const NavSide: React.FC = () => {
         onClose={() => setHelpDialogOpen(false)}
         maxWidth="md"
         fullWidth
+        PaperProps={{
+          sx: {
+            bgcolor: 'rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(5px)',
+            borderRadius: '20px',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+          }
+        }}
       >
         <DialogTitle>
           <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6">Aide</Typography>
-            <IconButton onClick={() => setHelpDialogOpen(false)} size="small">
+            <Typography variant="h6" sx={{ color: 'white' }}>Aide</Typography>
+            <IconButton onClick={() => setHelpDialogOpen(false)} size="small" color="error">
               <CloseIcon />
             </IconButton>
           </Box>
