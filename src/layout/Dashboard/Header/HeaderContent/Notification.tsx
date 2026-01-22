@@ -1,4 +1,5 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
@@ -22,13 +23,15 @@ import Box from '@mui/material/Box';
 // project import
 import MainCard from '../../../../components/MainCard';
 import Transitions from '../../../../components/@extended/Transitions';
-
+import img from '../../../../../public/icon-192x192.png'
 // assets
 import BellOutlined from '@ant-design/icons/BellOutlined';
 import CheckCircleOutlined from '@ant-design/icons/CheckCircleOutlined';
-import GiftOutlined from '@ant-design/icons/GiftOutlined';
-import MessageOutlined from '@ant-design/icons/MessageOutlined';
-import SettingOutlined from '@ant-design/icons/SettingOutlined';
+
+// functional imports
+import { useGetAllEntre } from '../../../../usePerso/fonction.entre';
+import { useStoreUuid } from '../../../../usePerso/store';
+import { BASE } from '../../../../_services/caller.service';
 
 // sx styles
 const avatarSX = {
@@ -43,7 +46,6 @@ const actionSX = {
   top: 'auto',
   right: 'auto',
   alignSelf: 'flex-start',
-
   transform: 'none'
 };
 
@@ -53,13 +55,32 @@ export default function Notification() {
   const theme = useTheme();
   const matchesXs = useMediaQuery(theme.breakpoints.down('md'));
 
-  // const anchorRef = useRef(null);
-  const [read, setRead] = useState(2);
-  const anchorRef = useRef<HTMLButtonElement | null>(null); // ou le type approprié
+  const anchorRef = useRef<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState(false);
 
+  const uuid = useStoreUuid((state) => state.selectedId);
+  const { entresEntreprise } = useGetAllEntre(uuid!);
+
+  // Filter and sort notifications based on stock levels
+  const notifications = useMemo(() => {
+    if (!entresEntreprise) return [];
+
+    return entresEntreprise
+      .filter((item) => (item.qte || 0) <= 20) // Threshold for notification
+      .sort((a, b) => (a.qte || 0) - (b.qte || 0)); // Sort by quantity ascending (lowest first)
+  }, [entresEntreprise]);
+
+  const [readCount, setReadCount] = useState<number | null>(null);
+
+  // Update read count based on current notifications if not manually cleared
+  const displayCount = readCount !== null ? readCount : notifications.length;
+  console.log("oo ..", notifications)
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
+    if (!open) {
+      // Optional: Reset read count when opening?
+      // setReadCount(0); 
+    }
   };
 
   const handleClose = (event: MouseEvent | TouchEvent) => {
@@ -69,22 +90,25 @@ export default function Notification() {
     setOpen(false);
   };
 
+  const handleMarkAllRead = () => {
+    setReadCount(0);
+  };
+
   const iconBackColorOpen = 'grey.100';
 
   return (
-    <Box sx={{ flexShrink: 0, ml: 0.75 }}>
+    <Box sx={{ flexShrink: 0, ml: 0.75 }} className="mx-2">
       <IconButton
-        color="secondary"
-        
+        className='bg-green-50'
+        color="primary"
         sx={{ color: 'text.primary', bgcolor: open ? iconBackColorOpen : 'transparent' }}
         aria-label="open profile"
         ref={anchorRef}
         aria-controls={open ? 'profile-grow' : undefined}
         aria-haspopup="true"
         onClick={handleToggle}
-        
       >
-        <Badge badgeContent={read} color="primary">
+        <Badge badgeContent={displayCount} color="error">
           <BellOutlined />
         </Badge>
       </IconButton>
@@ -102,15 +126,15 @@ export default function Notification() {
             <Paper sx={{ boxShadow: theme.customShadows.z1, width: '100%', minWidth: 285, maxWidth: { xs: 285, md: 420 } }}>
               <ClickAwayListener onClickAway={handleClose}>
                 <MainCard
-                  title="Notification"
+                  title="Notifications des Stocks"
                   elevation={0}
                   border={false}
                   content={false}
                   secondary={
                     <>
-                      {read > 0 && (
-                        <Tooltip title="Mark as all read">
-                          <IconButton color="success" size="small" onClick={() => setRead(0)}>
+                      {displayCount > 0 && (
+                        <Tooltip title="Tout marquer comme lu">
+                          <IconButton color="success" size="small" onClick={handleMarkAllRead}>
                             <CheckCircleOutlined style={{ fontSize: '1.15rem' }} />
                           </IconButton>
                         </Tooltip>
@@ -120,6 +144,7 @@ export default function Notification() {
                 >
                   <List
                     component="nav"
+
                     sx={{
                       p: 0,
                       '& .MuiListItemButton-root': {
@@ -130,113 +155,63 @@ export default function Notification() {
                       }
                     }}
                   >
-                    <ListItemButton selected={read > 0}>
-                      <ListItemAvatar>
-                        <Avatar sx={{ color: 'success.main', bgcolor: 'success.lighter' }}>
-                          <GiftOutlined />
-                        </Avatar>
-                      </ListItemAvatar>
-                      <ListItemText
-                        primary={
-                          <Typography variant="h6">
-                            It&apos;s{' '}
-                            <Typography component="span" variant="subtitle1">
-                              Cristina danny&apos;s
-                            </Typography>{' '}
-                            birthday today.
-                          </Typography>
-                        }
-                        secondary="2 min ago"
-                      />
-                      <ListItemSecondaryAction>
-                        <Typography variant="caption" noWrap>
-                          3:00 AM
+                    {notifications.length > 0 ? (
+                      notifications.slice(0, 5).map((item, index) => {
+                        const qte = item.qte || 0;
+                        const isCritical = qte <= 5;
+                        const url = item.image ? BASE(item.image) : img;
+
+                        return (
+                          <div key={index}>
+                            <ListItemButton component={Link} to="/entre" onClick={() => setOpen(false)}>
+                              <ListItemAvatar>
+
+                                <Avatar
+                                  alt="img"
+                                  src={url}
+                                  sx={{ width: 56, height: 56 }}
+                                />
+                              </ListItemAvatar>
+                              <ListItemText className='text-red-400'
+                                primary={
+                                  <Typography variant="h6">
+                                    Stock faible :{' '}
+                                    <Typography component="span" variant="subtitle1" fontWeight="bold">
+                                      {item.categorie_libelle}
+                                    </Typography>
+                                  </Typography>
+                                }
+                                secondary={`Quantité restante : ${qte} ${item.unite === 'kilos' ? '' : item.unite}`}
+                              />
+                              <ListItemSecondaryAction>
+                                <Typography variant="caption" noWrap color={isCritical ? 'error' : 'textSecondary'} className='text-red-600'>
+                                  {isCritical ? 'Critique' : 'Attention'}
+                                </Typography>
+                              </ListItemSecondaryAction>
+                            </ListItemButton>
+                            <Divider />
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <Box sx={{ p: 2, textAlign: 'center' }}>
+                        <Typography variant="body2" color="textSecondary">
+                          Aucune alerte de stock.
                         </Typography>
-                      </ListItemSecondaryAction>
-                    </ListItemButton>
-                    <Divider />
-                    <ListItemButton>
-                      <ListItemAvatar>
-                        <Avatar sx={{ color: 'primary.main', bgcolor: 'primary.lighter' }}>
-                          <MessageOutlined />
-                        </Avatar>
-                      </ListItemAvatar>
-                      <ListItemText
-                        primary={
-                          <Typography variant="h6">
-                            <Typography component="span" variant="subtitle1">
-                              Aida Burg
-                            </Typography>{' '}
-                            commented your post.
-                          </Typography>
-                        }
-                        secondary="5 August"
-                      />
-                      <ListItemSecondaryAction>
-                        <Typography variant="caption" noWrap>
-                          6:00 PM
-                        </Typography>
-                      </ListItemSecondaryAction>
-                    </ListItemButton>
-                    <Divider />
-                    <ListItemButton selected={read > 0}>
-                      <ListItemAvatar>
-                        <Avatar sx={{ color: 'error.main', bgcolor: 'error.lighter' }}>
-                          <SettingOutlined />
-                        </Avatar>
-                      </ListItemAvatar>
-                      <ListItemText
-                        primary={
-                          <Typography variant="h6">
-                            Your Profile is Complete &nbsp;
-                            <Typography component="span" variant="subtitle1">
-                              60%
-                            </Typography>{' '}
-                          </Typography>
-                        }
-                        secondary="7 hours ago"
-                      />
-                      <ListItemSecondaryAction>
-                        <Typography variant="caption" noWrap>
-                          2:45 PM
-                        </Typography>
-                      </ListItemSecondaryAction>
-                    </ListItemButton>
-                    <Divider />
-                    <ListItemButton>
-                      <ListItemAvatar>
-                        <Avatar sx={{ color: 'primary.main', bgcolor: 'primary.lighter' }}>C</Avatar>
-                      </ListItemAvatar>
-                      <ListItemText
-                        primary={
-                          <Typography variant="h6">
-                            <Typography component="span" variant="subtitle1">
-                              Cristina Danny
-                            </Typography>{' '}
-                            invited to join{' '}
-                            <Typography component="span" variant="subtitle1">
-                              Meeting.
+                      </Box>
+                    )}
+
+                    {/* {notifications.length > 3 && (
+                      <ListItemButton sx={{ textAlign: 'center', py: `${12}px !important` }} component={Link} to="/entre/index" onClick={() => setOpen(false)}>
+                        <ListItemText
+                          primary={
+                            <Typography variant="h6" color="primary">
+                              voir le reste
                             </Typography>
-                          </Typography>
-                        }
-                        secondary="Daily scrum meeting time"
-                      />
-                      <ListItemSecondaryAction>
-                        <Typography variant="caption" noWrap>
-                          9:10 PM
-                        </Typography>
-                      </ListItemSecondaryAction>
-                    </ListItemButton>
-                    <Divider />
-                    <ListItemButton sx={{ textAlign: 'center', py: `${12}px !important` }}>
-                      <ListItemText
-                        primary={
-                          <Typography variant="h6" color="primary">
-                            View All
-                          </Typography>
-                        }
-                      />
-                    </ListItemButton>
+                          }
+                        />
+                      </ListItemButton>
+                    )} */}
                   </List>
                 </MainCard>
               </ClickAwayListener>

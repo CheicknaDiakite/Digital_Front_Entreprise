@@ -16,12 +16,15 @@ import { Link } from 'react-router-dom';
 import { useFetchUser } from '../../../../../usePerso/fonction.user';
 import { Box, Skeleton } from '@mui/material';
 import { logout } from '../../../../../usePerso/fonctionPerso';
+import { useStoreUuid } from '../../../../../usePerso/store';
 
 
 // ==============================|| HEADER PROFILE - PROFILE TAB ||============================== //
 
 export default function ProfileTab() {
-  const {unUser, isLoading, isError} = useFetchUser(connect)
+  const {unUser, isLoading} = useFetchUser()
+
+  const uuid = useStoreUuid((state) => state.selectedId)
   
   if (isLoading) {
     // return <div>Chargement...</div>;
@@ -53,6 +56,9 @@ export default function ProfileTab() {
             <ListItemText primary="modifier votre profile" />
           </ListItemButton>
         </Link>
+        {uuid && <>
+        
+        
         {unUser.role === 1 && 
           <Link to={"/entreprise/personnel"}>
             <ListItemButton >
@@ -92,6 +98,7 @@ export default function ProfileTab() {
           </ListItemIcon>
           <ListItemText primary="Logout" />
         </ListItemButton>
+        </>}
       </List>
     );
   }

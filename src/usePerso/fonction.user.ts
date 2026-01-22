@@ -408,7 +408,7 @@ export function useLoginUser() {
   });
 
   const login = (post: FormType) => {
-    connexion.mutate(post);
+    return connexion.mutateAsync(post);
   };
 
   return { login }

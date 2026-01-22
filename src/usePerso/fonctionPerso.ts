@@ -114,6 +114,7 @@ export const getBgClass = (qte: number, qte_critique?: number): string => {
   if (qte <= 100) return 'bg-green-100';
   return ''; // Pas de classe supplémentaire si qte >= 100
 };
+
 export function stringToColor(string: string) {
   let hash = 0;
   let i;

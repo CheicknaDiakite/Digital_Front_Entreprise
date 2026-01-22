@@ -168,8 +168,7 @@ export default function Profile() {
                         </Grid>
                       </Grid>
                     </CardContent>
-
-                    {uuid && <>                    
+                   
                     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                       <Tabs variant="fullWidth" value={value} onChange={handleChange} aria-label="profile tabs">
                         <Tab
@@ -184,6 +183,7 @@ export default function Profile() {
                           label="Profile"
                           {...a11yProps(0)}
                         />
+                        {uuid &&   
                         <Tab
                           sx={{
                             display: 'flex',
@@ -196,6 +196,7 @@ export default function Profile() {
                           label="Facture / Depense"
                           {...a11yProps(1)}
                         />
+                        }
                       </Tabs>
                     </Box>
                     <TabPanel value={value} index={0}>
@@ -204,7 +205,7 @@ export default function Profile() {
                     <TabPanel value={value} index={1}>
                       <SettingTab />
                     </TabPanel>
-                    </>}
+                    
                     
                   </MainCard>
                 </ClickAwayListener>
