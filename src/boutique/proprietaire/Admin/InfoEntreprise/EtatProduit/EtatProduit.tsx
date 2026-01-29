@@ -7,7 +7,12 @@ import {
   Paper,
   Typography,
   Button,
-  TextField
+  TextField,
+  Chip,
+  Card,
+  CardContent,
+  Fade,
+  Zoom
 } from '@mui/material';
 
 import { useFetchEntreprise, useStockEntreprise } from '../../../../../usePerso/fonction.user';
@@ -20,8 +25,12 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
+import ClearIcon from '@mui/icons-material/Clear';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { RecupType } from '../../../../../typescript/DataType';
 import { formatNumberWithSpaces } from '../../../../../usePerso/fonctionPerso';
 
@@ -36,23 +45,86 @@ function isLicenceExpired(dateStr?: string) {
 }
 
 // ───────────────────────────────
-// Component
+// Custom Hook: Logic Controller
 // ───────────────────────────────
-export default function EtatProduit() {
-  const uuid = useStoreUuid((state) => state.selectedId);
-
-  const { stockEntreprise, isLoading, isError } = useStockEntreprise(uuid || '');
+const useCompanyStats = (uuid: string | null) => {
+  const { stockEntreprise, isLoading: stockLoading, isError: stockError } = useStockEntreprise(uuid || '');
   const { sortiesEntreprise = [] } = useGetAllSortie(uuid!);
   const { entresEntreprise = [] } = useGetAllEntre(uuid!);
   const { unEntreprise } = useFetchEntreprise(uuid);
 
-  const [isMobile, setIsMobile] = useState(false);
-  const [selectedStartDate, setSelectedStartDate] = useState('');
-  const [selectedEndDate, setSelectedEndDate] = useState('');
+  const [dateRange, setDateRange] = useState({ start: '', end: '' });
 
-  // ───────────────────────────────
-  // Responsive
-  // ───────────────────────────────
+  // Filter Sorties
+  const filteredSorties = useMemo(() => {
+    return sortiesEntreprise.filter((item: RecupType) => {
+      if (!item.date) return false;
+      const itemDate = item.date.split('T')[0];
+      if (dateRange.start && itemDate < dateRange.start) return false;
+      if (dateRange.end && itemDate > dateRange.end) return false;
+      return true;
+    });
+  }, [sortiesEntreprise, dateRange]);
+
+  // Calculate Revenue (CA)
+  const totalCA = useMemo(() => {
+    return filteredSorties
+      .filter((item) => item.is_remise === false)
+      .reduce((acc, row) => acc + (row.qte && row.pu ? row.qte * row.pu : 0), 0);
+  }, [filteredSorties]);
+
+  // Filter Entrees
+  const filteredEntres = useMemo(() => {
+    return entresEntreprise.filter((item: RecupType) => {
+      if (!item.date) return false;
+      const itemDate = item.date.split('T')[0];
+      if (dateRange.start && itemDate < dateRange.start) return false;
+      if (dateRange.end && itemDate > dateRange.end) return false;
+      return true;
+    });
+  }, [entresEntreprise, dateRange]);
+
+  // Calculate Expenses (Achats)
+  const totalExpenses = useMemo(() => {
+    return filteredEntres.reduce((acc, row) => acc + (row.qte && row.pu_achat ? row.qte * row.pu_achat : 0), 0);
+  }, [filteredEntres]);
+
+  const estimatedProfit = totalCA - totalExpenses;
+  const isLoss = estimatedProfit < 0;
+  const licenceExpired = unEntreprise ? isLicenceExpired(unEntreprise.licence_date_expiration) : false;
+
+  return {
+    loading: stockLoading,
+    error: stockError,
+    stockEntreprise,
+    unEntreprise,
+    metrics: {
+      totalCA,
+      totalExpenses,
+      estimatedProfit,
+      isLoss
+    },
+    filters: {
+      start: dateRange.start,
+      end: dateRange.end,
+      setStart: (date: string) => setDateRange(prev => ({ ...prev, start: date })),
+      setEnd: (date: string) => setDateRange(prev => ({ ...prev, end: date })),
+      clear: () => setDateRange({ start: '', end: '' }),
+      isActive: !!(dateRange.start || dateRange.end)
+    },
+    licenceExpired
+  };
+};
+
+// ───────────────────────────────
+// Component
+// ───────────────────────────────
+export default function EtatProduit() {
+  const uuid = useStoreUuid((state) => state.selectedId);
+  const { loading, error, stockEntreprise, metrics, filters, licenceExpired } = useCompanyStats(uuid);
+
+  const [isMobile, setIsMobile] = useState(false);
+
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     handleResize();
@@ -60,236 +132,311 @@ export default function EtatProduit() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // ───────────────────────────────
-  // FILTRAGE DATE - SORTIES
-  // ───────────────────────────────
-  const sortiesFiltrees = sortiesEntreprise.filter((item: RecupType) => {
-    if (!item.date) return false;
-
-    const itemDate = item.date.split('T')[0]; // YYYY-MM-DD
-
-    if (selectedStartDate && itemDate < selectedStartDate) return false;
-    if (selectedEndDate && itemDate > selectedEndDate) return false;
-
-    return true;
-  });
-
-  const sortiesValides = sortiesFiltrees.filter(
-    (item: RecupType) => item.is_remise === false
-  );
-
-  // ───────────────────────────────
-  // CHIFFRE D'AFFAIRES (VENTES)
-  // ───────────────────────────────
-  const totalCA = sortiesValides.reduce((acc, row) => {
-    const montant =
-      row.qte !== undefined && row.pu !== undefined
-        ? row.qte * row.pu
-        : 0;
-    return acc + montant;
-  }, 0);
-
-  // ───────────────────────────────
-  // FILTRAGE DATE - ENTREES
-  // ───────────────────────────────
-  const entresFiltrees = entresEntreprise.filter((item: RecupType) => {
-    if (!item.date) return false;
-
-    const itemDate = item.date.split('T')[0];
-
-    if (selectedStartDate && itemDate < selectedStartDate) return false;
-    if (selectedEndDate && itemDate > selectedEndDate) return false;
-
-    return true;
-  });
-
-  // ───────────────────────────────
-  // MONTANT DEPENSÉ (ACHATS)
-  // ───────────────────────────────
-  const totalMD = entresFiltrees.reduce((acc, row: RecupType) => {
-    const montant =
-      row.qte !== undefined && row.pu_achat !== undefined
-        ? row.qte * row.pu_achat
-        : 0;
-    return acc + montant;
-  }, 0);
-
-  const beneficeEstime = totalCA - totalMD;
-  const isPerte = beneficeEstime < 0;
-
-
-  // ───────────────────────────────
-  // Loading / Error
-  // ───────────────────────────────
-  if (isLoading) {
+  if (loading) {
     return (
-      <Box className="flex items-center justify-center p-8">
-        <CircularProgress />
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: 2, background: '#111827' }}>
+        <CircularProgress size={60} thickness={4} sx={{ color: '#60a5fa' }} />
+        <Typography variant="body1" sx={{ color: '#94a3b8' }}>Chargement des statistiques...</Typography>
       </Box>
     );
   }
 
-  if (isError) {
+  if (error || !stockEntreprise) {
     return (
-      <Alert
-        severity="error"
-        action={
-          <Button color="inherit" onClick={() => window.location.reload()}>
-            Réessayer
-          </Button>
-        }
-      >
-        Problème de connexion
-      </Alert>
+      <Box sx={{ minHeight: '100vh', background: '#111827', pt: 8, px: 2 }}>
+        <Alert severity="error" variant="filled" action={<Button color="inherit" onClick={() => window.location.reload()}>Réessayer</Button>}>
+          Problème de connexion. Veuillez rafraîchir la page.
+        </Alert>
+      </Box>
     );
   }
 
-  if (!stockEntreprise || !unEntreprise) return null;
-
-  const licenceExpiree = isLicenceExpired(unEntreprise.licence_date_expiration);
-
-  // ───────────────────────────────
-  // Stats cards
-  // ───────────────────────────────
-  const stats = [
+  // Stats Configuration
+  const statsCards = [
     {
       title: 'Quantités sorties',
       value: stockEntreprise.somme_sortie_qte,
-      icon: <TrendingDownIcon color="error" />
+      icon: <TrendingDownIcon sx={{ fontSize: 32 }} />,
+      color: '#f87171', // red-400
+      bg: 'rgba(239, 68, 68, 0.1)',
+      border: 'rgba(239, 68, 68, 0.2)'
     },
     {
       title: 'Quantités en stock',
       value: stockEntreprise.somme_entrer_qte,
-      icon: <InventoryIcon color="success" />
+      icon: <InventoryIcon sx={{ fontSize: 32 }} />,
+      color: '#34d399', // emerald-400
+      bg: 'rgba(52, 211, 153, 0.1)',
+      border: 'rgba(52, 211, 153, 0.2)'
     },
     {
       title: 'Sorties effectuées',
       value: stockEntreprise.nombre_sortie,
-      icon: <ShoppingCartIcon color="primary" />,
+      icon: <ShoppingCartIcon sx={{ fontSize: 32 }} />,
+      color: '#60a5fa', // blue-400
+      bg: 'rgba(96, 165, 250, 0.1)',
+      border: 'rgba(96, 165, 250, 0.2)',
       link: '/sortie'
     },
     {
       title: 'Entrées effectuées',
       value: stockEntreprise.nombre_entrer,
-      icon: <TrendingUpIcon color="info" />,
+      icon: <TrendingUpIcon sx={{ fontSize: 32 }} />,
+      color: '#22d3ee', // cyan-400
+      bg: 'rgba(34, 238, 48, 0.1)',
+      border: 'rgba(34, 211, 238, 0.2)',
       link: '/entre'
     }
   ];
 
-  // ───────────────────────────────
-  // Render
-  // ───────────────────────────────
   return (
-    <Container maxWidth="md" className="py-8">
-      <Typography variant="h4" className="text-gray-50 mb-4">
-        Statistiques de l’entreprise
-      </Typography>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        // background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)', // Dark Professional Gradient
+        py: 4,
+        color: '#f8fafc' // slate-50
+      }}
+    >
+      <Container maxWidth="lg">
+        {/* Header */}
+        <Fade in timeout={600}>
+          <Box sx={{ mb: 5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+              <AssessmentIcon sx={{ fontSize: 40, color: '#60a5fa' }} />
+              <Typography variant="h3" 
+                className='text-gray-50'
+                
+              >
+                Statistiques
+              </Typography>
+            </Box>
+            <Typography variant="body1" className='text-gray-200' sx={{ ml: 7, color: '#94a3b8' }}>
+              Vue d'ensemble et indicateurs de performance
+            </Typography>
+          </Box>
+        </Fade>
 
-      {/* Filtres date */}
-      <Grid container spacing={2} className="mb-4">
-        <Grid item xs={12} md={6}>
-          <TextField
-            fullWidth
-            className='bg-slate-200'
-            label="Date de début"
-            type="date"
-            value={selectedStartDate}
-            onChange={(e) => setSelectedStartDate(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-          />
-        </Grid>
-
-        <Grid item xs={12} md={6}>
-          <TextField
-            fullWidth
-            className='bg-slate-200'
-            label="Date de fin"
-            type="date"
-            value={selectedEndDate}
-            onChange={(e) => setSelectedEndDate(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-          />
-        </Grid>
-      </Grid>
-
-      {/* CA */}
-      <Box className="flex items-center gap-2 mb-3">
-        <LocalAtmIcon color="primary" />
-        <Typography variant="h6" className="text-gray-50">
-          Chiffre d’affaires : {formatNumberWithSpaces(totalCA)}
-        </Typography>
-      </Box>
-
-      {/* Dépenses */}
-      <Box className="flex items-center gap-2 mb-6">
-        <LocalAtmIcon color="error" />
-        <Typography variant="h6" className="text-gray-50">
-          Somme des prix d'achats : {formatNumberWithSpaces(totalMD)}
-        </Typography>
-      </Box>
-
-      <Box className="flex items-center gap-2 mb-6">
-        <LocalAtmIcon color={isPerte ? 'info' : 'success'} />
-        <Typography
-          variant="h6"
-          sx={{
-            color: isPerte ? 'info.main' : 'success.main',
-            fontWeight: 600
-          }}
-        >
-          {isPerte ? 'Perte estimée' : 'Bénéfice estimé'} :{' '}
-          {formatNumberWithSpaces(Math.abs(beneficeEstime))}
-        </Typography>
-      </Box>
-
-      {/* <Box className="flex items-center gap-2 mb-6">
-        <LocalAtmIcon color={isPerte ? 'error' : 'success'} />
-        <Typography
-          variant="h6"
-          sx={{
-            color: isPerte ? 'error.main' : 'success.main',
-            fontWeight: 600
-          }}
-        >
-          {isPerte ? "Prix d'achat estimé" : 'Bénéfice estimé'} :{' '}
-          {formatNumberWithSpaces(Math.abs(beneficeEstime))}
-        </Typography>
-      </Box> */}
-
-
-      {/* Stats */}
-      <Grid container spacing={3}>
-        {stats.map((stat, index) => {
-          const Card = (
-            <Paper
-              elevation={3}
-              className={`p-4 ${
-                licenceExpiree ? 'opacity-50 grayscale' : ''
-              }`}
-            >
-              <Box className="flex justify-between items-center mb-2">
-                <Typography variant="subtitle1">
-                  {stat.title}
-                </Typography>
-                {stat.icon}
-              </Box>
-              <Typography variant="h5">{stat.value}</Typography>
-            </Paper>
-          );
-
-          return (
-            <Grid item xs={12} sm={6} md={3} key={index}>
-              {stat.link && !licenceExpiree ? (
-                <Link to={stat.link} className="no-underline">
-                  {Card}
-                </Link>
-              ) : (
-                Card
+        {/* Date Filters */}
+        <Fade in timeout={800}>
+          <Paper
+            elevation={0}
+            className='bg-gray-400'
+            sx={{
+              p: 3,
+              mb: 4,
+              borderRadius: 3,
+              // background: 'rgba(30, 41, 59, 0.7)', // slate-800 with opacity
+              backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(148, 163, 184, 0.1)'
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+              <CalendarTodayIcon sx={{ color: '#94a3b8' }} />
+              <Typography variant="h6" className='text-gray-50' sx={{ fontWeight: 600, color: '#f1f5f9' }}>
+                Période d'analyse
+              </Typography>
+              {filters.isActive && (
+                <Chip label="Filtré" size="small" sx={{ ml: 1, background: '#3b82f6', color: 'white' }} />
               )}
+            </Box>
+
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs={12} sm={5}>
+                <TextField
+                  fullWidth
+                  label="Date de début"
+                  type="date"
+                  value={filters.start}
+                  onChange={(e) => filters.setStart(e.target.value)}
+                  InputLabelProps={{ shrink: true, sx: { color: '#94a3b8' } }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      color: 'white',
+                      backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                      '& fieldset': { borderColor: 'rgba(148, 163, 184, 0.2)' },
+                      '&:hover fieldset': { borderColor: 'rgba(148, 163, 184, 0.4)' },
+                      '&.Mui-focused fieldset': { borderColor: '#60a5fa' }
+                    }
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={5}>
+                <TextField
+                  fullWidth
+                  label="Date de fin"
+                  type="date"
+                  value={filters.end}
+                  onChange={(e) => filters.setEnd(e.target.value)}
+                  InputLabelProps={{ shrink: true, sx: { color: '#94a3b8' } }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      color: 'white',
+                      backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                      '& fieldset': { borderColor: 'rgba(148, 163, 184, 0.2)' },
+                      '&:hover fieldset': { borderColor: 'rgba(148, 163, 184, 0.4)' },
+                      '&.Mui-focused fieldset': { borderColor: '#60a5fa' }
+                    }
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={2}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  className='bg-yellow-500'
+                  startIcon={<ClearIcon />}
+                  onClick={filters.clear}
+                  disabled={!filters.isActive}
+                  
+                >
+                  Effacer
+                </Button>
+              </Grid>
             </Grid>
-          );
-        })}
-      </Grid>
-    </Container>
+          </Paper>
+        </Fade>
+
+        {/* Financial Metrics */}
+        <Fade in timeout={1000}>
+          <Grid container spacing={3} sx={{ mb: 4 }}>
+            {/* Revenue */}
+            <Grid item xs={12} md={4}>
+              <Card sx={{ background: 'linear-gradient(135deg, #1e3a8a 0%, #172554 100%)', borderRadius: 3, border: '1px solid rgba(96, 165, 250, 0.2)' }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: 'flex', gap: 1.5, mb: 2, alignItems: 'center' }}>
+                    <Box sx={{ p: 1, borderRadius: 1.5, background: 'rgba(96, 165, 250, 0.1)' }}>
+                      <LocalAtmIcon sx={{ color: '#60a5fa' }} />
+                    </Box>
+                    <Typography variant="subtitle2" sx={{ color: '#fef2f2', fontWeight: 600 }}>Chiffre d'Affaires</Typography>
+                  </Box>
+                  <Typography variant="h4" sx={{ fontWeight: 700, color: '#eff6ff' }}>
+                    {formatNumberWithSpaces(metrics.totalCA)}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Expenses */}
+            <Grid item xs={12} md={4}>
+              <Card sx={{ background: 'linear-gradient(135deg, #064e3b 0%, #022c22 100%)', borderRadius: 3, border: '1px solid rgba(34, 211, 238, 0.2)' }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: 'flex', gap: 1.5, mb: 2, alignItems: 'center' }}>
+                    <Box sx={{ p: 1, borderRadius: 1.5, background: 'rgba(248, 113, 113, 0.1)' }}>
+                      <LocalAtmIcon sx={{ color: '#f87171' }} />
+                    </Box>
+                    <Typography variant="subtitle2" sx={{ color: '#fef2f2', fontWeight: 600 }}>Sommes Estimée (Prix Achats)</Typography>
+                  </Box>
+                  <Typography variant="h4" sx={{ fontWeight: 700, color: '#fef2f2' }}>
+                    {formatNumberWithSpaces(metrics.totalExpenses)}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Profit */}
+            <Grid item xs={12} md={4}>
+              <Card sx={{
+                background: metrics.isLoss
+                  ? 'linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%)'
+                  : 'linear-gradient(135deg, #064e3b 0%, #022c22 100%)',
+                // background: 'linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%)',
+                borderRadius: 3,
+                // border: '1px solid rgba(248, 113, 113, 0.2)'
+                border: metrics.isLoss ? '1px solid rgba(248, 113, 113, 0.2)' : '1px solid rgba(52, 211, 153, 0.2)'
+              }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: 'flex', gap: 1.5, mb: 2, alignItems: 'center' }}>
+                    <Box sx={{ p: 1, borderRadius: 1.5, background: metrics.isLoss ? 'rgba(34, 211, 238, 0.1)' : 'rgba(52, 211, 153, 0.1)' }}>
+                      {metrics.isLoss ? <TrendingDownIcon sx={{ color: '#22d3ee' }} /> : <TrendingUpIcon sx={{ color: '#34d399' }} />}
+                    </Box>
+                    <Typography variant="subtitle2" sx={{ color: metrics.isLoss ? '#fef2f2' : '#fef2f2', fontWeight: 600 }}>
+                      {metrics.isLoss ? 'Perte Estimée' : 'Bénéfice Estimé'}
+                    </Typography>
+                  </Box>
+                  <Typography variant="h4" sx={{ fontWeight: 700, color: '#ecfeff' }}>
+                    {formatNumberWithSpaces(Math.abs(metrics.estimatedProfit))}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+        </Fade>
+
+        {/* Stats Grid */}
+        <Grid container spacing={3}>
+          {statsCards.map((stat, index) => (
+            <Grid item xs={12} sm={6} md={3} key={index}>
+              <Zoom in timeout={1200 + index * 100}>
+                <Card
+                  // component={stat.link && !licenceExpired ? Link : 'div'}
+                  // to={stat.link}
+                  sx={{
+                    height: '100%',
+                    background: 'rgba(30, 41, 59, 0.4)',
+                    backdropFilter: 'blur(8px)',
+                    border: `1px solid ${stat.border}`,
+                    borderRadius: 3,
+                    textDecoration: 'none',
+                    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                    cursor: stat.link && !licenceExpired ? 'pointer' : 'default',
+                    opacity: licenceExpired ? 0.6 : 1,
+                    '&:hover': stat.link && !licenceExpired ? {
+                      transform: 'translateY(-4px)',
+                      boxShadow: `0 10px 20px -5px ${stat.color}40`,
+                      background: 'rgba(30, 41, 59, 0.6)'
+                    } : {}
+                  }}
+                >
+                  <Link to={stat.link ? stat.link : ""}>
+                    <Box sx={{ p: 3 }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                        <Typography variant="subtitle2" sx={{ color: stat.color, fontWeight: 600 }}>
+                          {stat.title}
+                        </Typography>
+                        
+
+                        <Box sx={{ p: 1, borderRadius: '50%', background: stat.bg, color: stat.color }}>
+                          {stat.icon}
+                        </Box>
+                        
+                      </Box>
+                      <Typography variant="h4" sx={{ color: '#f8fafc', fontWeight: 700 }}>
+                        {stat.value ? stat.value.toLocaleString() : 0}
+                      </Typography>
+                    </Box>
+                  </Link>
+                </Card>
+              </Zoom>
+            </Grid>
+          ))}
+        </Grid>
+
+        {/* License Expired Warning */}
+        {licenceExpired && (
+          <Fade in timeout={1600}>
+            <Alert
+              severity="warning"
+              variant="filled"
+              sx={{
+                mt: 4,
+                borderRadius: 3,
+                boxShadow: '0 8px 24px rgba(237, 137, 54, 0.25)',
+                '& .MuiAlert-icon': {
+                  fontSize: 28
+                }
+              }}
+            >
+              <Typography variant="h6" sx={{ mb: 0.5, fontWeight: 600 }}>
+                Licence expirée
+              </Typography>
+              <Typography variant="body2">
+                Certaines fonctionnalités sont désactivées. Veuillez renouveler votre licence pour continuer à utiliser toutes les fonctionnalités.
+              </Typography>
+            </Alert>
+          </Fade>
+        )}
+      </Container>
+    </Box>
   );
 }

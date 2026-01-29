@@ -74,7 +74,7 @@ export default function Notification() {
 
   // Update read count based on current notifications if not manually cleared
   const displayCount = readCount !== null ? readCount : notifications.length;
-  console.log("oo ..", notifications)
+  
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
     if (!open) {
