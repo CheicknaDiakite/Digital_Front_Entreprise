@@ -13,6 +13,22 @@
     "electron:dev": "vite build && tsc electron-main.ts --outDir . && electron .",
     "electron:build": "vite build && tsc electron-main.ts --outDir . && electron-builder --win --x64"
   },
+  "build": {
+    "appId": "com.geststocks.app",
+    "productName": "Gest Stocks",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron-main.js",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "public/C_D.ico"
+    }
+  },
   "dependencies": {
     "@capacitor/android": "^7.4.1",
     "@capacitor/cli": "^7.4.1",

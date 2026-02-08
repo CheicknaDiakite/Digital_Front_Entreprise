@@ -5,17 +5,18 @@ import { imagetools } from 'vite-imagetools';
 import viteCompression from 'vite-plugin-compression';
 
 export default defineConfig({
+    base: './',
     plugins: [react(), VitePWA({
         registerType: "autoUpdate",
         includeAssets: [
-            'favicon.svg', 
-            'icon-192x192.png', 
-            'icon-512x512.png', 
+            'favicon.svg',
+            'icon-192x192.png',
+            'icon-512x512.png',
             'icon-180x180.png',
             'icon-167x167.png',
             'icon-152x152.png',
             'icon-120x120.png',
-            'C_D.ico', 
+            'C_D.ico',
             'offline.html'
         ],
         manifest: {
@@ -33,41 +34,41 @@ export default defineConfig({
             lang: 'fr',
             dir: 'ltr',
             icons: [
-              {
-                src: '/icon-192x192.png',
-                sizes: '192x192',
-                type: 'image/png',
-                purpose: 'maskable'
-              },
-              {
-                src: '/icon-512x512.png',
-                sizes: '512x512',
-                type: 'image/png',
-                purpose: 'maskable'
-              },
-              // Icônes spécifiques pour iOS
-              {
-                src: '/icon-32x32.png',
-                sizes: '32x32',
-                type: 'image/png',
-                purpose: 'any'
-              },
-              {
-                src: '/icon-16x16.png',
-                sizes: '16x16',
-                type: 'image/png',
-                purpose: 'any'
-              }
+                {
+                    src: '/icon-192x192.png',
+                    sizes: '192x192',
+                    type: 'image/png',
+                    purpose: 'maskable'
+                },
+                {
+                    src: '/icon-512x512.png',
+                    sizes: '512x512',
+                    type: 'image/png',
+                    purpose: 'maskable'
+                },
+                // Icônes spécifiques pour iOS
+                {
+                    src: '/icon-32x32.png',
+                    sizes: '32x32',
+                    type: 'image/png',
+                    purpose: 'any'
+                },
+                {
+                    src: '/icon-16x16.png',
+                    sizes: '16x16',
+                    type: 'image/png',
+                    purpose: 'any'
+                }
             ],
             screenshots: [
-              {
-                src: '/assets/img/dashboard.png',
-                sizes: '1280x720',
-                type: 'image/png',
-                form_factor: 'wide'
-              }
+                {
+                    src: '/assets/img/dashboard.png',
+                    sizes: '1280x720',
+                    type: 'image/png',
+                    form_factor: 'wide'
+                }
             ]
-          },
+        },
         workbox: {
             globPatterns: ['**/*{js,css,html,ico,png,svg}'],
             maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
