@@ -1,7 +1,5 @@
 import { Box, Container, Paper, Tab, Tabs } from '@mui/material';
 import React, { useEffect, useState } from 'react'
-import InfoIcon from '@mui/icons-material/Info';
-import GroupIcon from '@mui/icons-material/Group';
 import { CustomTabPanel } from '../../usePerso/useEntreprise';
 import RemiseFacture from './RemiseFacture';
 import { a11yProps } from '../../usePerso/fonctionPerso';

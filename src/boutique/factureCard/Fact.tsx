@@ -63,7 +63,7 @@ interface ChildModalProps {
   isRemise?: boolean;
 }
 
-function ChildModal({ discountAmount, clientName, clientId, numeroFac, resteAPayer, total, amountPaid, isRemise }: ChildModalProps) {
+function ChildModal({ discountAmount, clientName, clientId, numeroFac, total, amountPaid, isRemise }: ChildModalProps) {
   const reset = useStoreCart(state => state.reset)
   const { updateSortie } = useUpdateSortie()
   const entreprise_uuid = useStoreUuid((state) => state.selectedId);
