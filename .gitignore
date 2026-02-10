@@ -25,8 +25,3 @@ dist-ssr
 *.sln
 *.sw?
 
-# Build Electron / Windows
-win-unpacked/
-*.exe
-*.asar
-
