@@ -5,7 +5,7 @@ import { imagetools } from 'vite-imagetools';
 import viteCompression from 'vite-plugin-compression';
 
 export default defineConfig({
-    base: './',
+    base: '/',
     plugins: [react(), VitePWA({
         registerType: "autoUpdate",
         includeAssets: [

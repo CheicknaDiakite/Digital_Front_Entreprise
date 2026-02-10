@@ -141,10 +141,11 @@ export default function RemiseFacture() {
             </Stack>
           </Box>
 
-          <Stack direction="row" spacing={2}>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ width: { xs: '100%', md: 'auto' } }}>
             <Button
               variant="outlined"
               size="large"
+              fullWidth
               startIcon={<CheckCircleOutlineIcon />}
               onClick={() => setSorties(sortiesEntreprise || [])}
               sx={{ borderRadius: 3, textTransform: 'none', fontWeight: 600, py: 1.5 }}
@@ -155,6 +156,7 @@ export default function RemiseFacture() {
             <Button
               variant="contained"
               size="large"
+              fullWidth
               startIcon={<ReceiptLongIcon />}
               onClick={() => setIsModalOpen(true)}
               disabled={selectedIds.size === 0}
@@ -168,7 +170,8 @@ export default function RemiseFacture() {
                   boxShadow: '0 12px 28px -6px rgba(25, 118, 210, 0.6)',
                   transform: 'translateY(-1px)'
                 },
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                whiteSpace: 'nowrap'
               }}
             >
               Annuler Remises ({selectedIds.size})
@@ -196,7 +199,7 @@ export default function RemiseFacture() {
               }}
             />
           </Grid>
-          <Grid item xs={6} md={3}>
+          <Grid item xs={12} sm={6} md={3}>
             <TextField
               fullWidth
               type="date"
@@ -207,7 +210,7 @@ export default function RemiseFacture() {
               InputProps={{ sx: { borderRadius: 3, bgcolor: 'common.white' } }}
             />
           </Grid>
-          <Grid item xs={6} md={3}>
+          <Grid item xs={12} sm={6} md={3}>
             <TextField
               fullWidth
               type="date"
