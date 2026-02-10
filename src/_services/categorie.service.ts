@@ -584,6 +584,16 @@ const payerFacture = async (uuid: string, montant: number) => {
     }
 }
 
+const deleteFacture = async (uuid: string) => {
+    try {
+        const response = await Axios.post(`entreprise/facture/delete/${uuid}`, {}, { withCredentials: true });
+        return response;
+    } catch (error) {
+        console.error("Error deleting facture:", error);
+        throw error;
+    }
+}
+
 export const factureService = {
-    getFactures, getFacture, payerFacture
+    getFactures, getFacture, payerFacture, deleteFacture
 }

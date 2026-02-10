@@ -34,7 +34,9 @@ import {
   AccountBalanceWallet,
   CheckCircle,
   PendingActions,
-  SearchOff
+  SearchOff,
+  Delete,
+  Warning
 } from '@mui/icons-material';
 import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -54,6 +56,9 @@ export default function FactureListe() {
 
   const [openDetailModal, setOpenDetailModal] = useState(false);
   const [selectedFactureDetail, setSelectedFactureDetail] = useState<FactureType | null>(null);
+
+  const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Fetch factures
   const { data: facturesData, isLoading, refetch, isError } = useQuery({
@@ -133,6 +138,23 @@ export default function FactureListe() {
     } catch (error: any) {
       const message = error.response?.data?.message || "Erreur lors de l'enregistrement du paiement";
       toast.error(message);
+    }
+  };
+
+  const handleDeleteFacture = async () => {
+    if (!selectedFactureDetail) return;
+    setIsDeleting(true);
+    try {
+      await factureService.deleteFacture(selectedFactureDetail.uuid!);
+      toast.success('Facture supprimée avec succès');
+      setOpenDeleteConfirm(false);
+      setOpenDetailModal(false);
+      refetch();
+    } catch (error: any) {
+      const message = error.response?.data?.message || "Erreur lors de la suppression de la facture";
+      toast.error(message);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -481,12 +503,27 @@ export default function FactureListe() {
                 Détails de la Vente
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Réf: <Box component="span" fontWeight="bold" color="primary.main">#{selectedFactureDetail?.code}</Box>
+                Réf: <Box component="span" fontWeight="bold" color="primary.main"> {selectedFactureDetail?.code}</Box>
               </Typography>
             </Box>
-            <IconButton onClick={() => setOpenDetailModal(false)} size="small" sx={{ bgcolor: 'grey.100' }}>
-              <Close fontSize="small" />
-            </IconButton>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Tooltip title="Supprimer cette facture">
+                <IconButton
+                  onClick={() => setOpenDeleteConfirm(true)}
+                  size="small"
+                  sx={{
+                    color: 'error.main',
+                    bgcolor: alpha(theme.palette.error.main, 0.08),
+                    '&:hover': { bgcolor: alpha(theme.palette.error.main, 0.15) }
+                  }}
+                >
+                  <Delete fontSize="small" />
+                </IconButton>
+              </Tooltip>
+              <IconButton onClick={() => setOpenDetailModal(false)} size="small" sx={{ bgcolor: 'grey.100' }}>
+                <Close fontSize="small" color='error' />
+              </IconButton>
+            </Box>
           </Box>
 
           <Box sx={{ p: 4 }}>
@@ -598,6 +635,68 @@ export default function FactureListe() {
               Fermer le récapitulatif
             </Button>
           </Box>
+        </Box>
+      </Modal>
+
+      {/* Modal de Confirmation de Suppression */}
+      <Modal
+        open={openDeleteConfirm}
+        onClose={() => !isDeleting && setOpenDeleteConfirm(false)}
+      >
+        <Box sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: { xs: '90%', sm: 400 },
+          bgcolor: 'background.paper',
+          boxShadow: '0 24px 48px rgba(0,0,0,0.2)',
+          p: 4,
+          borderRadius: 4,
+          outline: 'none',
+          textAlign: 'center'
+        }}>
+          <Avatar sx={{
+            bgcolor: alpha(theme.palette.error.main, 0.1),
+            color: 'error.main',
+            width: 64,
+            height: 64,
+            margin: '0 auto 16px'
+          }}>
+            <Warning sx={{ fontSize: 32 }} />
+          </Avatar>
+
+          <Typography variant="h5" fontWeight="bold" gutterBottom>
+            Confirmer la suppression
+          </Typography>
+
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
+            Êtes-vous sûr de vouloir supprimer la facture <Box component="span" fontWeight="bold">{selectedFactureDetail?.code}</Box> ?
+            Cette action est irréversible et les stocks seront restaurés.
+          </Typography>
+
+          <Stack direction="row" spacing={2}>
+            <Button
+              fullWidth
+              variant="outlined"
+              onClick={() => setOpenDeleteConfirm(false)}
+              disabled={isDeleting}
+              sx={{ borderRadius: 2 }}
+            >
+              Annuler
+            </Button>
+            <Button
+              fullWidth
+              variant="contained"
+              color="error"
+              onClick={handleDeleteFacture}
+              disabled={isDeleting}
+              startIcon={isDeleting ? null : <Delete />}
+              sx={{ borderRadius: 2, fontWeight: 'bold' }}
+            >
+              {isDeleting ? 'Suppression...' : 'Supprimer'}
+            </Button>
+          </Stack>
         </Box>
       </Modal>
     </Box>
