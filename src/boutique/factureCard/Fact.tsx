@@ -17,7 +17,7 @@ import "./print.css";
 import { BASE } from '../../_services/caller.service';
 import { connect } from '../../_services/account.service';
 import { RecupType } from '../../typescript/DataType';
-import { Paper, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Stack, IconButton, Box, Modal, Typography, TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Grid } from '@mui/material';
+import { Paper, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Stack, IconButton, Box, Modal, Typography, TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Grid, Checkbox, FormControlLabel } from '@mui/material';
 import { useCreateFacSortie } from '../../usePerso/fonction.facture';
 import CloseIcon from '@mui/icons-material/Close';
 import html2pdf from 'html2pdf.js';
@@ -44,6 +44,7 @@ export type TypeText = {
   clientName: string,
   clientAddress: string,
   numeroFac: string,
+  id?: string,
   clientCoordonne: string,
   invoiceDate: string,
   dueDate: string,
@@ -51,42 +52,101 @@ export type TypeText = {
   invoiceNumber?: number,
 }
 
-function ChildModal() {
+interface ChildModalProps {
+  discountAmount: number;
+  total: number;
+  amountPaid: number;
+  clientName?: string;
+  clientId?: string;
+  numeroFac?: string;
+  resteAPayer?: number;
+  isRemise?: boolean;
+}
+
+function ChildModal({ discountAmount, clientName, clientId, numeroFac, resteAPayer, total, amountPaid, isRemise }: ChildModalProps) {
   const reset = useStoreCart(state => state.reset)
   const { updateSortie } = useUpdateSortie()
+  const entreprise_uuid = useStoreUuid((state) => state.selectedId);
   const selectedIds = useStoreCart(state => state.selectedIds)
   const sortiess = useStoreCart(state => state.sorties);
   const selectSorties = sortiess.filter((sor) => sor.id !== undefined && selectedIds.has(sor.id as number));
   const [open, setOpen] = useState(false);
+
   const handleOpen = () => {
     setOpen(true);
   };
+
   const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleConfirm = () => {
     const idsToUpdate = selectSorties.map(sor => sor.id);
-    updateSortie(idsToUpdate)
-    reset()
+
+    // Préparer les données pour la mise à jour
+    const data = {
+      ids: idsToUpdate,
+      remise_montant: discountAmount,
+      entreprise_uuid: entreprise_uuid,
+      client_name: clientName,
+      code: numeroFac,
+      montant_remise: discountAmount,
+      montant_paye: amountPaid,
+      montant_total: total,
+      client_id: clientId,
+      is_remise: isRemise,
+      // total: total // Le backend recalcule le total pour sécurité
+    };
+
+    updateSortie(data);
+    reset();
     setOpen(false);
   };
 
   return (
     <Fragment>
-      <Button onClick={handleOpen}>Confirmer</Button>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleOpen}
+        sx={{
+          borderRadius: '12px',
+          fontWeight: 600,
+          textTransform: 'none',
+          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+          background: 'linear-gradient(135deg, #10b981, #059669)',
+          '&:hover': {
+            boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
+            background: 'linear-gradient(135deg, #059669, #047857)'
+          }
+        }}
+      >
+        Confirmer
+      </Button>
       <Modal
         open={open}
         onClose={handleClose}
         aria-labelledby="child-modal-title"
         aria-describedby="child-modal-description"
       >
-        <Box sx={{ ...style, width: 200 }}>
-          <h1 id="child-modal-title">Confirmer la remie</h1>
-          <Button onClick={handleClose}>Oui</Button>
+        <Box sx={{ ...style, width: 300, borderRadius: '16px' }}>
+          <Typography id="child-modal-title" variant="h6" component="h2" gutterBottom>
+            Confirmer la remise
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            Voulez-vous vraiment confirmer cette remise et générer la facture ?
+          </Typography>
+          <div className="flex justify-end space-x-2">
+            <Button onClick={handleClose} color="inherit">Non</Button>
+            <Button onClick={handleConfirm} variant="contained" color="primary">Oui</Button>
+          </div>
         </Box>
       </Modal>
     </Fragment>
   );
 }
 
-export default function Fact({ clientName, invoiceNumber, invoiceDate, numeroFac, post, discountedTotal, payerTotal }: RecupType | any) {
+export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate, numeroFac, post, discountedTotal, payerTotal }: RecupType | any) {
   // let url = BASE(post.image);
 
   const url = post.image ? BASE(post.image) : post.image;
@@ -120,6 +180,9 @@ export default function Fact({ clientName, invoiceNumber, invoiceDate, numeroFac
   // Utiliser les valeurs locales si elles sont définies, sinon utiliser les props
   const finalDiscountedTotal = localDiscountedTotal !== total ? localDiscountedTotal : (discountedTotal || total);
   const finalPayerTotal = localPayerTotal !== total ? localPayerTotal : (payerTotal || total);
+
+  // Variable calculée pour le reste à payer (Aligné avec TableFact)
+  const resteAPayer = (total - ((total - finalDiscountedTotal) + (Number(payDiscount))));
 
   // Normaliser la saisie (remplace ',' par '.')
   const normalizeInput = (value: string) => value.replace(",", ".");
@@ -168,6 +231,7 @@ export default function Fact({ clientName, invoiceNumber, invoiceDate, numeroFac
 
   // Pour la remise des facture
   const [openF, setOpenF] = useState(false);
+  const [isRemiseChecked, setIsRemiseChecked] = useState(false);
   const handleOpenRemise = () => {
     setOpenF(true);
   };
@@ -856,6 +920,17 @@ export default function Fact({ clientName, invoiceNumber, invoiceDate, numeroFac
                     >
                       Veuillez vérifier les détails de la remise avant de confirmer
                     </Typography>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={isRemiseChecked}
+                          onChange={(e) => setIsRemiseChecked(e.target.checked)}
+                          color="primary"
+                        />
+                      }
+                      label="Appliquer une remise sur ces produits ?"
+                      sx={{ mt: 1 }}
+                    />
                   </div>
 
                   {/* Table Container */}
@@ -909,7 +984,7 @@ export default function Fact({ clientName, invoiceNumber, invoiceDate, numeroFac
                           <TableRow key={index}>
                             <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} text-gray-900`}>
                               <div className="flex flex-col">
-                                <span className="font-medium">{post.ref}</span>
+                                {/* <span className="font-medium">{post.ref}</span> */}
                                 <span className="text-gray-500 text-sm">{post.categorie_libelle}</span>
                               </div>
                             </TableCell>
@@ -923,13 +998,13 @@ export default function Fact({ clientName, invoiceNumber, invoiceDate, numeroFac
 
                         {/* Summary Rows */}
                         <TableRow className={isMobile ? 'mobile-total-row' : ''} sx={{ backgroundColor: '#f8fafc !important' }}>
-                          <TableCell rowSpan={3} />
+                          <TableCell rowSpan={4} />
                           <TableCell
                             colSpan={2}
                             align="right"
                             sx={{ color: '#64748b', fontWeight: 600 }}
                           >
-                            Prix Total
+                            Sous-total
                           </TableCell>
                           <TableCell
                             align="right"
@@ -938,13 +1013,14 @@ export default function Fact({ clientName, invoiceNumber, invoiceDate, numeroFac
                             {formatNumberWithSpaces(total)} F
                           </TableCell>
                         </TableRow>
+
                         <TableRow className={isMobile ? 'mobile-total-row' : ''} sx={{ backgroundColor: '#f8fafc !important' }}>
                           <TableCell
                             colSpan={2}
                             align="right"
                             sx={{ color: '#64748b', fontWeight: 600 }}
                           >
-                            Remise Appliquée
+                            Remise
                           </TableCell>
                           <TableCell
                             align="right"
@@ -953,19 +1029,42 @@ export default function Fact({ clientName, invoiceNumber, invoiceDate, numeroFac
                             - {formatNumberWithSpaces(total - finalDiscountedTotal)} F
                           </TableCell>
                         </TableRow>
+
+                        {(total - payerTotal) > 0 && (
+                          <TableRow className={isMobile ? 'mobile-total-row' : ''} sx={{ backgroundColor: '#f8fafc !important' }}>
+                            <TableCell
+                              colSpan={2}
+                              align="right"
+                              sx={{ color: '#64748b', fontWeight: 600 }}
+                            >
+                              Montant Payé
+                            </TableCell>
+                            <TableCell
+                              align="right"
+                              sx={{ color: '#059669', fontWeight: 600 }}
+                            >
+                              {formatNumberWithSpaces(payDiscount)} F
+                            </TableCell>
+                          </TableRow>
+                        )}
+
                         <TableRow className={isMobile ? 'mobile-total-row' : ''} sx={{ backgroundColor: '#f8fafc !important' }}>
                           <TableCell
                             colSpan={2}
                             align="right"
                             sx={{ color: '#64748b', fontWeight: 600 }}
                           >
-                            Montant Final
+                            {resteAPayer > 0 && "Reste à payer"}
+                            {resteAPayer === 0 && "Total"}
+                            {resteAPayer < 0 && "Total"}
                           </TableCell>
                           <TableCell
                             align="right"
-                            sx={{ color: '#059669', fontWeight: 600, fontSize: '1.1em' }}
+                            sx={{ color: '#0f172a', fontWeight: 600, fontSize: '1.1em' }}
                           >
-                            {formatNumberWithSpaces(finalDiscountedTotal)} F
+                            {resteAPayer > 0 && formatNumberWithSpaces(resteAPayer)}
+                            {resteAPayer === 0 && formatNumberWithSpaces(payDiscount)}
+                            {resteAPayer < 0 && formatNumberWithSpaces(finalDiscountedTotal)} F
                           </TableCell>
                         </TableRow>
                       </TableBody>
@@ -992,7 +1091,16 @@ export default function Fact({ clientName, invoiceNumber, invoiceDate, numeroFac
                     >
                       Annuler
                     </Button>
-                    <ChildModal />
+                    <ChildModal
+                      discountAmount={total - finalDiscountedTotal}
+                      clientName={fac.clientName}
+                      numeroFac={fac.numeroFac}
+                      resteAPayer={resteAPayer}
+                      clientId={clientId} // Assurez-vous que post contient client_id si disponible
+                      total={finalDiscountedTotal}
+                      amountPaid={Number(payDiscount) || 0}
+                      isRemise={isRemiseChecked}
+                    />
                   </div>
                 </div>
               </Box>

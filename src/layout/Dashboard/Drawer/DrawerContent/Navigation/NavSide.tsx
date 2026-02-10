@@ -26,6 +26,7 @@ import {
   PowerSettingsNew as PowerIcon,
   ExpandLess,
   ExpandMore,
+  Discount as DiscountIcon,
 } from "@mui/icons-material";
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import DescriptionIcon from '@mui/icons-material/Description';
@@ -278,7 +279,7 @@ const NavSide: React.FC = () => {
                     })()}
 
                     <NavItem
-                      icon={<ExitToAppIcon color="error" />}
+                      icon={<DiscountIcon color="error" />}
                       label="Remise Facture"
                       to="/sortie/remise"
                       bgColor="text-white bg-red-400"

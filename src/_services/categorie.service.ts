@@ -1,5 +1,5 @@
 import { CategorieType, ReponseCategorie } from '../typescript/CategorieType';
-import { DataSlugType, DataType, DepenseType, EntreType, SlugType, SortieType, TypeSlug } from '../typescript/DataType'
+import { DataSlugType, DataType, DepenseType, EntreType, SlugType, SortieType, TypeSlug, FactureType } from '../typescript/DataType'
 import { CategorieFormType, EntreFormType, SousCategorieFormType } from '../typescript/FormType';
 import Axios from './caller.service'
 
@@ -497,7 +497,7 @@ const addSortie = async (data: SortieType) => {
 /**
  * Mise à jour d'un utilisateur
  */
-const updateSortie = async (nom: SortieType) => {
+const updateSortie = async (nom: any) => {
 
     try {
         const response = await Axios.post('entreprise/sortie/set',
@@ -540,4 +540,50 @@ const deleteSortie = async (categorie: DataType) => {
 // Décaraltion des esrvices pour import
 export const sortieService = {
     allSortie, getSortie, addSortie, updateSortie, deleteSortie, getAllSortie, updateFacSortie
+}
+
+
+/**
+ * Récupération des factures
+ */
+const getFactures = async (entreprise_uuid: string, params?: any) => {
+    try {
+        const response = await Axios.get(`entreprise/facture/list/${entreprise_uuid}`,
+            {
+                params: params,
+                withCredentials: true
+            });
+
+        return response;
+    } catch (error) {
+        console.error("Error fetching factures:", error);
+        throw error;
+    }
+}
+
+const getFacture = async (uuid: string) => {
+    try {
+        const response = await Axios.get(`entreprise/facture/detail/${uuid}`,
+            { withCredentials: true });
+        return response;
+    } catch (error) {
+        console.error("Error fetching facture:", error);
+        throw error;
+    }
+}
+
+const payerFacture = async (uuid: string, montant: number) => {
+    try {
+        const response = await Axios.post(`entreprise/facture/payer/${uuid}`,
+            { montant },
+            { withCredentials: true });
+        return response;
+    } catch (error) {
+        console.error("Error paying facture:", error);
+        throw error;
+    }
+}
+
+export const factureService = {
+    getFactures, getFacture, payerFacture
 }

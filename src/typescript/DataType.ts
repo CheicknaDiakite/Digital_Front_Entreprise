@@ -60,6 +60,26 @@ export type SousType = {
     categorie_slug: string;
 } & DataType
 
+export type FactureType = {
+    id?: number,
+    uuid?: string,
+    code: string,
+    entreprise?: string | any,
+    entreprise_nom?: string,
+    client?: string | any,
+    client_nom?: string,
+    montant_total: number,
+    montant_remise: number,
+    montant_paye: number,
+    reste_a_payer: number,
+    est_solde: boolean,
+    created_by?: string,
+    created_by_nom?: string,
+    created_at?: string,
+    updated_at?: string,
+    sorties?: Array<RecupType>
+}
+
 export type EntreType = {
     qte: number;
     qte_critique?: number;

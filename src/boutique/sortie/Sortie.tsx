@@ -204,6 +204,7 @@ export default function Sortie() {
     clientName: '',
     clientAddress: '',
     clientCoordonne: '',
+    clientId: '',
     clientNumero: 0,
   });
 
@@ -231,10 +232,11 @@ export default function Sortie() {
         clientName: selected.nom || '', // Remplacez par la clé appropriée pour le nom
         clientAddress: selected.adresse || '', // Remplacez par la clé appropriée pour l'adresse
         clientCoordonne: selected.adresse || '', // Remplacez par la clé appropriée pour l'adresse
+        clientId: selected?.uuid || '', // Remplacez par la clé appropriée pour l'adresse
         clientNumero: selected.numero || 0, // Remplacez par la clé appropriée pour l'adresse
       });
     } else {
-      setClientInfo({ clientName: '', clientAddress: '', clientCoordonne: '', clientNumero: 0 });
+      setClientInfo({ clientName: '', clientAddress: '', clientCoordonne: '', clientId: '', clientNumero: 0 });
     }
   };
 
@@ -513,6 +515,7 @@ export default function Sortie() {
               payerTotal={payerTotal}
               clientName={clientInfo.clientName}
               invoiceNumber={clientInfo.clientNumero}
+              clientId={clientInfo.clientId}
             />
           </div>
         )}

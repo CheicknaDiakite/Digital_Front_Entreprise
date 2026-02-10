@@ -64,7 +64,7 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
                   </div>
                 </td>
                 <td className={`text-right ${isThermal ? 'p-1' : 'p-4'} border-r border-gray-200`}>
-                  {post.qte} {post.unite || 'kilos'}
+                  {post.qte} {post.unite === 'kilos' ? "" : post.unite}
                 </td>
                 <td className={`text-right ${isThermal ? 'p-1' : 'p-4'} border-r border-gray-200`}>
                   {formatNumberWithSpaces(post.pu)}
@@ -122,28 +122,14 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
                 colSpan={2}
                 className={`text-right ${isThermal ? 'p-1' : 'p-4'} text-gray-900 font-bold border-r border-gray-200`}
               >
-                {/* {(total - payerTotal) > 0 ? "Reste à Payer" : "Total à Payer"} */}
-                {/* {(resteAPayer >= 0) ? 
-                  (total - payerTotal) > 0 ? 
-                    formatNumberWithSpaces(payDiscount) === formatNumberWithSpaces(total) ?
-                      "Total" 
-                      :
-                      "Reste"
-                    : 
-                    "Total" 
-                : 
-                "Total à Payer"} */}
+
                 {resteAPayer > 0 && "Reste à payer"}
                 {resteAPayer === 0 && "Total"}
                 {resteAPayer < 0 && "Total"}
               </td>
 
               <td className={`text-right ${isThermal ? 'p-1 text-base' : 'p-4 text-lg'} font-bold text-gray-900`}>
-                {/* {formatNumberWithSpaces(resteAPayer)} F */}
-                {/* {resteAPayer > 0 ? 
-                formatNumberWithSpaces(resteAPayer) :
-                formatNumberWithSpaces(discountedTotal) 
-                } F */}
+
                 {resteAPayer > 0 && formatNumberWithSpaces(resteAPayer)}
                 {resteAPayer === 0 && formatNumberWithSpaces(payDiscount)}
                 {resteAPayer < 0 && formatNumberWithSpaces(discountedTotal)}
