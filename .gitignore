@@ -24,3 +24,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Build Electron / Windows
+win-unpacked/
+*.exe
+*.asar
+
