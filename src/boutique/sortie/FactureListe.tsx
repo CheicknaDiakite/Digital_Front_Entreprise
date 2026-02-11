@@ -56,7 +56,7 @@ export default function FactureListe() {
 
   const [openDetailModal, setOpenDetailModal] = useState(false);
   const [selectedFactureDetail, setSelectedFactureDetail] = useState<FactureType | null>(null);
-
+  console.log("hh", selectedFactureDetail)
   const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -528,19 +528,25 @@ export default function FactureListe() {
 
           <Box sx={{ p: 4 }}>
             <Grid container spacing={3} sx={{ mb: 4 }}>
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={3}>
                 <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>Client</Typography>
                 <Typography variant="body1" fontWeight="bold">
                   {selectedFactureDetail?.client_nom || 'Client Anonyme'}
                 </Typography>
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={3}>
+                <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>Vendeur</Typography>
+                <Typography variant="body1" fontWeight="bold">
+                  {selectedFactureDetail?.created_by_nom || 'Inconnu'}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={3}>
                 <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>Date de vente</Typography>
                 <Typography variant="body1" fontWeight="bold">
                   {selectedFactureDetail?.created_at && new Date(selectedFactureDetail.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
                 </Typography>
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={3}>
                 <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>Statut Paiement</Typography>
                 <Box mt={0.5}>
                   <Chip
@@ -570,8 +576,8 @@ export default function FactureListe() {
                 <TableBody>
                   {selectedFactureDetail?.sorties?.map((item, index) => (
                     <TableRow key={index} sx={{ '&:last-child td': { border: 0 } }}>
-                      <TableCell>{item.libelle}</TableCell>
-                      <TableCell align="right">{item.qte} {item.unite}</TableCell>
+                      <TableCell>{item.categorie_libelle}</TableCell>
+                      <TableCell align="right">{item.qte} {item.unite === "kilos" ? "" : item.unite}</TableCell>
                       <TableCell align="right">{formatNumberWithSpaces(item.pu || 0)} FCFA</TableCell>
                       <TableCell align="right" sx={{ fontWeight: 'bold' }}>
                         {formatNumberWithSpaces((Number(item.qte) * Number(item.pu)) || 0)} FCFA
