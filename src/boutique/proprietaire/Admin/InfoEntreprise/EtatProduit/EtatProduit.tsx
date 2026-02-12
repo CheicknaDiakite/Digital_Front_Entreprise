@@ -205,8 +205,7 @@ export default function EtatProduit() {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
               <AssessmentIcon sx={{ fontSize: 40, color: '#60a5fa' }} />
               <Typography variant="h3" 
-                className='text-gray-50'
-                
+                className='text-gray-50'                
               >
                 Statistiques
               </Typography>
@@ -221,18 +220,18 @@ export default function EtatProduit() {
         <Fade in timeout={800}>
           <Paper
             elevation={0}
-            className='bg-gray-400'
+            // className='bg-gray-500'
             sx={{
               p: 3,
               mb: 4,
               borderRadius: 3,
-              // background: 'rgba(30, 41, 59, 0.7)', // slate-800 with opacity
+              background: 'rgba(30, 41, 59, 0.7)', // slate-800 with opacity
               backdropFilter: 'blur(12px)',
               border: '1px solid rgba(148, 163, 184, 0.1)'
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-              <CalendarTodayIcon sx={{ color: '#94a3b8' }} />
+              <CalendarTodayIcon sx={{ color: '#60a5fa' }} />
               <Typography variant="h6" className='text-gray-50' sx={{ fontWeight: 600, color: '#f1f5f9' }}>
                 Période d'analyse
               </Typography>

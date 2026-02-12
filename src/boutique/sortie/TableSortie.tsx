@@ -134,7 +134,7 @@ export default function TableSortie({
               placeholder="Designation"
               isClearable
               getOptionLabel={(option: any) =>
-                `${option.categorie_libelle} (${option.libelle}) [${option.qte}]`
+                `${option.categorie_libelle} ${option.libelle ? `(${option.libelle})` : ""} (${option.qte})`
               }
               getOptionValue={(option: any) => option.uuid.toString()}
             />
