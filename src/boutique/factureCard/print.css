@@ -94,34 +94,64 @@
       min-height: 210mm;
     }
 
+    .print-container.format-a6 {
+      width: 105mm;
+      min-height: 148mm;
+    }
+
+    .print-container.format-a10 {
+      width: 26mm;
+      min-height: 37mm;
+      padding: 1mm !important;
+      font-size: 8px !important;
+    }
+
     .print-container.format-thermal {
       width: 80mm;
       padding: 2mm !important;
       font-size: 10px !important;
     }
 
-    /* Ajustements pour format thermique */
-    .format-thermal .MuiTypography-root {
+    /* Ajustements pour format thermique et petits formats */
+    .format-thermal .MuiTypography-root,
+    .format-a10 .MuiTypography-root,
+    .format-a6 .MuiTypography-root {
       font-size: 0.8rem !important;
     }
 
-    .format-thermal .MuiTypography-h4 {
+    .format-a10 .MuiTypography-root {
+      font-size: 0.6rem !important;
+    }
+
+    .format-thermal .MuiTypography-h4,
+    .format-a10 .MuiTypography-h4,
+    .format-a6 .MuiTypography-h4 {
       font-size: 1rem !important;
     }
 
-    .format-thermal .MuiTypography-h5 {
+    .format-a10 .MuiTypography-h4 {
+      font-size: 0.8rem !important;
+    }
+
+    .format-thermal .MuiTypography-h5,
+    .format-a10 .MuiTypography-h5,
+    .format-a6 .MuiTypography-h5 {
       font-size: 0.9rem !important;
     }
 
-    .format-thermal .p-4 {
+    .format-a10 .MuiTypography-h5 {
+      font-size: 0.7rem !important;
+    }
+
+    .format-thermal .p-4, .format-a10 .p-4, .format-a6 .p-4 {
       padding: 4px !important;
     }
 
-    .format-thermal .mb-8 {
+    .format-thermal .mb-8, .format-a10 .mb-8, .format-a6 .mb-8 {
       margin-bottom: 1rem !important;
     }
 
-    .format-thermal img {
+    .format-thermal img, .format-a10 img, .format-a6 img {
       height: 40px !important;
       width: 40px !important;
     }

@@ -43,6 +43,10 @@ import { useQuery } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { useStoreUuid } from '../../usePerso/store';
 import { formatNumberWithSpaces } from '../../usePerso/fonctionPerso';
+import ReactToPrint from 'react-to-print';
+import PrintIcon from '@mui/icons-material/Print';
+import { useRef } from 'react';
+import "../factureCard/print.css";
 
 export default function FactureListe() {
   const theme = useTheme();
@@ -59,6 +63,9 @@ export default function FactureListe() {
   console.log("hh", selectedFactureDetail)
   const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const [printFormat, setPrintFormat] = useState<'A4' | 'A5' | 'A6' | 'A10' | 'Thermal'>('A4');
+  const componentRef = useRef<HTMLDivElement>(null);
 
   // Fetch factures
   const { data: facturesData, isLoading, refetch, isError } = useQuery({
@@ -507,6 +514,51 @@ export default function FactureListe() {
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', bgcolor: 'grey.50', borderRadius: 2, p: 0.5, gap: 0.5, mr: 1 }}>
+                {(['A4', 'Thermal'] as const).map((format) => (
+                  <Button
+                    key={format}
+                    size="small"
+                    variant={printFormat === format ? "contained" : "text"}
+                    onClick={() => setPrintFormat(format)}
+                    sx={{
+                      minWidth: 'auto',
+                      px: 1,
+                      py: 0.2,
+                      fontSize: '0.65rem',
+                      fontWeight: 'bold',
+                      borderRadius: 1.5,
+                      ...(printFormat === format ? {
+                        boxShadow: 'none',
+                        '&:hover': { boxShadow: 'none' }
+                      } : {
+                        color: 'text.secondary'
+                      })
+                    }}
+                  >
+                    {format === 'Thermal' ? 'Ticket' : format}
+                  </Button>
+                ))}
+              </Box>
+
+              <ReactToPrint
+                trigger={() => (
+                  <Tooltip title="Imprimer la facture">
+                    <IconButton
+                      size="small"
+                      sx={{
+                        color: 'primary.main',
+                        bgcolor: alpha(theme.palette.primary.main, 0.08),
+                        '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.15) }
+                      }}
+                    >
+                      <PrintIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                )}
+                content={() => componentRef.current}
+              />
+
               <Tooltip title="Supprimer cette facture">
                 <IconButton
                   onClick={() => setOpenDeleteConfirm(true)}
@@ -526,7 +578,13 @@ export default function FactureListe() {
             </Box>
           </Box>
 
-          <Box sx={{ p: 4 }}>
+          <Box ref={componentRef} className={`print-container format-${printFormat.toLowerCase()}`} sx={{ p: 4, bgcolor: 'white' }}>
+            <Box sx={{ mb: 4, textAlign: 'center', display: 'none', '.print-container &': { display: 'block' } }}>
+              <Typography variant="h4" fontWeight="bold">{selectedFactureDetail?.entreprise_nom || 'Facture'}</Typography>
+              {/* <Typography variant="body2">{selectedFactureDetail?.adresse_entreprise}</Typography> */}
+              <Typography variant="body2">Facture: {selectedFactureDetail?.code}</Typography>
+            </Box>
+
             <Grid container spacing={3} sx={{ mb: 4 }}>
               <Grid item xs={12} sm={3}>
                 <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>Client</Typography>
@@ -631,12 +689,14 @@ export default function FactureListe() {
                 </Box>
               </Stack>
             </Box>
+          </Box>
 
+          <Box sx={{ px: 4, pb: 4 }}>
             <Button
               variant="contained"
               onClick={() => setOpenDetailModal(false)}
               fullWidth
-              sx={{ mt: 4, py: 1.5, borderRadius: 3, fontWeight: 'bold' }}
+              sx={{ mt: 2, py: 1.5, borderRadius: 3, fontWeight: 'bold' }}
             >
               Fermer le récapitulatif
             </Button>

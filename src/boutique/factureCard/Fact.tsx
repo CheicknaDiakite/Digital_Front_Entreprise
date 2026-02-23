@@ -289,7 +289,7 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
   const [quantity] = useState<number>(0);
   const [price] = useState<number>(0);
   const [amount, setAmount] = useState<number>(0);
-  const [printFormat, setPrintFormat] = useState<'A4' | 'A5' | 'Thermal'>('A4');
+  const [printFormat, setPrintFormat] = useState<'A4' | 'A5' | 'A6' | 'A10' | 'Thermal'>('A4');
 
   // const componentRef = useRef();
   const componentRef = useRef<HTMLDivElement>(null);
@@ -329,6 +329,8 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
       const formatOptions = {
         'A4': { unit: 'in', format: 'a4', orientation: 'portrait' },
         'A5': { unit: 'in', format: 'a5', orientation: 'portrait' },
+        'A6': { unit: 'in', format: 'a6', orientation: 'portrait' },
+        'A10': { unit: 'in', format: 'a10', orientation: 'portrait' },
         'Thermal': { unit: 'mm', format: [80, 297], orientation: 'portrait' }
       };
 
