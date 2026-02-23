@@ -1,56 +1,45 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { BrowserMultiFormatReader, Result } from '@zxing/library';
+import React, { useState } from 'react';
+import { Scanner } from '@yudiel/react-qr-scanner';
 
 interface BarcodeScannerProps {
   onScan: (code: string) => void;
 }
 
 const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan }) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
   const [resultText, setResultText] = useState<string>('');
 
-  useEffect(() => {
-    // Instanciation du lecteur ZXing
-    const codeReader = new BrowserMultiFormatReader();
-    console.log('ZXing code reader initialisé');
-
-    if (videoRef.current) {
-      // La méthode decodeFromVideoDevice prend en paramètre l'ID du périphérique
-      // Si null, le navigateur sélectionnera par défaut un appareil
-      codeReader.decodeFromVideoDevice(
-        null,
-        videoRef.current,
-        (result: Result | undefined) => {
-          if (result) {
-            const text = result.getText();
-            console.log('Code détecté :', text);
-            setResultText(text);
-            onScan(text);
-            codeReader.reset();
-          }          
-        }
-      );
-    }
-
-    // Nettoyage lors du démontage du composant
-    return () => {
-      codeReader.reset();
-    };
-  }, [onScan]);
-
   return (
-    <div style={{ textAlign: 'center', padding: '2rem' }}>
-      <h1>Scanner de Code-Barres (Gest Stocks)</h1>
-      <video
-        ref={videoRef}
-        style={{ width: '100%', maxWidth: '100%' }}
-        autoPlay
-        muted
-      />
-      <p>
-        Résultat : <strong>{resultText}</strong>
+    <div className="flex flex-col items-center justify-center p-4 bg-white rounded-lg shadow-md max-w-md mx-auto">
+      <h1 className="text-xl font-bold mb-4 text-blue-600">Scanner de Code-Barres</h1>
+
+      <div className="w-full aspect-video overflow-hidden rounded-lg border-2 border-blue-100 mb-4 bg-gray-50 relative">
+        <Scanner
+          onScan={(detectedCodes) => {
+            if (detectedCodes.length > 0) {
+              const text = detectedCodes[0].rawValue;
+              console.log('Code détecté :', text);
+              setResultText(text);
+              onScan(text);
+            }
+          }}
+          onError={(error) => {
+            console.log('Erreur du scanner :', error);
+          }}
+          constraints={{
+            facingMode: 'environment'
+          }}
+        />
+      </div>
+
+      <div className="w-full p-3 bg-gray-50 rounded border border-gray-200">
+        <p className="text-gray-700">
+          Résultat : <strong className="text-blue-700 break-all">{resultText || 'En attente...'}</strong>
+        </p>
+      </div>
+
+      <p className="text-xs text-gray-400 mt-4 italic">
+        Positionnez le code-barres dans le cadre de la caméra
       </p>
-      
     </div>
   );
 };
