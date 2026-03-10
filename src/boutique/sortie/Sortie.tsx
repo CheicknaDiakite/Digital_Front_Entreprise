@@ -62,6 +62,8 @@ export default function Sortie() {
 
   const { ajoutSortie } = useCreateSortie()
 
+  const [basket, setBasket] = useState<SortieType[]>([]);
+
   const itemsPerPage = isMobile ? 10 : 25; // Nombre d'éléments par page
 
   // État pour la page courante et les éléments par page
@@ -106,6 +108,15 @@ export default function Sortie() {
   const totalQte = reversedSorties?.reduce((acc, row: RecupType) => {
     const price = (row.qte !== undefined && row.pu !== undefined) ? row.qte : 0;
     return acc + price;
+  }, 0);
+
+  // Calculs pour le panier (basket)
+  const basketTotalAmount = basket.reduce((acc, item) => {
+    return acc + (Number(item.pu || 0) * Number(item.qte || 0));
+  }, 0);
+
+  const basketTotalQte = basket.reduce((acc, item) => {
+    return acc + Number(item.qte || 0);
   }, 0);
 
   // Récupération des éléments à afficher sur la page courante
@@ -211,20 +222,33 @@ export default function Sortie() {
   const handleChange = (selected: SingleValue<RecupType>) => {
     // Assurez-vous que "selected" contient la clé du prix unitaire, par exemple "pu"
     if (selected) {
-      formValues["entre_id"] = selected.uuid; // Attribue l'ID sélectionné
-      formValues["pu"] = selected.pu || 0;  // Met à jour le prix unitaire si disponible
-      formValues["is_prix"] = selected.is_prix;  // Met à jour le prix unitaire si disponible
-      formValues["unite"] = selected.unite || 'kilos';
+      setFormValues(prev => ({
+        ...prev,
+        entre_id: selected.uuid || "",
+        pu: selected.pu || 0,
+        is_prix: selected.is_prix || false,
+        unite: selected.unite || 'kilos',
+        categorie_libelle: selected.categorie_libelle || "", // pour l'affichage dans le panier
+        libelle: selected.libelle || "", // pour l'affichage dans le panier
+      }));
     } else {
-      formValues["entre_id"] = ""; // Réinitialise si aucune option n'est sélectionnée
-      formValues["pu"] = 0;       // Réinitialise également le prix unitaire
-      formValues["unite"] = '';
+      setFormValues(prev => ({
+        ...prev,
+        entre_id: "",
+        pu: 0,
+        unite: '',
+        categorie_libelle: '',
+        libelle: '',
+      }));
     }
     setSelectedOption(selected); // Met à jour l'état de l'option sélectionnée
   };
 
   const handleClient = (selected: SingleValue<RecupType>) => {
-    formValues['client_id'] = selected?.uuid;
+    setFormValues(prev => ({
+      ...prev,
+      client_id: selected?.uuid
+    }));
     setSelectedClient(selected);
 
     if (selected) {
@@ -260,25 +284,46 @@ export default function Sortie() {
     openchange(false);
   };
 
-  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    formValues["user_id"] = connect
+    if (!formValues.entre_id || !formValues.qte) {
+      return;
+    }
 
-    ajoutSortie(formValues)
+    // Ajouter au panier au lieu d'envoyer directement
+    const newItem: SortieType = {
+      ...formValues,
+      user_id: connect,
+    }
+
+    setBasket([...basket, newItem]);
 
     setFormValues({
-      user_id: '',
+      ...formValues,
       qte: '',
       pu: '',
       entre_id: '',
+      categorie_libelle: '',
+      libelle: '',
     })
 
     setSelectedOption(null);
-    setSelectedClient(null);
     setScannedCode("")
+  };
 
+  const handleFinalSubmit = async () => {
+    if (basket.length === 0) return;
+
+    await ajoutSortie(basket as any);
+    setBasket([]);
+    setSelectedClient(null);
+    setClientInfo({ clientName: '', clientAddress: '', clientCoordonne: '', clientId: '', clientNumero: 0 });
     await refetch();
+  };
+
+  const removeItemFromBasket = (index: number) => {
+    setBasket(basket.filter((_, i) => i !== index));
   };
 
   // Pour la remise
@@ -396,8 +441,8 @@ export default function Sortie() {
             {(unUser.role === 1 || unUser.role === 2) && (
 
               <Grid container spacing={2} alignItems="center"
-                // container
-                // spacing={isMobile ? 2 : 3}
+              // container
+              // spacing={isMobile ? 2 : 3}
               // className={isMobile ? 'mobile-grid' : ''}
               >
                 <Grid item xs={6} sm={3}>
@@ -482,6 +527,11 @@ export default function Sortie() {
                 open={open}
                 handleScanResult={handleScanResult}
                 closeopen={closeopen}
+                basket={basket}
+                handleFinalSubmit={handleFinalSubmit}
+                removeItemFromBasket={removeItemFromBasket}
+                basketTotalAmount={basketTotalAmount}
+                basketTotalQte={basketTotalQte}
               />
             </div>
 

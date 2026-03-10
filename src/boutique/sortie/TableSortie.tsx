@@ -1,5 +1,5 @@
 import { ToastContainer } from 'react-toastify'
-import { Dialog, DialogContent, DialogTitle, IconButton, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography, InputAdornment } from '@mui/material'
+import { Dialog, DialogContent, DialogTitle, IconButton, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography, InputAdornment, Button } from '@mui/material'
 import CardTableSortie from './CardTableSortie';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import QuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
@@ -16,6 +16,9 @@ import CloseIcon from "@mui/icons-material/Close"
 import BarcodeScanner from '../../_components/Input/BarcodeScanner';
 import M_Abonnement from '../../_components/Card/M_Abonnement';
 
+import DeleteIcon from '@mui/icons-material/Delete';
+import SaveIcon from '@mui/icons-material/Save';
+
 export default function TableSortie({
   ent,
   onSubmit,
@@ -31,7 +34,12 @@ export default function TableSortie({
   functionopen,
   open,
   closeopen,
-  handleScanResult
+  handleScanResult,
+  basket,
+  handleFinalSubmit,
+  removeItemFromBasket,
+  basketTotalAmount,
+  basketTotalQte
 }: any) {
   const entreprise_uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise } = useFetchEntreprise(entreprise_uuid);
@@ -252,10 +260,118 @@ export default function TableSortie({
             type="submit"
             className="bg-blue-500 mb-5 text-white font-bold mt-2 py-2 px-8 rounded hover:bg-blue-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-blue-400"
           >
-            Ajouter
+            Ajouter au panier
           </button>
         )}
       </form>
+
+      {/* Section Panier (Basket) */}
+      {basket && basket.length > 0 && (
+        <Paper elevation={3} className="p-4 mb-8 bg-gray-800 text-white rounded-lg">
+          <Typography variant="h5" className="mb-4 font-bold border-b pb-2 flex flex-col md:flex-row items-center justify-between gap-2">
+            <span>Articles Sélectionnés</span>
+            <span className="text-blue-400 text-lg md:text-xl">Total: {formatNumberWithSpaces(basketTotalAmount)}</span>
+          </Typography>
+
+          {/* Vue Mobile: Liste de cartes */}
+          <div className="md:hidden space-y-4">
+            {basket.map((item: any, index: number) => (
+              <div key={index} className="bg-gray-700 p-4 rounded-md border-l-4 border-blue-500 relative">
+                <div className="flex justify-between items-start mb-2">
+                  <div className="font-bold text-blue-300 pr-8">
+                    {item.categorie_libelle} {item.libelle ? `(${item.libelle})` : ""}
+                  </div>
+                  <IconButton
+                    onClick={() => removeItemFromBasket(index)}
+                    color="error"
+                    size="small"
+                    className="absolute top-2 right-2"
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="text-gray-400">Prix:</div>
+                  <div className="text-right">{formatNumberWithSpaces(Number(item.pu || 0))}</div>
+
+                  <div className="text-gray-400">Qté:</div>
+                  <div className="text-right">{item.qte} {item.unite === "kilos" ? "" : item.unite}</div>
+
+                  <div className="text-gray-400 font-bold border-t border-gray-600 pt-1 mt-1">Total:</div>
+                  <div className="text-right font-bold text-blue-400 border-t border-gray-600 pt-1 mt-1">
+                    {formatNumberWithSpaces(Number(item.pu || 0) * Number(item.qte || 0))}
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            <div className="bg-blue-900 bg-opacity-30 p-3 rounded-md border border-blue-800">
+              <div className="flex justify-between items-center font-bold">
+                <span>TOTAL ARTICLES:</span>
+                <span>{basketTotalQte}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Vue Desktop: Table standard */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-gray-700">
+                  <th className="py-2">Désignation</th>
+                  <th className="py-2">Prix</th>
+                  <th className="py-2">Qté</th>
+                  <th className="py-2">Total</th>
+                  <th className="py-2">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {basket.map((item: any, index: number) => (
+                  <tr key={index} className="border-b border-gray-700 hover:bg-gray-700 transition-colors">
+                    <td className="py-2">
+                      {item.categorie_libelle} {item.libelle ? `(${item.libelle})` : ""}
+                    </td>
+                    <td className="py-2">{formatNumberWithSpaces(Number(item.pu || 0))}</td>
+                    <td className="py-2">{item.qte} {item.unite === "kilos" ? "" : item.unite}</td>
+                    <td className="py-2">{formatNumberWithSpaces(Number(item.pu || 0) * Number(item.qte || 0))}</td>
+                    <td className="py-2">
+                      <IconButton onClick={() => removeItemFromBasket(index)} color="error" size="small">
+                        <DeleteIcon />
+                      </IconButton>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="font-bold text-lg">
+                  <td colSpan={2} className="py-4 text-right">TOTAUX :</td>
+                  <td className="py-4">{basketTotalQte}</td>
+                  <td className="py-4 text-blue-400">{formatNumberWithSpaces(basketTotalAmount)}</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <div className="flex flex-col md:flex-row justify-end mt-6">
+            <Button
+              variant="contained"
+              color="success"
+              fullWidth={true}
+              startIcon={<SaveIcon />}
+              onClick={handleFinalSubmit}
+              className="bg-green-600 hover:bg-green-700 px-6 py-3"
+              sx={{
+                fontWeight: 'bold',
+                width: { xs: '100%', md: 'auto' }
+              }}
+            >
+              Enregistrer l'achat
+            </Button>
+          </div>
+        </Paper>
+      )}
 
       <TableContainer component={Paper} sx={{ maxHeight: 600 }}>
         <Table aria-label="sticky table">

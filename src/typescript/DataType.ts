@@ -54,6 +54,7 @@ export type SortieType = {
     is_prix?: boolean;
     entre_id?: string;
     unite?: string;
+    libelle?: string;
 }
 
 export type SousType = {

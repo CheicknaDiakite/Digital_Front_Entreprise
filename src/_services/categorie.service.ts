@@ -483,7 +483,7 @@ const getSortie = async (slug: string) => {
 /**
  * Ajout d'un Entrer
  */
-const addSortie = async (data: SortieType) => {
+const addSortie = async (data: SortieType | SortieType[]) => {
     try {
         const response = await Axios.post('entreprise/sortie/add',
             data, { withCredentials: true });
