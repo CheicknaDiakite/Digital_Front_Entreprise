@@ -417,30 +417,51 @@ export function useLoginUser() {
 export function useForgotUser() {
 
   const connexion = useMutation({
-    mutationFn: (post: FormType) => {
-      return userService.userForgot(post)
+    mutationFn: (post: { email: string }) => {
+      return userService.userForgot(post as any)
         .then((res) => {
           if (res.data.etat === false) {
             if (res.data.message !== "requette invalide") {
               toast.error(res.data.message);
             }
           } else {
-            accountService.saveToken(res.data.id)
-            // toast.success("Un mail vous a ete envoyer !");
-            toast('Verifier votre email !', {
-              icon: '👏',
-            });
+            // On ne sauvegarde pas le token car l'utilisateur n'est pas encore connecté
+            toast.success('Veuillez vérifier votre email !');
           }
         })
     },
   });
 
-  const forgout = (post: FormType) => {
+  const forgout = (post: { email: string }) => {
     connexion.mutate(post);
-    console.log("forgot ..", post)
   };
 
-  return { forgout }
+  return { forgout, isPending: connexion.isPending }
+}
+
+export function useUpdatePassword() {
+  const navigate = useNavigate();
+
+  const updateMut = useMutation({
+    mutationFn: (post: any) => {
+      return userService.userUpdatePassword(post).then((res) => {
+        if (res.data.etat === false) {
+          if (res.data.message !== "requette invalide") {
+            toast.error(res.data.message);
+          }
+        } else {
+          toast.success(res.data.message || "Mot de passe modifié avec succès !");
+          navigate('/auth/login');
+        }
+      });
+    },
+  });
+
+  const updatePass = (post: any) => {
+    updateMut.mutate(post);
+  };
+
+  return { updatePass, isPending: updateMut.isPending };
 }
 
 export function useCreateAdminUser() {

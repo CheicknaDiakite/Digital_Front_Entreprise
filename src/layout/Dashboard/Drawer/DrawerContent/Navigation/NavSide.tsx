@@ -313,6 +313,7 @@ const NavSide: React.FC = () => {
                     <NavItem
                       icon={null}
                       label="Ventes"
+                      to="/entreprise/inventaire/sortie"
                       bgColor="text-white bg-gray-500"
                     />
                   }
@@ -324,11 +325,7 @@ const NavSide: React.FC = () => {
                       bgColor="text-white bg-gray-500"
                     />
                     :
-                    <NavItem
-                      icon={null}
-                      label="Achats"
-                      bgColor="text-white bg-gray-500"
-                    />
+                    ""
                   }
 
                   {(unEntreprise.licence_type != "Stock Simple") ?
@@ -339,11 +336,7 @@ const NavSide: React.FC = () => {
                       bgColor="text-white bg-gray-500"
                     />
                     :
-                    <NavItem
-                      icon={null}
-                      label="Etat des produits"
-                      bgColor="text-white bg-gray-500"
-                    />
+                    ""
                   }
                   {(unUser.role === 1 && uuid) &&
                     (unEntreprise.licence_type != "Stock Simple") ?
@@ -354,11 +347,7 @@ const NavSide: React.FC = () => {
                       bgColor="text-white bg-gray-500"
                     />
                     :
-                    <NavItem
-                      icon={null}
-                      label="Etat des utilisateurs"
-                      bgColor="text-white bg-gray-500"
-                    />
+                    ""
                   }
 
                 </List>

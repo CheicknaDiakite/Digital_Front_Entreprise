@@ -231,6 +231,10 @@ const userForgot = (post: FormType) => {
     return Axios.post('utilisateur/forgot-password', post, { withCredentials: true });
 }
 
+const userUpdatePassword = (post: any) => {
+    return Axios.post('utilisateur/update-password', post, { withCredentials: true });
+}
+
 const userLogout = () => {
     return Axios.get('utilisateur/deconnxion')
 }
@@ -239,7 +243,7 @@ const userLogout = () => {
 export const userService = {
     userRegister, userLogin, userGet, userUpdate, userDelete,
     userAll, userLogout, userUnGet, userAdminRegister, allUsers,
-    userForgot, avisDelete, avisGet, avisCreate, allMesUsers,
+    userForgot, userUpdatePassword, avisDelete, avisGet, avisCreate, allMesUsers,
     allClients, userClient, userUnClient, clientUpdate, clientDelete,
     userCabinetRegister, unUser, userRestrictionDetail, userRestriction
 }

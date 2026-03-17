@@ -17,7 +17,7 @@ const pricingTiers: PricingTier[] = [
     name: 'Stocks simple',
     id: 'tier-simple',
     href: '#',
-    priceMonthly: '45 000 f',
+    priceMonthly: '40 000 f',
     description: "L'essentiel pour commencer à gérer votre stock efficacement.",
     features: [
       'Suivi des stocks',
