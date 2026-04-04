@@ -300,7 +300,7 @@ export default function DashboardDefault() {
 
                 <Grid container spacing={2} sx={{ width: '100%', mb: 3 }} className='flex justify-center'>
 
-                  <Grid item xs={12} sm={6} md={3}>
+                  <Grid item xs={6} sm={6} md={3}>
                     <StatCard
                       title="Chiffre d'Affaires du mois"
                       description="montant brut (hors remises)"
@@ -321,7 +321,7 @@ export default function DashboardDefault() {
                     />
                   </Grid>
 
-                  <Grid item xs={12} sm={6} md={3}>
+                  <Grid item xs={6} sm={6} md={3}>
                     <StatCard
                       title="Ventes Totales du mois"
                       value={(() => {
@@ -340,7 +340,7 @@ export default function DashboardDefault() {
                     />
                   </Grid>
 
-                  <Grid item xs={12} sm={6} md={3}>
+                  <Grid item xs={6} sm={6} md={3}>
                     <StatCard
                       title="Clients"
                       value={getClients ? getClients.filter(client => client.role === 1 || client.role === 3).length : '--'}
@@ -348,7 +348,7 @@ export default function DashboardDefault() {
                     />
                   </Grid>
 
-                  <Grid item xs={12} sm={6} md={3}>
+                  <Grid item xs={6} sm={6} md={3}>
                     <StatCard
                       title="Dépenses du mois"
                       value={(() => {
@@ -379,27 +379,18 @@ export default function DashboardDefault() {
               {/* Monthly Sales */}
               <Grid item xs={12} md={8}>
                 {safeStockSemaine.sorties_par_mois && safeStockSemaine.sorties_par_mois.length > 0 ? (
-                  <Paper
-                    elevation={isMobile ? 1 : 0}
-                    className={`border rounded-2xl overflow-hidden ${isMobile ? 'mobile-stats-card' : ''} shadow-sm`}
-                    sx={{ borderRadius: isMobile ? '16px' : '8px' }}
-                  >
-                    <Box className="p-4 border-b bg-gray-50">
-                      <Typography
-                        variant="h5"
-                        className="font-medium text-gray-900"
-                        sx={{ fontSize: { xs: '1.1rem', sm: '1.25rem' } }}
-                      >
-                        Produits les plus vendus - {(() => {
-                          try {
-                            return format(new Date(safeStockSemaine.sorties_par_mois[safeStockSemaine.sorties_par_mois.length - 1].month), 'MMMM yyyy');
-                          } catch (error) {
-                            return 'Ce mois';
-                          }
-                        })()}
-                      </Typography>
-                    </Box>
-                    <Box className="p-4">
+                  <Box sx={{ maxWidth: isMobile ? '95%' : '100%', mx: isMobile ? 0 : 0, height: '100%' }}>
+                    <ChartSection
+                      title={`Produits les plus vendus - ${(() => {
+                        try {
+                          return format(new Date(safeStockSemaine.sorties_par_mois[safeStockSemaine.sorties_par_mois.length - 1].month), 'MMMM yyyy');
+                        } catch (error) {
+                          return 'Ce mois';
+                        }
+                      })()}`}
+                      className="h-full"
+                    >
+                      {/* <Box sx={{ minHeight: '300px', p: 1 }}> */}
                       {(() => {
                         try {
                           return <MonthlyBarChart details={safeStockSemaine.sorties_par_mois[safeStockSemaine.sorties_par_mois.length - 1].details} />;
@@ -412,8 +403,9 @@ export default function DashboardDefault() {
                           );
                         }
                       })()}
-                    </Box>
-                  </Paper>
+                      {/* </Box> */}
+                    </ChartSection>
+                  </Box>
                 ) : (
                   <Alert
                     severity="info"
@@ -431,10 +423,13 @@ export default function DashboardDefault() {
                 {/* <Box className={`border rounded-2xl overflow-hidden ${isMobile ? 'mobile-stats-card mt-3' : 'ml-3'} `}> */}
                 {(() => {
                   try {
-                    return <ChartSection className={`${isMobile ? 'mt-5' : 'ml-5'} `} title="Statistiques des ventes">
-                      <SimpleCharts />
-                      
-                    </ChartSection>
+                    return (
+                      <Box sx={{ maxWidth: isMobile ? '95%' : '100%', mx: isMobile ? 0 : 0 }}>
+                        <ChartSection className={`${isMobile ? 'mt-3' : 'ml-5'} `} title="Statistiques des ventes">
+                          <SimpleCharts />
+                        </ChartSection>
+                      </Box>
+                    );
                     // <SimpleCharts />;
                   } catch (error) {
                     console.error('Erreur SimpleCharts:', error);

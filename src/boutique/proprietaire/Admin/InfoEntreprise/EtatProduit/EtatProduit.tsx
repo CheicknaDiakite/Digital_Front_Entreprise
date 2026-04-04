@@ -30,11 +30,12 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 
-import { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, cloneElement, isValidElement } from 'react';
 import { RecupType } from '../../../../../typescript/DataType';
 import { formatNumberWithSpaces } from '../../../../../usePerso/fonctionPerso';
 
 import '../../mobile-admin.css';
+import { StatCard } from '../../../../../usePerso/useEntreprise';
 
 // ───────────────────────────────
 // Utils
@@ -156,7 +157,7 @@ export default function EtatProduit() {
     {
       title: 'Quantités sorties',
       value: stockEntreprise.somme_sortie_qte,
-      icon: <TrendingDownIcon sx={{ fontSize: 32 }} />,
+      icon: <TrendingDownIcon />,
       color: '#f87171', // red-400
       bg: 'rgba(239, 68, 68, 0.1)',
       border: 'rgba(239, 68, 68, 0.2)'
@@ -164,7 +165,7 @@ export default function EtatProduit() {
     {
       title: 'Quantités en stock',
       value: stockEntreprise.somme_entrer_qte,
-      icon: <InventoryIcon sx={{ fontSize: 32 }} />,
+      icon: <InventoryIcon />,
       color: '#34d399', // emerald-400
       bg: 'rgba(52, 211, 153, 0.1)',
       border: 'rgba(52, 211, 153, 0.2)'
@@ -172,7 +173,7 @@ export default function EtatProduit() {
     {
       title: 'Sorties effectuées',
       value: stockEntreprise.nombre_sortie,
-      icon: <ShoppingCartIcon sx={{ fontSize: 32 }} />,
+      icon: <ShoppingCartIcon />,
       color: '#60a5fa', // blue-400
       bg: 'rgba(96, 165, 250, 0.1)',
       border: 'rgba(96, 165, 250, 0.2)',
@@ -181,7 +182,7 @@ export default function EtatProduit() {
     {
       title: 'Entrées effectuées',
       value: stockEntreprise.nombre_entrer,
-      icon: <TrendingUpIcon sx={{ fontSize: 32 }} />,
+      icon: <TrendingUpIcon />,
       color: '#22d3ee', // cyan-400
       bg: 'rgba(34, 238, 48, 0.1)',
       border: 'rgba(34, 211, 238, 0.2)',
@@ -190,252 +191,227 @@ export default function EtatProduit() {
   ];
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        // background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)', // Dark Professional Gradient
-        py: 4,
-        color: '#f8fafc' // slate-50
-      }}
-    >
-      <Container maxWidth="lg">
-        {/* Header */}
-        <Fade in timeout={600}>
-          <Box sx={{ mb: 5 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-              <AssessmentIcon sx={{ fontSize: 40, color: '#60a5fa' }} />
-              <Typography variant="h3" 
-                className='text-gray-50'                
-              >
-                Statistiques
-              </Typography>
-            </Box>
-            <Typography variant="body1" className='text-gray-200' sx={{ ml: 7, color: '#94a3b8' }}>
-              Vue d'ensemble et indicateurs de performance
+    
+    <Container>
+      {/* Header */}
+      <Fade in timeout={600}>
+        <Box sx={{ mb: 5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+            <AssessmentIcon sx={{ fontSize: 40, color: '#60a5fa' }} />
+            <Typography variant="h3"
+              className='text-gray-50'
+            >
+              Statistiques
             </Typography>
           </Box>
-        </Fade>
+          <Typography variant="body1" className='text-gray-200' sx={{ ml: 7, color: '#94a3b8' }}>
+            Vue d'ensemble et indicateurs de performance
+          </Typography>
+        </Box>
+      </Fade>
 
-        {/* Date Filters */}
-        <Fade in timeout={800}>
-          <Paper
-            elevation={0}
-            // className='bg-gray-500'
-            sx={{
-              p: 3,
-              mb: 4,
-              borderRadius: 3,
-              background: 'rgba(30, 41, 59, 0.7)', // slate-800 with opacity
-              backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(148, 163, 184, 0.1)'
-            }}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-              <CalendarTodayIcon sx={{ color: '#60a5fa' }} />
-              <Typography variant="h6" className='text-gray-50' sx={{ fontWeight: 600, color: '#f1f5f9' }}>
-                Période d'analyse
-              </Typography>
-              {filters.isActive && (
-                <Chip label="Filtré" size="small" sx={{ ml: 1, background: '#3b82f6', color: 'white' }} />
-              )}
-            </Box>
+      {/* Date Filters */}
+      <Fade in timeout={800}>
+        <Paper
+          elevation={0}
+          // className='bg-gray-500'
+          sx={{
+            p: 3,
+            mb: 4,
+            borderRadius: 3,
+            background: 'rgba(30, 41, 59, 0.7)', // slate-800 with opacity
+            backdropFilter: 'blur(12px)',
+            border: '1px solid rgba(148, 163, 184, 0.1)'
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+            <CalendarTodayIcon sx={{ color: '#60a5fa' }} />
+            <Typography variant="h6" className='text-gray-50' sx={{ fontWeight: 600, color: '#f1f5f9' }}>
+              Période d'analyse
+            </Typography>
+            {filters.isActive && (
+              <Chip label="Filtré" size="small" sx={{ ml: 1, background: '#3b82f6', color: 'white' }} />
+            )}
+          </Box>
 
-            <Grid container spacing={2} alignItems="center">
-              <Grid item xs={12} sm={5}>
-                <TextField
-                  fullWidth
-                  label="Date de début"
-                  type="date"
-                  value={filters.start}
-                  onChange={(e) => filters.setStart(e.target.value)}
-                  InputLabelProps={{ shrink: true, sx: { color: '#94a3b8' } }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      color: 'white',
-                      backgroundColor: 'rgba(15, 23, 42, 0.6)',
-                      '& fieldset': { borderColor: 'rgba(148, 163, 184, 0.2)' },
-                      '&:hover fieldset': { borderColor: 'rgba(148, 163, 184, 0.4)' },
-                      '&.Mui-focused fieldset': { borderColor: '#60a5fa' }
-                    }
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={5}>
-                <TextField
-                  fullWidth
-                  label="Date de fin"
-                  type="date"
-                  value={filters.end}
-                  onChange={(e) => filters.setEnd(e.target.value)}
-                  InputLabelProps={{ shrink: true, sx: { color: '#94a3b8' } }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      color: 'white',
-                      backgroundColor: 'rgba(15, 23, 42, 0.6)',
-                      '& fieldset': { borderColor: 'rgba(148, 163, 184, 0.2)' },
-                      '&:hover fieldset': { borderColor: 'rgba(148, 163, 184, 0.4)' },
-                      '&.Mui-focused fieldset': { borderColor: '#60a5fa' }
-                    }
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={2}>
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  className='bg-yellow-500'
-                  startIcon={<ClearIcon />}
-                  onClick={filters.clear}
-                  disabled={!filters.isActive}
-                  
-                >
-                  Effacer
-                </Button>
-              </Grid>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} sm={5}>
+              <TextField
+                fullWidth
+                label="Date de début"
+                type="date"
+                value={filters.start}
+                onChange={(e) => filters.setStart(e.target.value)}
+                InputLabelProps={{ shrink: true, sx: { color: '#94a3b8' } }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    color: 'white',
+                    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                    '& fieldset': { borderColor: 'rgba(148, 163, 184, 0.2)' },
+                    '&:hover fieldset': { borderColor: 'rgba(148, 163, 184, 0.4)' },
+                    '&.Mui-focused fieldset': { borderColor: '#60a5fa' }
+                  }
+                }}
+              />
             </Grid>
-          </Paper>
-        </Fade>
-
-        {/* Financial Metrics */}
-        <Fade in timeout={1000}>
-          <Grid container spacing={3} sx={{ mb: 4 }}>
-            {/* Revenue */}
-            <Grid item xs={12} md={4}>
-              <Card sx={{ background: 'linear-gradient(135deg, #1e3a8a 0%, #172554 100%)', borderRadius: 3, border: '1px solid rgba(96, 165, 250, 0.2)' }}>
-                <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', gap: 1.5, mb: 2, alignItems: 'center' }}>
-                    <Box sx={{ p: 1, borderRadius: 1.5, background: 'rgba(96, 165, 250, 0.1)' }}>
-                      <LocalAtmIcon sx={{ color: '#60a5fa' }} />
-                    </Box>
-                    <Typography variant="subtitle2" sx={{ color: '#fef2f2', fontWeight: 600 }}>Chiffre d'Affaires</Typography>
-                  </Box>
-                  <Typography variant="h4" sx={{ fontWeight: 700, color: '#eff6ff' }}>
-                    {formatNumberWithSpaces(metrics.totalCA)}
-                  </Typography>
-                </CardContent>
-              </Card>
+            <Grid item xs={12} sm={5}>
+              <TextField
+                fullWidth
+                label="Date de fin"
+                type="date"
+                value={filters.end}
+                onChange={(e) => filters.setEnd(e.target.value)}
+                InputLabelProps={{ shrink: true, sx: { color: '#94a3b8' } }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    color: 'white',
+                    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                    '& fieldset': { borderColor: 'rgba(148, 163, 184, 0.2)' },
+                    '&:hover fieldset': { borderColor: 'rgba(148, 163, 184, 0.4)' },
+                    '&.Mui-focused fieldset': { borderColor: '#60a5fa' }
+                  }
+                }}
+              />
             </Grid>
+            <Grid item xs={12} sm={2}>
+              <Button
+                fullWidth
+                variant="outlined"
+                className='bg-yellow-500'
+                startIcon={<ClearIcon />}
+                onClick={filters.clear}
+                disabled={!filters.isActive}
 
-            {/* Expenses */}
-            <Grid item xs={12} md={4}>
-              <Card sx={{ background: 'linear-gradient(135deg, #064e3b 0%, #022c22 100%)', borderRadius: 3, border: '1px solid rgba(34, 211, 238, 0.2)' }}>
-                <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', gap: 1.5, mb: 2, alignItems: 'center' }}>
-                    <Box sx={{ p: 1, borderRadius: 1.5, background: 'rgba(248, 113, 113, 0.1)' }}>
-                      <LocalAtmIcon sx={{ color: '#f87171' }} />
-                    </Box>
-                    <Typography variant="subtitle2" sx={{ color: '#fef2f2', fontWeight: 600 }}>Sommes Estimée (Prix Achats)</Typography>
-                  </Box>
-                  <Typography variant="h4" sx={{ fontWeight: 700, color: '#fef2f2' }}>
-                    {formatNumberWithSpaces(metrics.totalExpenses)}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            {/* Profit */}
-            <Grid item xs={12} md={4}>
-              <Card sx={{
-                background: metrics.isLoss
-                  ? 'linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%)'
-                  : 'linear-gradient(135deg, #064e3b 0%, #022c22 100%)',
-                // background: 'linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%)',
-                borderRadius: 3,
-                // border: '1px solid rgba(248, 113, 113, 0.2)'
-                border: metrics.isLoss ? '1px solid rgba(248, 113, 113, 0.2)' : '1px solid rgba(52, 211, 153, 0.2)'
-              }}>
-                <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: 'flex', gap: 1.5, mb: 2, alignItems: 'center' }}>
-                    <Box sx={{ p: 1, borderRadius: 1.5, background: metrics.isLoss ? 'rgba(34, 211, 238, 0.1)' : 'rgba(52, 211, 153, 0.1)' }}>
-                      {metrics.isLoss ? <TrendingDownIcon sx={{ color: '#22d3ee' }} /> : <TrendingUpIcon sx={{ color: '#34d399' }} />}
-                    </Box>
-                    <Typography variant="subtitle2" sx={{ color: metrics.isLoss ? '#fef2f2' : '#fef2f2', fontWeight: 600 }}>
-                      {metrics.isLoss ? 'Perte Estimée' : 'Bénéfice Estimé'}
-                    </Typography>
-                  </Box>
-                  <Typography variant="h4" sx={{ fontWeight: 700, color: '#ecfeff' }}>
-                    {formatNumberWithSpaces(Math.abs(metrics.estimatedProfit))}
-                  </Typography>
-                </CardContent>
-              </Card>
+              >
+                Effacer
+              </Button>
             </Grid>
           </Grid>
-        </Fade>
+        </Paper>
+      </Fade>
 
-        {/* Stats Grid */}
-        <Grid container spacing={3}>
-          {statsCards.map((stat, index) => (
-            <Grid item xs={12} sm={6} md={3} key={index}>
-              <Zoom in timeout={1200 + index * 100}>
-                <Card
-                  // component={stat.link && !licenceExpired ? Link : 'div'}
-                  // to={stat.link}
-                  sx={{
-                    height: '100%',
-                    background: 'rgba(30, 41, 59, 0.4)',
-                    backdropFilter: 'blur(8px)',
-                    border: `1px solid ${stat.border}`,
-                    borderRadius: 3,
-                    textDecoration: 'none',
-                    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                    cursor: stat.link && !licenceExpired ? 'pointer' : 'default',
-                    opacity: licenceExpired ? 0.6 : 1,
-                    '&:hover': stat.link && !licenceExpired ? {
-                      transform: 'translateY(-4px)',
-                      boxShadow: `0 10px 20px -5px ${stat.color}40`,
-                      background: 'rgba(30, 41, 59, 0.6)'
-                    } : {}
-                  }}
-                >
-                  <Link to={stat.link ? stat.link : ""}>
-                    <Box sx={{ p: 3 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                        <Typography variant="subtitle2" sx={{ color: stat.color, fontWeight: 600 }}>
-                          {stat.title}
-                        </Typography>
-                        
+      {/* Financial Metrics */}
+      <Fade in timeout={1000}>
+        <Grid container spacing={2} sx={{ mb: 4 }}>
+          <Grid item xs={6} md={4}>
+            <StatCard
+              title="Chiffre d'Affaires"
+              value={formatNumberWithSpaces(metrics.totalCA)}
+              icon={<LocalAtmIcon sx={{ color: '#60a5fa', fontSize: { xs: 24, sm: 32 } }} />}
+              description="Total des ventes (hors remises)"
+              backgroundColor="linear-gradient(135deg, #1e3a8a 0%, #172554 100%)"
+            />
+          </Grid>
 
-                        <Box sx={{ p: 1, borderRadius: '50%', background: stat.bg, color: stat.color }}>
-                          {stat.icon}
-                        </Box>
-                        
-                      </Box>
-                      <Typography variant="h4" sx={{ color: '#f8fafc', fontWeight: 700 }}>
-                        {stat.value ? stat.value.toLocaleString() : 0}
-                      </Typography>
-                    </Box>
-                  </Link>
-                </Card>
-              </Zoom>
-            </Grid>
-          ))}
+          <Grid item xs={6} md={4}>
+            <StatCard
+              title="Dépenses"
+              value={formatNumberWithSpaces(metrics.totalExpenses)}
+              icon={<LocalAtmIcon sx={{ color: '#f87171', fontSize: { xs: 24, sm: 32 } }} />}
+              description="Total des achats sur la période"
+              backgroundColor="linear-gradient(135deg, #064e3b 0%, #022c22 100%)"
+            />
+          </Grid>
+
+          <Grid item xs={6} md={4}>
+            <StatCard
+              title={metrics.isLoss ? 'Perte Estimée' : 'Bénéfice Estimé'}
+              value={formatNumberWithSpaces(Math.abs(metrics.estimatedProfit))}
+              icon={
+                metrics.isLoss
+                  ? <TrendingDownIcon sx={{ color: '#22d3ee', fontSize: { xs: 24, sm: 32 } }} />
+                  : <TrendingUpIcon sx={{ color: '#34d399', fontSize: { xs: 24, sm: 32 } }} />
+              }
+              description={metrics.isLoss ? 'La société est en perte' : 'La société est en profit'}
+              backgroundColor={metrics.isLoss ? 'linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%)' : 'linear-gradient(135deg, #064e3b 0%, #022c22 100%)'}
+            />
+          </Grid>
+
+          {/* <Grid item xs={6} sm={6} md={3}>
+            <StatCard
+              title="Clients"
+              value={getClients ? getClients.filter(client => client.role === 1 || client.role === 3).length : '--'}
+              icon={<PeopleOutlineRoundedIcon sx={{ fontSize: { xs: 24, sm: 32 } }} />} 
+            />
+          </Grid> */}
         </Grid>
+      </Fade>
 
-        {/* License Expired Warning */}
-        {licenceExpired && (
-          <Fade in timeout={1600}>
-            <Alert
-              severity="warning"
-              variant="filled"
-              sx={{
-                mt: 4,
-                borderRadius: 3,
-                boxShadow: '0 8px 24px rgba(237, 137, 54, 0.25)',
-                '& .MuiAlert-icon': {
-                  fontSize: 28
-                }
-              }}
-            >
-              <Typography variant="h6" sx={{ mb: 0.5, fontWeight: 600 }}>
-                Licence expirée
-              </Typography>
-              <Typography variant="body2">
-                Certaines fonctionnalités sont désactivées. Veuillez renouveler votre licence pour continuer à utiliser toutes les fonctionnalités.
-              </Typography>
-            </Alert>
-          </Fade>
-        )}
-      </Container>
-    </Box>
+      {/* Stats Grid */}
+      <Grid container spacing={2}>
+        {statsCards.map((stat, index) => (
+          <Grid item xs={6} sm={6} md={3} key={index}>
+            <Zoom in timeout={1200 + index * 100}>
+              <Card
+                // component={stat.link && !licenceExpired ? Link : 'div'}
+                // to={stat.link}
+                sx={{
+                  height: '100%',
+                  background: 'rgba(30, 41, 59, 0.4)',
+                  backdropFilter: 'blur(8px)',
+                  border: `1px solid ${stat.border}`,
+                  borderRadius: 3,
+                  textDecoration: 'none',
+                  transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                  cursor: stat.link && !licenceExpired ? 'pointer' : 'default',
+                  opacity: licenceExpired ? 0.6 : 1,
+                  '&:hover': stat.link && !licenceExpired ? {
+                    transform: 'translateY(-4px)',
+                    boxShadow: `0 10px 20px -5px ${stat.color}40`,
+                    background: 'rgba(30, 41, 59, 0.6)'
+                  } : {}
+                }}
+              >
+                <Link to={stat.link ? stat.link : ""}>
+                  <Box sx={{ p: { xs: 2.5, sm: 3 } }}>
+                    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: { xs: 'center', sm: 'space-between' }, mb: { xs: 1.5, sm: 2 }, alignItems: 'center', gap: { xs: 1, sm: 0 } }}>
+                      <Typography variant="subtitle2" sx={{ color: stat.color, fontWeight: 600, fontSize: { xs: '0.75rem', sm: '0.875rem' }, textAlign: { xs: 'center', sm: 'left' } }}>
+                        {stat.title}
+                      </Typography>
+
+
+                      <Box sx={{ p: { xs: 0.75, sm: 1 }, borderRadius: '50%', background: stat.bg, color: stat.color, display: 'flex', alignItems: 'center', justifyContent: 'center', order: { xs: -1, sm: 0 } }}>
+                        {/* @ts-ignore */}
+                        {stat.icon && typeof stat.icon === 'object' ? React.cloneElement(stat.icon as React.ReactElement, { sx: { fontSize: { xs: 24, sm: 32 } } }) : stat.icon}
+                      </Box>
+
+                    </Box>
+                    <Typography variant="h4" sx={{ color: '#f8fafc', fontWeight: 700, fontSize: { xs: '1.25rem', sm: '1.75rem', md: '2.125rem' }, textAlign: { xs: 'center', sm: 'left' } }}>
+                      {stat.value ? stat.value.toLocaleString() : 0}
+                    </Typography>
+                  </Box>
+                </Link>
+              </Card>
+            </Zoom>
+          </Grid>
+        ))}
+      </Grid>
+
+      {/* License Expired Warning */}
+      {licenceExpired && (
+        <Fade in timeout={1600}>
+          <Alert
+            severity="warning"
+            variant="filled"
+            sx={{
+              mt: 4,
+              borderRadius: 3,
+              boxShadow: '0 8px 24px rgba(237, 137, 54, 0.25)',
+              '& .MuiAlert-icon': {
+                fontSize: 28
+              }
+            }}
+          >
+            <Typography variant="h6" sx={{ mb: 0.5, fontWeight: 600 }}>
+              Licence expirée
+            </Typography>
+            <Typography variant="body2">
+              Certaines fonctionnalités sont désactivées. Veuillez renouveler votre licence pour continuer à utiliser toutes les fonctionnalités.
+            </Typography>
+          </Alert>
+        </Fade>
+      )}
+    </Container>
+    // </Box>
   );
 }

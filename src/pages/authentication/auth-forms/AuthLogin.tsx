@@ -25,6 +25,7 @@ import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 import { useLoginUser } from '../../../usePerso/fonction.user';
 import Bienvenue from '../../../_components/Card/Bienvenue';
+import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 
 // Note: Removed Bienvenue and scrolling text for a cleaner, more professional look.
 
@@ -34,7 +35,7 @@ interface LoginFormData {
 }
 
 const AuthLogin: FC = () => {
-  const { login } = useLoginUser();
+  const { login, googleLogin } = useLoginUser();
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
@@ -204,6 +205,25 @@ const AuthLogin: FC = () => {
               OU
             </Typography>
           </Divider>
+
+          {/* <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+            <GoogleLogin
+              onSuccess={(credentialResponse: CredentialResponse) => {
+                if (credentialResponse.credential) {
+                  googleLogin(credentialResponse.credential);
+                }
+              }}
+              onError={() => {
+                toast.error('Échec de la connexion Google');
+              }}
+              useOneTap
+              theme="outline"
+              size="large"
+              text="signin_with"
+              shape="rectangular"
+              width="100%"
+            />
+          </Box> */}
 
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1 }}>
             <Typography variant="body2" color="text.secondary">

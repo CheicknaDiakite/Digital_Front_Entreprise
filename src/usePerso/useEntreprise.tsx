@@ -265,22 +265,94 @@ export function CustomTabPanel(props: TabPanelProps) {
   );
 }
 
-export function StatCard({ title, description, value, icon }: { title: string, description?: string, value: string | number, icon: React.ReactNode }) {
+export function StatCard({ title, description, value, icon, backgroundColor }: { title: string, description?: string, value: string | number, icon: React.ReactNode, backgroundColor?: string }) {
   return (
-    <Card sx={{ borderRadius: 4, bgcolor: 'rgba(255, 255, 255, 0.9)' }}>
-      <CardContent>
-        <Box display="flex" alignItems="center" mb={1}>
-          {icon}
-          <Typography variant="subtitle2" color="text.secondary" sx={{ ml: 1 }}>
+    <Card 
+      sx={{ 
+        borderRadius: 4, 
+        bgcolor: backgroundColor || 'rgba(255, 255, 255, 0.9)',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        aspectRatio: { xs: '1 / 1', sm: 'auto' },
+        justifyContent: 'center',
+        transition: 'transform 0.2s',
+        '&:hover': {
+          transform: 'scale(1.02)'
+        }
+      }}
+    >
+      <CardContent sx={{ 
+        p: { xs: 1.5, sm: 2 }, 
+        '&:last-child': { pb: { xs: 1.5, sm: 2 } },
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        height: '100%',
+        width: '100%',
+        flex: 1
+      }}>
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center', 
+            gap: 0.5,
+            mb: { xs: 1, sm: 1.5 }
+          }}
+        >
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            color: 'primary.main',
+            transform: { xs: 'scale(0.9)', sm: 'scale(1)' }
+          }}>
+            {icon}
+          </Box>
+          <Typography 
+            variant="subtitle2" 
+            color="text.secondary" 
+            sx={{ 
+              fontWeight: 600,
+              fontSize: { xs: '0.7rem', sm: '0.875rem' },
+              lineHeight: 1.2,
+              maxWidth: '100%',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical'
+            }}
+          >
             {title}
           </Typography>
         </Box>
-        <Typography variant="h5" fontWeight="bold">
+        <Typography 
+          variant="h5" 
+          fontWeight="bold"
+          sx={{ 
+            fontSize: { xs: '1.2rem', sm: '1.5rem' },
+            color: 'text.primary'
+          }}
+        >
           {value}
         </Typography>
-        <Typography variant="subtitle2" color="text.secondary" sx={{ ml: 1 }}>
-          {description}
-        </Typography>
+        {description && (
+          <Typography 
+            variant="caption" 
+            color="text.secondary" 
+            sx={{ 
+              mt: 0.5,
+              fontSize: '0.65rem',
+              display: { xs: 'none', sm: 'block' }
+            }}
+          >
+            {description}
+          </Typography>
+        )}
       </CardContent>
     </Card>
   );

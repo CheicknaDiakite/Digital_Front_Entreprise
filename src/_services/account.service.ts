@@ -46,6 +46,16 @@ const userLogin = async (post: LoginType): Promise<RegisterResponse> => {
     }
 }
 
+const googleLogin = async (token: string): Promise<RegisterResponse> => {
+    try {
+        const response = await Axios.post('/utilisateur/google-login', { token }, { withCredentials: true })
+        return response;
+    } catch (error) {
+        console.error("Error during Google login:", error);
+        throw error;
+    }
+}
+
 const userUnGet = async () => {
 
     try {
@@ -245,7 +255,8 @@ export const userService = {
     userAll, userLogout, userUnGet, userAdminRegister, allUsers,
     userForgot, userUpdatePassword, avisDelete, avisGet, avisCreate, allMesUsers,
     allClients, userClient, userUnClient, clientUpdate, clientDelete,
-    userCabinetRegister, unUser, userRestrictionDetail, userRestriction
+    userCabinetRegister, unUser, userRestrictionDetail, userRestriction,
+    googleLogin
 }
 
 const saveToken = (token: string, tok?: string) => {

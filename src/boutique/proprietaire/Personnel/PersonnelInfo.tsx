@@ -129,21 +129,21 @@ export default function PersonnelInfo() {
         <Grid item xs={12} md={8}>
           <Grid container spacing={3} mb={4}>
             {/* Stat Cards */}
-            <Grid item xs={12} sm={4}>
+            <Grid item xs={6} sm={4}>
               <StatCard
                 title="Ventes Totales"
                 value={totalVentes}
                 icon={<ShoppingBagIcon color="primary" />}
               />
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid item xs={6} sm={4}>
               <StatCard
                 title="Produits Vendus"
                 value={userStats.total_qte}
                 icon={<InventoryIcon color="secondary" />}
               />
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid item xs={6} sm={4}>
               <StatCard
                 title="Chiffre d'Affaires"
                 value={`${userStats.total_montant.toLocaleString()} F`}

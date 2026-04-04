@@ -81,7 +81,7 @@ export default function EntrepriseDetail() {
     return (
         
       <Box>
-        <Container maxWidth="xl" className="relative z-10">
+        {/* <Container> */}
           <Paper 
           elevation={0} 
           // className={`border rounded-lg overflow-hidden ${isMobile ? 'mobile-modif-paper' : ''}`}
@@ -141,7 +141,7 @@ export default function EntrepriseDetail() {
               </CustomTabPanel>
             </Box>
           </Paper>
-        </Container>
+        {/* </Container> */}
       </Box>
   
     );

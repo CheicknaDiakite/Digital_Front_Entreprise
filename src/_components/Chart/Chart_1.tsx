@@ -8,12 +8,14 @@ import {
   useTheme,
   CircularProgress,
   Alert,
+  useMediaQuery,
   Stack
 } from '@mui/material';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function SimpleCharts() {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const uuid = useStoreUuid((state) => state.selectedId);
   const { stockEntreprise, isLoading, isError } = useStockEntreprise(uuid || '');
@@ -44,7 +46,7 @@ export default function SimpleCharts() {
     // Trier les données par date réelle
     chartData.sort((a, b) => {
       // On retransforme en date complète pour trier
-      const monthNames = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+      const monthNames = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
       const parseMonth = (m: string) => {
         const [mois, annee] = m.split(' ');
         const monthIndex = monthNames.indexOf(mois);
@@ -53,8 +55,8 @@ export default function SimpleCharts() {
       return parseMonth(a.month).getTime() - parseMonth(b.month).getTime();
     });
 
-    // Prendre les 12 derniers mois
-    const last12Months = chartData.slice(-12);
+    // Prendre les 12 derniers mois (ou 6 sur mobile)
+    const last12Months = chartData.slice(isMobile ? -6 : -12);
 
     return (
       <Card
@@ -65,15 +67,17 @@ export default function SimpleCharts() {
           border: `1px solid rgba(0, 0, 0, 0.1)}`,
         }}
       >
-        <CardHeader
-          title="Quantités totales sorties par mois (12 derniers mois)"
+        {/* <CardHeader
+          title={isMobile ? "Ventes / mois" : "Quantités totales sorties par mois (12 derniers mois)"}
+          titleTypographyProps={{ variant: isMobile ? 'subtitle2' : 'h6' }}
           sx={{
             color: 'text.primary',
             borderBottom: `1px solid rgba(0, 0, 0, 0.1)}`,
+            p: isMobile ? 1.5 : 2
           }}
-        />
-        <CardContent>
-          <Box sx={{ height: 300, width: '100%' }}>
+        /> */}
+        <CardContent sx={{ p: isMobile ? 1 : 2 }}>
+          <Box sx={{ height: isMobile ? 220 : 320, width: '100%' }}>
             <ResponsiveContainer>
               <BarChart data={last12Months}>
                 <CartesianGrid strokeDasharray="3 3" stroke={'rgba(0, 0, 0, 0.1)'} />

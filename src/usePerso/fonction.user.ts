@@ -411,7 +411,19 @@ export function useLoginUser() {
     return connexion.mutateAsync(post);
   };
 
-  return { login }
+  const googleLogin = (token: string) => {
+    return userService.googleLogin(token).then((res) => {
+      if (res.data.etat === false) {
+        toast.error(res.data.message);
+      } else {
+        accountService.saveToken(res.data.id!, res.data.access);
+        navigate('/');
+        toast.success("Connexion Google réussie");
+      }
+    });
+  };
+
+  return { login, googleLogin };
 }
 
 export function useForgotUser() {
