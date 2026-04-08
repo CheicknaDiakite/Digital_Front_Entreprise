@@ -46,6 +46,7 @@ import { formatNumberWithSpaces } from '../../usePerso/fonctionPerso';
 import ReactToPrint from 'react-to-print';
 import PrintIcon from '@mui/icons-material/Print';
 import { useRef } from 'react';
+import { StatCard } from '../../usePerso/useEntreprise';
 import "../factureCard/print.css";
 
 export default function FactureListe() {
@@ -191,54 +192,6 @@ export default function FactureListe() {
     );
   }
 
-  const StatCard = ({ title, value, icon, color, subtitle }: any) => (
-    <Card sx={{
-      height: '100%',
-      boxShadow: '0 4px 20px 0 rgba(0,0,0,0.05)',
-      borderRadius: 3,
-      transition: 'transform 0.2s',
-      '&:hover': { transform: 'translateY(-4px)' }
-    }}>
-      <CardContent sx={{ 
-        p: 2, 
-        '&:last-child': { pb: 2 },
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        textAlign: 'center'
-      }}>
-        <Avatar sx={{
-          bgcolor: alpha(color, 0.1),
-          color: color,
-          width: 56,
-          height: 56,
-          mb: 1.5,
-          '& svg': { fontSize: '1.75rem' }
-        }}>
-          {icon}
-        </Avatar>
-        <Box>
-          <Typography variant="caption" color="text.secondary" fontWeight="600" sx={{ display: 'block', mb: 0.5, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-            {title}
-          </Typography>
-          <Typography variant="h6" fontWeight="800" sx={{ lineHeight: 1.2 }}>
-            {typeof value === 'number' && title !== 'Factures' ? `${formatNumberWithSpaces(value)}` : value}
-            {typeof value === 'number' && title !== 'Factures' && (
-              <Typography component="span" variant="caption" sx={{ ml: 0.5, fontWeight: 'medium' }}>
-                FCFA
-              </Typography>
-            )}
-          </Typography>
-          {subtitle && (
-            <Typography variant="caption" sx={{ color: 'info.main', display: 'block', mt: 0.5, fontWeight: '600' }}>
-              {subtitle}
-            </Typography>
-          )}
-        </Box>
-      </CardContent>
-    </Card>
-  );
-
   return (
     <Box sx={{ py: 4 }}>
       {/* Header & Stats */}
@@ -254,42 +207,42 @@ export default function FactureListe() {
           <Grid item xs={6} sm={6} md={2.4}>
             <StatCard
               title="Ventes Totales"
-              value={stats.total}
-              icon={<ReceiptLong />}
-              color={theme.palette.primary.main}
+              value={`${formatNumberWithSpaces(stats.total)} FCFA`}
+              icon={<ReceiptLong sx={{ color: theme.palette.primary.main }} />}
+              // backgroundColor={alpha(theme.palette.primary.main, 0.05)}
             />
           </Grid>
           <Grid item xs={6} sm={6} md={2.4}>
             <StatCard
               title="Montant Encaissé"
-              value={stats.encaisse}
-              icon={<CheckCircle />}
-              color={theme.palette.success.main}
+              value={`${formatNumberWithSpaces(stats.encaisse)} FCFA`}
+              icon={<CheckCircle sx={{ color: theme.palette.success.main }} />}
+              // backgroundColor={alpha(theme.palette.success.main, 0.05)}
             />
           </Grid>
           <Grid item xs={6} sm={6} md={2.4}>
             <StatCard
               title="Reste à Recouvrer"
-              value={stats.remaining}
-              icon={<AccountBalanceWallet />}
-              color={theme.palette.warning.main}
+              value={`${formatNumberWithSpaces(stats.remaining)} FCFA`}
+              icon={<AccountBalanceWallet sx={{ color: theme.palette.warning.main }} />}
+              // backgroundColor={alpha(theme.palette.warning.main, 0.05)}
             />
           </Grid>
           <Grid item xs={6} sm={6} md={2.4}>
             <StatCard
               title="Montant à Rendre"
-              value={stats.toReturn}
-              icon={<AccountBalanceWallet />}
-              color={theme.palette.info.main}
-              subtitle={stats.toReturn > 0 ? "Trop-perçu" : ""}
+              value={`${formatNumberWithSpaces(stats.toReturn)} FCFA`}
+              icon={<AccountBalanceWallet sx={{ color: theme.palette.info.main }} />}
+              // backgroundColor={alpha(theme.palette.info.main, 0.05)}
+              description={stats.toReturn > 0 ? "Trop-perçu" : ""}
             />
           </Grid>
           <Grid item xs={6} sm={6} md={2.4}>
             <StatCard
               title="Factures"
               value={`${stats.soldeCount}/${stats.count}`}
-              icon={<PendingActions />}
-              color={theme.palette.secondary.main}
+              icon={<PendingActions sx={{ color: theme.palette.secondary.main }} />}
+              // backgroundColor={alpha(theme.palette.secondary.main, 0.05)}
             />
           </Grid>
         </Grid>
