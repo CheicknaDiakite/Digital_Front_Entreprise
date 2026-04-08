@@ -218,7 +218,7 @@ export default function Entre() {
           // className={`${isMobile ? 'mobile-header-container' : 'mt-6 rounded-lg overflow-hidden'}`}
           sx={{
             // background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7))',
-            backdropFilter: 'blur(5px)',
+            // backdropFilter: 'blur(5px)',
             border: '1px solid rgba(255, 255, 255, 0.2)',
             borderRadius: '20px',
             marginTop: '24px',
@@ -270,7 +270,7 @@ export default function Entre() {
             <Grid
               container
               spacing={isMobile ? 2 : 3}
-              className={isMobile ? 'mobile-grid' : ''}
+              
               sx={{
                 '& .MuiGrid-item': {
                   padding: isMobile ? '8px' : '12px'
@@ -308,7 +308,7 @@ export default function Entre() {
                 />
               </Grid>
 
-              <Grid item xs={12} md={6} lg={3}>
+              <Grid item xs={6} md={6} lg={3}>
                 <TextField
                   fullWidth
                   label="Date de début"
@@ -339,7 +339,7 @@ export default function Entre() {
                 />
               </Grid>
 
-              <Grid item xs={12} md={6} lg={3}>
+              <Grid item xs={6} md={6} lg={3}>
                 <TextField
                   fullWidth
                   label="Date de fin"
@@ -370,7 +370,7 @@ export default function Entre() {
                 />
               </Grid>
 
-              <Grid item xs={12} md={6} lg={3}>
+              <Grid item xs={6} md={6} lg={3}>
                 <Paper
                   elevation={0}
                   className={`${isMobile ? 'mobile-stats-card' : 'p-4 bg-blue-50 rounded-lg'} flex items-center justify-between`}

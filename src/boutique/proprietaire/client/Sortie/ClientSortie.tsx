@@ -344,7 +344,7 @@ export default function ClientSortie(uuid: UuType) {
               </div>
 
               {/* Date Filter Section */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-lg shadow-sm">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 rounded-lg shadow-sm">
                 <TextField
                   fullWidth
                   label="Date de début"

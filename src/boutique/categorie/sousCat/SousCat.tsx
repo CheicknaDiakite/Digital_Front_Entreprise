@@ -45,6 +45,7 @@ interface ShadowBoxProps {
 
 function ShadowBox({ shadow }: ShadowBoxProps) {
   const url = shadow.image ? BASE(shadow.image) : img;
+  console.log("shadow.image", url)
   const entreprise_uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise } = useFetchEntreprise(entreprise_uuid);
   const { unUser } = useFetchUser();

@@ -103,6 +103,7 @@ export default function MonthlyBarChart({ details }: ChartProps) {
         if (!item) return '';
 
         const imageUrl = item.image ? BASE(item.image) : img;
+        console.log('Image URL dans tooltip:', imageUrl);
         const imageHtml = imageUrl
           ? `<div style="width: 100%; display: flex; justify-content: center; margin: 6px 0;">
                <img src="${imageUrl}" style="width: 44px; height: 44px; object-fit: cover; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border: 2px solid ${theme.palette.background.paper};" />
@@ -113,7 +114,9 @@ export default function MonthlyBarChart({ details }: ChartProps) {
           <div style="padding: 12px; background: #fff; border: 1px solid ${theme.palette.divider}; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); font-family: ${theme.typography.fontFamily}; min-width: 140px; text-align: center;">
             <div style="font-weight: 700; color: ${theme.palette.text.primary}; font-size: 14px;">${item.month}</div>
             ${imageHtml}
-            
+            <div style="color: ${theme.palette.primary.main}; font-weight: 600; font-size: 13px; margin-top: 2px;">
+              Quantité: ${item.count}
+            </div>
           </div>
         `;
       }

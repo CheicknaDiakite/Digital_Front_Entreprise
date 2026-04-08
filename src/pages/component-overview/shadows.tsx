@@ -35,6 +35,7 @@ function ShadowBox({ shadow }: ShadowBoxProps) {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   // let url = BASE(shadow.image);
   const url = shadow.image ? BASE(shadow.image) : img;
+  console.log('URL de image:', shadow.image);
   return (
     <Paper 
       elevation={isMobile ? 2 : 0} 

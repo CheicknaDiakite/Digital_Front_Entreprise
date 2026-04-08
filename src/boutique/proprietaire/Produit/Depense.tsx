@@ -164,7 +164,7 @@ export default function Depense() {
     return (
       <div >
           {/* <Nav /> */}
-          <div className={isMobile ? 'mobile-chart-section' : ''}>
+          <div className={isMobile ? '' : ''}>
             <Chart_Dep />
           </div>
           <Paper 
@@ -221,14 +221,14 @@ export default function Depense() {
                   container 
                   spacing={isMobile ? 2 : 3} 
                   alignItems="center"
-                  className={isMobile ? 'mobile-grid' : ''}
+                  className={"p-3"}
                   sx={{
                     '& .MuiGrid-item': {
                       padding: isMobile ? '8px' : '12px'
                     }
                   }}
                 >
-                  <Grid item xs={12} sm={6} md={4}>
+                  <Grid item xs={6} sm={6} md={4}>
                     <TextField
                       fullWidth
                       label="Date de début"
@@ -258,7 +258,7 @@ export default function Depense() {
                       } : {}}
                     />
                   </Grid>
-                  <Grid item xs={12} sm={6} md={4}>
+                  <Grid item xs={6} sm={6} md={4}>
                     <TextField
                       fullWidth
                       label="Date de fin"
@@ -359,7 +359,7 @@ export default function Depense() {
               </div>              
 
               {/* Pagination */}
-              <div className={`${isMobile ? 'mobile-pagination' : 'flex justify-center mt-6'}`}>
+              <div className={'flex justify-center mt-6'}>
                 <Pagination
                   count={totalPages}
                   page={currentPage}
