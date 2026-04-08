@@ -47,7 +47,7 @@ import Historique from '../../boutique/proprietaire/historique/Historique'
 
 
 export default function PublicRouter() {
-  notClick()
+  // notClick()
 
   const uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise } = useFetchEntreprise(uuid);

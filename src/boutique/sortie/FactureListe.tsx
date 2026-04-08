@@ -60,7 +60,7 @@ export default function FactureListe() {
 
   const [openDetailModal, setOpenDetailModal] = useState(false);
   const [selectedFactureDetail, setSelectedFactureDetail] = useState<FactureType | null>(null);
-  console.log("hh", selectedFactureDetail)
+  
   const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -199,25 +199,42 @@ export default function FactureListe() {
       transition: 'transform 0.2s',
       '&:hover': { transform: 'translateY(-4px)' }
     }}>
-      <CardContent sx={{ pb: '16px !important' }}>
-        <Stack direction="row" spacing={2} alignItems="center">
-          <Avatar sx={{
-            bgcolor: alpha(color, 0.1),
-            color: color,
-            width: 48,
-            height: 48
-          }}>
-            {icon}
-          </Avatar>
-          <Box>
-            <Typography variant="body2" color="text.secondary" fontWeight="500">
-              {title} {subtitle && <Box component="span" sx={{ fontSize: '0.75rem', color: 'info.main', ml: 1 }}>{subtitle}</Box>}
+      <CardContent sx={{ 
+        p: 2, 
+        '&:last-child': { pb: 2 },
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        textAlign: 'center'
+      }}>
+        <Avatar sx={{
+          bgcolor: alpha(color, 0.1),
+          color: color,
+          width: 56,
+          height: 56,
+          mb: 1.5,
+          '& svg': { fontSize: '1.75rem' }
+        }}>
+          {icon}
+        </Avatar>
+        <Box>
+          <Typography variant="caption" color="text.secondary" fontWeight="600" sx={{ display: 'block', mb: 0.5, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            {title}
+          </Typography>
+          <Typography variant="h6" fontWeight="800" sx={{ lineHeight: 1.2 }}>
+            {typeof value === 'number' && title !== 'Factures' ? `${formatNumberWithSpaces(value)}` : value}
+            {typeof value === 'number' && title !== 'Factures' && (
+              <Typography component="span" variant="caption" sx={{ ml: 0.5, fontWeight: 'medium' }}>
+                FCFA
+              </Typography>
+            )}
+          </Typography>
+          {subtitle && (
+            <Typography variant="caption" sx={{ color: 'info.main', display: 'block', mt: 0.5, fontWeight: '600' }}>
+              {subtitle}
             </Typography>
-            <Typography variant="h6" fontWeight="bold">
-              {typeof value === 'number' && title !== 'Factures' ? `${formatNumberWithSpaces(value)} FCFA` : value}
-            </Typography>
-          </Box>
-        </Stack>
+          )}
+        </Box>
       </CardContent>
     </Card>
   );
@@ -234,7 +251,7 @@ export default function FactureListe() {
         </Typography>
 
         <Grid container spacing={3}>
-          <Grid item xs={12} sm={6} md={2.4}>
+          <Grid item xs={6} sm={6} md={2.4}>
             <StatCard
               title="Ventes Totales"
               value={stats.total}
@@ -242,7 +259,7 @@ export default function FactureListe() {
               color={theme.palette.primary.main}
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={2.4}>
+          <Grid item xs={6} sm={6} md={2.4}>
             <StatCard
               title="Montant Encaissé"
               value={stats.encaisse}
@@ -250,7 +267,7 @@ export default function FactureListe() {
               color={theme.palette.success.main}
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={2.4}>
+          <Grid item xs={6} sm={6} md={2.4}>
             <StatCard
               title="Reste à Recouvrer"
               value={stats.remaining}
@@ -258,7 +275,7 @@ export default function FactureListe() {
               color={theme.palette.warning.main}
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={2.4}>
+          <Grid item xs={6} sm={6} md={2.4}>
             <StatCard
               title="Montant à Rendre"
               value={stats.toReturn}
@@ -267,7 +284,7 @@ export default function FactureListe() {
               subtitle={stats.toReturn > 0 ? "Trop-perçu" : ""}
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={2.4}>
+          <Grid item xs={6} sm={6} md={2.4}>
             <StatCard
               title="Factures"
               value={`${stats.soldeCount}/${stats.count}`}
