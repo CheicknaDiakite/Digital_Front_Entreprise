@@ -84,7 +84,7 @@ const UserTableRow: FC<UserTableRowProps> = ({ user }) => (
         </span>
       )}
     </TableCell>
-    <TableCell 
+    <TableCell
       className={user.role === 1 ? "" : "bg-red-300 text-white"}
     >
       {user.role === 1 ? "Activer" : "Visiteur"}
@@ -170,7 +170,7 @@ export default function Users() {
   });
   const { getUsers, isLoading, isError } = useAllUsers(connect);
   const { createAdmin } = useCreateAdminUser();
-  
+
   const itemsPerPage = 25;
   const sortedUsers = getUsers?.slice().sort((a: UserData, b: UserData) => b.id - a.id) || [];
   const currentUsers = sortedUsers.slice(
@@ -210,7 +210,7 @@ export default function Users() {
 
   return (
     <>
-      <Nav />
+      {/* <Nav /> */}
       <Card elevation={3}>
         <CardHeader
           title={
@@ -235,9 +235,9 @@ export default function Users() {
         />
         <CardContent>
           <Box mb={3}>
-            <Badge 
-              color="secondary" 
-              badgeContent={getUsers.length} 
+            <Badge
+              color="secondary"
+              badgeContent={getUsers.length}
               showZero
               max={999}
             >
@@ -265,7 +265,7 @@ export default function Users() {
             </Table>
           </TableContainer>
         </CardContent>
-        
+
         <CardActions sx={{ justifyContent: 'center', padding: 2 }}>
           <Pagination
             count={totalPages}
