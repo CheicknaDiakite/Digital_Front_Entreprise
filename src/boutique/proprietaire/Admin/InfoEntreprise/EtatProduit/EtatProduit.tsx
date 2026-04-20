@@ -305,10 +305,10 @@ export default function EtatProduit() {
 
           <Grid item xs={6} md={4}>
             <StatCard
-              title="Dépenses"
+              title="Prix d'achats"
               value={formatNumberWithSpaces(metrics.totalExpenses)}
               icon={<LocalAtmIcon sx={{ color: '#f87171', fontSize: { xs: 24, sm: 32 } }} />}
-              description="Total des achats sur la période"
+              description="Total des sommes des prix d'achats"
               backgroundColor="linear-gradient(135deg, #064e3b 0%, #022c22 100%)"
             />
           </Grid>
