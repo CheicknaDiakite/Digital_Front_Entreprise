@@ -14,7 +14,14 @@ import { Githubicon } from '../../_components/icons/Githubicon';
 
 const LogoSection = ({ sx, to }: any) => {
   return (
-    <ButtonBase disableRipple component={Link} to={!to ? config.defaultPath : to} sx={sx}>
+    <ButtonBase 
+      disableRipple
+      component="a"
+      href="https://diakitedigital.com"
+      target="_blank"
+      rel="noopener noreferrer"
+      sx={sx}
+    >
       <Stack direction="row" spacing={1} alignItems="center">
         {/* <Logo /> */}
         <Githubicon size={32} className='inline' />
