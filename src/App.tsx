@@ -7,8 +7,7 @@ export default function App() {
   
   return (<>
     <ThemeCustomization>
-      <ScrollTop>
-        
+      <ScrollTop>        
         <AppRouter />
       </ScrollTop>
     </ThemeCustomization>
