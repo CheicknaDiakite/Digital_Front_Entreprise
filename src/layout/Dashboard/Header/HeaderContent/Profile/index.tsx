@@ -108,18 +108,50 @@ export default function Profile() {
 
   if (unUser) {
     return (
-      <Box className="text-white border-indigo-600 bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700 border border-dashed animate-border-rotate rounded-lg">
+      <Box>
         <ButtonBase
-         
           aria-label="open profile"
           ref={anchorRef}
           aria-controls={open ? 'profile-grow' : undefined}
           aria-haspopup="true"
           onClick={handleToggle}
+          sx={{
+            p: 0.75,
+            px: 1.5,
+            borderRadius: '24px',
+            bgcolor: 'rgba(255, 255, 255, 0.08)',
+            border: '1px solid rgba(255, 255, 255, 0.18)',
+            backdropFilter: 'blur(10px)',
+            transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+            boxShadow: open ? '0 0 16px rgba(99, 102, 241, 0.35)' : 'none',
+            '&:hover': {
+              bgcolor: 'rgba(99, 102, 241, 0.2)',
+              borderColor: 'rgba(99, 102, 241, 0.45)',
+              transform: 'translateY(-1px)',
+            },
+          }}
         >
-          <Stack direction="row" spacing={1.25} alignItems="center" sx={{ p: 0.5 }}>
-            <Avatar {...stringAvatar(`${unUser.last_name} ${unUser.first_name}`)} />
-            <Typography variant="subtitle1" sx={{ textTransform: 'capitalize' }}>
+          <Stack direction="row" spacing={1.25} alignItems="center">
+            <Avatar
+              {...stringAvatar(`${unUser.last_name} ${unUser.first_name}`)}
+              sx={{
+                width: 34,
+                height: 34,
+                border: '2px solid rgba(129, 140, 248, 0.6)',
+                fontSize: '0.875rem',
+                fontWeight: 700,
+              }}
+            />
+            <Typography
+              variant="subtitle2"
+              sx={{
+                color: '#f8fafc',
+                fontWeight: 600,
+                textTransform: 'capitalize',
+                display: { xs: 'none', sm: 'block' },
+                fontSize: '0.9rem',
+              }}
+            >
               {unUser.last_name} {unUser.first_name}
             </Typography>
           </Stack>
@@ -137,77 +169,130 @@ export default function Profile() {
               {
                 name: 'offset',
                 options: {
-                  offset: [0, 9]
-                }
-              }
-            ]
+                  offset: [0, 10],
+                },
+              },
+            ],
           }}
         >
           {({ TransitionProps }) => (
             <Transitions type="grow" position="top-right" in={open} {...TransitionProps}>
-              <Paper sx={{ boxShadow: theme.customShadows.z1, width: 290, minWidth: 240, maxWidth: { xs: 250, md: 290 } }}>
+              <Paper
+                elevation={0}
+                sx={{
+                  width: 310,
+                  maxWidth: { xs: 290, sm: 310 },
+                  borderRadius: '20px',
+                  background: 'linear-gradient(145deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.92) 100%)',
+                  backdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  boxShadow: '0 20px 40px rgba(0,0,0,0.5), 0 0 20px rgba(99, 102, 241, 0.15)',
+                  overflow: 'hidden',
+                }}
+              >
                 <ClickAwayListener onClickAway={handleClose}>
-                  <MainCard elevation={0} border={false} content={false}>
-                    <CardContent sx={{ px: 2.5, pt: 3 }}>
+                  <Box>
+                    <Box sx={{ p: 2.5, pb: 2, background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.08) 100%)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
                       <Grid container justifyContent="space-between" alignItems="center">
                         <Grid item>
-                          <Stack direction="row" spacing={1.25} alignItems="center">
-                            <Avatar alt="profile user" {...stringAvatar(`${unUser.last_name} ${unUser.first_name}`)} sx={{ width: 32, height: 32 }} />
-                            <Stack>
-                              <Typography variant="h6">{unUser.last_name} {unUser.first_name}</Typography>
-                              
+                          <Stack direction="row" spacing={1.5} alignItems="center">
+                            <Avatar
+                              alt="profile user"
+                              {...stringAvatar(`${unUser.last_name} ${unUser.first_name}`)}
+                              sx={{ width: 42, height: 42, border: '2px solid #6366f1', fontSize: '1rem', fontWeight: 700 }}
+                            />
+                            <Stack spacing={0.25}>
+                              <Typography variant="subtitle1" sx={{ color: '#f8fafc', fontWeight: 700, lineHeight: 1.2, textTransform: 'capitalize' }}>
+                                {unUser.last_name} {unUser.first_name}
+                              </Typography>
+                              <Typography variant="caption" sx={{ color: '#94a3b8', fontSize: '0.75rem' }}>
+                                {unUser.role === 1 ? 'Administrateur' : unUser.role === 2 ? 'Gestionnaire' : 'Utilisateur'}
+                              </Typography>
                             </Stack>
                           </Stack>
                         </Grid>
                         <Grid item>
-                          <Tooltip title="Logout">
-                            <IconButton size="large" onClick={logout} sx={{ color: 'text.primary' }}>
-                              <LogoutOutlined />
+                          <Tooltip title="Déconnexion">
+                            <IconButton
+                              size="small"
+                              onClick={logout}
+                              sx={{
+                                color: '#ef4444',
+                                bgcolor: 'rgba(239, 68, 68, 0.1)',
+                                border: '1px solid rgba(239, 68, 68, 0.2)',
+                                transition: 'all 0.2s ease',
+                                '&:hover': {
+                                  bgcolor: 'rgba(239, 68, 68, 0.25)',
+                                  borderColor: 'rgba(239, 68, 68, 0.4)',
+                                  transform: 'scale(1.05)',
+                                },
+                              }}
+                            >
+                              <LogoutOutlined style={{ fontSize: '1.1rem' }} />
                             </IconButton>
                           </Tooltip>
                         </Grid>
                       </Grid>
-                    </CardContent>
-                   
-                    <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                      <Tabs variant="fullWidth" value={value} onChange={handleChange} aria-label="profile tabs">
+                    </Box>
+
+                    <Box sx={{ borderBottom: 1, borderColor: 'rgba(255, 255, 255, 0.08)', px: 1.5, pt: 1 }}>
+                      <Tabs
+                        variant="fullWidth"
+                        value={value}
+                        onChange={handleChange}
+                        aria-label="profile tabs"
+                        sx={{
+                          minHeight: 42,
+                          '& .MuiTabs-indicator': {
+                            height: 3,
+                            borderRadius: '3px 3px 0 0',
+                            bgcolor: '#6366f1',
+                          },
+                        }}
+                      >
                         <Tab
                           sx={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            textTransform: 'capitalize'
+                            minHeight: 42,
+                            py: 1,
+                            color: '#94a3b8',
+                            fontSize: '0.825rem',
+                            fontWeight: 600,
+                            textTransform: 'capitalize',
+                            '&.Mui-selected': { color: '#818cf8' },
                           }}
-                          icon={<UserOutlined style={{ marginBottom: 0, marginRight: '10px' }} />}
-                          label="Profile"
+                          icon={<UserOutlined style={{ fontSize: '1rem', marginRight: '6px' }} />}
+                          iconPosition="start"
+                          label="Profil"
                           {...a11yProps(0)}
                         />
-                        {uuid &&   
-                        <Tab
-                          sx={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            textTransform: 'capitalize'
-                          }}
-                          icon={<SettingOutlined style={{ marginBottom: 0, marginRight: '10px' }} />}
-                          label="Facture / Depense"
-                          {...a11yProps(1)}
-                        />
-                        }
+                        {uuid && (
+                          <Tab
+                            sx={{
+                              minHeight: 42,
+                              py: 1,
+                              color: '#94a3b8',
+                              fontSize: '0.825rem',
+                              fontWeight: 600,
+                              textTransform: 'capitalize',
+                              '&.Mui-selected': { color: '#818cf8' },
+                            }}
+                            icon={<SettingOutlined style={{ fontSize: '1rem', marginRight: '6px' }} />}
+                            iconPosition="start"
+                            label="Factures / Dépenses"
+                            {...a11yProps(1)}
+                          />
+                        )}
                       </Tabs>
                     </Box>
-                    <TabPanel value={value} index={0}>
-                      <ProfileTab />
-                    </TabPanel>
-                    <TabPanel value={value} index={1}>
-                      <SettingTab />
-                    </TabPanel>
-                    
-                    
-                  </MainCard>
+                    <Box sx={{ p: 1.5 }}>
+                      <TabPanel value={value} index={0}>
+                        <ProfileTab />
+                      </TabPanel>
+                      <TabPanel value={value} index={1}>
+                        <SettingTab />
+                      </TabPanel>
+                    </Box>
+                  </Box>
                 </ClickAwayListener>
               </Paper>
             </Transitions>

@@ -14,15 +14,17 @@ import { BASE } from '../../_services/caller.service';
 const barChartOptions: ApexOptions = {
   chart: {
     type: 'bar',
-    height: 365,
+    height: 350,
     toolbar: {
       show: false
-    }
+    },
+    background: 'transparent',
   },
   plotOptions: {
     bar: {
-      columnWidth: '45%',
-      borderRadius: 4
+      columnWidth: '50%',
+      borderRadius: 6,
+      borderRadiusApplication: 'end',
     }
   },
   dataLabels: {
@@ -35,6 +37,13 @@ const barChartOptions: ApexOptions = {
     },
     axisTicks: {
       show: false
+    },
+    labels: {
+      style: {
+        colors: '#94a3b8',
+        fontSize: '12px',
+        fontWeight: 600,
+      }
     }
   },
   yaxis: {
@@ -52,9 +61,9 @@ interface ChartProps {
 
 export default function MonthlyBarChart({ details }: ChartProps) {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const { secondary } = theme.palette.text;
-  const primary = theme.palette.primary.main;
+  const primary = '#6366f1';
 
   const [options, setOptions] = useState(barChartOptions);
 
@@ -62,40 +71,38 @@ export default function MonthlyBarChart({ details }: ChartProps) {
     setOptions((prevState) => ({
       ...prevState,
       colors: [primary],
-      xaxis: {
-        labels: {
-          style: {
-            colors: [secondary, secondary, secondary, secondary, secondary, secondary, secondary]
-          }
-        }
-      }
     }));
-  }, [primary, secondary]);
+  }, []);
 
   // Mappez les données pour le graphique
   const chartData = details.map((post) => ({
-    month: post.libelle || 'Inconnu', // Utilisez "Inconnu" si `libelle` est vide ou manquant
-    count: post.somme_qte || 0, // Par défaut, utilisez 0 si `count` est vide ou manquant
+    month: post.libelle || 'Inconnu',
+    count: post.somme_qte || 0,
     image: post.image || null,
   }));
 
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
   // Trier les données par `count` de manière décroissante et prendre les x premiers
-  const topChartData = chartData
-    .sort((a, b) => b.count - a.count) // Trier par `count` décroissant
-    .slice(0, isMobile ? 25 : 50); // Prendre les 6 premiers sur mobile, 50 sur desktop
+  const topChartData = [...chartData]
+    .sort((a, b) => b.count - a.count)
+    .slice(0, isMobile ? 12 : 30);
 
   // Extraire les données pour les axes X et Y
-  const xAxisData = topChartData.map((item) => item.month); // Labels des mois
-  const seriesData = topChartData.map((item) => item.count); // Valeurs associées
+  const xAxisData = topChartData.map((item) => item.month);
+  const seriesData = topChartData.map((item) => item.count);
 
-  // Mise à jour de l'objet options en y intégrant xAxisData
   const updatedOptions: ApexOptions = {
     ...options,
+    colors: ['#6366f1'],
     xaxis: {
       ...options.xaxis,
       categories: xAxisData,
+      labels: {
+        style: {
+          colors: xAxisData.map(() => '#94a3b8'),
+          fontSize: isMobile ? '10px' : '12px',
+          fontWeight: 600,
+        }
+      }
     },
     tooltip: {
       custom: function ({ series, seriesIndex, dataPointIndex, w }) {
@@ -103,18 +110,17 @@ export default function MonthlyBarChart({ details }: ChartProps) {
         if (!item) return '';
 
         const imageUrl = item.image ? BASE(item.image) : img;
-        console.log('Image URL dans tooltip:', imageUrl);
         const imageHtml = imageUrl
-          ? `<div style="width: 100%; display: flex; justify-content: center; margin: 6px 0;">
-               <img src="${imageUrl}" style="width: 44px; height: 44px; object-fit: cover; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border: 2px solid ${theme.palette.background.paper};" />
+          ? `<div style="width: 100%; display: flex; justify-content: center; margin: 8px 0;">
+               <img src="${imageUrl}" style="width: 44px; height: 44px; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 2px solid rgba(99,102,241,0.4);" />
              </div>`
           : '';
 
         return `
-          <div style="padding: 12px; background: #fff; border: 1px solid ${theme.palette.divider}; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); font-family: ${theme.typography.fontFamily}; min-width: 140px; text-align: center;">
-            <div style="font-weight: 700; color: ${theme.palette.text.primary}; font-size: 14px;">${item.month}</div>
+          <div style="padding: 14px; background: rgba(15, 23, 42, 0.92); backdrop-filter: blur(12px); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 16px; box-shadow: 0 12px 32px rgba(0,0,0,0.4); font-family: ${theme.typography.fontFamily}; min-width: 140px; text-align: center;">
+            <div style="font-weight: 700; color: #e0e7ff; font-size: 13px; letter-spacing: 0.3px;">${item.month}</div>
             ${imageHtml}
-            <div style="color: ${theme.palette.primary.main}; font-weight: 600; font-size: 13px; margin-top: 2px;">
+            <div style="display: inline-block; margin-top: 6px; padding: 4px 10px; background: rgba(99,102,241,0.2); border: 1px solid rgba(99,102,241,0.4); border-radius: 20px; color: #c4b5fd; font-weight: 700; font-size: 12px;">
               Quantité: ${item.count}
             </div>
           </div>
@@ -124,16 +130,13 @@ export default function MonthlyBarChart({ details }: ChartProps) {
   };
 
   return (
-    <Box id="chart" sx={{ bgcolor: 'transparent' }}>
+    <Box id="chart" sx={{ width: '100%', pt: 1 }}>
       <ReactApexChart
         options={updatedOptions}
-        series={[{ name: 'nombre', data: seriesData }]}  // La série doit être un tableau d'objets
+        series={[{ name: 'Quantité', data: seriesData }]}
         type="bar"
-        height={isMobile ? 280 : 343}
+        height={isMobile ? 260 : 320}
       />
     </Box>
   );
-
-
-
 }

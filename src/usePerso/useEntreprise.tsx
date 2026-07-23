@@ -268,74 +268,82 @@ export function CustomTabPanel(props: TabPanelProps) {
 export function StatCard({ title, description, value, icon, backgroundColor }: { title: string, description?: string, value: string | number, icon: React.ReactNode, backgroundColor?: string }) {
   return (
     <Card 
+      elevation={0}
       sx={{ 
-        borderRadius: 4, 
-        bgcolor: backgroundColor || 'rgba(255, 255, 255, 0.9)',
+        borderRadius: '20px', 
+        bgcolor: backgroundColor || 'rgba(255, 255, 255, 0.04)',
+        backdropFilter: 'blur(16px)',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        aspectRatio: { xs: '1 / 1', sm: 'auto' },
         justifyContent: 'center',
-        transition: 'transform 0.2s',
+        alignItems: 'center',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        position: 'relative',
+        overflow: 'hidden',
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.12)',
         '&:hover': {
-          transform: 'scale(1.02)'
+          transform: 'translateY(-4px)',
+          bgcolor: 'rgba(255, 255, 255, 0.07)',
+          borderColor: 'rgba(99, 102, 241, 0.3)',
+          boxShadow: '0 12px 30px rgba(0, 0, 0, 0.25)',
         }
       }}
     >
       <CardContent sx={{ 
-        p: { xs: 1.5, sm: 2 }, 
-        '&:last-child': { pb: { xs: 1.5, sm: 2 } },
+        p: { xs: 2, sm: 2.5 }, 
+        '&:last-child': { pb: { xs: 2, sm: 2.5 } },
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         textAlign: 'center',
-        height: '100%',
         width: '100%',
-        flex: 1
       }}>
         <Box 
           sx={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'center', 
-            gap: 0.5,
-            mb: { xs: 1, sm: 1.5 }
-          }}
-        >
-          <Box sx={{ 
+            width: 48,
+            height: 48,
+            borderRadius: '14px',
+            bgcolor: 'rgba(99, 102, 241, 0.12)',
+            border: '1px solid rgba(99, 102, 241, 0.2)',
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
-            color: 'primary.main',
-            transform: { xs: 'scale(0.9)', sm: 'scale(1)' }
-          }}>
-            {icon}
-          </Box>
-          <Typography 
-            variant="subtitle2" 
-            color="text.secondary" 
-            sx={{ 
-              fontWeight: 600,
-              fontSize: { xs: '0.7rem', sm: '0.875rem' },
-              lineHeight: 1.2,
-              maxWidth: '100%',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical'
-            }}
-          >
-            {title}
-          </Typography>
+            mb: 1.5,
+            transition: 'transform 0.3s ease',
+            '& > svg': {
+              fontSize: '1.6rem'
+            }
+          }}
+        >
+          {icon}
         </Box>
         <Typography 
-          variant="h5" 
-          fontWeight="bold"
+          variant="subtitle2" 
           sx={{ 
-            fontSize: { xs: '1.2rem', sm: '1.5rem' },
-            color: 'text.primary'
+            fontWeight: 600,
+            fontSize: { xs: '0.78rem', sm: '0.875rem' },
+            color: '#94a3b8',
+            lineHeight: 1.3,
+            mb: 0.8,
+            maxWidth: '100%',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {title}
+        </Typography>
+        <Typography 
+          variant="h5" 
+          sx={{ 
+            fontWeight: 800,
+            fontSize: { xs: '1.25rem', sm: '1.6rem' },
+            color: '#e0e7ff',
+            letterSpacing: '-0.02em',
+            lineHeight: 1.1,
           }}
         >
           {value}
@@ -343,11 +351,11 @@ export function StatCard({ title, description, value, icon, backgroundColor }: {
         {description && (
           <Typography 
             variant="caption" 
-            color="text.secondary" 
             sx={{ 
-              mt: 0.5,
-              fontSize: '0.65rem',
-              display: { xs: 'none', sm: 'block' }
+              mt: 0.8,
+              fontSize: '0.72rem',
+              color: '#64748b',
+              fontWeight: 500
             }}
           >
             {description}

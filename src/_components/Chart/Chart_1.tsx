@@ -59,37 +59,40 @@ export default function SimpleCharts() {
     const last12Months = chartData.slice(isMobile ? -6 : -12);
 
     return (
-      <Card
-        sx={{
-          height: '100%',
-          backgroundColor: 'background.paper',
-          backdropFilter: 'blur(10px)',
-          border: `1px solid rgba(0, 0, 0, 0.1)}`,
-        }}
-      >
-        {/* <CardHeader
-          title={isMobile ? "Ventes / mois" : "Quantités totales sorties par mois (12 derniers mois)"}
-          titleTypographyProps={{ variant: isMobile ? 'subtitle2' : 'h6' }}
-          sx={{
-            color: 'text.primary',
-            borderBottom: `1px solid rgba(0, 0, 0, 0.1)}`,
-            p: isMobile ? 1.5 : 2
-          }}
-        /> */}
-        <CardContent sx={{ p: isMobile ? 1 : 2 }}>
-          <Box sx={{ height: isMobile ? 220 : 320, width: '100%' }}>
-            <ResponsiveContainer>
-              <BarChart data={last12Months}>
-                <CartesianGrid strokeDasharray="3 3" stroke={'rgba(0, 0, 0, 0.1)'} />
-                <XAxis dataKey="month" stroke={'rgba(0, 0, 0, 0.7)'} tick={{ fill: 'rgba(0, 0, 0, 0.7)' }} />
-                <YAxis stroke={'rgba(0, 0, 0, 0.7)'} tick={{ fill: 'rgba(0, 0, 0, 0.7)' }} />
-                <Tooltip contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', border: `1px solid rgba(0, 0, 0, 0.1)}`, color: 'text.primary' }} />
-                <Bar dataKey="value" fill={theme.palette.primary.main} radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </Box>
-        </CardContent>
-      </Card>
+      <Box sx={{ width: '100%', height: isMobile ? 240 : 320, pt: 1 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={last12Months} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.06)" vertical={false} />
+            <XAxis 
+              dataKey="month" 
+              stroke="#94a3b8" 
+              tick={{ fill: '#94a3b8', fontSize: isMobile ? 10 : 12, fontWeight: 600 }}
+              axisLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
+              tickLine={false}
+            />
+            <YAxis 
+              stroke="#94a3b8" 
+              tick={{ fill: '#94a3b8', fontSize: isMobile ? 10 : 12, fontWeight: 600 }}
+              axisLine={{ stroke: 'rgba(255, 255, 255, 0.1)' }}
+              tickLine={false}
+            />
+            <Tooltip 
+              contentStyle={{ 
+                backgroundColor: 'rgba(15, 23, 42, 0.92)', 
+                backdropFilter: 'blur(12px)', 
+                border: '1px solid rgba(99, 102, 241, 0.3)', 
+                borderRadius: '14px', 
+                color: '#e0e7ff', 
+                boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+                padding: '10px 14px' 
+              }} 
+              itemStyle={{ color: '#c4b5fd', fontWeight: 600, fontSize: '13px' }}
+              labelStyle={{ color: '#e0e7ff', fontWeight: 700, fontSize: '13px', marginBottom: '4px' }}
+            />
+            <Bar dataKey="value" name="Quantité sortie" fill="#8b5cf6" radius={[6, 6, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </Box>
     );
   }
 

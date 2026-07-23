@@ -3,32 +3,59 @@ import { ChartSectionProps } from '../types';
 
 export const ChartSection: React.FC<ChartSectionProps> = ({ title, children, className }) => {
   return (
-    <Box className={`mb-6 ${className}`}>
+    <Box 
+      className={className}
+      sx={{
+        bgcolor: 'rgba(255, 255, 255, 0.04)',
+        backdropFilter: 'blur(16px)',
+        border: '1px solid rgba(99, 102, 241, 0.18)',
+        borderRadius: '20px',
+        p: { xs: 2, sm: 2.5 },
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+        transition: 'all 0.3s ease',
+        '&:hover': {
+          borderColor: 'rgba(99, 102, 241, 0.3)',
+          boxShadow: '0 12px 36px rgba(99, 102, 241, 0.12)',
+        }
+      }}
+    >
       <Box
-        className="mb-3 p-2 rounded-lg"
         sx={{
-          background: 'linear-gradient(45deg, #1976d2 30%, #42a5f5 90%)',
-          boxShadow: '0 3px 5px 2px rgba(33, 150, 243, .3)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          pb: 2,
+          mb: 2,
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
         }}
       >
         <Typography
-          variant="h5"
-          className="text-white font-semibold"
+          variant="h6"
           sx={{
-            textShadow: '2px 2px 4px rgba(0,0,0,0.2)',
+            fontWeight: 700,
+            color: '#e0e7ff',
+            fontSize: { xs: '1.05rem', sm: '1.2rem' },
+            letterSpacing: '-0.01em',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1.2,
+            '&::before': {
+              content: '""',
+              width: 4,
+              height: 18,
+              bgcolor: '#6366f1',
+              borderRadius: 4,
+              display: 'inline-block',
+            }
           }}
         >
           {title}
         </Typography>
       </Box>
-      <Box
-        className="rounded-lg"
-        sx={{
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-          backdropFilter: 'blur(10px)',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-        }}
-      >
+      <Box sx={{ flex: 1, width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         {children}
       </Box>
     </Box>

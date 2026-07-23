@@ -1,7 +1,5 @@
 // project import
-
-// import Navigation from './Navigation';
-import { Box, CardContent, IconButton, Typography } from '@mui/material';
+import { Box, IconButton, Typography } from '@mui/material';
 import SimpleBar from '../../../../components/third-party/SimpleBar';
 import NavSide from './Navigation/NavSide';
 import { Link } from 'react-router-dom';
@@ -20,78 +18,124 @@ export default function DrawerContent() {
   const { menuMaster } = useGetMenuMaster();
   const drawerOpen = menuMaster?.isDashboardDrawerOpened;
 
-  const logoUrl = unEntreprise.image ? BASE(unEntreprise.image) : "/icon-192x192.png";
-  
+  const logoUrl = unEntreprise.image ? BASE(unEntreprise.image) : '/icon-192x192.png';
+
   return (
     <>
-      <SimpleBar sx={{ 
-        '& .simplebar-content': { display: 'flex', flexDirection: 'column' },
-        background: `linear-gradient(rgba(128, 128, 128, 0.7), rgba(128, 128, 128, 0.7)), url(${logoUrl}) center/cover no-repeat`,
-      }}>
-        {/* <Navigation /> */}
-        {/* header/logo : logo + nom (tronqué si long) et bouton en fin */}
-        <CardContent
+      <SimpleBar
+        sx={{
+          '& .simplebar-content': { display: 'flex', flexDirection: 'column' },
+          bgcolor: 'rgba(10, 15, 30, 0.97)',
+          backdropFilter: 'blur(20px)',
+        }}
+      >
+        {/* ── Header ── */}
+        <Box
           sx={{
-            mb: 2,
             display: 'flex',
             alignItems: 'center',
-            gap: 2,
-            px: 2,
-            py: 1,
-            // classes visuelles existantes conservées via sx pour meilleure cohérence MUI
-            background: 'linear-gradient(90deg, rgba(59,130,246,0.85), rgba(16,185,129,0.85))',
-            color: 'common.white',
-            borderRadius: 2,
-            m: 2
+            gap: 1.5,
+            px: 1.5,
+            py: 1.2,
+            mx: 1.5,
+            mt: 1.5,
+            mb: 0.5,
+            background: 'linear-gradient(135deg, rgba(99,102,241,0.18) 0%, rgba(139,92,246,0.12) 100%)',
+            border: '1px solid rgba(99,102,241,0.2)',
+            borderRadius: '14px',
+            backdropFilter: 'blur(10px)',
           }}
         >
-          {/* zone cliquable : logo + nom (navigue vers /) */}
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit', minWidth: 0 }}>
-            <img
-              src={logoUrl}
-              alt={unEntreprise.nom ? unEntreprise.nom : "Gest_Stocks"}
-              style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 8 }}
-            />
+          {/* Clickable logo + name */}
+          <Link
+            to="/"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              textDecoration: 'none',
+              color: 'inherit',
+              minWidth: 0,
+              flex: 1,
+            }}
+          >
+            {/* Logo with indigo glow border */}
+            <Box
+              sx={{
+                width: 38,
+                height: 38,
+                borderRadius: '10px',
+                overflow: 'hidden',
+                border: '1.5px solid rgba(99,102,241,0.45)',
+                flexShrink: 0,
+                boxShadow: '0 0 12px rgba(99,102,241,0.3)',
+              }}
+            >
+              <img
+                src={logoUrl}
+                alt={unEntreprise.nom || 'Gest_Stocks'}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </Box>
 
-            <Box sx={{ ml: 1, minWidth: 0 }}>
+            <Box sx={{ ml: 1.5, minWidth: 0 }}>
               <Typography
-                variant="h6"
+                variant="subtitle2"
                 noWrap
+                title={unEntreprise.nom}
                 sx={{
                   fontWeight: 700,
-                  whiteSpace: 'nowrap',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
-                  color: 'common.white'
+                  whiteSpace: 'nowrap',
+                  color: '#e0e7ff',
+                  fontSize: '0.88rem',
+                  letterSpacing: 0.3,
                 }}
-                title={unEntreprise.nom}
               >
-                {unEntreprise.nom ? unEntreprise.nom : "Gest Stocks"}
+                {unEntreprise.nom || 'Gest Stocks'}
+              </Typography>
+              <Typography
+                sx={{
+                  fontSize: '0.67rem',
+                  color: '#475569',
+                  letterSpacing: 0.5,
+                  textTransform: 'uppercase',
+                  fontWeight: 600,
+                }}
+              >
+                Tableau de bord
               </Typography>
             </Box>
           </Link>
 
-          {/* bouton en fin, toujours aligné à droite */}
+          {/* Drawer toggle */}
           <IconButton
             disableRipple
             aria-label={drawerOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
             onClick={() => handlerDrawerOpen(!drawerOpen)}
             sx={{
-              ml: 'auto',
-              color: 'common.white',
-              bgcolor: 'rgba(255,255,255,0.06)',
-              width: 40,
-              height: 40,
-              '&:hover': { bgcolor: 'rgba(255,255,255,0.12)' },
-              flexShrink: 0
+              color: '#818cf8',
+              bgcolor: 'rgba(99,102,241,0.12)',
+              width: 36,
+              height: 36,
+              borderRadius: '10px',
+              border: '1px solid rgba(99,102,241,0.25)',
+              flexShrink: 0,
+              fontSize: '0.95rem',
+              transition: 'all 0.2s ease',
+              '&:hover': {
+                bgcolor: 'rgba(99,102,241,0.25)',
+                borderColor: 'rgba(99,102,241,0.45)',
+                boxShadow: '0 0 12px rgba(99,102,241,0.3)',
+                transform: 'scale(1.05)',
+              },
             }}
           >
             {!drawerOpen ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
           </IconButton>
-        </CardContent>
-       
+        </Box>
+
         <NavSide />
-        {/* <NavCard /> */}
       </SimpleBar>
     </>
   );

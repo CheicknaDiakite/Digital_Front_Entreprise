@@ -59,30 +59,52 @@ export default function Header() {
       {/* bouton gauche */}
       {isHome ? null : isEntreprise ? (
         <IconButton
-          disableRipple
           aria-label="open drawer"
           onClick={() => handlerDrawerOpen(!drawerOpen)}
           edge="start"
-          color="secondary"
-          className='text-white border-indigo-600 bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700 border border-dashed animate-border-rotate rounded-lg'
-          // sx={{ color: 'text.primary', bgcolor: drawerOpen ? iconBackColorOpen : iconBackColor, ml: { xs: 0, lg: -2 } }}
+          sx={{
+            color: '#818cf8',
+            bgcolor: 'rgba(99, 102, 241, 0.12)',
+            width: 36,
+            height: 36,
+            borderRadius: '10px',
+            border: '1px solid rgba(99, 102, 241, 0.25)',
+            transition: 'all 0.2s ease',
+            '&:hover': {
+              bgcolor: 'rgba(99, 102, 241, 0.25)',
+              borderColor: 'rgba(99, 102, 241, 0.45)',
+              boxShadow: '0 0 12px rgba(99, 102, 241, 0.3)',
+              transform: 'scale(1.05)',
+            },
+          }}
         >
           {!drawerOpen ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
         </IconButton>
       ) : (
         <IconButton
-          disableRipple
           aria-label="go back"
           onClick={() => navigate(-1)}
           edge="start"
-          color="secondary"
-          className='text-white border-indigo-600 bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700 border border-dashed animate-border-rotate rounded-lg'
-          // sx={{ color: 'text.primary', bgcolor: iconBackColor, ml: { xs: 0, lg: -2 } }}
+          sx={{
+            color: '#818cf8',
+            bgcolor: 'rgba(99, 102, 241, 0.12)',
+            width: 36,
+            height: 36,
+            borderRadius: '10px',
+            border: '1px solid rgba(99, 102, 241, 0.25)',
+            transition: 'all 0.2s ease',
+            '&:hover': {
+              bgcolor: 'rgba(99, 102, 241, 0.25)',
+              borderColor: 'rgba(99, 102, 241, 0.45)',
+              boxShadow: '0 0 12px rgba(99, 102, 241, 0.3)',
+              transform: 'scale(1.05)',
+            },
+          }}
         >
-          <ArrowBackIcon />
+          <ArrowBackIcon style={{ fontSize: '1.15rem' }} />
         </IconButton>
-      )}      
-      
+      )}
+
       {headerContent}
     </Toolbar>
   );
@@ -102,7 +124,7 @@ export default function Header() {
     <>
       {!downLG ? (
         <AppBarStyled {...appBar} sx={appBarCommonSx}>
-          
+
           {mainHeader}
         </AppBarStyled>
       ) : (

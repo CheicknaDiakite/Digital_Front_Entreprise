@@ -15,7 +15,7 @@ import {
   Box,
   DialogActions,
   Backdrop,
-  CircularProgress
+  CircularProgress,
 } from "@mui/material";
 import {
   BarChart as DashboardIcon,
@@ -35,7 +35,7 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import CloseIcon from "@mui/icons-material/Close";
 import HistoryIcon from '@mui/icons-material/History';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { connect } from "../../../../../_services/account.service";
 import { useAddAvis, useFetchEntreprise, useFetchUser, useGetUserEntreprises, useRestructionUsers } from "../../../../../usePerso/fonction.user";
 import { isAccessAllowed, logout } from "../../../../../usePerso/fonctionPerso";
@@ -44,14 +44,16 @@ import MyTextField from "../../../../../_components/Input/MyTextField";
 import { AvisType } from "../../../../../typescript/UserType";
 import Example from "../../../../../boutique/Ct";
 
-// Types
+// ── Types ──────────────────────────────────────────────────────────────────────
+
 interface NavItemProps {
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   label: string;
   onClick?: () => void;
   to?: string;
-  bgColor?: string;
+  accentColor?: string;
   isExpanded?: boolean;
+  isSubItem?: boolean;
 }
 
 interface FeedbackDialogProps {
@@ -62,55 +64,190 @@ interface FeedbackDialogProps {
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 
-// Components
-const NavItem: React.FC<NavItemProps> = ({ icon, label, onClick, to, bgColor, isExpanded }) => {
+// ── Sub-components ─────────────────────────────────────────────────────────────
+
+/** Small uppercase section title */
+const SectionLabel = ({ label }: { label: string }) => (
+  <Typography
+    sx={{
+      fontSize: '0.65rem',
+      fontWeight: 700,
+      letterSpacing: 1.6,
+      color: '#475569',
+      textTransform: 'uppercase',
+      px: 1.5,
+      pt: 1.5,
+      pb: 0.4,
+      userSelect: 'none',
+    }}
+  >
+    {label}
+  </Typography>
+);
+
+/** Thin horizontal separator */
+const NavDivider = () => (
+  <Box sx={{ mx: 1.5, my: 1, height: '1px', bgcolor: 'rgba(255,255,255,0.05)' }} />
+);
+
+/** Single navigation item */
+const NavItem: React.FC<NavItemProps> = ({
+  icon,
+  label,
+  onClick,
+  to,
+  accentColor = '#6366f1',
+  isExpanded,
+  isSubItem = false,
+}) => {
+  const location = useLocation();
+  const isActive = to
+    ? location.pathname === to || (to.length > 1 && location.pathname.startsWith(to))
+    : false;
+
   const content = (
     <ListItem
       button
       onClick={onClick}
       sx={{
-        borderRadius: 1,
-        mb: 0.5,
+        borderRadius: '10px',
+        mb: 0.35,
+        px: 1.5,
+        py: isSubItem ? 0.65 : 0.85,
+        ml: isSubItem ? 1.5 : 0,
+        position: 'relative',
+        overflow: 'hidden',
+        bgcolor: isActive ? `${accentColor}22` : 'transparent',
+        border: `1px solid ${isActive ? `${accentColor}40` : 'transparent'}`,
+        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
         '&:hover': {
-          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+          bgcolor: `${accentColor}14`,
+          border: `1px solid ${accentColor}28`,
+          transform: 'translateX(3px)',
         },
+        // Active left-bar indicator
+        ...(isActive && {
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            left: 0,
+            top: '20%',
+            height: '60%',
+            width: '3px',
+            bgcolor: accentColor,
+            borderRadius: '0 4px 4px 0',
+          },
+        }),
       }}
     >
-      <ListItemIcon sx={{ minWidth: 40 }}>
-        {icon}
-      </ListItemIcon>
+      {/* Icon with rounded bg */}
+      {icon && (
+        <ListItemIcon sx={{ minWidth: 38 }}>
+          <Box
+            sx={{
+              width: 30,
+              height: 30,
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              bgcolor: isActive ? `${accentColor}28` : 'rgba(255,255,255,0.05)',
+              transition: 'all 0.2s ease',
+              '& .MuiSvgIcon-root': { fontSize: 17 },
+            }}
+          >
+            {icon}
+          </Box>
+        </ListItemIcon>
+      )}
+
+      {/* Sub-item bullet line */}
+      {isSubItem && !icon && (
+        <Box
+          sx={{
+            width: 14,
+            height: '1px',
+            bgcolor: `${accentColor}55`,
+            mr: 1.5,
+            ml: 0.5,
+            flexShrink: 0,
+          }}
+        />
+      )}
+
       <Typography
-        className={`${bgColor} px-2 py-1 rounded transition-colors duration-200`}
+        sx={{
+          color: isActive ? '#e0e7ff' : isSubItem ? '#94a3b8' : '#cbd5e1',
+          fontSize: isSubItem ? '0.81rem' : '0.87rem',
+          fontWeight: isActive ? 600 : 500,
+          flex: 1,
+          letterSpacing: 0.2,
+          transition: 'color 0.2s ease',
+          lineHeight: 1.4,
+        }}
       >
         {label}
       </Typography>
+
       {isExpanded !== undefined && (
-        isExpanded ? <ExpandLess /> : <ExpandMore />
+        isExpanded
+          ? <ExpandLess sx={{ color: accentColor, fontSize: 18, flexShrink: 0 }} />
+          : <ExpandMore sx={{ color: '#475569', fontSize: 18, flexShrink: 0 }} />
       )}
     </ListItem>
   );
 
-  return to ? <Link to={to} className="block">{content}</Link> : content;
+  return to
+    ? <Link to={to} style={{ textDecoration: 'none', display: 'block' }}>{content}</Link>
+    : content;
 };
 
-const FeedbackDialog: React.FC<FeedbackDialogProps> = ({ open, onClose, onSubmit, values, onChange }) => (
+/** Glassmorphic feedback dialog */
+const FeedbackDialog: React.FC<FeedbackDialogProps> = ({
+  open, onClose, onSubmit, values, onChange,
+}) => (
   <Dialog
     open={open}
     onClose={onClose}
     maxWidth="sm"
     fullWidth
+    PaperProps={{
+      sx: {
+        bgcolor: 'rgba(15, 23, 42, 0.97)',
+        backdropFilter: 'blur(24px)',
+        border: '1px solid rgba(99,102,241,0.2)',
+        borderRadius: '20px',
+        boxShadow: '0 25px 60px rgba(0,0,0,0.55)',
+      },
+    }}
   >
-    <DialogTitle>
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Typography variant="h6">Donnez votre avis</Typography>
-        <IconButton onClick={onClose} size="small">
-          <CloseIcon />
+    <DialogTitle sx={{ pb: 1 }}>
+      <Box display="flex" justifyContent="space-between" alignItems="flex-start">
+        <Box>
+          <Typography variant="h6" sx={{ color: '#e0e7ff', fontWeight: 700 }}>
+            Donnez votre avis
+          </Typography>
+          <Typography variant="caption" sx={{ color: '#64748b' }}>
+            Votre retour nous aide à améliorer GestStocks
+          </Typography>
+        </Box>
+        <IconButton
+          onClick={onClose}
+          size="small"
+          sx={{
+            mt: 0.5,
+            color: '#64748b',
+            '&:hover': { color: '#e0e7ff', bgcolor: 'rgba(255,255,255,0.08)' },
+          }}
+        >
+          <CloseIcon fontSize="small" />
         </IconButton>
       </Box>
     </DialogTitle>
+
     <form onSubmit={onSubmit}>
-      <DialogContent>
-        <Stack spacing={3}>
+      <DialogContent sx={{ pt: 1 }}>
+        <Stack spacing={2.5}>
           <MyTextField
             label="Titre"
             name="libelle"
@@ -129,11 +266,30 @@ const FeedbackDialog: React.FC<FeedbackDialogProps> = ({ open, onClose, onSubmit
           />
         </Stack>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} color="inherit">
+      <DialogActions sx={{ px: 3, pb: 2.5, gap: 1 }}>
+        <Button
+          onClick={onClose}
+          sx={{
+            color: '#64748b',
+            borderRadius: '10px',
+            px: 2,
+            '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' },
+          }}
+        >
           Annuler
         </Button>
-        <Button type="submit" variant="contained" color="primary">
+        <Button
+          type="submit"
+          variant="contained"
+          sx={{
+            bgcolor: '#6366f1',
+            borderRadius: '10px',
+            px: 3,
+            fontWeight: 600,
+            boxShadow: '0 4px 14px rgba(99,102,241,0.4)',
+            '&:hover': { bgcolor: '#4f46e5', boxShadow: '0 4px 20px rgba(99,102,241,0.55)' },
+          }}
+        >
           Envoyer
         </Button>
       </DialogActions>
@@ -141,24 +297,26 @@ const FeedbackDialog: React.FC<FeedbackDialogProps> = ({ open, onClose, onSubmit
   </Dialog>
 );
 
+// ── Main component ──────────────────────────────────────────────────────────────
+
 const NavSide: React.FC = () => {
   const [expandedSection, setExpandedSection] = useState<number>(0);
   const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
   const [helpDialogOpen, setHelpDialogOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+
   const { getRestruction } = useRestructionUsers();
   const { unUser } = useFetchUser();
   const uuid = useStoreUuid((state) => state.selectedId);
   const { userEntreprises } = useGetUserEntreprises();
-
-  const { unEntreprise } = useFetchEntreprise(uuid)
-  const addId = useStoreUuid(state => state.addId);
+  const { unEntreprise } = useFetchEntreprise(uuid);
+  const addId = useStoreUuid((state) => state.addId);
   const { createAvis } = useAddAvis();
 
   const [avisValues, setAvisValues] = useState<AvisType>({
-    libelle: "",
-    description: "",
-    user_id: "",
+    libelle: '',
+    description: '',
+    user_id: '',
   });
 
   const handleSectionExpand = (section: number): void => {
@@ -166,64 +324,64 @@ const NavSide: React.FC = () => {
   };
 
   const handleAvisChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setAvisValues(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    setAvisValues((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleAvisSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    createAvis({
-      ...avisValues,
-      user_id: connect,
-    });
-    setAvisValues({ libelle: "", description: "", user_id: "" });
+    createAvis({ ...avisValues, user_id: connect });
+    setAvisValues({ libelle: '', description: '', user_id: '' });
     setFeedbackDialogOpen(false);
   };
 
   return (
     <Card
       sx={{
-        display: 'flex',               // <-- ajout
-        flexDirection: 'column',       // <-- ajout
-        height: "calc(100vh - 2rem)",
-        maxWidth: "20rem",
-        p: 2,
-        boxShadow: 3,
-        bgcolor: 'rgba(255,255,255,0.06)',
-        backdropFilter: 'blur(3px)'
+        display: 'flex',
+        flexDirection: 'column',
+        height: 'calc(100vh - 2rem)',
+        maxWidth: '20rem',
+        borderRadius: '16px',
+        border: '1px solid rgba(99,102,241,0.12)',
+        bgcolor: 'rgba(10, 15, 30, 0.97)',
+        backdropFilter: 'blur(20px)',
+        boxShadow: '0 4px 40px rgba(0,0,0,0.5)',
+        overflow: 'hidden',
       }}
     >
-
-      {/* wrapper scrollable pour la liste */}
+      {/* ── Scrollable area ── */}
       <Box
         sx={{
           flex: 1,
           overflowY: 'auto',
           overflowX: 'hidden',
           WebkitOverflowScrolling: 'touch',
-          pr: 1,
-          '&::-webkit-scrollbar': { width: 8 },
-          '&::-webkit-scrollbar-thumb': { backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 2 },
-          '&::-webkit-scrollbar-track': { backgroundColor: 'transparent' }
+          px: 1,
+          py: 1,
+          '&::-webkit-scrollbar': { width: 4 },
+          '&::-webkit-scrollbar-thumb': {
+            backgroundColor: 'rgba(99,102,241,0.3)',
+            borderRadius: 4,
+          },
+          '&::-webkit-scrollbar-track': { backgroundColor: 'transparent' },
         }}
       >
-        <List>
+        <List disablePadding>
+
+          {/* ── ESPACE DE TRAVAIL ── */}
+          <SectionLabel label="Espace de travail" />
           <NavItem
-            icon={<AddBusinessIcon color="primary" />}
+            icon={<AddBusinessIcon sx={{ color: '#818cf8' }} />}
             label="Entreprise(s)"
             onClick={() => handleSectionExpand(5)}
-            bgColor="text-white bg-gray-500"
+            accentColor="#6366f1"
             isExpanded={expandedSection === 5}
           />
-
           <Collapse in={expandedSection === 5} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
               {userEntreprises?.map((entreprise) => (
                 <NavItem
                   key={entreprise.uuid}
-                  icon={null}
                   label={entreprise.nom}
                   onClick={() => {
                     setLoading(true);
@@ -231,19 +389,24 @@ const NavSide: React.FC = () => {
                     window.location.reload();
                   }}
                   to="/entreprise"
-                  bgColor="text-black bg-white"
+                  accentColor="#6366f1"
+                  isSubItem
                 />
               ))}
             </List>
           </Collapse>
 
+          {/* ── NAVIGATION ── */}
           {uuid && (
             <>
+              <NavDivider />
+              <SectionLabel label="Navigation" />
+
               <NavItem
-                icon={<DashboardIcon color="primary" />}
+                icon={<DashboardIcon sx={{ color: '#818cf8' }} />}
                 label="Accueil"
                 onClick={() => handleSectionExpand(1)}
-                bgColor="text-white bg-gray-900"
+                accentColor="#6366f1"
                 isExpanded={expandedSection === 1}
               />
 
@@ -253,36 +416,41 @@ const NavSide: React.FC = () => {
                     {(unUser.role === 1 || unUser.role === 2) && (
                       <>
                         <NavItem
-                          icon={<CategoryIcon />}
+                          icon={<CategoryIcon sx={{ color: '#a5b4fc' }} />}
                           label="Article"
                           to="/categorie"
-                          bgColor="text-black bg-white"
+                          accentColor="#6366f1"
+                          isSubItem
                         />
                         <NavItem
-                          icon={<AddCircleIcon color="success" />}
+                          icon={<AddCircleIcon sx={{ color: '#34d399' }} />}
                           label="Entrer (Achat)"
                           to="/entre"
-                          bgColor="text-white bg-green-500"
+                          accentColor="#10b981"
+                          isSubItem
                         />
                       </>
                     )}
                     {(() => {
-                      if (!getRestruction) return null; // Or loading state
+                      if (!getRestruction) return null;
                       if (isAccessAllowed(getRestruction)) {
-                        return <NavItem
-                          icon={<ExitToAppIcon color="error" />}
-                          label="Sortie (Vente)"
-                          to="/sortie"
-                          bgColor="text-white bg-red-500"
-                        />
+                        return (
+                          <NavItem
+                            icon={<ExitToAppIcon sx={{ color: '#f87171' }} />}
+                            label="Sortie (Vente)"
+                            to="/sortie"
+                            accentColor="#ef4444"
+                            isSubItem
+                          />
+                        );
                       }
                     })()}
-
                     <NavItem
-                      icon={<DiscountIcon color="error" />}
+                      icon={<DiscountIcon sx={{ color: '#fb923c' }} />}
                       label="Remise Facture"
                       to="/sortie/remise"
-                      bgColor="text-white bg-red-400"
+                      accentColor="#f97316"
+                      isSubItem
                     />
                   </List>
                 </Collapse>
@@ -290,182 +458,209 @@ const NavSide: React.FC = () => {
             </>
           )}
 
-          {((unUser.role === 1 || unUser.role === 2) && uuid) &&
+          {/* ── INVENTAIRE ── */}
+          {((unUser.role === 1 || unUser.role === 2) && uuid) && (
             <>
-              {/* Inventaier Par moi */}
+              <NavDivider />
+              <SectionLabel label="Inventaire" />
               <NavItem
-                icon={<HistoryEduIcon color="primary" />}
+                icon={<HistoryEduIcon sx={{ color: '#34d399' }} />}
                 label="Inventaire"
                 onClick={() => handleSectionExpand(2)}
-                bgColor="text-white bg-gray-900"
+                accentColor="#10b981"
                 isExpanded={expandedSection === 2}
               />
               <Collapse in={expandedSection === 2} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
-                  {(unEntreprise.licence_type != "Stock Simple") ?
+                  <NavItem
+                    label="Ventes"
+                    to="/entreprise/inventaire/sortie"
+                    accentColor="#10b981"
+                    isSubItem
+                  />
+                  {unEntreprise.licence_type !== 'Stock Simple' && (
+                    <>
+                      <NavItem
+                        label="Achats"
+                        to="/entreprise/inventaire/entrer"
+                        accentColor="#10b981"
+                        isSubItem
+                      />
+                      <NavItem
+                        label="Etat des produits"
+                        to="/entreprise/inventaire/EtaDesProduits"
+                        accentColor="#10b981"
+                        isSubItem
+                      />
+                    </>
+                  )}
+                  {(unUser.role === 1 && uuid) && unEntreprise.licence_type !== 'Stock Simple' && (
                     <NavItem
-                      icon={null}
-                      label="Ventes"
-                      to="/entreprise/inventaire/sortie"
-                      bgColor="text-white bg-gray-500"
-                    />
-                    :
-                    <NavItem
-                      icon={null}
-                      label="Ventes"
-                      to="/entreprise/inventaire/sortie"
-                      bgColor="text-white bg-gray-500"
-                    />
-                  }
-                  {(unEntreprise.licence_type != "Stock Simple") ?
-                    <NavItem
-                      icon={null}
-                      label="Achats"
-                      to="/entreprise/inventaire/entrer"
-                      bgColor="text-white bg-gray-500"
-                    />
-                    :
-                    ""
-                  }
-
-                  {(unEntreprise.licence_type != "Stock Simple") ?
-                    <NavItem
-                      icon={null}
-                      label="Etat des produits"
-                      to="/entreprise/inventaire/EtaDesProduits"
-                      bgColor="text-white bg-gray-500"
-                    />
-                    :
-                    ""
-                  }
-                  {(unUser.role === 1 && uuid) &&
-                    (unEntreprise.licence_type != "Stock Simple") ?
-                    <NavItem
-                      icon={null}
                       label="Etat des utilisateurs"
                       to="/entreprise/inventaire/VenteUsers"
-                      bgColor="text-white bg-gray-500"
+                      accentColor="#10b981"
+                      isSubItem
                     />
-                    :
-                    ""
-                  }
-
+                  )}
                 </List>
               </Collapse>
             </>
-          }
+          )}
 
-          {(unUser.role === 1 && uuid) &&
+          {/* ── HISTORIQUE ── */}
+          {(unUser.role === 1 && uuid) && (
             <>
-              {/*  */}
+              <NavDivider />
+              <SectionLabel label="Historique" />
               <NavItem
-                icon={<HistoryIcon color="primary" />}
+                icon={<HistoryIcon sx={{ color: '#fbbf24' }} />}
                 label="Historique"
                 onClick={() => handleSectionExpand(3)}
-                bgColor="text-white bg-gray-900"
+                accentColor="#f59e0b"
                 isExpanded={expandedSection === 3}
               />
               <Collapse in={expandedSection === 3} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
                   <NavItem
-                    icon={null}
-                    label="Historique d'entrer et sortie"
+                    label="Entrées & Sorties"
                     to="/entreprise/historique"
-                    bgColor="text-white bg-gray-500"
+                    accentColor="#f59e0b"
+                    isSubItem
                   />
-                  {/* <NavItem
-                icon={null}
-                label="Historique"
-                to="/entreprise/histori"
-                bgColor="text-white bg-gray-500"
-              /> */}
-
                   <NavItem
-                    icon={null}
                     label="Historique des suppressions"
                     to="/entreprise/historique/sppression"
-                    bgColor="text-white bg-gray-500"
+                    accentColor="#f59e0b"
+                    isSubItem
                   />
-
                 </List>
               </Collapse>
             </>
-          }
+          )}
 
-          {(unUser.role === 1 && unUser.is_superuser) && <>
+          {/* ── ADMINISTRATION ── */}
+          {(unUser.role === 1 && unUser.is_superuser) && (
+            <>
+              <NavDivider />
+              <SectionLabel label="Administration" />
+              <NavItem
+                icon={<UserCircleIcon sx={{ color: '#60a5fa' }} />}
+                label="Les Admin"
+                to="/user/admin"
+                accentColor="#3b82f6"
+              />
+              <NavItem
+                icon={<UserCircleIcon sx={{ color: '#60a5fa' }} />}
+                label="Les Avis"
+                to="/user/avis"
+                accentColor="#3b82f6"
+              />
+            </>
+          )}
 
+          {(unUser.role === 1 && unUser.is_cabinet) && (
             <NavItem
-              icon={<UserCircleIcon color="primary" />}
-              label="Les Admin"
-              to="/user/admin"
-              bgColor="text-white bg-blue-900"
-            />
-
-            <NavItem
-              icon={<UserCircleIcon color="primary" />}
-              label="Les Avis"
-              to="/user/avis"
-              bgColor="text-white bg-blue-900"
-            />
-          </>
-          }
-
-          {(unUser.role === 1 && unUser.is_cabinet) && <>
-            <NavItem
-              icon={<UserCircleIcon color="primary" />}
+              icon={<UserCircleIcon sx={{ color: '#60a5fa' }} />}
               label="Mes inscrits"
               to="/user/mesInscrit"
-              bgColor="text-white bg-blue-900"
+              accentColor="#3b82f6"
             />
-          </>
-          }
+          )}
 
+          {/* ── SUPPORT ── */}
+          <NavDivider />
+          <SectionLabel label="Support" />
           <NavItem
-            icon={<DescriptionIcon color="primary" />}
+            icon={<DescriptionIcon sx={{ color: '#7dd3fc' }} />}
             label="Documentation"
             to="https://documentation.gest-stocks.com"
-            bgColor="text-white bg-sky-900"
+            accentColor="#0ea5e9"
           />
-
           <NavItem
-            icon={<HelpOutlineIcon color="primary" />}
+            icon={<HelpOutlineIcon sx={{ color: '#c084fc' }} />}
             label="Que pensez-vous ?"
             onClick={() => setFeedbackDialogOpen(true)}
-            bgColor="text-white bg-sky-900"
+            accentColor="#a855f7"
           />
-
-          {(unUser.role === 1 || unUser.role === 2) &&
+          {(unUser.role === 1 || unUser.role === 2) && (
             <NavItem
-              icon={<HelpOutlineIcon color="primary" />}
+              icon={<HelpOutlineIcon sx={{ color: '#c084fc' }} />}
               label="Abonnement ?"
               onClick={() => setHelpDialogOpen(true)}
-              bgColor="text-white bg-sky-900"
+              accentColor="#a855f7"
             />
-          }
-
-          <NavItem
-            icon={<PowerIcon color="error" />}
-            label="Déconnexion"
-            onClick={logout}
-            bgColor="text-white bg-red-600"
-          />
+          )}
 
         </List>
-
-        <Typography variant="h5" className="text-white bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700 px-2 py-1 rounded border border-dashed animate-border-rotate">
-          <Link
-            to="https://wa.me/91154834"
-            style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <WhatsAppIcon style={{ marginRight: 8 }} />
-            +223 91 15 48 34
-          </Link>
-        </Typography>
       </Box>
 
+      {/* ── Bottom pinned area ── */}
+      <Box sx={{ px: 1.5, pb: 1.5, pt: 0.5 }}>
+        <Box sx={{ height: '1px', bgcolor: 'rgba(255,255,255,0.06)', mb: 1.2 }} />
 
+        {/* WhatsApp */}
+        <Link
+          to="https://wa.me/22391154834"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ textDecoration: 'none' }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1.5,
+              bgcolor: 'rgba(34, 197, 94, 0.07)',
+              border: '1px solid rgba(34, 197, 94, 0.18)',
+              borderRadius: '10px',
+              px: 2,
+              py: 0.9,
+              mb: 0.8,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              '&:hover': {
+                bgcolor: 'rgba(34, 197, 94, 0.14)',
+                border: '1px solid rgba(34, 197, 94, 0.35)',
+                transform: 'translateY(-1px)',
+              },
+            }}
+          >
+            <WhatsAppIcon sx={{ color: '#22c55e', fontSize: 18 }} />
+            <Typography sx={{ color: '#86efac', fontSize: '0.81rem', fontWeight: 600, letterSpacing: 0.3 }}>
+              +223 91 15 48 34
+            </Typography>
+          </Box>
+        </Link>
+
+        {/* Logout */}
+        <Box
+          onClick={logout}
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1.5,
+            bgcolor: 'rgba(239, 68, 68, 0.06)',
+            border: '1px solid rgba(239, 68, 68, 0.14)',
+            borderRadius: '10px',
+            px: 2,
+            py: 0.9,
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            '&:hover': {
+              bgcolor: 'rgba(239, 68, 68, 0.12)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              transform: 'translateY(-1px)',
+            },
+          }}
+        >
+          <PowerIcon sx={{ color: '#f87171', fontSize: 18 }} />
+          <Typography sx={{ color: '#fca5a5', fontSize: '0.81rem', fontWeight: 600, letterSpacing: 0.3 }}>
+            Déconnexion
+          </Typography>
+        </Box>
+      </Box>
+
+      {/* ── Dialogs ── */}
       <FeedbackDialog
         open={feedbackDialogOpen}
         onClose={() => setFeedbackDialogOpen(false)}
@@ -481,19 +676,28 @@ const NavSide: React.FC = () => {
         fullWidth
         PaperProps={{
           sx: {
-            bgcolor: 'rgba(255, 255, 255, 0.1)',
-            backdropFilter: 'blur(5px)',
+            bgcolor: 'rgba(15, 23, 42, 0.97)',
+            backdropFilter: 'blur(24px)',
             borderRadius: '20px',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
-          }
+            border: '1px solid rgba(99,102,241,0.2)',
+            boxShadow: '0 25px 60px rgba(0,0,0,0.55)',
+          },
         }}
       >
         <DialogTitle>
           <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6" sx={{ color: 'white' }}>Aide</Typography>
-            <IconButton onClick={() => setHelpDialogOpen(false)} size="small" color="error">
-              <CloseIcon />
+            <Typography variant="h6" sx={{ color: '#e0e7ff', fontWeight: 700 }}>
+              Aide & Abonnement
+            </Typography>
+            <IconButton
+              onClick={() => setHelpDialogOpen(false)}
+              size="small"
+              sx={{
+                color: '#64748b',
+                '&:hover': { color: '#e0e7ff', bgcolor: 'rgba(255,255,255,0.08)' },
+              }}
+            >
+              <CloseIcon fontSize="small" />
             </IconButton>
           </Box>
         </DialogTitle>
@@ -503,7 +707,12 @@ const NavSide: React.FC = () => {
       </Dialog>
 
       <Backdrop
-        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1301, flexDirection: 'column', gap: 2 }}
+        sx={{
+          color: '#fff',
+          zIndex: (theme) => theme.zIndex.drawer + 1301,
+          flexDirection: 'column',
+          gap: 2,
+        }}
         open={loading}
       >
         <CircularProgress color="inherit" />

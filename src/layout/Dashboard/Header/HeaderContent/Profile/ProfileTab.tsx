@@ -45,60 +45,102 @@ export default function ProfileTab() {
   //   return <div>Une erreur s'est produite</div>;
   // }
 
+  const listItemBtnSx = {
+    borderRadius: '12px',
+    mb: 0.5,
+    py: 1,
+    px: 1.5,
+    color: '#e2e8f0',
+    transition: 'all 0.2s ease',
+    '&:hover': {
+      bgcolor: 'rgba(99, 102, 241, 0.15)',
+      transform: 'translateX(4px)',
+      '& .MuiListItemIcon-root': {
+        transform: 'scale(1.1)',
+      },
+    },
+  };
+
+  const iconBoxSx = (bgColor: string, color: string) => ({
+    minWidth: 32,
+    width: 32,
+    height: 32,
+    borderRadius: '10px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    bgcolor: bgColor,
+    color: color,
+    mr: 1.5,
+    transition: 'transform 0.2s ease',
+  });
+
   if (unUser) {
     return (
-      <List component="nav" sx={{ p: 0, '& .MuiListItemIcon-root': { minWidth: 32 } }}>
-        <Link to={`/entreprise/utilisateur/modif/${unUser.uuid}`}>
-          <ListItemButton >
-            <ListItemIcon>
-              <EditIcon color="primary" fontSize="small"/>
-            </ListItemIcon>
-            <ListItemText primary="modifier votre profile" />
-          </ListItemButton>
-        </Link>
-        {uuid && <>
-        
-        
-        {unUser.role === 1 && 
-          <Link to={"/entreprise/personnel"}>
-            <ListItemButton >
-              <ListItemIcon>
-                <PeopleOutlineRoundedIcon color="primary" />
-              </ListItemIcon>
-                <ListItemText primary="Voir les utilisateurs" />            
-            </ListItemButton>
-          </Link>
-        }
-        {(unUser.role === 1 || unUser.role === 2 || unUser.role === 3) && 
-        
-        <Link to={"/entreprise/client"}>
-          <ListItemButton >
-            <ListItemIcon>
-              <PeopleOutlineRoundedIcon color="primary" />
-            </ListItemIcon>
-              <ListItemText primary="Voir les clients ou fournisseurs" />            
-          </ListItemButton>
-        </Link>
-        }
-        
-        {unUser.role === 1 && <>        
-        <Link to={"/entreprise/detail"}>
-          <ListItemButton >
-            <ListItemIcon>
-              <AddBusinessIcon color="primary" />
-            </ListItemIcon>
-            <ListItemText primary="Entreprise" />
-          </ListItemButton>
-        </Link>
-        </>
-        }
-        <ListItemButton onClick={logout} >
-          <ListItemIcon>
-            <LogoutIcon color="primary" />
-          </ListItemIcon>
-          <ListItemText primary="Logout" />
+      <List component="nav" sx={{ p: 0 }}>
+        <ListItemButton
+          component={Link}
+          to={`/entreprise/utilisateur/modif/${unUser.uuid}`}
+          sx={listItemBtnSx}
+        >
+          <Box sx={iconBoxSx('rgba(99, 102, 241, 0.15)', '#818cf8')}>
+            <EditIcon style={{ fontSize: '1.1rem' }} />
+          </Box>
+          <ListItemText
+            primary="Modifier votre profil"
+            primaryTypographyProps={{ fontSize: '0.85rem', fontWeight: 600 }}
+          />
         </ListItemButton>
-        </>}
+
+        {uuid && (
+          <>
+            {unUser.role === 1 && (
+              <ListItemButton component={Link} to="/entreprise/personnel" sx={listItemBtnSx}>
+                <Box sx={iconBoxSx('rgba(6, 182, 212, 0.15)', '#22d3ee')}>
+                  <PeopleOutlineRoundedIcon style={{ fontSize: '1.1rem' }} />
+                </Box>
+                <ListItemText
+                  primary="Voir les utilisateurs"
+                  primaryTypographyProps={{ fontSize: '0.85rem', fontWeight: 600 }}
+                />
+              </ListItemButton>
+            )}
+
+            {(unUser.role === 1 || unUser.role === 2 || unUser.role === 3) && (
+              <ListItemButton component={Link} to="/entreprise/client" sx={listItemBtnSx}>
+                <Box sx={iconBoxSx('rgba(34, 197, 94, 0.15)', '#4ade80')}>
+                  <PeopleOutlineRoundedIcon style={{ fontSize: '1.1rem' }} />
+                </Box>
+                <ListItemText
+                  primary="Clients ou fournisseurs"
+                  primaryTypographyProps={{ fontSize: '0.85rem', fontWeight: 600 }}
+                />
+              </ListItemButton>
+            )}
+
+            {unUser.role === 1 && (
+              <ListItemButton component={Link} to="/entreprise/detail" sx={listItemBtnSx}>
+                <Box sx={iconBoxSx('rgba(168, 85, 247, 0.15)', '#c084fc')}>
+                  <AddBusinessIcon style={{ fontSize: '1.1rem' }} />
+                </Box>
+                <ListItemText
+                  primary="Détails entreprise"
+                  primaryTypographyProps={{ fontSize: '0.85rem', fontWeight: 600 }}
+                />
+              </ListItemButton>
+            )}
+
+            <ListItemButton onClick={logout} sx={{ ...listItemBtnSx, '&:hover': { bgcolor: 'rgba(239, 68, 68, 0.15)', transform: 'translateX(4px)' } }}>
+              <Box sx={iconBoxSx('rgba(239, 68, 68, 0.15)', '#f87171')}>
+                <LogoutIcon style={{ fontSize: '1.1rem' }} />
+              </Box>
+              <ListItemText
+                primary="Déconnexion"
+                primaryTypographyProps={{ fontSize: '0.85rem', fontWeight: 600, color: '#f87171' }}
+              />
+            </ListItemButton>
+          </>
+        )}
       </List>
     );
   }

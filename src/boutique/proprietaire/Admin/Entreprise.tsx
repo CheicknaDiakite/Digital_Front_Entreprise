@@ -2,7 +2,7 @@ import { ChangeEvent, FC, FormEvent, ReactNode, SyntheticEvent, useState } from 
 import CloseIcon from "@mui/icons-material/Close"
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import { Box, Dialog, DialogContent, DialogTitle, IconButton, SelectChangeEvent, Skeleton, Stack } from '@mui/material';
+import { Box, Dialog, DialogContent, DialogTitle, DialogActions, IconButton, SelectChangeEvent, Skeleton, Stack } from '@mui/material';
 import { EntrepriseType } from '../../../typescript/Account';
 import { connect } from '../../../_services/account.service';
 import { Link } from 'react-router-dom';
@@ -14,33 +14,9 @@ import MyTextField from '../../../_components/Input/MyTextField';
 import { useStoreUuid } from '../../../usePerso/store';
 import CountrySelect from '../../../_components/Liste_Pays/CountrySelect';
 import { RecupType } from '../../../typescript/DataType';
-import clsx from 'clsx';
 import backgroundImage from '../../../../public/assets/img/img.jpg'
 
-// const CARD = ({post}) => (
-
-//   <Fragment>
-//     <CardContent>
-//       <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-//         {post.adresse}
-//       </Typography>
-//       <Typography variant="h5" component="div">
-//         {post.nom}
-//       </Typography>
-//       <Typography sx={{ mb: 1.5 }} color="text.secondary">
-//         {post.email}
-//       </Typography>
-//       <Typography variant="body2">
-//        Votre licence doit expirer le {post.licence_date_expiration}.
-//         <br />
-//         Tel : {post.numero}
-//       </Typography>
-//     </CardContent>
-//     <CardActions>
-//       <Link to={`/user/Entreprise/${post.id}`}>Info <AdsClickIcon color='primary' /></Link>
-//     </CardActions>
-//   </Fragment>
-// );
+// ── Types ──────────────────────────────────────────────────────────────────────
 
 interface IconsGridProps {
   icon?: ReactNode;
@@ -58,59 +34,160 @@ interface LicenceTagProps {
   children: ReactNode;
 }
 
-export const LicenceTag: FC<LicenceTagProps> = ({ type, children }) => (
-  <span
-    className={clsx(
-      "inline-flex items-center justify-center text-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset",
-      {
-        "bg-red-50 text-red-700 ring-red-700/10": type === "Stock Simple",
-        "bg-yellow-50 text-yellow-700 ring-yellow-700/10": type === "Stock Pro",
-        "bg-green-50 text-green-700 ring-green-700/10": type === "Stock Premium",
-      }
-    )}
-  >
-    {children}
-  </span>
-);
+// ── Sub-components ─────────────────────────────────────────────────────────────
 
-const IconsGrid: FC<IconsGridProps> = ({ icon, title, description, image }) => (
-  <div className="bg-white p-4 sm:p-6 shadow-md hover:shadow-lg rounded-xl text-center transition-all duration-300 transform hover:-translate-y-1 h-full">
-    <div className="flex justify-center items-center mb-4">
-      <img
-        src={image}
-        alt={title}
-        className="h-16 w-16 sm:h-20 sm:w-20 object-cover rounded-full border-4 border-gray-100 shadow-sm"
-      />
-    </div>
-    <h4 className="text-lg sm:text-xl font-semibold mb-3 flex items-center justify-center gap-2 text-gray-800">
-      <span className="text-blue-600 inline-block truncate max-w-[140px] sm:max-w-[220px]">{title}</span>
-      <span className="flex-shrink-0">{icon}</span>
-    </h4>
-    <div className="text-gray-600 text-sm sm:text-base">{description}</div>
-  </div>
-);
+const licenceColors: Record<string, { bg: string; text: string; border: string }> = {
+  'Stock Simple': { bg: 'rgba(239,68,68,0.12)', text: '#fca5a5', border: 'rgba(239,68,68,0.3)' },
+  'Stock Pro': { bg: 'rgba(234,179,8,0.12)', text: '#fde68a', border: 'rgba(234,179,8,0.3)' },
+  'Stock Premium': { bg: 'rgba(34,197,94,0.12)', text: '#86efac', border: 'rgba(34,197,94,0.3)' },
+};
 
-const LoadingState = () => (
-  <div className="flex justify-center items-center min-h-64 p-4">
-    <Box sx={{ width: '100%', maxWidth: 300 }}>
-      <Skeleton height={60} />
-      <Skeleton animation="wave" height={60} />
-      <Skeleton animation={false} height={60} />
-    </Box>
-  </div>
-);
-
-const ErrorState = () => {
-  window.location.reload();
+export const LicenceTag: FC<LicenceTagProps> = ({ type, children }) => {
+  const colors = licenceColors[type] || licenceColors['Stock Simple'];
   return (
-    <div className="flex justify-center items-center min-h-64 p-4">
-      <Typography color="error" className="text-center">
-        Une erreur est survenue. Rechargement...
-      </Typography>
-    </div>
+    <Box
+      component="span"
+      sx={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: '8px',
+        px: 1.5,
+        py: 0.5,
+        fontSize: '0.72rem',
+        fontWeight: 700,
+        letterSpacing: 0.5,
+        bgcolor: colors.bg,
+        color: colors.text,
+        border: `1px solid ${colors.border}`,
+      }}
+    >
+      {children}
+    </Box>
   );
 };
 
+/** Enterprise card with dark glassmorphic design */
+const IconsGrid: FC<IconsGridProps> = ({ title, description, image }) => (
+  <Box
+    sx={{
+      bgcolor: 'rgba(255,255,255,0.04)',
+      backdropFilter: 'blur(12px)',
+      border: '1px solid rgba(99,102,241,0.12)',
+      borderRadius: '16px',
+      p: { xs: 2.5, sm: 3 },
+      textAlign: 'center',
+      height: '100%',
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      cursor: 'pointer',
+      '&:hover': {
+        bgcolor: 'rgba(99,102,241,0.08)',
+        border: '1px solid rgba(99,102,241,0.35)',
+        transform: 'translateY(-6px)',
+        boxShadow: '0 12px 40px rgba(99,102,241,0.2)',
+      },
+    }}
+  >
+    {/* Logo */}
+    <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2.5 }}>
+      <Box
+        sx={{
+          width: { xs: 64, sm: 76 },
+          height: { xs: 64, sm: 76 },
+          borderRadius: '16px',
+          overflow: 'hidden',
+          border: '2px solid rgba(99,102,241,0.3)',
+          boxShadow: '0 0 20px rgba(99,102,241,0.15)',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            boxShadow: '0 0 28px rgba(99,102,241,0.3)',
+          },
+        }}
+      >
+        <img
+          src={image}
+          alt={title}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+      </Box>
+    </Box>
+
+    {/* Title */}
+    <Typography
+      sx={{
+        fontSize: { xs: '1rem', sm: '1.1rem' },
+        fontWeight: 700,
+        mb: 1,
+        background: 'linear-gradient(135deg, #e0e7ff, #c4b5fd)',
+        backgroundClip: 'text',
+        WebkitBackgroundClip: 'text',
+        color: 'transparent',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+      }}
+    >
+      {title}
+    </Typography>
+
+    {/* Description */}
+    <Box sx={{ color: '#64748b', fontSize: '0.85rem' }}>
+      {description}
+    </Box>
+  </Box>
+);
+
+/** Loading skeleton */
+const LoadingState = () => (
+  <Box
+    sx={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '16rem',
+      p: 4,
+    }}
+  >
+    <Box sx={{ width: '100%', maxWidth: 300 }}>
+      <Skeleton
+        height={60}
+        sx={{ bgcolor: 'rgba(255,255,255,0.06)', borderRadius: 2 }}
+      />
+      <Skeleton
+        animation="wave"
+        height={60}
+        sx={{ bgcolor: 'rgba(255,255,255,0.04)', borderRadius: 2 }}
+      />
+      <Skeleton
+        animation={false}
+        height={60}
+        sx={{ bgcolor: 'rgba(255,255,255,0.03)', borderRadius: 2 }}
+      />
+    </Box>
+  </Box>
+);
+
+/** Error state */
+const ErrorState = () => {
+  window.location.reload();
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '16rem',
+        p: 4,
+      }}
+    >
+      <Typography sx={{ color: '#f87171', textAlign: 'center' }}>
+        Une erreur est survenue. Rechargement...
+      </Typography>
+    </Box>
+  );
+};
+
+/** Glassmorphic dialog for adding an enterprise */
 const EntrepriseDialog: FC<{
   open: boolean;
   onClose: () => void;
@@ -130,101 +207,129 @@ const EntrepriseDialog: FC<{
   // onLicenceChange,
   onCountryChange
 }) => (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      maxWidth="sm"
-      fullWidth
-      PaperProps={{
-        style: {
-          margin: '1rem',
-          width: 'calc(100% - 2rem)',
-          maxWidth: '500px',
-          borderRadius: '12px'
-        }
+  <Dialog
+    open={open}
+    onClose={onClose}
+    maxWidth="sm"
+    fullWidth
+    PaperProps={{
+      sx: {
+        m: 2,
+        width: 'calc(100% - 2rem)',
+        maxWidth: '500px',
+        bgcolor: 'rgba(15, 23, 42, 0.97)',
+        backdropFilter: 'blur(24px)',
+        border: '1px solid rgba(99,102,241,0.2)',
+        borderRadius: '20px',
+        boxShadow: '0 25px 60px rgba(0,0,0,0.55)',
+      },
+    }}
+  >
+    <DialogTitle
+      sx={{
+        background: 'linear-gradient(135deg, rgba(99,102,241,0.2) 0%, rgba(139,92,246,0.15) 100%)',
+        borderBottom: '1px solid rgba(99,102,241,0.15)',
+        pb: 2,
       }}
     >
-      <DialogTitle className="bg-gradient-to-r from-blue-500 to-green-600 text-white">
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h6" className="text-white font-semibold">
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Box>
+          <Typography variant="h6" sx={{ color: '#e0e7ff', fontWeight: 700 }}>
             Ajouter une entreprise
           </Typography>
-          <IconButton onClick={onClose} size="small" className="text-white hover:bg-white/20">
-            <CloseIcon />
-          </IconButton>
+          <Typography variant="caption" sx={{ color: '#64748b' }}>
+            Renseignez les informations de votre entreprise
+          </Typography>
         </Box>
-      </DialogTitle>
-      <DialogContent className="p-6 ">
-        <form onSubmit={onSubmit} className="space-y-4 m-3">
-          <Stack spacing={3}>
-            <MyTextField
-              label="Nom de l'entreprise"
-              name="nom"
-              value={formValues.nom}
-              onChange={onChange}
-              required
-            />
-            <MyTextField
-              label="Email"
-              name="email"
-              type="email"
-              value={formValues.email}
-              onChange={onChange}
+        <IconButton
+          onClick={onClose}
+          size="small"
+          sx={{
+            color: '#64748b',
+            '&:hover': { color: '#e0e7ff', bgcolor: 'rgba(255,255,255,0.08)' },
+          }}
+        >
+          <CloseIcon fontSize="small" />
+        </IconButton>
+      </Box>
+    </DialogTitle>
 
-            />
-            <MyTextField
-              label="Numéro de téléphone"
-              name="numero"
-              type="tel"
-              value={formValues.numero || ''}
-              onChange={onChange}
+    <DialogContent sx={{ pt: 3, px: 3, pb: 1 }}>
+      <form onSubmit={onSubmit} id="entreprise-form">
+        <Stack spacing={2.5}>
+          <MyTextField
+            label="Nom de l'entreprise"
+            name="nom"
+            value={formValues.nom}
+            onChange={onChange}
+            required
+          />
+          <MyTextField
+            label="Email"
+            name="email"
+            type="email"
+            value={formValues.email}
+            onChange={onChange}
+          />
+          <MyTextField
+            label="Numéro de téléphone"
+            name="numero"
+            type="tel"
+            value={formValues.numero || ''}
+            onChange={onChange}
+          />
+          <MyTextField
+            label="Adresse"
+            name="adresse"
+            value={formValues.adresse}
+            onChange={onChange}
+          />
+          <CountrySelect onChange={onCountryChange} label="Choisir le pays" />
+        </Stack>
+      </form>
+    </DialogContent>
 
-            />
-            <MyTextField
-              label="Adresse"
-              name="adresse"
-              value={formValues.adresse}
-              onChange={onChange}
+    <DialogActions sx={{ px: 3, pb: 2.5, gap: 1 }}>
+      <Button
+        onClick={onClose}
+        sx={{
+          color: '#64748b',
+          borderRadius: '10px',
+          px: 2,
+          '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' },
+        }}
+      >
+        Annuler
+      </Button>
+      <Button
+        type="submit"
+        form="entreprise-form"
+        variant="contained"
+        sx={{
+          bgcolor: '#6366f1',
+          borderRadius: '10px',
+          px: 3,
+          fontWeight: 600,
+          boxShadow: '0 4px 14px rgba(99,102,241,0.4)',
+          '&:hover': {
+            bgcolor: '#4f46e5',
+            boxShadow: '0 4px 20px rgba(99,102,241,0.55)',
+          },
+        }}
+      >
+        Ajouter l'entreprise
+      </Button>
+    </DialogActions>
+  </Dialog>
+);
 
-            />
-            <CountrySelect onChange={onCountryChange} label="Choisir le pays" />
-            {/* <FormControl fullWidth>
-            <InputLabel>Type de licence</InputLabel>
-            <Select
-              value={licenceType}
-              label="Type de licence"
-              onChange={onLicenceChange}
-              
-            >
-              <MenuItem value="Free">Gratuit</MenuItem>
-              <MenuItem value="Basic">Basique</MenuItem>
-              <MenuItem value="Premium">Premium</MenuItem>
-            </Select>
-          </FormControl> */}
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              className="bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700 py-3 text-white font-semibold rounded-lg"
-            >
-              Ajouter l'entreprise
-            </Button>
-          </Stack>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
+// ── Main component ──────────────────────────────────────────────────────────────
 
 export default function Entreprise() {
-
-  const { userEntreprises, isLoading, isError } = useGetUserEntreprises()
-
-  const { unUser } = useFetchUser()
-  const { ajoutEntreprise } = useCreateEntreprise()
-  // const options = countryList().getData();
-
-  const addId = useStoreUuid(state => state.addId)
+  const { userEntreprises, isLoading, isError } = useGetUserEntreprises();
+  const { unUser } = useFetchUser();
+  const { ajoutEntreprise } = useCreateEntreprise();
+  const addId = useStoreUuid((state) => state.addId);
 
   const [age, setAge] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -243,40 +348,25 @@ export default function Entreprise() {
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormValues({
-      ...formValues,
-      [name]: value,
-    });
+    setFormValues({ ...formValues, [name]: value });
   };
 
-  const handleAutoFourChange = (_: SyntheticEvent<Element, Event>,
+  const handleAutoFourChange = (
+    _: SyntheticEvent<Element, Event>,
     value: string | RecupType,
-    // reason: AutocompleteChangeReason
   ) => {
     if (typeof value === 'object' && value !== null) {
-
-      setFormValues({
-        ...formValues,
-        pays: value.label ?? '',
-        // phone: value.phone ?? '',
-      });
+      setFormValues({ ...formValues, pays: value.label ?? '' });
     } else {
-      setFormValues({
-        ...formValues,
-        pays: '',
-      });
+      setFormValues({ ...formValues, pays: '' });
     }
   };
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    formValues["user_id"] = connect
-    // formValues["user_id"]= connect
-    formValues["libelle"] = age
-
-    ajoutEntreprise(formValues)
-
+    formValues['user_id'] = connect;
+    formValues['libelle'] = age;
+    ajoutEntreprise(formValues);
     setFormValues({
       nom: '',
       email: '',
@@ -284,108 +374,146 @@ export default function Entreprise() {
       adresse: '',
       user_id: '',
       libelle: '',
-    })
-    setIsDialogOpen(false)
+    });
+    setIsDialogOpen(false);
   };
 
-  if (isLoading) {
-    return <LoadingState />
-  }
+  if (isLoading) return <LoadingState />;
+  if (isError) return <ErrorState />;
 
-  if (isError) {
-    return <ErrorState />
-  }
   if (userEntreprises) {
     return (
-      <div
-        className="min-h-screen p-4 sm:p-6 lg:p-8"
-        style={{
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        }}
-      >
+      <Box sx={{ minHeight: '100vh', p: { xs: 2, sm: 3, lg: 4 } }}>
+
+        {/* Header area */}
         {unUser.role === 1 ? (
-          <div className="text-center mb-6 sm:mb-8">
+          <Box sx={{ textAlign: 'center', mb: { xs: 4, sm: 5 } }}>
             <Button
               variant="contained"
               onClick={() => setIsDialogOpen(true)}
-              className="bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700 px-8 py-3 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              sx={{
+                bgcolor: '#6366f1',
+                px: 4,
+                py: 1.5,
+                borderRadius: '12px',
+                fontWeight: 700,
+                fontSize: '0.92rem',
+                letterSpacing: 0.5,
+                boxShadow: '0 4px 20px rgba(99,102,241,0.4)',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  bgcolor: '#4f46e5',
+                  boxShadow: '0 8px 30px rgba(99,102,241,0.55)',
+                  transform: 'translateY(-2px)',
+                },
+              }}
             >
-              Ajout de l'Entreprise
+              + Ajouter une entreprise
             </Button>
-          </div>
-        ) : (unUser.role === 2 || unUser.role === 3 || unUser.role === 4) ? (
-          ""
-        ) : (
-          <div className="bg-gradient-to-r from-blue-500 to-green-600 text-white p-6 sm:p-8 rounded-2xl shadow-xl mx-4 sm:mx-8 mb-6 sm:mb-8">
-            <Typography variant="body1" className="text-center text-sm sm:text-base leading-relaxed">
+          </Box>
+        ) : (unUser.role === 2 || unUser.role === 3 || unUser.role === 4) ? null : (
+          <Box
+            sx={{
+              background: 'linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(139,92,246,0.1) 100%)',
+              border: '1px solid rgba(99,102,241,0.2)',
+              borderRadius: '16px',
+              p: { xs: 3, sm: 4 },
+              mx: { xs: 1, sm: 4 },
+              mb: { xs: 4, sm: 5 },
+              backdropFilter: 'blur(10px)',
+            }}
+          >
+            <Typography
+              sx={{
+                textAlign: 'center',
+                color: '#cbd5e1',
+                fontSize: { xs: '0.88rem', sm: '0.95rem' },
+                lineHeight: 1.8,
+              }}
+            >
               Nous vous remercions pour votre inscription sur Gest Stocks.<br />
               Veuillez-vous patienter avant l'activation de votre compte !<br />
               Pour plus d'information contacter (91 15 48 34 // 63 83 51 14)
             </Typography>
-          </div>
+          </Box>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-
+        {/* Enterprise cards grid */}
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              sm: 'repeat(2, 1fr)',
+              lg: 'repeat(3, 1fr)',
+              xl: 'repeat(4, 1fr)',
+            },
+            gap: { xs: 2, sm: 3 },
+          }}
+        >
           {userEntreprises?.map((post: any, index) => {
-            let url = post.image ? BASE(post.image) : backgroundImage;
+            const url = post.image ? BASE(post.image) : backgroundImage;
             const expired = isLicenceExpired(post.licence_date_expiration);
-            const validDate = post.licence_date_expiration ?? new Date();
+
             return (
-              <div
+              <Box
                 key={index}
-                className={`group relative transition-all duration-300 ${expired ? 'opacity-60 grayscale' : ''
-                  }`}
+                sx={{
+                  position: 'relative',
+                  transition: 'all 0.3s ease',
+                  ...(expired && { opacity: 0.5, filter: 'grayscale(0.6)' }),
+                }}
               >
-                {/* Badge Expirée */}
+                {/* Expired badge */}
                 {expired && (
-                  <div className="absolute top-2 left-2 z-10 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded shadow-lg">
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: 10,
+                      left: 10,
+                      zIndex: 10,
+                      bgcolor: 'rgba(239,68,68,0.9)',
+                      backdropFilter: 'blur(8px)',
+                      color: '#fff',
+                      fontSize: '0.7rem',
+                      fontWeight: 700,
+                      px: 1.5,
+                      py: 0.4,
+                      borderRadius: '8px',
+                      boxShadow: '0 4px 12px rgba(239,68,68,0.4)',
+                      letterSpacing: 0.5,
+                    }}
+                  >
                     Licence expirée
-                  </div>
+                  </Box>
                 )}
+
                 <Link
-                  to={`/entreprise`}
+                  to="/entreprise"
                   onClick={() => addId(post.uuid)}
-                  className="block h-full"
                   style={{
                     textDecoration: 'none',
                     color: 'inherit',
-                    pointerEvents: 'auto', // désactive le lien si expiré
+                    display: 'block',
+                    height: '100%',
                   }}
                   tabIndex={expired ? -1 : 0}
                   aria-disabled={expired}
                 >
                   <IconsGrid
-                    // icon={<EntrepriseIcon fontSize="small" className="text-blue-500" />}
                     image={url}
                     title={post.nom}
                     description={
                       post.licence_active && (
-                        <div className="space-y-3">
-                          {/* <p className="text-gray-700 font-medium">
-                        {expired
-                          ? "Cette entreprise n'a plus de licence active"
-                          : "Cette entreprise est activée et possède une licence"}
-                      </p> */}
-                          {/* <div className="flex flex-col items-center gap-2">
-                        <LicenceTag type={post.licence_type}>
-                          {post.licence_type} {getLicenceDuration(validDate)}
-                        </LicenceTag>
-                        
-                      </div> */}
-                        </div>
+                        <Box sx={{ mt: 1 }} />
                       )
                     }
                   />
                 </Link>
-
-              </div>
+              </Box>
             );
           })}
-
-        </div>
+        </Box>
 
         <EntrepriseDialog
           open={isDialogOpen}
@@ -397,18 +525,40 @@ export default function Entreprise() {
           onLicenceChange={handleChange}
           onCountryChange={handleAutoFourChange}
         />
-      </div>
+      </Box>
     );
   } else {
     return (
-      <div className="min-h-screen p-4 sm:p-6 flex items-center justify-center">
-        <div className="text-center">
+      <Box
+        sx={{
+          minHeight: '100vh',
+          p: { xs: 2, sm: 3 },
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Box sx={{ textAlign: 'center' }}>
           <Button
-            variant="outlined"
+            variant="contained"
             onClick={() => setIsDialogOpen(true)}
-            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0 px-8 py-3 font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+            sx={{
+              bgcolor: '#6366f1',
+              px: 4,
+              py: 1.5,
+              borderRadius: '12px',
+              fontWeight: 700,
+              fontSize: '0.92rem',
+              boxShadow: '0 4px 20px rgba(99,102,241,0.4)',
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                bgcolor: '#4f46e5',
+                boxShadow: '0 8px 30px rgba(99,102,241,0.55)',
+                transform: 'translateY(-2px)',
+              },
+            }}
           >
-            Ajout de l'entreprise
+            + Ajouter une entreprise
           </Button>
 
           <EntrepriseDialog
@@ -421,8 +571,8 @@ export default function Entreprise() {
             onLicenceChange={handleChange}
             onCountryChange={handleAutoFourChange}
           />
-        </div>
-      </div>
+        </Box>
+      </Box>
     );
-  };
+  }
 }
