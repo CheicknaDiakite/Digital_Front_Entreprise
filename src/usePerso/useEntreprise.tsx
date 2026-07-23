@@ -269,10 +269,12 @@ export function StatCard({ title, description, value, icon, backgroundColor }: {
   return (
     <Card 
       elevation={0}
+      className={`relative p-4 rounded-lg transition-all duration-200 hover:shadow-md border-x-2 animate-border-rotate mobile-shadow-card mobile-hover-effect mobile-glass`}
+
       sx={{ 
         borderRadius: '20px', 
-        bgcolor: backgroundColor || 'rgba(255, 255, 255, 0.04)',
-        backdropFilter: 'blur(16px)',
+        // bgcolor: backgroundColor || 'rgba(255, 255, 255, 0.04)',
+        // backdropFilter: 'blur(16px)',
         border: '1px solid rgba(255, 255, 255, 0.08)',
         height: '100%',
         display: 'flex',

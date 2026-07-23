@@ -67,7 +67,6 @@ export default function PublicRouter() {
       <Routes>
         <Route element={<Dashboard />}>
           <Route index element={<Entreprise />} />
-          {/* <Route index element={ <DashboardDefault />} /> */}
 
           <Route path='entreprise'>
             <Route index element={<DashboardDefault />} />

@@ -42,12 +42,13 @@ const NavigationCard: FC<NavigationCardType> = ({ icon, title, description, to, 
   const CardContent = (
     <Paper
       elevation={0}
-      className="mobile-nav-card mobile-hover-effect"
+      className="mobile-nav-card mobile-hover-effect mobile-glass"
+     
       sx={{
         height: '100%',
         minHeight: { xs: '140px', sm: '155px' },
-        bgcolor: disabled ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.04)',
-        backdropFilter: 'blur(16px)',
+        // bgcolor: disabled ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.04)',
+        // backdropFilter: 'blur(16px)',
         border: '1px solid',
         borderColor: disabled ? 'rgba(255,255,255,0.05)' : `${color}25`,
         borderRadius: '20px',
@@ -301,9 +302,10 @@ export default function DashboardDefault() {
           
           {/* Header Banner */}
           <Box
+            className={`relative p-4 rounded-lg transition-all duration-200 hover:shadow-md border-x-2 animate-border-rotate mobile-shadow-card mobile-hover-effect ${isMobile ? 'mobile-glass' : 'mobile-glass'}`}
             sx={{
-              background: 'linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(139,92,246,0.08) 100%)',
-              backdropFilter: 'blur(16px)',
+              // background: 'linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(139,92,246,0.08) 100%)',
+              // backdropFilter: 'blur(16px)',
               border: '1px solid rgba(99,102,241,0.18)',
               borderRadius: '20px',
               p: { xs: 2.5, sm: 3.5 },
@@ -490,7 +492,7 @@ export default function DashboardDefault() {
               >
                 Navigation rapide
               </Typography>
-              <Typography variant="caption" sx={{ color: '#64748b' }}>
+              <Typography variant="caption" className="text-gray-300" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' } }}>
                 Accès direct aux modules
               </Typography>
             </Box>

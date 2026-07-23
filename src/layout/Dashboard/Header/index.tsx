@@ -63,7 +63,7 @@ export default function Header() {
           onClick={() => handlerDrawerOpen(!drawerOpen)}
           edge="start"
           sx={{
-            color: '#818cf8',
+            // color: '#818cf8',
             bgcolor: 'rgba(99, 102, 241, 0.12)',
             width: 36,
             height: 36,
@@ -86,7 +86,7 @@ export default function Header() {
           onClick={() => navigate(-1)}
           edge="start"
           sx={{
-            color: '#818cf8',
+            // color: '#818cf8',
             bgcolor: 'rgba(99, 102, 241, 0.12)',
             width: 36,
             height: 36,
