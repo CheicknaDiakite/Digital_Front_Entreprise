@@ -12,9 +12,7 @@ import Header from './Header';
 
 
 import { handlerDrawerOpen, useGetMenuMaster } from '../../api/menu';
-import navigation from '../../menu-items';
 import Loader from '../../components/Loader';
-import Breadcrumbs from '../../components/@extended/Breadcrumbs';
 
 // ==============================|| MAIN LAYOUT ||============================== //
 
@@ -30,12 +28,19 @@ export default function DashboardLayout() {
   if (menuMasterLoading) return <Loader />;
 
   return (
-    <Box sx={{ display: 'flex', width: '100%' }}>
+    <Box sx={{ display: 'flex', width: '100%', minHeight: '100vh' }}>
       <Header />
       <Drawer />
-      <Box component="main" sx={{ width: 'calc(100% - 260px)', flexGrow: 1, p: { xs: 2, sm: 3 } }}>
+      <Box
+        component="main"
+        sx={{
+          width: 'calc(100% - 260px)',
+          minWidth: 0,
+          flexGrow: 1,
+          p: { xs: 1.5, sm: 2.5, lg: 3 },
+        }}
+      >
         <Toolbar />
-        <Breadcrumbs navigation={navigation} title />
         <Outlet />
       </Box>
     </Box>

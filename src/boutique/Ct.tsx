@@ -115,7 +115,7 @@ const PricingCard: React.FC<{ tier: PricingTier }> = ({ tier }) => (
     </ul>
 
     <a
-      href="https://wa.me/91154834"
+      href="https://wa.me/22391154834"
       aria-describedby={tier.id}
       className={`
         mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold

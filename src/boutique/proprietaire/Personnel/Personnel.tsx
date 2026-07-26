@@ -1,9 +1,6 @@
-// import { UserPlusIcon } from "@heroicons/react/24/solid};
 import {
   Typography,
   Button,
-  // Tabs,
-  // Tab,
   IconButton,
   Dialog,
   DialogContent,
@@ -11,74 +8,202 @@ import {
   Pagination,
   Box,
   Skeleton,
-  Paper,
-  ListItem,
-  ListItemAvatar,
   Avatar,
-  ListItemText,
   Chip,
-  Grid,
+  Tooltip,
+  Divider,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import { ChangeEvent, Fragment, useState, useEffect } from "react";
+import { ChangeEvent, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
+import PhoneIcon from "@mui/icons-material/Phone";
+import EmailIcon from "@mui/icons-material/Email";
+import BadgeIcon from "@mui/icons-material/Badge";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
+import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
 import { FormValueType } from "../../../typescript/FormType";
-// import VisibilityIcon from '@mui/icons-material/Visibility';
-import { useCreateAdminUser, useFetchAllUsers, useFetchEntreprise, useRestructionUsers } from "../../../usePerso/fonction.user";
+import { useCreateAdminUser, useFetchAllUsers, useFetchEntreprise } from "../../../usePerso/fonction.user";
 import MyTextField from "../../../_components/Input/MyTextField";
 import { useStoreUuid } from "../../../usePerso/store";
-// import { format } from "date-fns";
 import M_Abonnement from "../../../_components/Card/M_Abonnement";
 import { isLicenceExpired, stringAvatar } from "../../../usePerso/fonctionPerso";
-import MainCard from "../../../components/MainCard";
 import { useForm } from "react-hook-form";
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import Chart_3 from "../../../_components/Chart/Chart_3";
-import '../mobile-personnel-client.css';
+import { motion, AnimatePresence } from "framer-motion";
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+const roleConfig: Record<number, { label: string; color: string; bg: string; icon: React.ReactNode }> = {
+  1: {
+    label: "Admin",
+    color: "#7c3aed",
+    bg: "rgba(124, 58, 237, 0.1)",
+    icon: <AdminPanelSettingsIcon sx={{ fontSize: 13 }} />,
+  },
+  2: {
+    label: "Superviseur",
+    color: "#0284c7",
+    bg: "rgba(2, 132, 199, 0.1)",
+    icon: <SupervisorAccountIcon sx={{ fontSize: 13 }} />,
+  },
+  3: {
+    label: "Caissier(e)",
+    color: "#059669",
+    bg: "rgba(5, 150, 105, 0.1)",
+    icon: <PointOfSaleIcon sx={{ fontSize: 13 }} />,
+  },
+};
+
+// ─── Personnel Card ──────────────────────────────────────────────────────────
+
+function PersonnelCard({ post, to }: { post: any; to: string }) {
+  const role = roleConfig[post.role] ?? { label: "Aucun rôle", color: "#64748b", bg: "rgba(100,116,139,0.1)", icon: null };
+
+  return (
+    <Link to={to} style={{ textDecoration: "none" }}>
+      <Box
+        sx={{
+          bgcolor: "#ffffff",
+          border: "1px solid #e2e8f0",
+          borderRadius: "20px",
+          p: 3,
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          cursor: "pointer",
+          transition: "all 0.25s ease",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+          "&:hover": {
+            transform: "translateY(-5px)",
+            boxShadow: "0 16px 40px rgba(15,23,42,0.12)",
+            borderColor: "#c7d2fe",
+          },
+        }}
+      >
+        {/* Top: Avatar + Role Badge */}
+        <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+          <Avatar
+            {...stringAvatar(`${post.last_name} ${post.first_name}`)}
+            sx={{
+              width: 56,
+              height: 56,
+              fontSize: "1.1rem",
+              fontWeight: 700,
+              boxShadow: "0 4px 14px rgba(0,0,0,0.12)",
+            }}
+          />
+          <Chip
+            icon={role.icon as React.ReactElement}
+            label={role.label}
+            size="small"
+            sx={{
+              bgcolor: role.bg,
+              color: role.color,
+              fontWeight: 700,
+              fontSize: "0.7rem",
+              border: `1px solid ${role.color}30`,
+              borderRadius: "8px",
+              "& .MuiChip-icon": { color: role.color },
+            }}
+          />
+        </Box>
+
+        {/* Name */}
+        <Box>
+          <Typography
+            variant="subtitle1"
+            sx={{ fontWeight: 700, color: "#0f172a", letterSpacing: "-0.01em", lineHeight: 1.3 }}
+          >
+            {post.username}
+          </Typography>
+          <Typography variant="body2" sx={{ color: "#475569", mt: 0.25, fontWeight: 500 }}>
+            {post.last_name} {post.first_name}
+          </Typography>
+        </Box>
+
+        <Divider sx={{ borderColor: "#f1f5f9" }} />
+
+        {/* Contact Info */}
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Box sx={{ p: 0.6, bgcolor: "#f1f5f9", borderRadius: "8px", display: "flex" }}>
+              <PhoneIcon sx={{ fontSize: 14, color: "#475569" }} />
+            </Box>
+            <Typography variant="caption" sx={{ color: "#64748b", fontWeight: 500 }}>
+              {post.numero || "—"}
+            </Typography>
+          </Box>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Box sx={{ p: 0.6, bgcolor: "#f1f5f9", borderRadius: "8px", display: "flex" }}>
+              <EmailIcon sx={{ fontSize: 14, color: "#475569" }} />
+            </Box>
+            <Typography
+              variant="caption"
+              sx={{
+                color: "#64748b",
+                fontWeight: 500,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                maxWidth: 180,
+              }}
+            >
+              {post.email_user || "—"}
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
+    </Link>
+  );
+}
+
+// ─── Skeleton Card ───────────────────────────────────────────────────────────
+
+function SkeletonCard() {
+  return (
+    <Box sx={{ bgcolor: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "20px", p: 3 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+        <Skeleton variant="circular" width={56} height={56} />
+        <Skeleton variant="rounded" width={80} height={24} sx={{ borderRadius: "8px" }} />
+      </Box>
+      <Skeleton variant="text" width="70%" height={22} />
+      <Skeleton variant="text" width="50%" height={18} sx={{ mb: 1.5 }} />
+      <Skeleton variant="text" width="90%" height={16} />
+      <Skeleton variant="text" width="80%" height={16} />
+    </Box>
+  );
+}
+
+// ─── Main Component ──────────────────────────────────────────────────────────
 
 export default function Personnel() {
-  const uuid = useStoreUuid((state) => state.selectedId)
-  const { unEntreprise } = useFetchEntreprise(uuid)
-  const [isMobile, setIsMobile] = useState(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
+  const uuid = useStoreUuid((state) => state.selectedId);
+  const { unEntreprise } = useFetchEntreprise(uuid);
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValueType>();
-
   const [open, setOpen] = useState(false);
 
   const functionopen = () => setOpen(true);
-  const closeopen = () => {
-    reset(); // Réinitialise le formulaire à la fermeture
-    setOpen(false);
-  };
-
-  // Détection mobile
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  const closeopen = () => { reset(); setOpen(false); };
 
   const top = {
     entreprise_id: uuid,
-    // user_id: connect,
-    user_id: localStorage.getItem('token'),
+    user_id: localStorage.getItem("token"),
   };
 
   const { getUser, isLoading, isError } = useFetchAllUsers(top);
-  
-  // const {getUsers} = useAllUsers()
-  // const {unEntreprise} = useFetchEntreprise(uuid!)
-  // const { userEntreprises } = useGetUserEntreprises(connect);
   const { createAdmin } = useCreateAdminUser();
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = isMobile ? 4 : 6;
-
   const totalPages = Math.ceil(getUser.length / itemsPerPage);
 
   const getUs = getUser.slice(
@@ -86,399 +211,329 @@ export default function Personnel() {
     currentPage * itemsPerPage
   );
 
-  const handlePageChange = (_: ChangeEvent<unknown>, page: number) => {
-    setCurrentPage(page);
-  };
+  const handlePageChange = (_: ChangeEvent<unknown>, page: number) => setCurrentPage(page);
 
   const onSubmit = (data: FormValueType) => {
-    // data.user_id = connect;
     data.entreprise_id = uuid!;
-
-
     createAdmin(data);
-
     closeopen();
   };
 
+  // ── Loading State ────────────────────────────────────────────────────────
   if (isLoading) {
     return (
-      <Box className={`${isMobile ? 'mobile-p-4' : 'p-4'}`}>
-        <Skeleton variant="rectangular" height={200} className={`${isMobile ? 'mobile-loading' : ''} mb-4`} />
-        <Skeleton variant="rectangular" height={100} className={`${isMobile ? 'mobile-loading' : ''} mb-2`} />
-        <Skeleton variant="rectangular" height={100} className={isMobile ? 'mobile-loading' : ''} />
+      <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 2, sm: 3, md: 4 }, py: 3 }}>
+        <Skeleton variant="rounded" height={180} sx={{ borderRadius: "20px", mb: 3 }} />
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)" },
+            gap: 2.5,
+          }}
+        >
+          {[...Array(6)].map((_, i) => <SkeletonCard key={i} />)}
+        </Box>
       </Box>
     );
   }
 
+  // ── Error State ──────────────────────────────────────────────────────────
   if (isError) {
     return (
-      <Box className={`${isMobile ? 'mobile-p-4' : 'p-4'}`}>
-        <Typography variant="h6" color="error" className={isMobile ? 'mobile-alert' : ''}>
-          Une erreur est survenue lors du chargement des données
-        </Typography>
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
+        <Box sx={{ textAlign: "center", p: 4 }}>
+          <Typography variant="h6" sx={{ color: "#ef4444", fontWeight: 700 }}>
+            Erreur de chargement
+          </Typography>
+          <Typography variant="body2" sx={{ color: "#94a3b8", mt: 1 }}>
+            Impossible de charger les données du personnel.
+          </Typography>
+        </Box>
       </Box>
     );
   }
 
-  if (getUser) {
-    return (
-      <div className={`min-h-screen ${isMobile ? '' : ''} py-6`}>
-        <div className={`${isMobile ? 'px-4' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'}`}>
-          {/* <Nav /> */}
+  // ── Main Render ──────────────────────────────────────────────────────────
+  return (
+    <Box sx={{ minHeight: "100vh", pb: 6 }}>
+      <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 2, sm: 3, md: 4 }, py: 3 }}>
 
-          <div className={isMobile ? 'mobile-chart-section' : ''}>
+        {/* Chart */}
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+          <Box sx={{ mb: 4 }}>
             <Chart_3 />
-          </div>
+          </Box>
+        </motion.div>
 
-          <Paper
-            elevation={0}
-            className={`${isMobile ? 'mt-6 rounded-lg overflow-hidden' : 'mt-6 rounded-lg overflow-hidden'}`}
+        {/* ── Header ─────────────────────────────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.05 }}
+        >
+          <Box
             sx={{
-              background: 'transparent',
-              bgcolor: 'transparent',
-              backdropFilter: 'none',
-              border: 'none',
-              ...(isMobile ? { borderRadius: '20px', marginTop: '24px' } : {})
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              alignItems: { sm: "center" },
+              justifyContent: "space-between",
+              gap: 2,
+              mb: 4,
+              pb: 3,
+              borderBottom: "1px solid #e2e8f0",
             }}
           >
-            <Box className={`${isMobile ? 'mobile-p-4' : 'p-6'}`}>
-              {/* Header */}
-              <div className={`${isMobile ? 'flex flex-col space-y-4' : 'flex justify-between items-center'} border-b pb-6 mb-6`}>
-                <div>
-                  <Typography
-                    variant={isMobile ? "h5" : "h4"}
-                    className={`${isMobile ? 'font-semibold text-gray-50' : 'font-semibold text-gray-50'}`}
-                  
-                  >
-                    Gestion du Personnel
-                  </Typography>
-                  <Typography variant="body2" className={`${isMobile ? 'text-gray-100 mt-2' : 'text-gray-100 mt-1'}`}>
-                    Gérez les membres de votre entreprise
-                  </Typography>
-                </div>
-                <Button
-                  onClick={functionopen}
-                  variant="contained"
-                  startIcon={<PersonAddIcon />}
-                  className={`${isMobile ? 'mobile-button mobile-button-primary' : 'bg-blue-600 hover:bg-blue-700'}`}
-                  sx={isMobile ? {
-                    borderRadius: '12px',
-                    fontWeight: 600,
-                    textTransform: 'none',
-                    transition: 'all 0.3s ease',
-                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                    background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                    '&:hover': {
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
-                      background: 'linear-gradient(135deg, #1d4ed8, #1e40af)'
-                    }
-                  } : {}}
-                >
-                  Ajouter un membre
-                </Button>
-              </div>
-
-              {/* Grid of Personnel Cards */}
-              <Grid
-                container
-                spacing={isMobile ? 2 : 3}
-                className={isMobile ? 'mobile-grid' : ''}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <Box
                 sx={{
-                  '& .MuiGrid-item': {
-                    padding: isMobile ? '8px' : '12px'
-                  }
+                  p: 1.5,
+                  bgcolor: "rgba(99, 102, 241, 0.1)",
+                  borderRadius: "14px",
+                  display: "flex",
+                  border: "1px solid rgba(99, 102, 241, 0.2)",
                 }}
               >
-                {getUs.map((post: any, index: number) => (
-                  <Grid item xs={12} sm={6} md={4} key={post.id} className={`${isMobile ? `mobile-stagger-${(index % 6) + 1}` : ''}`}>
-                    {(unEntreprise.licence_type != "Stock Simple") ? 
-                    <Link to={`/entreprise/personnel/info/${post.uuid}`} className={isMobile ? 'mobile-card-link' : ''}>
-                      <MainCard
-                        className={`${isMobile ? 'mobile-personnel-card' : 'transition-all duration-200 hover:shadow-md mobile-personnel-card'}`}
-                        sx={{
-                          height: '100%',
-                          background: 'transparent',
-                          bgcolor: 'transparent',
-                          backdropFilter: 'none',
-                          border: 'none',
-                          borderRadius: isMobile ? '16px' : 2,
-                          overflow: 'hidden',
-                          transition: 'transform 0.25s ease, box-shadow 0.25s ease',
-                          ...(isMobile ? { animation: 'scaleIn 0.6s ease-out' } : {}),
-                          '&:hover': {
-                            transform: isMobile ? 'none' : 'translateY(-6px)',
-                            boxShadow: isMobile ? 'none' : '0 10px 30px rgba(2,6,23,0.12)'
-                          }
-                        }}
-                        content={false}
-                      >
-                        <ListItem alignItems="flex-start" className={`${isMobile ? 'mobile-list-item' : 'h-full'}`}>
-                          <ListItemAvatar>
-                            <Avatar
-                              {...stringAvatar(`${post.last_name} ${post.first_name}`)}
-                              className={isMobile ? 'mobile-avatar' : ''}
-                              sx={isMobile ? {
-                                transition: 'all 0.3s ease',
-                                filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))'
-                              } : {}}
-                            />
-                          </ListItemAvatar>
-                          <ListItemText
-                            primary={
-                              <Typography
-                                variant="subtitle1"
-                                className={`${isMobile ? 'mobile-card-text font-medium' : 'font-medium'}`}
-                              >
-                                {post.username}
-                              </Typography>
-                            }
-                            secondary={
-                              <Fragment>
-                                <div className="space-y-1 mt-1">
-                                  <Typography variant="body2" color="text.secondary" className={isMobile ? 'mobile-card-text' : ''}>
-                                    Nom complet : {post.last_name} {post.first_name}
-                                  </Typography>
-                                  <Typography variant="body2" color="text.secondary" className={isMobile ? 'mobile-card-text' : ''}>
-                                    Tél : {post.numero}
-                                  </Typography>
-                                  <Typography variant="body2" color="text.secondary" className={isMobile ? 'mobile-card-text' : ''}>
-                                    Email : {post.email_user}
-                                  </Typography>
-                                  <div className="mt-2">
-                                    <Chip
-                                      label={
-                                        post.role === 1 ? "Admin" :
-                                          post.role === 2 ? "Superviseur" :
-                                            post.role === 3 ? "Caissier(e)" : "Pas de rôle"
-                                      }
-                                      variant="outlined"
-                                      color={post.role === 1 ? "primary" : post.role === 2 ? "primary" : "info"}
-                                      size="small"
-                                      className={isMobile ? 'mobile-role-chip' : ''}
-                                      sx={isMobile ? {
-                                        borderRadius: '8px',
-                                        fontWeight: 600,
-                                        transition: 'all 0.3s ease',
-                                        backdropFilter: 'blur(10px)',
-                                        '&:hover': {
-                                          transform: 'scale(1.05)',
-                                          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
-                                        }
-                                      } : {}}
-                                    />
-                                  </div>
-                                </div>
-                              </Fragment>
-                            }
-                          />
-                        </ListItem>
-                      </MainCard>
-                    </Link>
-                    :
-                    <Link to={`/entreprise/personnel/modif/${post.uuid}`} className={isMobile ? 'mobile-card-link' : ''}>
-                      <MainCard
-                        className={`${isMobile ? 'mobile-personnel-card' : 'transition-all duration-200 hover:shadow-md mobile-personnel-card'}`}
-                        sx={{
-                          height: '100%',
-                          background: 'transparent',
-                          bgcolor: 'transparent',
-                          backdropFilter: 'none',
-                          border: 'none',
-                          borderRadius: isMobile ? '16px' : 2,
-                          overflow: 'hidden',
-                          transition: 'transform 0.25s ease, box-shadow 0.25s ease',
-                          ...(isMobile ? { animation: 'scaleIn 0.6s ease-out' } : {}),
-                          '&:hover': {
-                            transform: isMobile ? 'none' : 'translateY(-6px)',
-                            boxShadow: isMobile ? 'none' : '0 10px 30px rgba(2,6,23,0.12)'
-                          }
-                        }}
-                        content={false}
-                      >
-                        <ListItem alignItems="flex-start" className={`${isMobile ? 'mobile-list-item' : 'h-full'}`}>
-                          <ListItemAvatar>
-                            <Avatar
-                              {...stringAvatar(`${post.last_name} ${post.first_name}`)}
-                              className={isMobile ? 'mobile-avatar' : ''}
-                              sx={isMobile ? {
-                                transition: 'all 0.3s ease',
-                                filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))'
-                              } : {}}
-                            />
-                          </ListItemAvatar>
-                          <ListItemText
-                            primary={
-                              <Typography
-                                variant="subtitle1"
-                                className={`${isMobile ? 'mobile-card-text font-medium' : 'font-medium'}`}
-                              >
-                                {post.username}
-                              </Typography>
-                            }
-                            secondary={
-                              <Fragment>
-                                <div className="space-y-1 mt-1">
-                                  <Typography variant="body2" color="text.secondary" className={isMobile ? 'mobile-card-text' : ''}>
-                                    Nom complet : {post.last_name} {post.first_name}
-                                  </Typography>
-                                  <Typography variant="body2" color="text.secondary" className={isMobile ? 'mobile-card-text' : ''}>
-                                    Tél : {post.numero}
-                                  </Typography>
-                                  <Typography variant="body2" color="text.secondary" className={isMobile ? 'mobile-card-text' : ''}>
-                                    Email : {post.email_user}
-                                  </Typography>
-                                  <div className="mt-2">
-                                    <Chip
-                                      label={
-                                        post.role === 1 ? "Admin" :
-                                          post.role === 2 ? "Superviseur" :
-                                            post.role === 3 ? "Caissier(e)" : "Pas de rôle"
-                                      }
-                                      variant="outlined"
-                                      color={post.role === 1 ? "primary" : post.role === 2 ? "primary" : "info"}
-                                      size="small"
-                                      className={isMobile ? 'mobile-role-chip' : ''}
-                                      sx={isMobile ? {
-                                        borderRadius: '8px',
-                                        fontWeight: 600,
-                                        transition: 'all 0.3s ease',
-                                        backdropFilter: 'blur(10px)',
-                                        '&:hover': {
-                                          transform: 'scale(1.05)',
-                                          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
-                                        }
-                                      } : {}}
-                                    />
-                                  </div>
-                                </div>
-                              </Fragment>
-                            }
-                          />
-                        </ListItem>
-                      </MainCard>
-                    </Link>
-                     }
-                  </Grid>
-                ))}
-              </Grid>
-
-              {/* Pagination */}
-              <Box className={`${isMobile ? 'mobile-pagination' : 'flex justify-center mt-6'}`}>
-                <Pagination
-                  count={totalPages}
-                  page={currentPage}
-                  onChange={handlePageChange}
-                  color="primary"
-                  size={isMobile ? "medium" : "large"}
-                  sx={isMobile ? {
-                    '& .MuiPaginationItem-root': {
-                      borderRadius: '8px',
-                      margin: '0 2px'
-                    }
-                  } : {}}
-                />
+                <PeopleAltIcon sx={{ color: "#6366f1", fontSize: 28 }} />
+              </Box>
+              <Box>
+                <Typography
+                  variant="h5"
+                  sx={{
+                    fontWeight: 800,
+                    color: "#0f172a",
+                    letterSpacing: "-0.02em",
+                    lineHeight: 1.2,
+                  }}
+                >
+                  Gestion du Personnel
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#64748b", mt: 0.25, fontWeight: 500 }}>
+                  {getUser.length} membre{getUser.length !== 1 ? "s" : ""} dans votre équipe
+                </Typography>
               </Box>
             </Box>
-          </Paper>
 
-          {/* Add Member Dialog */}
-          <Dialog
-            open={open}
-            onClose={closeopen}
-            fullWidth
-            maxWidth="xs"
-            PaperProps={{
-              elevation: 0,
-              className: "rounded-10",
-              sx: isMobile ? {
-                borderRadius: '20px',
-                background: 'rgba(255, 255, 255, 0.95)',
-                backdropFilter: 'blur(10px)'
-              } : {}
+            <Tooltip title="Ajouter un nouveau membre" arrow>
+              <Button
+                onClick={functionopen}
+                variant="contained"
+                startIcon={<PersonAddIcon />}
+                sx={{
+                  borderRadius: "12px",
+                  textTransform: "none",
+                  fontWeight: 700,
+                  px: 3,
+                  py: 1.2,
+                  fontSize: "0.875rem",
+                  background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
+                  boxShadow: "0 4px 14px rgba(99, 102, 241, 0.35)",
+                  "&:hover": {
+                    background: "linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)",
+                    boxShadow: "0 6px 20px rgba(99, 102, 241, 0.45)",
+                    transform: "translateY(-1px)",
+                  },
+                  transition: "all 0.2s ease",
+                  alignSelf: { xs: "flex-start", sm: "center" },
+                }}
+              >
+                Ajouter un membre
+              </Button>
+            </Tooltip>
+          </Box>
+        </motion.div>
+
+        {/* ── Cards Grid ─────────────────────────────────────────────────── */}
+        {getUs.length === 0 ? (
+          <Box
+            sx={{
+              textAlign: "center",
+              py: 10,
+              bgcolor: "#ffffff",
+              borderRadius: "20px",
+              border: "1px dashed #cbd5e1",
             }}
           >
-            <DialogTitle className={`flex justify-between items-center bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700 text-white border-b pb-3`}>
-              <Typography variant="h6" className="font-semibold">
-                Ajouter un nouveau membre
-              </Typography>
-              <IconButton onClick={closeopen} size="small">
-                <CloseIcon />
-              </IconButton>
-            </DialogTitle>
+            <PeopleAltIcon sx={{ fontSize: 56, color: "#cbd5e1", mb: 2 }} />
+            <Typography variant="h6" sx={{ color: "#475569", fontWeight: 700 }}>
+              Aucun membre trouvé
+            </Typography>
+            <Typography variant="body2" sx={{ color: "#94a3b8", mt: 0.5 }}>
+              Commencez par ajouter un membre à votre équipe.
+            </Typography>
+          </Box>
+        ) : (
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)" },
+              gap: 2.5,
+            }}
+          >
+            <AnimatePresence>
+              {getUs.map((post: any, index: number) => (
+                <motion.div
+                  key={post.id}
+                  initial={{ opacity: 0, y: 20, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                >
+                  <PersonnelCard
+                    post={post}
+                    to={
+                      unEntreprise.licence_type !== "Stock Simple"
+                        ? `/entreprise/personnel/info/${post.uuid}`
+                        : `/entreprise/personnel/modif/${post.uuid}`
+                    }
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </Box>
+        )}
 
-            {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
-              <M_Abonnement />
-            ) : (
-              <DialogContent className={`${isMobile ? 'mobile-p-4' : 'mt-4'}`}>
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {/* ── Pagination ─────────────────────────────────────────────────── */}
+        {totalPages > 1 && (
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+            <Pagination
+              count={totalPages}
+              page={currentPage}
+              onChange={handlePageChange}
+              color="primary"
+              shape="rounded"
+              size={isMobile ? "medium" : "large"}
+              sx={{
+                "& .MuiPaginationItem-root": {
+                  borderRadius: "10px",
+                  fontWeight: 600,
+                  "&.Mui-selected": {
+                    background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
+                    boxShadow: "0 4px 10px rgba(99,102,241,0.3)",
+                  },
+                },
+              }}
+            />
+          </Box>
+        )}
+
+        {/* ── Add Member Dialog ───────────────────────────────────────────── */}
+        <Dialog
+          open={open}
+          onClose={closeopen}
+          fullWidth
+          maxWidth="xs"
+          TransitionProps={{ timeout: 250 }}
+          PaperProps={{
+            elevation: 0,
+            sx: {
+              borderRadius: "24px",
+              overflow: "hidden",
+              boxShadow: "0 25px 60px rgba(15,23,42,0.18)",
+            },
+          }}
+        >
+          {/* Dialog Header */}
+          <DialogTitle
+            sx={{
+              p: 0,
+              background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                px: 3,
+                py: 2.5,
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                <Box
+                  sx={{
+                    p: 1,
+                    bgcolor: "rgba(255,255,255,0.15)",
+                    borderRadius: "10px",
+                    display: "flex",
+                  }}
+                >
+                  <BadgeIcon sx={{ color: "#ffffff", fontSize: 20 }} />
+                </Box>
+                <Box>
+                  <Typography variant="subtitle1" sx={{ color: "#ffffff", fontWeight: 700, lineHeight: 1.2 }}>
+                    Nouveau membre
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.75)" }}>
+                    Remplissez les informations ci-dessous
+                  </Typography>
+                </Box>
+              </Box>
+              <Tooltip title="Fermer" arrow>
+                <IconButton
+                  onClick={closeopen}
+                  size="small"
+                  sx={{
+                    color: "rgba(255,255,255,0.8)",
+                    bgcolor: "rgba(255,255,255,0.1)",
+                    "&:hover": { bgcolor: "rgba(255,255,255,0.2)", color: "#ffffff" },
+                  }}
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          </DialogTitle>
+
+          {/* Dialog Body */}
+          {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
+            <M_Abonnement />
+          ) : (
+            <DialogContent sx={{ p: 3, bgcolor: "#fafafa" }}>
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
                   <MyTextField
                     label="Prénom"
                     {...register("last_name", { required: "Ce champ est obligatoire" })}
                     error={!!errors.last_name}
                     helperText={errors.last_name?.message}
                     fullWidth
-                    className={isMobile ? 'mobile-form-field' : ''}
-                    sx={isMobile ? {
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '12px',
-                        background: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(10px)',
-                        transition: 'all 0.3s ease',
-                        '&:focus-within': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                        }
-                      }
-                    } : {}}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "12px",
+                        bgcolor: "#ffffff",
+                        "&.Mui-focused fieldset": { borderColor: "#6366f1", borderWidth: 2 },
+                      },
+                    }}
                   />
-
                   <MyTextField
                     label="Nom"
                     {...register("first_name", { required: "Ce champ est obligatoire" })}
                     error={!!errors.first_name}
                     helperText={errors.first_name?.message}
                     fullWidth
-                    className={isMobile ? 'mobile-form-field' : ''}
-                    sx={isMobile ? {
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '12px',
-                        background: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(10px)',
-                        transition: 'all 0.3s ease',
-                        '&:focus-within': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                        }
-                      }
-                    } : {}}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "12px",
+                        bgcolor: "#ffffff",
+                        "&.Mui-focused fieldset": { borderColor: "#6366f1", borderWidth: 2 },
+                      },
+                    }}
                   />
-
                   <MyTextField
                     label="Téléphone"
                     {...register("numero", { required: "Ce champ est obligatoire" })}
                     error={!!errors.numero}
                     helperText={errors.numero?.message}
-                    inputProps={{
-                      pattern: "^[+]?\\d*$",
-                      maxLength: 15,
-                    }}
+                    inputProps={{ pattern: "^[+]?\\d*$", maxLength: 15 }}
                     fullWidth
-                    className={isMobile ? 'mobile-form-field' : ''}
-                    sx={isMobile ? {
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '12px',
-                        background: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(10px)',
-                        transition: 'all 0.3s ease',
-                        '&:focus-within': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                        }
-                      }
-                    } : {}}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "12px",
+                        bgcolor: "#ffffff",
+                        "&.Mui-focused fieldset": { borderColor: "#6366f1", borderWidth: 2 },
+                      },
+                    }}
                   />
-
                   <MyTextField
                     label="Email"
                     type="email"
@@ -486,21 +541,14 @@ export default function Personnel() {
                     error={!!errors.email_user}
                     helperText={errors.email_user?.message}
                     fullWidth
-                    className={isMobile ? 'mobile-form-field' : ''}
-                    sx={isMobile ? {
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '12px',
-                        background: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(10px)',
-                        transition: 'all 0.3s ease',
-                        '&:focus-within': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                        }
-                      }
-                    } : {}}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "12px",
+                        bgcolor: "#ffffff",
+                        "&.Mui-focused fieldset": { borderColor: "#6366f1", borderWidth: 2 },
+                      },
+                    }}
                   />
-
                   <MyTextField
                     label="Mot de passe"
                     type="password"
@@ -508,69 +556,62 @@ export default function Personnel() {
                     error={!!errors.password}
                     helperText={errors.password?.message}
                     fullWidth
-                    className={isMobile ? 'mobile-form-field' : ''}
-                    sx={isMobile ? {
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '12px',
-                        background: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(10px)',
-                        transition: 'all 0.3s ease',
-                        '&:focus-within': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                        }
-                      }
-                    } : {}}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "12px",
+                        bgcolor: "#ffffff",
+                        "&.Mui-focused fieldset": { borderColor: "#6366f1", borderWidth: 2 },
+                      },
+                    }}
                   />
 
-                  <div className={`${isMobile ? 'mobile-action-buttons' : 'pt-4 flex justify-end space-x-3'}`}>
+                  {/* Actions */}
+                  <Box sx={{ display: "flex", gap: 1.5, pt: 1 }}>
                     <Button
                       onClick={closeopen}
                       variant="outlined"
-                      className={isMobile ? 'mobile-button' : ''}
-                      sx={isMobile ? {
-                        borderRadius: '12px',
-                        fontWeight: 600,
-                        textTransform: 'none',
-                        transition: 'all 0.3s ease',
-                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                        '&:hover': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)'
-                        }
-                      } : {}}
+                      fullWidth
+                      sx={{
+                        borderRadius: "12px",
+                        textTransform: "none",
+                        fontWeight: 700,
+                        py: 1.25,
+                        borderColor: "#e2e8f0",
+                        color: "#475569",
+                        bgcolor: "#ffffff",
+                        "&:hover": { bgcolor: "#f8fafc", borderColor: "#cbd5e1" },
+                      }}
                     >
                       Annuler
                     </Button>
                     <Button
                       type="submit"
                       variant="contained"
-                      className={`${isMobile ? 'mobile-button mobile-button-primary' : 'bg-blue-600 hover:bg-blue-700'}`}
-                      sx={isMobile ? {
-                        borderRadius: '12px',
-                        fontWeight: 600,
-                        textTransform: 'none',
-                        transition: 'all 0.3s ease',
-                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                        background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                        '&:hover': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
-                          background: 'linear-gradient(135deg, #1d4ed8, #1e40af)'
-                        }
-                      } : {}}
+                      fullWidth
+                      sx={{
+                        borderRadius: "12px",
+                        textTransform: "none",
+                        fontWeight: 700,
+                        py: 1.25,
+                        background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
+                        boxShadow: "0 4px 14px rgba(99,102,241,0.35)",
+                        "&:hover": {
+                          background: "linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)",
+                          boxShadow: "0 6px 18px rgba(99,102,241,0.45)",
+                          transform: "translateY(-1px)",
+                        },
+                        transition: "all 0.2s ease",
+                      }}
                     >
                       Ajouter
                     </Button>
-                  </div>
-                </form>
-              </DialogContent>
-            )}
-          </Dialog>
-        </div>
-      </div>
-    );
-  }
-
-  return null;
+                  </Box>
+                </Box>
+              </form>
+            </DialogContent>
+          )}
+        </Dialog>
+      </Box>
+    </Box>
+  );
 }

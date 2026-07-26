@@ -327,7 +327,7 @@ export function StatCard({ title, description, value, icon, backgroundColor }: {
           sx={{ 
             fontWeight: 600,
             fontSize: { xs: '0.78rem', sm: '0.875rem' },
-            color: '#94a3b8',
+            // color: '#94a3b8',
             lineHeight: 1.3,
             mb: 0.8,
             maxWidth: '100%',
@@ -353,10 +353,11 @@ export function StatCard({ title, description, value, icon, backgroundColor }: {
         {description && (
           <Typography 
             variant="caption" 
+            className="text-gray-300"
             sx={{ 
               mt: 0.8,
               fontSize: '0.72rem',
-              color: '#64748b',
+              // color: '#64748b',
               fontWeight: 500
             }}
           >

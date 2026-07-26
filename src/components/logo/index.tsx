@@ -14,7 +14,7 @@ import { Githubicon } from '../../_components/icons/Githubicon';
 
 const LogoSection = ({ sx, to }: any) => {
   return (
-    <ButtonBase 
+    <ButtonBase
       disableRipple
       component="a"
       href="https://diakitedigital.com"
@@ -24,8 +24,9 @@ const LogoSection = ({ sx, to }: any) => {
     >
       <Stack direction="row" spacing={1} alignItems="center">
         {/* <Logo /> */}
-        <Githubicon size={32} className='inline' />
+        <Githubicon size={32} />
         <Chip
+          className="text-white" 
           // label={import.meta.env.VITE_APP_VERSION}
           label={"Diakite Digital"}
           variant="outlined"

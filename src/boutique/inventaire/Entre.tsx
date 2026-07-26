@@ -413,8 +413,8 @@ export default function Entre() {
                     marginTop: '16px'
                   } : {}}
                 >
-                  <TableContainer sx={{ maxHeight: 600 }}>
-                    <Table stickyHeader aria-label="sticky table">
+                  <TableContainer component={Paper} sx={{ maxHeight: 600 }}>
+                    <Table stickyHeader aria-label="sticky table" >
                       <TableHead >
                         <TableRow className={isMobile ? 'mobile-table-header' : ''} sx={isMobile ? { backgroundColor: 'rgba(59, 130, 246, 0.1)' } : { backgroundColor: '#f8fafc' }}>
                           <TableCell >Image</TableCell>

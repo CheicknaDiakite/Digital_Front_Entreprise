@@ -43,17 +43,19 @@ export default function Palette(mode: 'light' | 'dark') {
       },
       ...paletteColor,
       text: {
-        primary: paletteColor.grey[700],
-        secondary: paletteColor.grey[500],
-        disabled: paletteColor.grey[400]
+        primary: '#e2e8f0',
+        secondary: '#94a3b8',
+        disabled: '#64748b'
       },
       action: {
-        disabled: paletteColor.grey[300]
+        disabled: '#475569',
+        hover: 'rgba(129, 140, 248, 0.08)',
+        selected: 'rgba(99, 102, 241, 0.16)'
       },
-      divider: paletteColor.grey[200],
+      divider: '#26354d',
       background: {
-        paper: paletteColor.grey[50],
-        default: paletteColor.grey.A50
+        paper: '#101c30',
+        default: '#07111f'
       }
     }
   });

@@ -44,6 +44,7 @@ import { useFetchEntreprise } from '../../usePerso/fonction.user'
 import { BASE } from '../../_services/caller.service'
 import FactureDetail from '../../boutique/sortie/FactureDetail'
 import Historique from '../../boutique/proprietaire/historique/Historique'
+import NotFound from '../../pages/extra-pages/not-found'
 
 
 export default function PublicRouter() {
@@ -179,6 +180,8 @@ export default function PublicRouter() {
 
             <Route path='modif/:id' element={<Admin />} />
           </Route>
+
+          <Route path='*' element={<NotFound />} />
 
         </Route>
       </Routes>

@@ -1,16 +1,19 @@
 import { 
-  Alert, 
   Box, 
   CircularProgress, 
   Tab, 
   Tabs,
   Paper,
   Button,
-  Container
+  Alert,
+  Container,
+  Typography,
+  Chip
 } from '@mui/material';
-import InfoIcon from '@mui/icons-material/Info';
-import GroupIcon from '@mui/icons-material/Group';
-import SettingsIcon from '@mui/icons-material/Settings';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
+import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
+import BusinessIcon from '@mui/icons-material/Business';
 import React, { useState, useEffect } from 'react';
 import { useFetchEntreprise } from '../../../usePerso/fonction.user';
 import { a11yProps } from '../../../usePerso/fonctionPerso';
@@ -28,13 +31,9 @@ export default function EntrepriseDetail() {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
@@ -44,27 +43,19 @@ export default function EntrepriseDetail() {
 
   if (isLoading) {
     return (
-      <Box className="flex items-center justify-center min-h-screen">
-        <CircularProgress />
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '40vh', gap: 2 }}>
+        <CircularProgress size={48} thickness={4} sx={{ color: '#3b82f6' }} />
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>Chargement de l'entreprise...</Typography>
       </Box>
     );
   }
 
   if (isError) {
     return (
-      <Container maxWidth="sm" className="py-8">
+      <Container maxWidth="sm" sx={{ py: 4 }}>
         <Alert 
           severity="error"
-          className="shadow-lg"
-          sx={{
-              position: 'fixed',
-              top: 16,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              zIndex: 1400,
-              width: 'calc(100% - 32px)',
-              maxWidth: 600,
-            }}
+          sx={{ borderRadius: '12px' }}
           action={
             <Button color="inherit" size="small" onClick={() => window.location.reload()}>
               Réessayer
@@ -79,71 +70,111 @@ export default function EntrepriseDetail() {
 
   if (unEntreprise) {
     return (
-        
-      <Box>
-        {/* <Container> */}
-          <Paper 
+      <Box sx={{ minHeight: '100%' }}>
+        <Paper 
           elevation={0} 
-          // className={`border rounded-lg overflow-hidden ${isMobile ? 'mobile-modif-paper' : ''}`}
-          sx={ {
-              background: 'transparent',
-              bgcolor: 'transparent',
-              backdropFilter: 'none',
-              
-            } }
-          >
-            <Box className={`border-b bg-gray-100 backdrop-blur-sm ${isMobile ? 'mobile-admin-tabs' : ''}`}>
-              <Tabs 
-                value={value} 
-                onChange={handleChange} 
-                variant="scrollable"
-                scrollButtons="auto"
-                allowScrollButtonsMobile
-                aria-label="enterprise tabs"
-                className={`min-h-[48px] ${isMobile ? 'mobile-admin-tabs' : ''}`}
-              >
-                <Tab 
-                  label="Informations" 
-                  icon={<InfoIcon />} 
-                  iconPosition="start"
-                  {...a11yProps(0)} 
-                  className={`min-h-[48px] ${isMobile ? 'mobile-admin-tab' : ''}`}
-                />
-                <Tab 
-                  label="Utilisateurs" 
-                  icon={<GroupIcon />} 
-                  iconPosition="start"
-                  {...a11yProps(1)} 
-                  className={`min-h-[48px] ${isMobile ? 'mobile-admin-tab' : ''}`}
-                />
-                <Tab 
-                  label="Paramètres" 
-                  icon={<SettingsIcon />} 
-                  iconPosition="start"
-                  {...a11yProps(2)} 
-                  className={`min-h-[48px] ${isMobile ? 'mobile-admin-tab' : ''}`}
-                />
-              </Tabs>
-            </Box>
+          sx={{ 
+            background: 'transparent',
+            bgcolor: 'transparent',
+          }}
+        >
+          {/* Tabs Header */}
+          <Box sx={{ 
+            borderBottom: '1px solid', 
+            borderColor: 'divider',
+            bgcolor: 'rgba(248, 250, 252, 0.8)',
+            backdropFilter: 'blur(8px)',
+            px: { xs: 1, sm: 2 }
+          }}>
+            {/* Entreprise badge */}
+            {unEntreprise.nom && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, pt: 2, pb: 0.5 }}>
+                <BusinessIcon sx={{ fontSize: 18, color: '#3b82f6' }} />
+                <Typography variant="caption" sx={{ fontWeight: 700, color: '#3b82f6', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                  {unEntreprise.nom}
+                </Typography>
+                {unEntreprise.licence_type && (
+                  <Chip 
+                    label={unEntreprise.licence_type} 
+                    size="small"
+                    sx={{ 
+                      height: 20, 
+                      fontSize: '0.65rem', 
+                      fontWeight: 700,
+                      bgcolor: 'rgba(59, 130, 246, 0.1)',
+                      color: '#2563eb',
+                      border: '1px solid rgba(59, 130, 246, 0.2)'
+                    }}
+                  />
+                )}
+              </Box>
+            )}
 
-            <Box 
-              >
-              <CustomTabPanel value={value} index={0}>
-                <EtatProduit />
-              </CustomTabPanel>
-              
-              <CustomTabPanel value={value} index={1}>
-                <InfoUsers />
-              </CustomTabPanel>
-              
-              <CustomTabPanel value={value} index={2}>
-                <ModifEntreprise />
-              </CustomTabPanel>
-            </Box>
-          </Paper>
-        {/* </Container> */}
+            <Tabs 
+              value={value} 
+              onChange={handleChange} 
+              variant="scrollable"
+              scrollButtons="auto"
+              allowScrollButtonsMobile
+              aria-label="enterprise tabs"
+              sx={{
+                minHeight: 48,
+                '& .MuiTab-root': {
+                  minHeight: 48,
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
+                  color: '#64748b',
+                  gap: 0.75,
+                  px: { xs: 1.5, sm: 3 },
+                  '&.Mui-selected': {
+                    color: '#2563eb',
+                  }
+                },
+                '& .MuiTabs-indicator': {
+                  height: 2.5,
+                  borderRadius: '2px 2px 0 0',
+                  backgroundColor: '#2563eb'
+                }
+              }}
+            >
+              <Tab 
+                label="Statistiques" 
+                icon={<InfoOutlinedIcon sx={{ fontSize: 18 }} />} 
+                iconPosition="start"
+                {...a11yProps(0)} 
+              />
+              <Tab 
+                label="Utilisateurs" 
+                icon={<GroupOutlinedIcon sx={{ fontSize: 18 }} />} 
+                iconPosition="start"
+                {...a11yProps(1)} 
+              />
+              <Tab 
+                label="Paramètres" 
+                icon={<SettingsOutlinedIcon sx={{ fontSize: 18 }} />} 
+                iconPosition="start"
+                {...a11yProps(2)} 
+              />
+            </Tabs>
+          </Box>
+
+          {/* Tab Content */}
+          <Box>
+            <CustomTabPanel value={value} index={0}>
+              <EtatProduit />
+            </CustomTabPanel>
+            
+            <CustomTabPanel value={value} index={1}>
+              <InfoUsers />
+            </CustomTabPanel>
+            
+            <CustomTabPanel value={value} index={2}>
+              <ModifEntreprise />
+            </CustomTabPanel>
+          </Box>
+        </Paper>
       </Box>
-  
     );
   }
 }

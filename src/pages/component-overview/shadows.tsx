@@ -35,7 +35,6 @@ function ShadowBox({ shadow }: ShadowBoxProps) {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   // let url = BASE(shadow.image);
   const url = shadow.image ? BASE(shadow.image) : img;
-  console.log('URL de image:', shadow.image);
   return (
     <Paper 
       elevation={isMobile ? 2 : 0} 
@@ -173,8 +172,8 @@ export default function ComponentShadow() {
     );
 
     return (
-      <div className={`min-h-screen ${isMobile ? '' : ''}`}>
-        {/* <Nav /> */}
+      <div className={`min-h-screen `}>
+        
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className={`mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4`}>
             <Typography 
@@ -195,7 +194,6 @@ export default function ComponentShadow() {
                 fullWidth
                 value={searchTerm}
                 onChange={handleSearchChange}
-                className={`bg-white ${isMobile ? 'mobile-search-container' : ''}`}
                 InputProps={{
                   startAdornment: <SearchIcon className="mr-2 text-gray-400" />,
                 }}
@@ -376,5 +374,3 @@ export default function ComponentShadow() {
 }
 
 ShadowBox.propTypes = { shadow: PropTypes.string };
-
-// CustomShadowBox.propTypes = { shadow: PropTypes.string, label: PropTypes.string, color: PropTypes.string, bgcolor: PropTypes.string };

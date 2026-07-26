@@ -7,7 +7,6 @@ import AppBar, { AppBarProps } from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import backgroundImage from '../../../../public/assets/img/img.jpg'
 // project import
 import AppBarStyled from './AppBarStyled';
 import HeaderContent from './HeaderContent';
@@ -44,13 +43,9 @@ export default function Header() {
     right: 0,
     zIndex: theme.zIndex.appBar,
     borderBottom: `1px solid ${theme.palette.divider}`,
-    // background with darker overlay and blend for better contrast
-    backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.55)), url(${backgroundImage})`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
-    backgroundBlendMode: 'multiply',
-    backdropFilter: 'blur(4px)',
+    background: 'linear-gradient(90deg, rgba(7, 17, 31, 0.96), rgba(11, 24, 44, 0.92))',
+    boxShadow: '0 8px 28px rgba(2, 8, 23, 0.24)',
+    backdropFilter: 'blur(18px)',
   };
 
   // common header

@@ -74,7 +74,7 @@ const AuthLogin: FC = () => {
       bgcolor: isMobile ? 'rgba(255,255,255,0.07)' : theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(248,250,252,1)',
       transition: 'all 0.2s ease',
       '& fieldset': {
-        borderColor: isMobile ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)',
+        borderColor: isMobile ? 'rgba(255,255,255,0.15)' : 'rgba(148,163,184,0.22)',
         transition: 'border-color 0.2s ease',
       },
       '&:hover fieldset': {
@@ -122,9 +122,9 @@ const AuthLogin: FC = () => {
                 boxShadow: '0 25px 50px rgba(0,0,0,0.4)',
               }
             : {
-                bgcolor: '#fff',
-                border: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'}`,
-                boxShadow: '0 20px 60px rgba(0,0,0,0.08)',
+                bgcolor: '#111c30',
+                border: '1px solid rgba(148,163,184,0.18)',
+                boxShadow: '0 24px 60px rgba(2,8,23,0.38)',
               }),
         }}
       >
@@ -161,7 +161,8 @@ const AuthLogin: FC = () => {
             </Typography>
             <Typography
               variant="body2"
-              sx={{ color: isMobile ? 'rgba(255,255,255,0.5)' : 'text.secondary' }}
+              className="text-slate-300"
+              // sx={{ color: isMobile ? 'rgba(255,255,255,0.5)' : 'text.secondary' }}
             >
               Connectez-vous à votre espace GestStocks
             </Typography>
@@ -256,6 +257,7 @@ const AuthLogin: FC = () => {
                   label={
                     <Typography
                       variant="body2"
+                      className="text-slate-300" 
                       sx={{ color: isMobile ? 'rgba(255,255,255,0.6)' : 'text.secondary', fontSize: '0.83rem' }}
                     >
                       Se souvenir de moi
@@ -318,7 +320,7 @@ const AuthLogin: FC = () => {
             sx={{
               my: 3.5,
               '&::before, &::after': {
-                borderColor: isMobile ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)',
+                borderColor: isMobile ? 'rgba(255,255,255,0.1)' : 'rgba(148,163,184,0.16)',
               },
             }}
           >

@@ -438,8 +438,8 @@ export default function Entreprise() {
           </Box>
         )}
 
-        {/* Enterprise cards grid */}
         <Box
+        
           sx={{
             display: 'grid',
             gridTemplateColumns: {
@@ -458,6 +458,7 @@ export default function Entreprise() {
             return (
               <Box
                 key={index}
+                
                 sx={{
                   position: 'relative',
                   transition: 'all 0.3s ease',
@@ -491,6 +492,7 @@ export default function Entreprise() {
                 <Link
                   to="/entreprise"
                   onClick={() => addId(post.uuid)}
+                  className="mobile-glass"
                   style={{
                     textDecoration: 'none',
                     color: 'inherit',

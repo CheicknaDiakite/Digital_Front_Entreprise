@@ -2,8 +2,8 @@
   "name": "Gest Stocks",
   "short_name": "Gest Stocks",
   "description": "Meilleur application pour votre gestion des stocks",
-  "theme_color": "#ffffff",
-  "background_color": "#ffffff",
+  "theme_color": "#07111f",
+  "background_color": "#07111f",
   "display": "standalone",
   "orientation": "portrait",
   "scope": "/",
@@ -102,7 +102,7 @@
   ],
   "screenshots": [
     {
-      "src": "assets/img/dashboard.png",
+      "src": "assets/img/dashboard_1.png",
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide"

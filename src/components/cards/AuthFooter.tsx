@@ -18,35 +18,35 @@ export default function AuthFooter() {
       >
         <Typography variant="subtitle2" color="secondary">
           Gestion de Stock{' '}
-          <Typography component={Link} variant="subtitle2" href="https://documentation.gest-stocks.com" target="_blank" underline="hover">
+          <Typography component={Link} variant="subtitle2" href="https://documentation.gest-stocks.com" target="_blank" rel="noopener noreferrer" underline="hover">
             Avez-vous besoin d'aide ?
           </Typography>
         </Typography>
 
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 1, sm: 3 }} textAlign={{ xs: 'center', sm: 'inherit' }}>
-          {/* <Typography
+          <Typography
             variant="subtitle2"
             color="primary"
             
           >
             <a
-              href="https://wa.me/91154834"
+              href="https://wa.me/22391154834"
               style={{ textDecoration: 'none', color: 'inherit' }}
               target="_blank"
               rel="noopener noreferrer"
               >
-              {" "}+223 91 15 48 34 //
-              +223 63 83 51 14 {" "}
+              {" "}+223 91 15 48 34 
             </a>                  
               
-          </Typography> */}
+          </Typography>
           
           <Typography
             variant="subtitle2"
-            color="secondary"
+            className="text-slate-300"
             component={Link}
             href="https://diakitedigital.com"
             target="_blank"
+            rel="noopener noreferrer"
             underline="hover"
           >
             Gestion de Stock

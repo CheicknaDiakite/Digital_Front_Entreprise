@@ -101,8 +101,9 @@ const NavItem: React.FC<NavItemProps> = ({
   isSubItem = false,
 }) => {
   const location = useLocation();
+  const isExternal = Boolean(to && /^https?:\/\//.test(to));
   const isActive = to
-    ? location.pathname === to || (to.length > 1 && location.pathname.startsWith(to))
+    ? !isExternal && (location.pathname === to || (to.length > 1 && location.pathname.startsWith(to)))
     : false;
 
   const content = (
@@ -197,9 +198,17 @@ const NavItem: React.FC<NavItemProps> = ({
     </ListItem>
   );
 
-  return to
-    ? <Link to={to} style={{ textDecoration: 'none', display: 'block' }}>{content}</Link>
-    : content;
+  if (!to) return content;
+
+  if (isExternal) {
+    return (
+      <a href={to} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'block' }}>
+        {content}
+      </a>
+    );
+  }
+
+  return <Link to={to} style={{ textDecoration: 'none', display: 'block' }}>{content}</Link>;
 };
 
 /** Glassmorphic feedback dialog */
@@ -599,8 +608,8 @@ const NavSide: React.FC = () => {
         <Box sx={{ height: '1px', bgcolor: 'rgba(255,255,255,0.06)', mb: 1.2 }} />
 
         {/* WhatsApp */}
-        <Link
-          to="https://wa.me/22391154834"
+        <a
+          href="https://wa.me/22391154834"
           target="_blank"
           rel="noopener noreferrer"
           style={{ textDecoration: 'none' }}
@@ -630,7 +639,7 @@ const NavSide: React.FC = () => {
               +223 91 15 48 34
             </Typography>
           </Box>
-        </Link>
+        </a>
 
         {/* Logout */}
         <Box

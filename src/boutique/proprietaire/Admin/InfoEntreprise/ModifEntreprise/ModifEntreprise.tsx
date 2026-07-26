@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useState, useEffect } from 'react';
+import { ChangeEvent, FormEvent, useState } from 'react';
 import {
   Alert,
   Box,
@@ -17,24 +17,24 @@ import {
   Stack,
   TextField,
   Typography,
-  alpha,
   Tooltip,
   Fade,
   Avatar,
   Divider,
   Grid,
-  Card,
-  CardContent
+  Chip
 } from '@mui/material';
 import { connect } from '../../../../../_services/account.service';
 import { useDeleteEntreprise, useFetchEntreprise, useUpdateEntreprise } from '../../../../../usePerso/fonction.user';
 import countryList from 'react-select-country-list';
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
 import CloseIcon from '@mui/icons-material/Close';
-import ImageIcon from '@mui/icons-material/Image';
-import KeyIcon from '@mui/icons-material/Key';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import SaveIcon from '@mui/icons-material/Save';
+import KeyIcon from '@mui/icons-material/Key';
+import BadgeIcon from '@mui/icons-material/Badge';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { useStoreUuid } from '../../../../../usePerso/store';
 import { BASE } from '../../../../../_services/caller.service';
 import img from '../../../../../../public/icon-192x192.png';
@@ -50,24 +50,10 @@ export default function ModifEntreprise() {
   const [open, setOpen] = useState(false);
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
-  const [isMobile, setIsMobile] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const options = countryList().getData();
 
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  const handleDelete = () => {
-    setShowConfirm(true);
-  };
+  const handleDelete = () => setShowConfirm(true);
 
   const confirmDelete = () => {
     deleteEntreprise({ ...unEntreprise, user_id: connect });
@@ -106,67 +92,72 @@ export default function ModifEntreprise() {
 
   if (isLoading) {
     return (
-      <Box className="flex items-center justify-center p-8">
-        <CircularProgress />
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '30vh', gap: 2 }}>
+        <CircularProgress size={44} thickness={4} sx={{ color: '#3b82f6' }} />
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>Chargement des paramètres...</Typography>
       </Box>
     );
   }
 
   if (isError) {
     return (
-      <Alert
-        severity="error"
-        className="m-4"
-        action={
-          <Button color="inherit" size="small" onClick={() => window.location.reload()}>
-            Réessayer
-          </Button>
-        }
-      >
-        Problème de connexion ! Veuillez réessayer.
-      </Alert>
+      <Box sx={{ p: 3 }}>
+        <Alert
+          severity="error"
+          sx={{ borderRadius: '12px' }}
+          action={
+            <Button color="inherit" size="small" onClick={() => window.location.reload()}>
+              Réessayer
+            </Button>
+          }
+        >
+          Problème de connexion ! Veuillez réessayer.
+        </Alert>
+      </Box>
     );
   }
 
   const url = unEntreprise.image ? BASE(unEntreprise.image) : img;
 
   return (
-    <Box className={`max-w-4xl mx-auto p-4 ${isMobile ? 'mobile-modif-container' : ''}`}>
-      {/* Header Section */}
-      <Box className="mb-8 flex flex-col items-start gap-2">
-        <Typography variant="h4" className="font-bold text-gray-50 tracking-tight">
+    <Box sx={{ maxWidth: 900, mx: 'auto', p: { xs: 2, sm: 3 } }}>
+
+      {/* Header */}
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: '-0.02em', mb: 0.5 }}>
           Paramètres de l'entreprise
         </Typography>
-        <Typography variant="body2" className="text-gray-100">
+        <Typography variant="body2" className="text-gray-300">
           Gérez les informations d'identification et les paramètres globaux de votre entreprise.
         </Typography>
       </Box>
 
-      {/* Enterprise ID & License Banner */}
-      <Card
+      {/* Licence & Ref Banner */}
+      <Paper
         elevation={0}
-        variant="outlined"
-        className="mb-8 overflow-hidden rounded-2xl"
         sx={{
-          background: `linear-gradient(135deg, ${alpha('#1976d2', 0.05)}, ${alpha('#9c27b0', 0.05)})`,
-          borderColor: alpha('#1976d2', 0.1),
+          mb: 4,
+          borderRadius: '16px',
+          background: 'linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%)',
+          border: '1px solid rgba(59, 130, 246, 0.15)',
+          overflow: 'hidden'
         }}
       >
-        <CardContent className="p-6">
-          <Grid container spacing={4} alignItems="center">
+        <Box sx={{ p: 3 }}>
+          <Grid container spacing={3} alignItems="center">
             <Grid item xs={12} md={6}>
-              <Box className="flex flex-col gap-1">
-                <Typography variant="overline" className="text-gray-50 font-semibold leading-none">
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                <Typography variant="overline" sx={{ color: '#64748b', fontWeight: 700, letterSpacing: 1, fontSize: '0.7rem' }}>
                   Identifiant de l'entreprise
                 </Typography>
-                <Typography variant="h5" className="text-gray-50 font-bold">
-                  {unEntreprise.ref}
+                <Typography variant="h5" sx={{ fontWeight: 800, color: '#1e3a8a', fontFamily: 'monospace' }}>
+                  {unEntreprise.ref || 'N/A'}
                 </Typography>
               </Box>
             </Grid>
             <Grid item xs={12} md={6}>
-              <Box className="flex flex-col md:items-end gap-2">
-                <Typography variant="overline" className="text-gray-50 font-semibold leading-none">
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'flex-start', md: 'flex-end' }, gap: 0.75 }}>
+                <Typography variant="overline" sx={{ color: '#64748b', fontWeight: 700, letterSpacing: 1, fontSize: '0.7rem' }}>
                   Statut du compte
                 </Typography>
                 <LicenceTag type={unEntreprise.licence_type}>
@@ -175,160 +166,232 @@ export default function ModifEntreprise() {
               </Box>
             </Grid>
           </Grid>
-        </CardContent>
-      </Card>
+        </Box>
+      </Paper>
 
       <form onSubmit={onSubmit}>
-        <Stack spacing={4}>
-          {/* General Information Section */}
-          <Paper elevation={0} variant="outlined" className="p-6 rounded-2xl">
-            <Typography variant="h6" className="mb-6 font-semibold flex items-center gap-2">
-              <Box className="w-1.5 h-6 bg-blue-50 rounded-full" />
-              Informations générales
-            </Typography>
+        <Stack spacing={3}>
+          {/* Section: Informations générales */}
+          <Paper elevation={0} sx={{ borderRadius: '16px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+            <Box sx={{ px: 3, py: 2.5, borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <BadgeIcon sx={{ fontSize: 20, color: '#3b82f6' }} />
+              <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                Informations générales
+              </Typography>
+            </Box>
+            <Box sx={{ p: 3 }}>
+              <Grid container spacing={3}>
+                {/* Avatar Upload */}
+                <Grid item xs={12} md={3} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
+                  <Box sx={{ position: 'relative' }}>
+                    <Avatar
+                      src={previewUrl || url}
+                      sx={{
+                        width: 120,
+                        height: 120,
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+                        border: '4px solid #ffffff',
+                        cursor: 'pointer',
+                        transition: 'opacity 0.2s ease',
+                        '&:hover': { opacity: 0.85 }
+                      }}
+                      onClick={() => document.getElementById('image-upload')?.click()}
+                    />
+                    <Tooltip title="Changer le logo" arrow>
+                      <IconButton
+                        size="small"
+                        onClick={() => document.getElementById('image-upload')?.click()}
+                        sx={{
+                          position: 'absolute',
+                          bottom: 2,
+                          right: 2,
+                          bgcolor: '#ffffff',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                          border: '1px solid #e2e8f0',
+                          '&:hover': { bgcolor: '#f8fafc' }
+                        }}
+                      >
+                        <CameraAltIcon fontSize="small" sx={{ color: '#64748b' }} />
+                      </IconButton>
+                    </Tooltip>
+                    <input
+                      type="file"
+                      id="image-upload"
+                      hidden
+                      onChange={handleImageChange}
+                      accept="image/*"
+                    />
+                  </Box>
+                  <Typography variant="caption" sx={{ color: '#94a3b8', textAlign: 'center', lineHeight: 1.4 }}>
+                    Cliquez pour changer le logo<br />
+                    Format : JPG, PNG
+                  </Typography>
+                </Grid>
 
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={4} className="flex flex-col items-center justify-center">
-                {/* Avatar Uploader */}
-                <Box className="relative">
-                  <Avatar
-                    src={previewUrl || url}
-                    sx={{
-                      width: 140,
-                      height: 140,
-                      boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-                      border: '4px solid white',
-                    }}
-                    className="cursor-pointer hover:opacity-90 transition-opacity"
-                    onClick={() => document.getElementById('image-upload')?.click()}
-                  />
-                  <IconButton
-                    className="absolute bottom-0 right-0 bg-white shadow-lg hover:bg-gray-50 border border-gray-100"
-                    size="small"
-                    onClick={() => document.getElementById('image-upload')?.click()}
-                  >
-                    <CameraAltIcon fontSize="small" className="text-gray-600" />
-                  </IconButton>
-                  <input
-                    type="file"
-                    id="image-upload"
-                    hidden
-                    onChange={handleImageChange}
-                    accept="image/*"
-                  />
-                </Box>
-                <Typography variant="caption" className="mt-4 text-gray-400 text-center">
-                  Cliquez sur l'image pour changer le logo. <br />
-                  Format supporté: JPG, PNG.
-                </Typography>
+                <Grid item xs={12} md={9}>
+                  <Stack spacing={2.5}>
+                    <TextField
+                      fullWidth
+                      label="Nom de l'entreprise"
+                      name="nom"
+                      value={unEntreprise.nom}
+                      onChange={onChange}
+                      required
+                      size="small"
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: '10px',
+                          '& fieldset': { borderColor: '#cbd5e1' },
+                          '&:hover fieldset': { borderColor: '#94a3b8' },
+                          '&.Mui-focused fieldset': { borderColor: '#3b82f6' }
+                        }
+                      }}
+                    />
+                    <TextField
+                      fullWidth
+                      label="Type d'entreprise"
+                      name="libelle"
+                      value={unEntreprise.libelle}
+                      onChange={onChange}
+                      size="small"
+                      placeholder="ex: Restauration, Commerce, Service..."
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: '10px',
+                          '& fieldset': { borderColor: '#cbd5e1' },
+                          '&:hover fieldset': { borderColor: '#94a3b8' },
+                          '&.Mui-focused fieldset': { borderColor: '#3b82f6' }
+                        }
+                      }}
+                    />
+                    <FormControl fullWidth size="small">
+                      <InputLabel>Pays</InputLabel>
+                      <Select
+                        value={unEntreprise.pays || ''}
+                        onChange={onSelectChange}
+                        name="pays"
+                        label="Pays"
+                        sx={{ borderRadius: '10px' }}
+                      >
+                        {options.map((option) => (
+                          <MenuItem key={option.value} value={option.label}>
+                            {option.label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Stack>
+                </Grid>
               </Grid>
-
-              <Grid item xs={12} md={8}>
-                <Stack spacing={3}>
-                  <TextField
-                    fullWidth
-                    label="Nom de l'entreprise"
-                    name="nom"
-                    value={unEntreprise.nom}
-                    onChange={onChange}
-                    required
-                    variant="outlined"
-                    className={isMobile ? 'mobile-form-field' : ''}
-                  />
-                  <TextField
-                    fullWidth
-                    label="Type d'entreprise"
-                    name="libelle"
-                    value={unEntreprise.libelle}
-                    onChange={onChange}
-                    placeholder="ex: Restauration, Commerce, Service..."
-                    className={isMobile ? 'mobile-form-field' : ''}
-                  />
-                  <FormControl fullWidth className={isMobile ? 'mobile-form-field' : ''}>
-                    <InputLabel>Pays</InputLabel>
-                    <Select
-                      value={unEntreprise.pays}
-                      onChange={onSelectChange}
-                      name="pays"
-                      label="Pays"
-                    >
-                      {options.map((option) => (
-                        <MenuItem key={option.value} value={option.label}>
-                          {option.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Stack>
-              </Grid>
-            </Grid>
+            </Box>
           </Paper>
 
-          {/* Contact & Location Section */}
-          <Paper elevation={0} variant="outlined" className="p-6 rounded-2xl">
-            <Typography variant="h6" className="mb-6 font-semibold flex items-center gap-2">
-              <Box className="w-1.5 h-6 bg-purple-600 rounded-full" />
-              Contact & Localisation
-            </Typography>
-
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label="Email professionnel"
-                  name="email"
-                  type="email"
-                  value={unEntreprise.email}
-                  onChange={onChange}
-                  className={isMobile ? 'mobile-form-field' : ''}
-                />
+          {/* Section: Contact & Localisation */}
+          <Paper elevation={0} sx={{ borderRadius: '16px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+            <Box sx={{ px: 3, py: 2.5, borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <LocationOnIcon sx={{ fontSize: 20, color: '#8b5cf6' }} />
+              <Typography variant="subtitle1" sx={{ fontWeight: 700}}>
+                Contact & Localisation
+              </Typography>
+            </Box>
+            <Box sx={{ p: 3 }}>
+              <Grid container spacing={2.5}>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Email professionnel"
+                    name="email"
+                    type="email"
+                    size="small"
+                    value={unEntreprise.email}
+                    onChange={onChange}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '10px',
+                        '& fieldset': { borderColor: '#cbd5e1' },
+                        '&:hover fieldset': { borderColor: '#94a3b8' },
+                        '&.Mui-focused fieldset': { borderColor: '#3b82f6' }
+                      }
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Numéro de téléphone"
+                    name="numero"
+                    size="small"
+                    value={unEntreprise.numero}
+                    onChange={onChange}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '10px',
+                        '& fieldset': { borderColor: '#cbd5e1' },
+                        '&:hover fieldset': { borderColor: '#94a3b8' },
+                        '&.Mui-focused fieldset': { borderColor: '#3b82f6' }
+                      }
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Adresse"
+                    name="adresse"
+                    size="small"
+                    value={unEntreprise.adresse}
+                    onChange={onChange}
+                    multiline
+                    rows={2}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '10px',
+                        '& fieldset': { borderColor: '#cbd5e1' },
+                        '&:hover fieldset': { borderColor: '#94a3b8' },
+                        '&.Mui-focused fieldset': { borderColor: '#3b82f6' }
+                      }
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Informations complémentaires"
+                    placeholder="Coordonnées bancaires, horaires, etc."
+                    name="coordonne"
+                    size="small"
+                    value={unEntreprise.coordonne}
+                    onChange={onChange}
+                    multiline
+                    rows={2}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '10px',
+                        '& fieldset': { borderColor: '#cbd5e1' },
+                        '&:hover fieldset': { borderColor: '#94a3b8' },
+                        '&.Mui-focused fieldset': { borderColor: '#3b82f6' }
+                      }
+                    }}
+                  />
+                </Grid>
               </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label="Numéro de téléphone"
-                  name="numero"
-                  value={unEntreprise.numero}
-                  onChange={onChange}
-                  className={isMobile ? 'mobile-form-field' : ''}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Adresse"
-                  name="adresse"
-                  value={unEntreprise.adresse}
-                  onChange={onChange}
-                  multiline
-                  rows={2}
-                  className={isMobile ? 'mobile-form-field' : ''}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Informations complémentaires"
-                  placeholder="Coordonnées bancaires, horaires, etc."
-                  name="coordonne"
-                  value={unEntreprise.coordonne}
-                  onChange={onChange}
-                  multiline
-                  rows={2}
-                  className={isMobile ? 'mobile-form-field' : ''}
-                />
-              </Grid>
-            </Grid>
+            </Box>
           </Paper>
 
           {/* Form Actions */}
-          <Box className={`flex items-center gap-4 ${isMobile ? 'flex-col' : 'justify-between'}`}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
             <Button
               variant="outlined"
               startIcon={<KeyIcon />}
               onClick={() => setOpen(true)}
-              className={`rounded-xl px-6 h-[48px] ${isMobile ? 'w-full order-2' : ''}`}
-              sx={{ color: 'gray.600', borderColor: 'gray.200' }}
+              sx={{
+                borderRadius: '10px',
+                textTransform: 'none',
+                fontWeight: 600,
+                px: 3,
+                height: 44,
+                width: { xs: '100%', sm: 'auto' }
+              }}
             >
               Code d'abonnement
             </Button>
@@ -337,24 +400,43 @@ export default function ModifEntreprise() {
               type="submit"
               variant="contained"
               startIcon={<SaveIcon />}
-              className={`bg-blue-600 hover:bg-blue-700 rounded-xl px-8 h-[48px] shadow-lg shadow-blue-200 ${isMobile ? 'w-full order-1' : ''}`}
+              sx={{
+                borderRadius: '10px',
+                textTransform: 'none',
+                fontWeight: 700,
+                px: 4,
+                height: 44,
+                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)',
+                bgcolor: '#2563eb',
+                '&:hover': { bgcolor: '#1d4ed8', boxShadow: '0 6px 16px rgba(37, 99, 235, 0.4)' },
+                width: { xs: '100%', sm: 'auto' }
+              }}
             >
               Enregistrer les modifications
             </Button>
           </Box>
 
-          <Divider className="my-4" />
+          <Divider sx={{ borderColor: '#f1f5f9' }} />
 
           {/* Danger Zone */}
-          <Box
-            className="p-6 rounded-2xl border border-red-100 bg-red-50/50"
+          <Paper
+            elevation={0}
+            sx={{
+              p: 3,
+              borderRadius: '16px',
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+              bgcolor: 'rgba(254, 242, 242, 0.5)'
+            }}
           >
-            <Box className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: { md: 'center' }, justifyContent: 'space-between', gap: 2 }}>
               <Box>
-                <Typography variant="h6" color="error" className="font-bold flex items-center gap-2">
-                  Zone de danger
-                </Typography>
-                <Typography variant="body2" className="text-red-600 mt-1">
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                  <WarningAmberIcon sx={{ color: '#ef4444', fontSize: 20 }} />
+                  <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#dc2626' }}>
+                    Zone de danger
+                  </Typography>
+                </Box>
+                <Typography variant="body2" sx={{ color: '#b91c1c' }}>
                   Une fois supprimée, toutes les données de l'entreprise seront définitivement perdues.
                 </Typography>
               </Box>
@@ -363,7 +445,15 @@ export default function ModifEntreprise() {
                 color="error"
                 startIcon={<DeleteIcon />}
                 onClick={handleDelete}
-                className="rounded-xl px-6 h-[40px] bg-white"
+                sx={{ 
+                  borderRadius: '10px', 
+                  textTransform: 'none', 
+                  fontWeight: 600, 
+                  px: 3, 
+                  height: 40, 
+                  bgcolor: '#ffffff',
+                  flexShrink: 0
+                }}
               >
                 Supprimer l'entreprise
               </Button>
@@ -374,10 +464,15 @@ export default function ModifEntreprise() {
                 <Alert
                   severity="error"
                   variant="outlined"
-                  className="mt-4 bg-white"
+                  sx={{ mt: 2.5, borderRadius: '12px', bgcolor: '#ffffff' }}
                   action={
-                    <div className="space-x-2">
-                      <Button color="inherit" size="small" onClick={() => setShowConfirm(false)}>
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                      <Button 
+                        color="inherit" 
+                        size="small" 
+                        onClick={() => setShowConfirm(false)}
+                        sx={{ textTransform: 'none', fontWeight: 600 }}
+                      >
                         Annuler
                       </Button>
                       <Button
@@ -385,20 +480,20 @@ export default function ModifEntreprise() {
                         color="error"
                         size="small"
                         onClick={confirmDelete}
-                        className="bg-red-600"
+                        sx={{ borderRadius: '8px', textTransform: 'none', fontWeight: 700, boxShadow: 'none' }}
                       >
-                        Confirmer la suppression
+                        Confirmer
                       </Button>
-                    </div>
+                    </Box>
                   }
                 >
-                  <Typography variant="body2" className="font-semibold">
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
                     Êtes-vous absolument sûr ? Cette action est irréversible.
                   </Typography>
                 </Alert>
               </Fade>
             )}
-          </Box>
+          </Paper>
         </Stack>
       </form>
 
@@ -410,40 +505,65 @@ export default function ModifEntreprise() {
         fullWidth
         PaperProps={{
           elevation: 0,
-          className: "rounded-3xl"
+          sx: { borderRadius: '20px', border: '1px solid #e2e8f0' }
         }}
       >
-        <DialogTitle className="flex justify-between items-center border-b pb-4 pt-6 px-6">
-          <Typography variant="h6" className="font-bold">Code d'abonnement</Typography>
-          <IconButton onClick={() => setOpen(false)} size="small" className="bg-gray-50">
+        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 3, px: 3, pb: 2, borderBottom: '1px solid #f1f5f9' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <KeyIcon sx={{ color: '#3b82f6' }} />
+            <Typography variant="h6" sx={{ fontWeight: 700 }}>Code d'abonnement</Typography>
+          </Box>
+          <IconButton 
+            onClick={() => setOpen(false)} 
+            size="small" 
+            sx={{ bgcolor: '#f8fafc', borderRadius: '8px', '&:hover': { bgcolor: '#f1f5f9' } }}
+          >
             <CloseIcon fontSize="small" />
           </IconButton>
         </DialogTitle>
 
-        <DialogContent className="px-6 py-8">
-          <form onSubmit={onSubmitAbon} className="space-y-6">
-            <Typography variant="body2" className="text-gray-500">
-              Veuillez saisir le code d'activation pour prolonger ou mettre à jour votre licence.
-            </Typography>
-            <TextField
-              fullWidth
-              label="Entrez votre code"
-              name="code"
-              onChange={onChange}
-              required
-              autoFocus
-              variant="filled"
-              InputProps={{ disableUnderline: true, className: "rounded-xl" }}
-            />
-
-            <Button
-              type="submit"
-              variant="contained"
-              fullWidth
-              className="bg-blue-600 hover:bg-blue-700 h-[48px] rounded-xl shadow-lg shadow-blue-200"
-            >
-              Valider le code
-            </Button>
+        <DialogContent sx={{ px: 3, py: 3 }}>
+          <form onSubmit={onSubmitAbon}>
+            <Stack spacing={2.5}>
+              <Typography variant="body2" sx={{ color: '#64748b' }}>
+                Veuillez saisir le code d'activation pour prolonger ou mettre à jour votre licence.
+              </Typography>
+              <TextField
+                fullWidth
+                label="Entrez votre code"
+                name="code"
+                onChange={onChange}
+                required
+                autoFocus
+                size="small"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '10px',
+                    fontFamily: 'monospace',
+                    fontWeight: 700,
+                    letterSpacing: 2,
+                    '& fieldset': { borderColor: '#cbd5e1' },
+                    '&.Mui-focused fieldset': { borderColor: '#3b82f6' }
+                  }
+                }}
+              />
+              <Button
+                type="submit"
+                variant="contained"
+                fullWidth
+                sx={{
+                  borderRadius: '10px',
+                  height: 44,
+                  textTransform: 'none',
+                  fontWeight: 700,
+                  bgcolor: '#2563eb',
+                  boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)',
+                  '&:hover': { bgcolor: '#1d4ed8', boxShadow: '0 6px 16px rgba(37, 99, 235, 0.4)' }
+                }}
+              >
+                Valider le code
+              </Button>
+            </Stack>
           </form>
         </DialogContent>
       </Dialog>

@@ -12,7 +12,7 @@ export const Githubicon = (props: ComponentPropsWithoutRef<"svg"> & {size?: numb
         {...props}
         >
             <g transform="translate(0.000000,300.000000) scale(0.100000,-0.100000)"
-            fill="#000000" stroke="none">
+            fill="#ffffff" stroke="none">
             <path d="M1020 2505 c0 -3 9 -24 20 -46 31 -60 94 -117 168 -152 l67 -32 235
             -1 c258 -1 362 -14 480 -61 82 -33 125 -60 175 -112 22 -22 43 -41 47 -41 13
             0 -47 156 -83 215 -42 70 -107 131 -186 173 -108 57 -148 62 -555 62 -203 0

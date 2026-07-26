@@ -14,7 +14,7 @@ const handleAuthError = (error: any, navigate: any) => {
   if (error?.response?.status === 401) {
     // Token expiré et refresh échoué
     accountService.logout();
-    navigate('/login');
+    navigate('/auth/login');
     toast.error("Session expirée. Veuillez vous reconnecter.");
     return true;
   }

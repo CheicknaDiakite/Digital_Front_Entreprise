@@ -23,8 +23,8 @@ export default defineConfig({
             name: 'Gest Stocks',
             short_name: 'Gest Stocks',
             description: 'Meilleur application pour votre gestion de stock',
-            theme_color: '#ffffff',
-            background_color: '#ffffff',
+            theme_color: '#07111f',
+            background_color: '#07111f',
             display: 'standalone',
             display_override: ["standalone", "fullscreen"],
             orientation: 'portrait',
@@ -62,7 +62,7 @@ export default defineConfig({
             ],
             screenshots: [
                 {
-                    src: '/assets/img/dashboard.png',
+                    src: '/assets/img/dashboard_1.png',
                     sizes: '1280x720',
                     type: 'image/png',
                     form_factor: 'wide'

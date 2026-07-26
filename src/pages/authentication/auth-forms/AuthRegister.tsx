@@ -183,7 +183,8 @@ const AuthRegister: FC = () => {
             </Typography>
             <Typography
               variant="body2"
-              sx={{ color: isMobile ? 'rgba(255,255,255,0.45)' : 'text.secondary' }}
+              className="text-slate-300"
+              // sx={{ color: isMobile ? 'rgba(255,255,255,0.45)' : 'text.secondary' }}
             >
               Rejoignez GestStocks et gérez vos stocks simplement
             </Typography>

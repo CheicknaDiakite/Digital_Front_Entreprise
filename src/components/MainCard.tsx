@@ -61,18 +61,21 @@ const MainCard = forwardRef<HTMLDivElement, MainCardProps>(
     boxShadow = theme.palette.mode === 'dark' ? boxShadow || true : boxShadow;
 
     return (
-      <Card   
-        className='rounded border-x-2 animate-border-rotate'     
+      <Card
         elevation={elevation || 0}
         ref={ref}
         {...others}
         sx={{
-          // border: border ? '1px solid' : 'none',
-          borderRadius: 2,
-          borderColor: theme.palette.mode === 'dark' ? theme.palette.divider : theme.palette.grey[800],
-          boxShadow: boxShadow && (!border || theme.palette.mode === 'dark') ? shadow || theme.customShadows.z1 : 'inherit',
-          ':hover': {
-            boxShadow: boxShadow ? shadow || theme.customShadows.z1 : 'inherit'
+          color: 'text.primary',
+          background: 'linear-gradient(145deg, rgba(20, 33, 56, 0.98), rgba(13, 24, 43, 0.96))',
+          backdropFilter: 'blur(14px)',
+          border: border ? `1px solid ${theme.palette.divider}` : 'none',
+          borderRadius: 3,
+          boxShadow: boxShadow && (!border || theme.palette.mode === 'dark') ? shadow || theme.customShadows.z1 : 'none',
+          transition: 'border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease',
+          '&:hover': {
+            borderColor: border ? 'rgba(129, 140, 248, 0.45)' : 'transparent',
+            boxShadow: boxShadow ? shadow || theme.customShadows.z1 : 'none'
           },
           '& pre': {
             m: 0,

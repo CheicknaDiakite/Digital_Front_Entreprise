@@ -105,7 +105,7 @@ const NavigationCard: FC<NavigationCardType> = ({ icon, title, description, to, 
         sx={{
           fontSize: { xs: '0.92rem', sm: '1.02rem' },
           fontWeight: 700,
-          color: '#e0e7ff',
+          // color: '#e0e7ff',
           mb: 0.6,
           lineHeight: 1.2,
         }}
@@ -114,9 +114,10 @@ const NavigationCard: FC<NavigationCardType> = ({ icon, title, description, to, 
       </Typography>
       <Typography
         variant="body2"
+        className="text-gray-300"
         sx={{
           fontSize: { xs: '0.76rem', sm: '0.82rem' },
-          color: '#64748b',
+          // color: '#64748b',
           lineHeight: 1.4,
           fontWeight: 500,
         }}
@@ -334,7 +335,11 @@ export default function DashboardDefault() {
               >
                 Tableau de bord
               </Typography>
-              <Typography variant="body1" sx={{ color: '#94a3b8', fontSize: { xs: '0.85rem', sm: '0.95rem' }, mt: 0.5 }}>
+              <Typography 
+              variant="body1" 
+              className="text-slate-200"
+              sx={{ fontSize: { xs: '0.85rem', sm: '0.95rem' }, mt: 0.5 }}
+              >
                 Bienvenue dans votre espace de gestion d'entreprise
               </Typography>
             </Box>

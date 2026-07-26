@@ -22,28 +22,28 @@ const icons = {
 
 const utilities = {
   id: 'utilities',
-  title: 'Utilities',
+  title: 'Gestion',
   type: 'group',
   children: [
     {
-      id: 'util-typography',
-      title: 'Typography',
+      id: 'categories',
+      title: 'Articles',
       type: 'item',
-      url: '/typography',
+      url: '/categorie',
       icon: icons.FontSizeOutlined
     },
     {
-      id: 'util-color',
-      title: 'Color',
+      id: 'entrees',
+      title: 'Entrées',
       type: 'item',
-      url: '/color',
+      url: '/entre',
       icon: icons.BgColorsOutlined
     },
     {
-      id: 'util-shadow',
-      title: 'Shadow',
+      id: 'sorties',
+      title: 'Sorties',
       type: 'item',
-      url: '/shadow',
+      url: '/sortie',
       icon: icons.BarcodeOutlined
     }
   ]

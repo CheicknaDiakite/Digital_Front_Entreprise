@@ -8,8 +8,8 @@ export default function Typography(fontFamily: string): TypographyOptions {
     fontFamily,
     fontWeightLight: 300,
     fontWeightRegular: 400,
-    fontWeightMedium: 500,
-    fontWeightBold: 600,
+    fontWeightMedium: 600,
+    fontWeightBold: 700,
     h1: {
       fontWeight: 600,
       fontSize: '2.375rem',
@@ -36,7 +36,7 @@ export default function Typography(fontFamily: string): TypographyOptions {
       lineHeight: 1.5
     },
     h6: {
-      fontWeight: 400,
+      fontWeight: 600,
       fontSize: '0.875rem',
       lineHeight: 1.57
     },
@@ -67,7 +67,8 @@ export default function Typography(fontFamily: string): TypographyOptions {
       lineHeight: 1.66
     },
     button: {
-      textTransform: 'capitalize'
+      fontWeight: 600,
+      textTransform: 'none'
     }
   };
 }

@@ -21,6 +21,7 @@ export type InfoSortieType = {
 }
 
 export type InfoSousType = {
+    id?: number;
     libelle: string;
     client?: string;
     date?: string;

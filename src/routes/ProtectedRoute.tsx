@@ -13,7 +13,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   redirectPath = '/', // Par défaut, redirige vers la page d'accueil ou une autre page
 }) => {
   
-  const { us } = useFetchUser(String(connect)); // Récupérer l'utilisateur connecté
+  const { us } = useFetchUser(); // Récupérer l'utilisateur connecté
   
   // Si l'utilisateur n'est pas connecté, rediriger
   if (!us) {
