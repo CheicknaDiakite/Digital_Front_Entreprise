@@ -188,9 +188,9 @@ export default function FacEntre() {
 
           <Paper 
             elevation={0} 
-            className={`${isMobile ? 'mobile-filters-section' : 'mb-6 p-4 border rounded-lg'}`}
+            // className={`${isMobile ? 'mobile-filters-section' : 'mb-6 p-4 border rounded-lg'}`}
             sx={isMobile ? {
-              background: 'rgba(255, 255, 255, 0.9)',
+              // background: 'rgba(255, 255, 255, 0.9)',
               backdropFilter: 'blur(10px)',
               borderRadius: '16px',
               border: '1px solid rgba(255, 255, 255, 0.2)',
@@ -211,7 +211,7 @@ export default function FacEntre() {
               }}
             >
               <Grid item xs={12} md={6} className='m-3'>
-                <Typography variant="subtitle2" className={`mb-5 text-gray-700`}>
+                <Typography variant="subtitle2" className={`mb-5 text-gray-50`}>
                   Filtrer par période
                 </Typography>
                 <Grid container spacing={isMobile ? 1 : 2}>
@@ -437,21 +437,9 @@ export default function FacEntre() {
             )}
           </Dialog>
       
-          <TableContainer 
-            component={Paper} 
-            elevation={0} 
-            className={`${isMobile ? 'mobile-table-container' : 'border rounded-lg'}`}
-            sx={isMobile ? {
-              borderRadius: '16px',
-              overflow: 'hidden',
-              background: 'rgba(255, 255, 255, 0.95)',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              marginTop: '16px'
-            } : {}}
-          >
-            <Table>
-              <TableHead className={isMobile ? 'mobile-table-header' : 'bg-gray-100'}>
+          <TableContainer component={Paper} sx={{ maxHeight: 600 }}>
+            <Table stickyHeader aria-label="sticky table">
+              <TableHead >
                 <TableRow>
                   <TableCell>Date</TableCell>
                   <TableCell>Libellé</TableCell>

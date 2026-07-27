@@ -407,19 +407,19 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
   }, [amount, price, quantity, setAmount]);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
+    <div className="min-h-screen py-4 sm:py-8">
       <div className="max-w-full sm:max-w-[1200px] mx-auto px-2 sm:px-4">
-        <Paper elevation={0} className="bg-white rounded-lg overflow-hidden">
+        <Paper elevation={0} className="rounded-lg overflow-hidden">
           <div className="p-2 sm:p-6">
             {/* Redesigned Actions Bar */}
             <div className="flex flex-col space-y-4 mb-8">
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100 shadow-sm transition-all duration-300 hover:shadow-md">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-4 rounded-2xl border border-gray-100 shadow-sm transition-all duration-300 hover:shadow-md">
 
                 {/* Cancel Group */}
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => reset()}
-                    className="group inline-flex items-center justify-center px-4 py-2 text-red-500 bg-white border border-red-100 rounded-xl hover:bg-red-50 hover:border-red-200 transition-all duration-300 shadow-sm"
+                    className="group inline-flex items-center justify-center px-4 py-2 text-red-500 border border-red-100 rounded-xl hover:bg-red-50 hover:border-red-200 transition-all duration-300 shadow-sm"
                   >
                     <RemoveIcon className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300" />
                     <span className="font-semibold text-sm">Annuler</span>
@@ -432,7 +432,7 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
 
                     <button
                       onClick={handleOpenRemise}
-                      className="inline-flex items-center justify-center px-4 py-2 bg-white text-purple-600 border border-purple-100 rounded-xl hover:bg-purple-50 transition-all duration-300 shadow-sm"
+                      className="inline-flex items-center justify-center px-4 py-2 text-purple-400 border border-purple-100 rounded-xl hover:bg-purple-50 transition-all duration-300 shadow-sm"
                     >
                       <span className="font-semibold text-sm">Remise Facture</span>
                     </button>
@@ -440,7 +440,7 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
 
                   <button
                     onClick={toggleModal}
-                    className="inline-flex items-center justify-center px-4 py-2 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-xl hover:bg-indigo-100 transition-all duration-300 shadow-sm"
+                    className="inline-flex items-center justify-center px-4 py-2 text-indigo-500 border border-indigo-100 rounded-xl hover:bg-indigo-100 transition-all duration-300 shadow-sm"
                   >
                     <LocalAtmIcon className="w-5 h-5 mr-2" />
                     <span className="font-semibold text-sm">Remise Art.</span>
@@ -456,11 +456,11 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                 </div>
 
                 {/* Print & Export Group */}
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-white p-1 rounded-2xl border border-gray-100 shadow-inner">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-1 rounded-2xl border border-gray-100 shadow-inner">
                   <div className="flex items-center gap-2">
                     <ReactToPrint
                       trigger={() => (
-                        <button className="inline-flex items-center justify-center px-4 py-2 bg-white text-blue-600 border border-blue-100 rounded-xl hover:bg-blue-50 transition-all duration-300 shadow-sm">
+                        <button className="inline-flex items-center justify-center px-4 py-2 text-blue-600 border border-blue-100 rounded-xl hover:bg-blue-50 transition-all duration-300 shadow-sm">
                           <PrintIcon className="w-5 h-5 mr-2" />
                           <span className="font-semibold text-sm">Imprimer</span>
                         </button>
@@ -480,7 +480,7 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                 </div>
               </div>
               {/* Format Selector inside Print Group */}
-              <div className="flex items-center bg-gray-50 rounded-xl p-1 gap-1">
+              <div className="flex items-center rounded-xl p-1 gap-1">
                 {(['A4', 'Thermal'] as const).map((format) => (
                   <button
                     key={format}
@@ -512,19 +512,7 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                   name="numeroFac"
                   variant="outlined"
                   onChange={onChan}
-                  className={`${isMobile ? 'mobile-form-field' : 'bg-white'}`}
-                  sx={isMobile ? {
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: '12px',
-                      background: 'rgba(255, 255, 255, 0.8)',
-                      backdropFilter: 'blur(10px)',
-                      transition: 'all 0.3s ease',
-                      '&:focus-within': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                      }
-                    }
-                  } : {}}
+                  
                 />
               </Grid>
 
@@ -536,19 +524,7 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                   variant="outlined"
                   value={fac.clientName}
                   onChange={onChan}
-                  className={`${isMobile ? 'mobile-form-field' : 'bg-white'}`}
-                  sx={isMobile ? {
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: '12px',
-                      background: 'rgba(255, 255, 255, 0.8)',
-                      backdropFilter: 'blur(10px)',
-                      transition: 'all 0.3s ease',
-                      '&:focus-within': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                      }
-                    }
-                  } : {}}
+                  
                 />
               </Grid>
 
@@ -560,24 +536,12 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                   variant="outlined"
                   value={fac.invoiceNumber || ''}
                   onChange={onChan}
-                  className={`${isMobile ? 'mobile-form-field' : 'bg-white'}`}
-                  sx={isMobile ? {
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: '12px',
-                      background: 'rgba(255, 255, 255, 0.8)',
-                      backdropFilter: 'blur(10px)',
-                      transition: 'all 0.3s ease',
-                      '&:focus-within': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                      }
-                    }
-                  } : {}}
+                  
                 />
               </Grid>
 
               <Grid item xs={12} md={12}>
-                <Typography variant={isMobile ? "h6" : "h6"} className="text-gray-900">
+                <Typography variant={isMobile ? "h6" : "h6"} className="text-gray-50">
                   Notes additionnelles
                 </Typography>
                 <TextField
@@ -588,19 +552,7 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                   placeholder="Ajouter des notes ou commentaires pour cette facture..."
                   variant="outlined"
                   onChange={onChan}
-                  className={`${isMobile ? 'mobile-form-field' : 'bg-white'}`}
-                  sx={isMobile ? {
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: '12px',
-                      background: 'rgba(255, 255, 255, 0.8)',
-                      backdropFilter: 'blur(10px)',
-                      transition: 'all 0.3s ease',
-                      '&:focus-within': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                      }
-                    }
-                  } : {}}
+                  
                 />
               </Grid>
 
@@ -611,7 +563,7 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
             {/* Invoice Content */}
             <div
               ref={componentRef}
-              className={`bg-white p-2 sm:p-8 rounded-lg shadow-sm border border-gray-100 print-container format-${printFormat.toLowerCase()}`}
+              className={`p-2 sm:p-8 rounded-lg shadow-sm border border-gray-100 print-container format-${printFormat.toLowerCase()}`}
             >
               <Header
                 // orderNumber={orderNumber}

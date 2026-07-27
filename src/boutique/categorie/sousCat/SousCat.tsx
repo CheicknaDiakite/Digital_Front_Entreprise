@@ -242,7 +242,7 @@ export default function SousCat() {
             </div>
           
 
-          <div className={`mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 ${isMobile ? 'mobile-header-container' : ''}`}>
+          <div className={`mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4`}>
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
               <TextField
                 placeholder="Rechercher un produit..."

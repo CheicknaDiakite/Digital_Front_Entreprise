@@ -86,7 +86,7 @@ export default function TableSortie({
       <TextField
         label="Rechercher par ref"
         variant="outlined"
-        className="bg-blue-200 mt-3"
+        className="mt-3"
         fullWidth
         value={searchTerm}
         onChange={handleSearchChange}
@@ -121,6 +121,7 @@ export default function TableSortie({
               options={clients}
               value={selectedClient}
               onChange={handleClient}
+              className="text-gray-900"
               placeholder="Client"
               isClearable
               getOptionLabel={(option: any) =>
@@ -136,6 +137,7 @@ export default function TableSortie({
             </Typography>
             <Select
               required
+              className="text-gray-900"
               options={filteredEnt} // on utilise maintenant la liste filtrée par le code scanné
               value={selectedOption}
               onChange={handleChange}
@@ -168,7 +170,7 @@ export default function TableSortie({
                 step: '0.01',
                 min: '0',
               }}
-              className='bg-white'
+              // className='bg-white'
               value={formValues.qte}
               id="quantity"
               placeholder="Quantity"
@@ -192,7 +194,7 @@ export default function TableSortie({
                 disabled
                 variant="outlined"
                 type="number"
-                className='bg-white'
+                // className='bg-white text-gray-950'
                 inputProps={{
                   step: '0.01',
                   min: '0',
@@ -218,7 +220,7 @@ export default function TableSortie({
               <MyTextField
                 disabled={formValues.is_prix}
                 variant="outlined"
-                className='bg-white'
+                // className='bg-white'
                 type="number"
                 inputProps={{
                   step: '0.01',

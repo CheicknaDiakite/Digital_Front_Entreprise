@@ -352,7 +352,7 @@ export default function ClientSortie(uuid: UuType) {
                   value={selectedStartDate}
                   onChange={handleStartDateChange}
                   InputLabelProps={{ shrink: true }}
-                  className="bg-white"
+                  // className="bg-white"
                 />
                 <TextField
                   fullWidth
@@ -361,13 +361,13 @@ export default function ClientSortie(uuid: UuType) {
                   value={selectedEndDate}
                   onChange={handleEndDateChange}
                   InputLabelProps={{ shrink: true }}
-                  className="bg-white"
+                  // className="bg-white"
                 />
                 {unUser.role === 1 && (
-                  <Paper elevation={0} className="p-4 bg-blue-50 rounded-lg">
+                  <Paper elevation={0} className="p-4 text-blue-50 rounded-lg">
                     <div className="flex items-center space-x-2">
                       <LocalAtmIcon color="primary" />
-                      <Typography variant="h6" className="text-gray-900">
+                      <Typography variant="h6" >
                         Total : {formatNumberWithSpaces(totalPrice)} F
                       </Typography>
                     </div>
@@ -376,7 +376,7 @@ export default function ClientSortie(uuid: UuType) {
               </div>
 
               {/* New Sale Form */}
-              <Paper elevation={0} className="p-6 bg-white rounded-lg">
+              <Paper elevation={0} className="p-6 rounded-lg">
                 <form onSubmit={onSubmit} className="space-y-6">
 
                   <div className="my-2">
@@ -413,7 +413,7 @@ export default function ClientSortie(uuid: UuType) {
                           <TextField
                             {...params}
                             label={scannedCode ? `Désignation : ${scannedCode}` : "Désignation"}
-                            className="bg-gray-200"
+                            // className="bg-gray-200"
                           />
                         )}
                       />
@@ -427,7 +427,7 @@ export default function ClientSortie(uuid: UuType) {
                         required
                         type="number"
                         name="qte"
-                        className='bg-white'
+                        // className='bg-white'
                         value={formValues.qte}
                         id="quantity"
                         placeholder="Quantity"
@@ -450,7 +450,7 @@ export default function ClientSortie(uuid: UuType) {
                       <MyTextField
                         disabled={formValues.is_prix}
                         variant="outlined"
-                        className='bg-white'
+                        // className='bg-white'
                         type="number"
                         name="pu"
                         onChange={onChange}
@@ -472,7 +472,7 @@ export default function ClientSortie(uuid: UuType) {
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <Typography variant="h6" className="text-gray-700">
+                    <Typography variant="h6" className="text-gray-50">
                       Montant Total : {formatNumberWithSpaces(amount)} F
                     </Typography>
 
@@ -495,9 +495,9 @@ export default function ClientSortie(uuid: UuType) {
               </Paper>
 
               {/* Sales Table */}
-              <TableContainer component={Paper} elevation={0}>
-                <Table>
-                  <TableHead>
+              <TableContainer component={Paper} sx={{ maxHeight: 600 }}>
+                <Table stickyHeader aria-label="sticky table" >
+                  <TableHead >
                     <TableRow sx={{ backgroundColor: '#f8fafc' }}>
                       <TableCell>Image</TableCell>
                       <TableCell>Date</TableCell>

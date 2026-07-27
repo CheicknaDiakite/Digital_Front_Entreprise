@@ -451,7 +451,7 @@ export default function Sortie() {
                     type="date"
                     value={selectedStartDate}
                     onChange={handleStartDateChange}
-                    className={`${isMobile ? 'mobile-date-field' : 'bg-white'}`}
+                    // className={`${isMobile ? 'mobile-date-field' : 'bg-white'}`}
                     InputLabelProps={{ shrink: true }}
                     size="small"
                   />
@@ -463,7 +463,7 @@ export default function Sortie() {
                     value={selectedEndDate}
                     onChange={handleEndDateChange}
                     InputLabelProps={{ shrink: true }}
-                    className={`${isMobile ? 'mobile-date-field' : 'bg-white'}`}
+                    // className={`${isMobile ? 'mobile-date-field' : 'bg-white'}`}
                     size="small"
                   />
                 </Grid>
@@ -475,19 +475,19 @@ export default function Sortie() {
             {unUser.role === 1 && (
               <Paper
                 elevation={1}
-                className={`${isMobile ? 'mobile-stats-card' : 'p-4 mobile-stats-card'}`}
-                sx={isMobile ? {
-                  borderRadius: '16px',
-                  backdropFilter: 'blur(10px)',
-                  background: 'rgba(255, 255, 255, 0.95)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  transition: 'all 0.3s ease',
-                  animation: 'scaleIn 0.6s ease-out',
-                  '&:hover': {
-                    transform: 'translateY(-4px)',
-                    boxShadow: '0 12px 24px rgba(0, 0, 0, 0.1)'
-                  }
-                } : {}}
+                className={`p-4`}
+                // sx={isMobile ? {
+                //   borderRadius: '16px',
+                //   backdropFilter: 'blur(10px)',
+                //   background: 'rgba(255, 255, 255, 0.95)',
+                //   border: '1px solid rgba(255, 255, 255, 0.2)',
+                //   transition: 'all 0.3s ease',
+                //   animation: 'scaleIn 0.6s ease-out',
+                //   '&:hover': {
+                //     transform: 'translateY(-4px)',
+                //     boxShadow: '0 12px 24px rgba(0, 0, 0, 0.1)'
+                //   }
+                // } : {}}
               >
                 <div className={`${isMobile ? 'grid grid-cols-1 gap-4' : 'grid grid-cols-1 md:grid-cols-2 gap-4'}`}>
                   <div className="flex items-center space-x-2">
@@ -507,7 +507,7 @@ export default function Sortie() {
             )}
 
             {/* Table Section */}
-            <div className={`${isMobile ? '' : ''}`}>
+            <div>
               <TableSortie
                 onSubmit={onSubmit}
                 onChange={onChange}
@@ -536,7 +536,7 @@ export default function Sortie() {
             </div>
 
             {/* Pagination */}
-            <div className={`flex justify-center mt-6 mobile-pagination`}>
+            <div className={`flex justify-center mt-6`}>
               <Pagination
                 count={totalPages}
                 page={currentPage}
@@ -557,7 +557,7 @@ export default function Sortie() {
 
         {/* Invoice Preview Section */}
         {showInvoice && entreprise && (
-          <div className={`${isMobile ? 'mobile-preview-section' : 'mt-8'}`}>
+          <div className={`mt-3`}>
             <Fact
               invoiceDate={itemDate}
               post={entreprise}

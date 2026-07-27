@@ -82,7 +82,7 @@ export default function ClientHistorique(props: UuType) {
   return (
     <Box sx={{ width: '100%' }}>
       {/* Search Filters */}
-      <Paper elevation={0} sx={{ p: 2, mb: 2, background: '#f8fafc' }}>
+      <Paper elevation={0} sx={{ p: 2, mb: 2, background: 'transparent' }}>
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center" justifyContent="space-between">
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center">
             <TextField
@@ -92,7 +92,7 @@ export default function ClientHistorique(props: UuType) {
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
               InputLabelProps={{ shrink: true }}
-              sx={{ bgcolor: 'white' }}
+              // sx={{ bgcolor: 'white' }}
             />
             <TextField
               label="Date fin"
@@ -101,9 +101,9 @@ export default function ClientHistorique(props: UuType) {
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
               InputLabelProps={{ shrink: true }}
-              sx={{ bgcolor: 'white' }}
+              // sx={{ bgcolor: 'white' }}
             />
-            <FormControl size="small" sx={{ minWidth: 120, bgcolor: 'white' }}>
+            <FormControl size="small" sx={{ minWidth: 120 }}>
               <InputLabel>Type</InputLabel>
               <Select
                 value={typeFilter}
@@ -120,9 +120,10 @@ export default function ClientHistorique(props: UuType) {
           <Chip
             icon={<AttachMoneyIcon />}
             label={`Total: ${formatNumberWithSpaces(totalSum)} `}
-            color="primary"
+            // color="primary"
             variant="outlined"
-            sx={{ fontWeight: 'bold', fontSize: '1rem', bgcolor: 'white' }}
+
+            sx={{ fontWeight: 'bold', fontSize: '1rem' }}
           />
         </Stack>
       </Paper>
@@ -132,13 +133,9 @@ export default function ClientHistorique(props: UuType) {
           <Typography>Aucun historique trouvé pour ces critères.</Typography>
         </Paper>
       ) : (
-        <TableContainer
-          component={Paper}
-          elevation={0}
-        //  sx={{ background: 'transparent' }}
-        >
-          <Table>
-            <TableHead>
+        <TableContainer component={Paper} sx={{ maxHeight: 600 }}>
+          <Table stickyHeader aria-label="sticky table" >
+            <TableHead >
               <TableRow sx={{ backgroundColor: '#f8fafc' }}>
                 <TableCell>Date</TableCell>
                 <TableCell>Action</TableCell>

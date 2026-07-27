@@ -70,16 +70,16 @@ export default function CardInvent({ row }: EntreProps) {
               sx={{ width: 56, height: 56 }}
             />
           </TableCell>
-          <TableCell>{row.ref}</TableCell>
-          <TableCell>{format(new Date(validDate), 'dd/MM/yyyy')}</TableCell>
-          <TableCell>
+          <TableCell className="text-white">{row.ref}</TableCell>
+          <TableCell className="text-white">{format(new Date(validDate), 'dd/MM/yyyy')}</TableCell>
+          <TableCell className="text-white">
             {row.client && (
               <span className="inline-flex items-center rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
                 {row.client}
               </span>
             )}
           </TableCell>
-          <TableCell>
+          <TableCell className="text-white">
             {row.categorie_libelle}{' '}
             {row.libelle && (
               <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
@@ -87,12 +87,12 @@ export default function CardInvent({ row }: EntreProps) {
               </span>
             )}
           </TableCell>
-          <TableCell align="right">{row.qte} {row.unite === 'kilos' ? '' : row.unite}</TableCell>
-          <TableCell align="right">{formatNumberWithSpaces(row.pu)}</TableCell>
+          <TableCell align="right" className="text-white">{row.qte} {row.unite === 'kilos' ? '' : row.unite}</TableCell>
+          <TableCell align="right" className="text-white">{formatNumberWithSpaces(row.pu)}</TableCell>
           {unUser.role === 1 && (
             <>
-              <TableCell align="right">{formatNumberWithSpaces(row.pu_achat)}</TableCell>
-              <TableCell align="right">
+              <TableCell align="right" className="text-white">{formatNumberWithSpaces(row.pu_achat)}</TableCell>
+              <TableCell align="right" className="text-white">
                 {formatNumberWithSpaces(price)}{' '}
                 <LocalAtmIcon color="primary" fontSize="small" />
               </TableCell>
@@ -148,7 +148,6 @@ export default function CardInvent({ row }: EntreProps) {
       </>
     );
   } else {
-    console.log('erreur de typage PU | QTE');
     return null;
   }
 }

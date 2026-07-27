@@ -216,7 +216,7 @@ export default function Depense() {
               </div>
 
               {/* Filters and Summary */}
-              <div className={`${isMobile ? 'mobile-filters-section' : 'mb-6 space-y-4'}`}>
+              <div >
                 <Grid 
                   container 
                   spacing={isMobile ? 2 : 3} 
@@ -243,11 +243,11 @@ export default function Depense() {
                           </InputAdornment>
                         ),
                       }}
-                      className={`${isMobile ? 'mobile-date-field' : 'bg-white'}`}
+                      // className={`${isMobile ? 'mobile-date-field' : 'bg-white'}`}
                       sx={isMobile ? {
                         '& .MuiOutlinedInput-root': {
                           borderRadius: '12px',
-                          background: 'rgba(255, 255, 255, 0.8)',
+                          // background: 'rgba(255, 255, 255, 0.8)',
                           backdropFilter: 'blur(10px)',
                           transition: 'all 0.3s ease',
                           '&:focus-within': {
@@ -273,11 +273,11 @@ export default function Depense() {
                           </InputAdornment>
                         ),
                       }}
-                      className={`${isMobile ? 'mobile-date-field' : 'bg-white'}`}
+                      // className={`${isMobile ? 'mobile-date-field' : 'bg-white'}`}
                       sx={isMobile ? {
                         '& .MuiOutlinedInput-root': {
                           borderRadius: '12px',
-                          background: 'rgba(255, 255, 255, 0.8)',
+                          // background: 'rgba(255, 255, 255, 0.8)',
                           backdropFilter: 'blur(10px)',
                           transition: 'all 0.3s ease',
                           '&:focus-within': {
@@ -291,11 +291,11 @@ export default function Depense() {
                   <Grid item xs={12} md={4}>
                     <Paper 
                       elevation={0} 
-                      className={`${isMobile ? 'mobile-stats-card' : 'p-4 bg-blue-50 border border-blue-100 rounded-lg'}`}
+                      // className={`${isMobile ? 'mobile-stats-card' : 'p-4 bg-blue-50 border border-blue-100 rounded-lg'}`}
                       sx={isMobile ? {
                         borderRadius: '16px',
-                        backdropFilter: 'blur(10px)',
-                        background: 'rgba(255, 255, 255, 0.95)',
+                        // backdropFilter: 'blur(10px)',
+                        // background: 'rgba(255, 255, 255, 0.95)',
                         border: '1px solid rgba(255, 255, 255, 0.2)',
                         transition: 'all 0.3s ease',
                         animation: 'scaleIn 0.6s ease-out',
@@ -305,10 +305,10 @@ export default function Depense() {
                         }
                       } : {}}
                     >
-                      <Typography variant="subtitle2" className="text-blue-900 mb-1">
+                      <Typography variant="subtitle2" className="text-blue-50 mb-1">
                         Total des dépenses
                       </Typography>
-                      <Typography variant={isMobile ? "h5" : "h4"} className="text-blue-700 flex items-center">
+                      <Typography variant={isMobile ? "h5" : "h4"} className="text-blue-200 flex items-center">
                         {formatNumberWithSpaces(totalMontant)}
                         <LocalAtmIcon className={`${isMobile ? 'mobile-stats-icon' : ''} ml-2`} />
                       </Typography>
@@ -317,21 +317,9 @@ export default function Depense() {
                   
                   {/* Table */}
                   <Grid item xs={12} md={12}>
-                    <TableContainer 
-                      component={Paper} 
-                      elevation={0} 
-                      className={`${isMobile ? 'mobile-table-container' : 'border'}`}
-                      sx={isMobile ? {
-                        borderRadius: '16px',
-                        overflow: 'hidden',
-                        background: 'rgba(255, 255, 255, 0.95)',
-                        backdropFilter: 'blur(10px)',
-                        border: '1px solid rgba(255, 255, 255, 0.2)',
-                        marginTop: '16px'
-                      } : {}}
-                    >
-                      <Table>
-                        <TableHead className={isMobile ? 'mobile-table-header' : 'bg-gray-100'}>
+                    <TableContainer component={Paper} sx={{ maxHeight: 600 }}>
+                      <Table stickyHeader aria-label="sticky table">
+                        <TableHead>
                           <TableRow>
                             <TableCell>Date</TableCell>
                             <TableCell>Libellé</TableCell>

@@ -37,23 +37,21 @@ import EtaProduits from '../../boutique/categorie/eta/EtaProduits'
 import VenteUsers from '../../boutique/categorie/eta/VenteUsers'
 import MesInscrit from '../../boutique/proprietaire/users/MesInscrit'
 import backgroundImage from '../../../public/assets/img/img.jpg'
-import { notClick } from '../../usePerso/fonctionPerso'
-import { Box } from '@mui/material'
+import { Box, CircularProgress } from '@mui/material'
 import { useStoreUuid } from '../../usePerso/store'
 import { useFetchEntreprise } from '../../usePerso/fonction.user'
 import { BASE } from '../../_services/caller.service'
 import FactureDetail from '../../boutique/sortie/FactureDetail'
 import Historique from '../../boutique/proprietaire/historique/Historique'
 import NotFound from '../../pages/extra-pages/not-found'
+import { notClick } from '../../usePerso/fonctionPerso';
 
 
 export default function PublicRouter() {
   // notClick()
-
   const uuid = useStoreUuid((state) => state.selectedId);
-  const { unEntreprise } = useFetchEntreprise(uuid);
+  const { unEntreprise, isLoading } = useFetchEntreprise(uuid);
   const url = unEntreprise.image ? BASE(unEntreprise.image) : backgroundImage;
-  // const url = backgroundImage;
 
   return (
     <Box
@@ -65,6 +63,29 @@ export default function PublicRouter() {
         padding: { sm: '24px', md: '32px' },
       }}
     >
+      {isLoading && (
+        <Box
+          role="status"
+          aria-label="Chargement de l'entreprise"
+          sx={{
+            position: 'fixed',
+            zIndex: (theme) => theme.zIndex.modal + 1,
+            right: { xs: 16, sm: 24 },
+            bottom: { xs: 16, sm: 24 },
+            display: 'grid',
+            width: 44,
+            height: 44,
+            placeItems: 'center',
+            border: '1px solid rgba(255, 255, 255, 0.36)',
+            borderRadius: 2.5,
+            backgroundColor: 'rgba(10, 29, 51, 0.72)',
+            boxShadow: '0 12px 30px rgba(0, 0, 0, 0.2)',
+            backdropFilter: 'blur(12px)',
+          }}
+        >
+          <CircularProgress size={20} thickness={4} sx={{ color: 'common.white' }} />
+        </Box>
+      )}
       <Routes>
         <Route element={<Dashboard />}>
           <Route index element={<Entreprise />} />

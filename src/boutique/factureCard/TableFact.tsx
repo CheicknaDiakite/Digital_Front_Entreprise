@@ -25,7 +25,7 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
   // const restTota = (total - )
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
+    <div className="rounded-lg shadow-sm border border-gray-200 mb-8">
       <div className="overflow-x-auto">
         <table className="w-full print-table">
           {/* Table Header */}
@@ -55,7 +55,7 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
               >
                 <td className={`${isThermal ? 'p-1' : 'p-4'} border-r border-gray-200`}>
                   <div>
-                    <Typography variant={isThermal ? "caption" : "body2"} className="font-medium text-gray-900 leading-tight">
+                    <Typography variant={isThermal ? "caption" : "body2"} className="font-medium text-gray-100 leading-tight">
                       {post.categorie_libelle}
                     </Typography>
                     {/* <Typography variant="body2" className="text-gray-400">
@@ -80,11 +80,11 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
               <td rowSpan={4} className="border-r border-gray-200"></td>
               <td
                 colSpan={2}
-                className={`text-right ${isThermal ? 'p-1' : 'p-4'} text-gray-600 font-semibold border-r border-gray-200`}
+                className={`text-right ${isThermal ? 'p-1' : 'p-4'} text-gray-100 font-semibold border-r border-gray-200`}
               >
                 Sous-total
               </td>
-              <td className={`text-right ${isThermal ? 'p-1' : 'p-4'} font-semibold text-gray-900`}>
+              <td className={`text-right ${isThermal ? 'p-1' : 'p-4'} font-semibold text-gray-100`}>
                 {formatNumberWithSpaces(total)}
               </td>
             </tr>
@@ -92,7 +92,7 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
             <tr className="border-b border-gray-900">
               <td
                 colSpan={2}
-                className={`text-right ${isThermal ? 'p-1' : 'p-4'} text-gray-600 font-semibold border-r border-gray-200`}
+                className={`text-right ${isThermal ? 'p-1' : 'p-4'} text-gray-100 font-semibold border-r border-gray-200`}
               >
                 Remise
               </td>
@@ -105,7 +105,7 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
               <tr className="border-b border-gray-900">
                 <td
                   colSpan={2}
-                  className={`text-right ${isThermal ? 'p-1' : 'p-4'} text-gray-600 font-semibold border-r border-gray-200`}
+                  className={`text-right ${isThermal ? 'p-1' : 'p-4'} text-gray-100 font-semibold border-r border-gray-200`}
                 >
                   Montant Payé
                 </td>
@@ -116,11 +116,11 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
               </tr>
             )}
 
-            <tr className="border-t-2 border-gray-900 bg-gray-300">
+            <tr className="border-t-2 border-gray-900 bg-gray-500">
 
               <td
                 colSpan={2}
-                className={`text-right ${isThermal ? 'p-1' : 'p-4'} text-gray-900 font-bold border-r border-gray-200`}
+                className={`text-right ${isThermal ? 'p-1' : 'p-4'} text-gray-100 font-bold border-r border-gray-200`}
               >
 
                 {resteAPayer > 0 && "Reste à payer"}
@@ -128,7 +128,7 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
                 {resteAPayer < 0 && "Total"}
               </td>
 
-              <td className={`text-right ${isThermal ? 'p-1 text-base' : 'p-4 text-lg'} font-bold text-gray-900`}>
+              <td className={`text-right ${isThermal ? 'p-1 text-base' : 'p-4 text-lg'} font-bold text-gray-100`}>
 
                 {resteAPayer > 0 && formatNumberWithSpaces(resteAPayer)}
                 {resteAPayer === 0 && formatNumberWithSpaces(payDiscount)}

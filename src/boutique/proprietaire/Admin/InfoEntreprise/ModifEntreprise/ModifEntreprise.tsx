@@ -138,7 +138,7 @@ export default function ModifEntreprise() {
         sx={{
           mb: 4,
           borderRadius: '16px',
-          background: 'linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%)',
+          // background: 'linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%)',
           border: '1px solid rgba(59, 130, 246, 0.15)',
           overflow: 'hidden'
         }}
@@ -147,17 +147,17 @@ export default function ModifEntreprise() {
           <Grid container spacing={3} alignItems="center">
             <Grid item xs={12} md={6}>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                <Typography variant="overline" sx={{ color: '#64748b', fontWeight: 700, letterSpacing: 1, fontSize: '0.7rem' }}>
+                <Typography variant="overline" sx={{ fontWeight: 700, letterSpacing: 1, fontSize: '0.7rem' }}>
                   Identifiant de l'entreprise
                 </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 800, color: '#1e3a8a', fontFamily: 'monospace' }}>
-                  {unEntreprise.ref || 'N/A'}
+                <Typography variant="h5" sx={{ fontWeight: 800, fontFamily: 'monospace' }}>
+                  {unEntreprise.ref || 'Pas trouvé'}
                 </Typography>
               </Box>
             </Grid>
             <Grid item xs={12} md={6}>
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'flex-start', md: 'flex-end' }, gap: 0.75 }}>
-                <Typography variant="overline" sx={{ color: '#64748b', fontWeight: 700, letterSpacing: 1, fontSize: '0.7rem' }}>
+                <Typography variant="overline" sx={{ fontWeight: 700, letterSpacing: 1, fontSize: '0.7rem' }}>
                   Statut du compte
                 </Typography>
                 <LicenceTag type={unEntreprise.licence_type}>

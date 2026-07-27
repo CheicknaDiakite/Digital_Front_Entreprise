@@ -197,7 +197,7 @@ export default function ClientEntrer(uuid: UuType) {
           </div>
 
           {/* Filters Section */}
-          <Paper elevation={0} className="p-4 bg-white rounded-lg">
+          <Paper elevation={0} className="p-4 rounded-lg">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
               <TextField
                 label="Recherche par date"
@@ -206,12 +206,12 @@ export default function ClientEntrer(uuid: UuType) {
                 onChange={handleDateChange}
                 InputLabelProps={{ shrink: true }}
                 fullWidth
-                className="bg-white"
+                // className="bg-white"
               />
               
               <div className="flex items-center space-x-2">
                 <LocalAtmIcon color="primary" />
-                <Typography variant="h6" className="text-gray-700">
+                <Typography variant="h6" className="text-gray-50">
                   Total : {formatNumberWithSpaces(totalPrice)} F
                 </Typography>
               </div>
@@ -229,9 +229,9 @@ export default function ClientEntrer(uuid: UuType) {
           </Paper>
 
           {/* Table Section */}
-          <TableContainer component={Paper} elevation={0}>
-            <Table>
-              <TableHead>
+          <TableContainer component={Paper} sx={{ maxHeight: 600 }}>
+            <Table stickyHeader aria-label="sticky table" >
+              <TableHead >
                 <TableRow sx={{ backgroundColor: '#f8fafc' }}>
                   <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Désignation</TableCell>

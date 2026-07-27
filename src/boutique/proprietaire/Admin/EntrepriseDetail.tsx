@@ -82,7 +82,7 @@ export default function EntrepriseDetail() {
           <Box sx={{ 
             borderBottom: '1px solid', 
             borderColor: 'divider',
-            bgcolor: 'rgba(248, 250, 252, 0.8)',
+            // bgcolor: 'rgba(248, 250, 252, 0.8)',
             backdropFilter: 'blur(8px)',
             px: { xs: 1, sm: 2 }
           }}>

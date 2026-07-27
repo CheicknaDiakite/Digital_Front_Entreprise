@@ -153,7 +153,7 @@ export default function PersonnelInfo() {
           </Grid>
 
           {/* Date Search Section */}
-          <Paper sx={{ p: 2, mb: 4, borderRadius: 4, bgcolor: 'rgba(255, 255, 255, 0.9)' }}>
+          <Paper sx={{ p: 2, mb: 4, borderRadius: 4 }}>
             <Box mb={2}>
               <Typography variant="subtitle1" fontWeight="bold">Rechercher par période</Typography>
             </Box>
@@ -195,7 +195,7 @@ export default function PersonnelInfo() {
           </Paper>
 
           {/* Recent Sales Table */}
-          <Paper sx={{ borderRadius: 4, overflow: 'hidden', bgcolor: 'rgba(255, 255, 255, 0.9)' }}>
+          <Paper sx={{ borderRadius: 4, overflow: 'hidden'}}>
             <Box px={3} py={2} bgcolor="rgba(0, 0, 0, 0.03)" display="flex" justifyContent="space-between" alignItems="center">
               <Typography variant="h6" fontWeight="bold">
                 Dernières Ventes

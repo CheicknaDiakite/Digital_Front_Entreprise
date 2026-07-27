@@ -84,8 +84,7 @@ const HistoryTable = ({ data }: { data: HistoriqueType[] }) => {
     component={Paper} 
     sx={{ maxHeight: 600 }}
   >
-    <Table 
-      
+    <Table   
       stickyHeader aria-label="sticky table"
     >
       <TableHead>
@@ -94,7 +93,7 @@ const HistoryTable = ({ data }: { data: HistoriqueType[] }) => {
             align="center" 
             colSpan={7}
             sx={{ 
-              backgroundColor: '#f8fafc',
+              // backgroundColor: '#f8fafc',
               borderBottom: '2px solid #e2e8f0'
             }}
           >

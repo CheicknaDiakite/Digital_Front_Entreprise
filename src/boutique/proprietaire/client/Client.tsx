@@ -174,19 +174,11 @@ export default function Client() {
               {/* Filters */}
               <Paper 
                 elevation={0} 
-                className={`${isMobile ? 'mobile-filters-section' : 'p-4 mb-6 rounded-lg'}`}
-                sx={isMobile ? {
-                  background: 'rgba(255, 255, 255, 0.9)',
-                  backdropFilter: 'blur(10px)',
-                  borderRadius: '16px',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  padding: '16px',
-                  marginBottom: '16px',
-                  animation: 'slideInUp 0.6s ease-out'
-                } : {}}
+                className={`p-4 mb-6 rounded-lg`}
+                
               >
                 <div className="flex items-center space-x-2 mb-4">
-                  <FilterListIcon className={`${isMobile ? 'mobile-card-icon' : ''} text-gray-500`} />
+                  <FilterListIcon className={` text-gray-500`} />
                   <Typography variant="subtitle1" className="font-medium text-gray-700">
                     Filtrer par type
                   </Typography>
@@ -267,24 +259,8 @@ export default function Client() {
               <Grid item xs={12} sm={6} md={4} key={post.id} className={`${isMobile ? `mobile-stagger-${(index % 6) + 1}` : ''}`}> 
               <Link to={`/entreprise/client/info/${post.uuid}`} className={isMobile ? 'mobile-card-link' : ''}>
                       <MainCard 
-                        className={`${isMobile ? 'mobile-personnel-card' : 'transition-all duration-200 hover:shadow-md'}`}
-                        sx={{ 
-                          height: '100%',
-                          ...(isMobile ? {
-                            borderRadius: '16px',
-                            backdropFilter: 'blur(10px)',
-                            background: 'rgba(255, 255, 255, 0.95)',
-                            border: '1px solid rgba(255, 255, 255, 0.2)',
-                            transition: 'all 0.3s ease',
-                            animation: 'scaleIn 0.6s ease-out',
-                            overflow: 'hidden',
-                            '&:hover': {
-                              transform: 'translateY(-8px)',
-                              boxShadow: '0 16px 32px rgba(0, 0, 0, 0.15)',
-                              animation: 'cardHover 0.3s ease-out forwards'
-                            }
-                          } : {})
-                        }}
+                        className={`transition-all duration-200 hover:shadow-md`}
+                        
                         content={false}
                       >
                         <ListItem alignItems="flex-start" className={`${isMobile ? 'mobile-list-item' : 'h-full'}`}>
@@ -358,7 +334,7 @@ export default function Client() {
           </Grid>
 
           {/* Pagination */}
-          <Box className={`${isMobile ? 'mobile-pagination' : 'flex justify-center mt-6'}`}>
+          <Box className={`flex justify-center mt-6`}>
           <Pagination
             count={totalPages}
             page={currentPage}

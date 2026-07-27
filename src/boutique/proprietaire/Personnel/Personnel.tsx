@@ -67,9 +67,10 @@ function PersonnelCard({ post, to }: { post: any; to: string }) {
   return (
     <Link to={to} style={{ textDecoration: "none" }}>
       <Box
+        className={`relative p-4 rounded-lg transition-all duration-200 hover:shadow-md border-x-2 animate-border-rotate mobile-shadow-card mobile-hover-effect mobile-glass`}
         sx={{
-          bgcolor: "#ffffff",
-          border: "1px solid #e2e8f0",
+          // bgcolor: "#ffffff",
+          // border: "1px solid #e2e8f0",
           borderRadius: "20px",
           p: 3,
           height: "100%",
@@ -104,7 +105,7 @@ function PersonnelCard({ post, to }: { post: any; to: string }) {
             size="small"
             sx={{
               bgcolor: role.bg,
-              color: role.color,
+              // color: role.color,
               fontWeight: 700,
               fontSize: "0.7rem",
               border: `1px solid ${role.color}30`,
@@ -118,11 +119,11 @@ function PersonnelCard({ post, to }: { post: any; to: string }) {
         <Box>
           <Typography
             variant="subtitle1"
-            sx={{ fontWeight: 700, color: "#0f172a", letterSpacing: "-0.01em", lineHeight: 1.3 }}
+            sx={{ fontWeight: 700, letterSpacing: "-0.01em", lineHeight: 1.3 }}
           >
             {post.username}
           </Typography>
-          <Typography variant="body2" sx={{ color: "#475569", mt: 0.25, fontWeight: 500 }}>
+          <Typography variant="body2" sx={{ mt: 0.25, fontWeight: 500 }}>
             {post.last_name} {post.first_name}
           </Typography>
         </Box>
@@ -135,7 +136,7 @@ function PersonnelCard({ post, to }: { post: any; to: string }) {
             <Box sx={{ p: 0.6, bgcolor: "#f1f5f9", borderRadius: "8px", display: "flex" }}>
               <PhoneIcon sx={{ fontSize: 14, color: "#475569" }} />
             </Box>
-            <Typography variant="caption" sx={{ color: "#64748b", fontWeight: 500 }}>
+            <Typography variant="caption" sx={{ fontWeight: 500 }}>
               {post.numero || "—"}
             </Typography>
           </Box>
@@ -146,7 +147,7 @@ function PersonnelCard({ post, to }: { post: any; to: string }) {
             <Typography
               variant="caption"
               sx={{
-                color: "#64748b",
+                
                 fontWeight: 500,
                 overflow: "hidden",
                 textOverflow: "ellipsis",
@@ -167,7 +168,7 @@ function PersonnelCard({ post, to }: { post: any; to: string }) {
 
 function SkeletonCard() {
   return (
-    <Box sx={{ bgcolor: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "20px", p: 3 }}>
+    <Box sx={{ border: "1px solid #e2e8f0", borderRadius: "20px", p: 3 }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <Skeleton variant="circular" width={56} height={56} />
         <Skeleton variant="rounded" width={80} height={24} sx={{ borderRadius: "8px" }} />
@@ -300,14 +301,14 @@ export default function Personnel() {
                   variant="h5"
                   sx={{
                     fontWeight: 800,
-                    color: "#0f172a",
+                    // color: "#0f172a",
                     letterSpacing: "-0.02em",
                     lineHeight: 1.2,
                   }}
                 >
                   Gestion du Personnel
                 </Typography>
-                <Typography variant="body2" sx={{ color: "#64748b", mt: 0.25, fontWeight: 500 }}>
+                <Typography variant="body2" sx={{mt: 0.25, fontWeight: 500 }}>
                   {getUser.length} membre{getUser.length !== 1 ? "s" : ""} dans votre équipe
                 </Typography>
               </Box>

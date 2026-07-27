@@ -55,10 +55,10 @@ import BusinessIcon from '@mui/icons-material/Business';
       <Box className="max-w-2xl mx-auto">
         <Paper elevation={0} className="p-6 space-y-6">
           <div className="border-b pb-4">
-            <Typography variant="h5" className="font-semibold text-gray-900">
+            <Typography variant="h5" className="font-semibold text-gray-50">
               Modification du profil
             </Typography>
-            <Typography variant="body2" className="text-gray-500 mt-1">
+            <Typography variant="body2" className="text-gray-200 mt-1">
               Mettez à jour les informations du client
             </Typography>
           </div>
@@ -66,7 +66,7 @@ import BusinessIcon from '@mui/icons-material/Business';
           <form onSubmit={onSubmit} className="space-y-6">
             {/* Nom complet */}
             <div className="space-y-2">
-              <div className="flex items-center space-x-2 text-gray-700">
+              <div className="flex items-center space-x-2 text-gray-100">
                 <PersonIcon fontSize="small" />
                 <Typography variant="subtitle2">Nom Complet</Typography>
               </div>
@@ -77,13 +77,13 @@ import BusinessIcon from '@mui/icons-material/Business';
               onChange={onChange}
               value={unClient.nom}
               placeholder="Nom complet du client"
-              className="bg-white"
+              // className="bg-white"
               />
             </div>
   
             {/* Email */}
             <div className="space-y-2">
-              <div className="flex items-center space-x-2 text-gray-700">
+              <div className="flex items-center space-x-2 text-gray-100">
                 <EmailIcon fontSize="small" />
                 <Typography variant="subtitle2">Email</Typography>
               </div>
@@ -95,13 +95,13 @@ import BusinessIcon from '@mui/icons-material/Business';
               onChange={onChange}
               value={unClient.email}
               placeholder="Adresse email"
-              className="bg-white"
+              // className="bg-white"
               />
             </div>
   
             {/* Adresse */}
             <div className="space-y-2">
-              <div className="flex items-center space-x-2 text-gray-700">
+              <div className="flex items-center space-x-2 text-gray-100">
                 <LocationOnIcon fontSize="small" />
                 <Typography variant="subtitle2">Adresse</Typography>
               </div>
@@ -112,13 +112,13 @@ import BusinessIcon from '@mui/icons-material/Business';
               onChange={onChange}
               value={unClient.adresse}
               placeholder="Adresse complète"
-              className="bg-white"
+              // className="bg-white"
               />
             </div>
   
             {/* Coordonnées */}
             <div className="space-y-2">
-              <div className="flex items-center space-x-2 text-gray-700">
+              <div className="flex items-center space-x-2 text-gray-100">
                 <BusinessIcon fontSize="small" />
                 <Typography variant="subtitle2">Coordonnées</Typography>
               </div>
@@ -131,13 +131,13 @@ import BusinessIcon from '@mui/icons-material/Business';
                 onChange={onChange}
                 value={unClient.coordonne}
                 placeholder="Coordonnées supplémentaires"
-                className="bg-white"
+                // className="bg-white"
               />
             </div>
   
             {/* Numéro */}
             <div className="space-y-2">
-              <div className="flex items-center space-x-2 text-gray-700">
+              <div className="flex items-center space-x-2 text-gray-100">
                 <PhoneIcon fontSize="small" />
                 <Typography variant="subtitle2">Numéro de téléphone</Typography>
               </div>
@@ -148,12 +148,12 @@ import BusinessIcon from '@mui/icons-material/Business';
               onChange={onChange}
               value={unClient.numero}
               placeholder="Numéro de téléphone"
-              className="bg-white"
+              // className="bg-white"
               />
             </div>
   
             {/* Type de client */}
-            <FormControl fullWidth variant="outlined" className="bg-white">
+            <FormControl fullWidth variant="outlined" className="">
               <InputLabel id="role-label">Type de client</InputLabel>
               <Select
                 labelId="role-label"

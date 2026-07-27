@@ -63,7 +63,7 @@ export default function Historique() {
     
     <Box sx={{ width: '100%' }}>
       {/* Search Filters */}
-      <Paper elevation={0} sx={{ p: 2, mb: 2, background: '#f8fafc' }}>
+      <Paper elevation={0} sx={{ p: 2, mb: 2 }}>
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center" justifyContent="space-between">
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center">
             <TextField
@@ -73,7 +73,6 @@ export default function Historique() {
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
               InputLabelProps={{ shrink: true }}
-              sx={{ bgcolor: 'white' }}
             />
             <TextField
               label="Date fin"
@@ -82,9 +81,8 @@ export default function Historique() {
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
               InputLabelProps={{ shrink: true }}
-              sx={{ bgcolor: 'white' }}
             />
-            <FormControl size="small" sx={{ minWidth: 120, bgcolor: 'white' }}>
+            <FormControl size="small" sx={{ minWidth: 120 }}>
               <InputLabel>Type</InputLabel>
               <Select
                 value={typeFilter}
@@ -107,7 +105,7 @@ export default function Historique() {
           /> */}
           <Typography variant="h6" component="h3">
             Historique
-            <span className="ml-2 px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+            <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
                 {clientHistoryFiltered?.length ?? 0}
             </span>
           </Typography>
@@ -245,14 +243,13 @@ export default function Historique() {
       )}
 
         {totalPages > 1 && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }} className={`flex justify-center mt-6 mobile-pagination`}>
-            <Pagination
-            
-                count={totalPages}
-                page={currentPage}
-                onChange={(_, page) => setCurrentPage(page)}
-                color="primary"
-                size="large"
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }} className={`flex justify-center mt-6 `}>
+            <Pagination            
+              count={totalPages}
+              page={currentPage}
+              onChange={(_, page) => setCurrentPage(page)}
+              color="primary"
+              size="large"
             />
           </Box>
         )}

@@ -120,10 +120,10 @@ export function PersonnelModif() {
           <Box className="p-6">
             {/* Header */}
             <div className="border-b pb-4 mb-6">
-              <Typography variant="h4" className="font-semibold text-gray-900">
+              <Typography variant="h4" className="font-semibold">
                 Modification du Profil
               </Typography>
-              <Typography variant="body2" className="text-gray-500 mt-1">
+              <Typography variant="body2" className="text-gray-200 mt-1">
                 Modifiez les informations du membre
               </Typography>
             </div>
@@ -131,7 +131,7 @@ export function PersonnelModif() {
             <form onSubmit={onSubmit} className="space-y-6">
               <div className="grid grid-cols-1 gap-6">
                 <div className="space-y-2">
-                  <div className="flex items-center space-x-2 text-gray-700">
+                  <div className="flex items-center space-x-2">
                     <PersonIcon fontSize="small" />
                     <Typography variant="subtitle2">Informations personnelles</Typography>
                   </div>
@@ -144,7 +144,7 @@ export function PersonnelModif() {
                       name="username"
                       onChange={onChange}
                       value={unUser.username}
-                      className="bg-gray-50"
+                      // className="text-gray-50"
                     />
 
                     <MyTextField
@@ -154,7 +154,7 @@ export function PersonnelModif() {
                       name="last_name"
                       onChange={onChange}
                       value={unUser.last_name}
-                      className="bg-white"
+                      // className="bg-white"
                     />
 
                     <MyTextField
@@ -164,13 +164,13 @@ export function PersonnelModif() {
                       name="first_name"
                       onChange={onChange}
                       value={unUser.first_name}
-                      className="bg-white"
+                      // className="bg-white"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex items-center space-x-2 text-gray-700">
+                  <div className="flex items-center space-x-2">
                     <EmailIcon fontSize="small" />
                     <Typography variant="subtitle2">Contact</Typography>
                   </div>
@@ -185,7 +185,7 @@ export function PersonnelModif() {
                       InputLabelProps={{
                         shrink: true,
                       }}
-                      className="bg-white"
+                      // className="bg-white"
                     />
 
                     <MyTextField
@@ -198,10 +198,10 @@ export function PersonnelModif() {
                       value={unUser.numero}
                       InputProps={{
                         startAdornment: (
-                          <PhoneIcon className="mr-2 text-gray-400" />
+                          <PhoneIcon className="mr-2" />
                         ),
                       }}
-                      className="bg-white"
+                      // className="bg-white"
                     />
                   </div>
                 </div>
@@ -209,10 +209,10 @@ export function PersonnelModif() {
                 <Divider />
 
                 <div className="space-y-2">
-                  <Typography variant="subtitle2" className="text-gray-700">
+                  <Typography variant="subtitle2" className="">
                     Rôle et accès
                   </Typography>
-                  <FormControl fullWidth variant="outlined" className="bg-white">
+                  <FormControl fullWidth variant="outlined" >
                     <InputLabel id="role-label">Type de compte</InputLabel>
                     <Select
                       labelId="role-label"
@@ -233,7 +233,7 @@ export function PersonnelModif() {
 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Typography variant="subtitle2" className="text-gray-700">
+                    <Typography variant="subtitle2" >
                       Restrictions d'accès
                     </Typography>
                     <FormControlLabel
@@ -250,8 +250,8 @@ export function PersonnelModif() {
                   </div>
 
                   {restriction.active && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-md border border-gray-200">
-                      <FormControl fullWidth size="small" className="bg-white">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-md border border-gray-200">
+                      <FormControl fullWidth size="small" >
                         <InputLabel>Jour de début</InputLabel>
                         <Select
                           value={restriction.day_start}
@@ -264,7 +264,7 @@ export function PersonnelModif() {
                         </Select>
                       </FormControl>
 
-                      <FormControl fullWidth size="small" className="bg-white">
+                      <FormControl fullWidth size="small" >
                         <InputLabel>Jour de fin</InputLabel>
                         <Select
                           value={restriction.day_end}
@@ -285,7 +285,6 @@ export function PersonnelModif() {
                         InputLabelProps={{ shrink: true }}
                         fullWidth
                         size="small"
-                        className="bg-white"
                       />
 
                       <MyTextField
@@ -296,14 +295,13 @@ export function PersonnelModif() {
                         InputLabelProps={{ shrink: true }}
                         fullWidth
                         size="small"
-                        className="bg-white"
                       />
                     </div>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Typography variant="subtitle2" className="text-gray-700">
+                  <Typography variant="subtitle2">
                     Sécurité
                   </Typography>
                   <div className="space-y-4">
@@ -317,7 +315,6 @@ export function PersonnelModif() {
                         shrink: true,
                       }}
                       fullWidth
-                      className="bg-white"
                     />
 
                     <MyTextField
@@ -329,13 +326,12 @@ export function PersonnelModif() {
                         shrink: true,
                       }}
                       fullWidth
-                      className="bg-white"
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="px-3 sm:px-6 py-3 sm:py-4 bg-gray-50 border-t flex flex-col sm:flex-row gap-3 sm:gap-6 justify-end">
+              <div className="px-3 sm:px-6 py-3 sm:py-4 border-t flex flex-col sm:flex-row gap-3 sm:gap-6 justify-end">
                 <Button
                   type="submit"
                   variant="contained"

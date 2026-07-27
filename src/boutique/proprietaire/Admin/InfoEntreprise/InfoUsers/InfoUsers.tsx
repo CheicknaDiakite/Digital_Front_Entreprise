@@ -162,7 +162,7 @@ export default function InfoUsers() {
           border: '1px solid #e2e8f0', 
           overflow: 'hidden',
           boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
-          bgcolor: '#ffffff'
+          // bgcolor: '#ffffff'
         }}
       >
         {entrepriseUsers && entrepriseUsers.length > 0 ? (
@@ -227,7 +227,7 @@ export default function InfoUsers() {
                     <ListItemText
                       primary={
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-                          <Typography variant="body2" sx={{ fontWeight: 600, color: '#0f172a' }}>
+                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
                             {user.username}
                           </Typography>
                           {isAdmin && (
@@ -247,7 +247,7 @@ export default function InfoUsers() {
                         </Box>
                       }
                       secondary={
-                        <Typography variant="caption" sx={{ color: '#64748b' }}>
+                        <Typography variant="caption">
                           {[user.last_name, user.first_name].filter(Boolean).join(' ') || 'Nom non renseigné'}
                         </Typography>
                       }

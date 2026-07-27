@@ -89,7 +89,7 @@ export default function ClientInfo() {
 
         {/* Tabs */}
         <Box
-          className={`border-b bg-gray-100 backdrop-blur-sm `}
+          className={`border-b backdrop-blur-sm `}
         >
           <Tabs
             value={value}

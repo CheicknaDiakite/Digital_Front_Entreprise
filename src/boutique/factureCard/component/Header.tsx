@@ -43,11 +43,11 @@ export default function Header({
 
       <div className={`${isThermal ? 'text-center' : 'text-right'} p-5 m-3`}>
         {(orderNumber || numeroFac) && (
-          <Typography variant={isThermal ? "body1" : "h4"} className="text-gray-700 mb-1">
+          <Typography variant={isThermal ? "body1" : "h4"} className="text-gray-50 mb-1">
             N° Facture : {orderNumber || numeroFac}
           </Typography>
         )}
-        <Typography variant={isThermal ? "body1" : "h4"} className="text-gray-600">
+        <Typography variant={isThermal ? "body1" : "h4"} className="text-gray-50">
           Date : {invoiceDate}
         </Typography>
       </div>
@@ -57,25 +57,25 @@ export default function Header({
         {/* Company Info */}
         <div className="space-y-2">
           {!isThermal && (
-            <Typography variant="h4" className="text-gray-500 font-medium">
+            <Typography variant="h4" className="text-gray-50 font-medium">
               Informations de l'entreprise
             </Typography>
           )}
           <div className="space-y-1">
             {email && (
-              <div className={`flex items-center ${isThermal ? 'justify-center' : ''} text-gray-600`}>
+              <div className={`flex items-center ${isThermal ? 'justify-center' : ''} text-gray-50`}>
                 {!isThermal && <EmailIcon className="w-5 h-5 mr-2" />}
                 <Typography variant={isThermal ? "body2" : "h5"}>{email}</Typography>
               </div>
             )}
             {numero && (
-              <div className={`flex items-center ${isThermal ? 'justify-center' : ''} text-gray-600`}>
+              <div className={`flex items-center ${isThermal ? 'justify-center' : ''} text-gray-50`}>
                 {!isThermal && <PhoneIcon className="w-5 h-5 mr-2" />}
                 <Typography variant={isThermal ? "body2" : "h5"}>{numero}</Typography>
               </div>
             )}
             {coordonne && (
-              <Typography variant={isThermal ? "body2" : "h5"} className={`text-gray-600 ${isThermal ? 'text-center' : ''}`}>
+              <Typography variant={isThermal ? "body2" : "h5"} className={`text-gray-50 ${isThermal ? 'text-center' : ''}`}>
                 {coordonne}
               </Typography>
             )}
@@ -84,15 +84,15 @@ export default function Header({
 
         {/* Client Info */}
         <div className={`space-y-2 ${isThermal ? 'border-t border-dashed pt-4 text-center' : 'm-3'}`}>
-          <Typography variant={isThermal ? "body1" : "h5"} className="text-gray-500 font-medium font-bold">
+          <Typography variant={isThermal ? "body1" : "h5"} className="text-gray-50 font-medium">
             CLIENT
           </Typography>
           <div className="space-y-1">
-            <Typography variant={isThermal ? "body1" : "h5"} className="text-gray-600">
+            <Typography variant={isThermal ? "body1" : "h5"} className="text-gray-50">
               {clientName}
             </Typography>
             {invoiceNumber &&
-              <Typography variant={isThermal ? "body2" : "h5"} className="text-gray-600">
+              <Typography variant={isThermal ? "body2" : "h5"} className="text-gray-50">
                 {invoiceNumber}
               </Typography>
             }
@@ -103,7 +103,7 @@ export default function Header({
       {/* Facture Title */}
       <div className="text-center mb-8">
         <Divider className="mb-4" />
-        <Typography variant="h5" className="font-bold text-gray-900">
+        <Typography variant="h5" className="font-bold text-gray-50">
           FACTURE
         </Typography>
       </div>
