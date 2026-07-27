@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Box, Grid, Stack, TextField, Typography } from '@mui/material';
 import { format } from 'date-fns';
 import Nav from '../../../_components/Button/Nav';
-import MainCard from '../../../components/MainCard';
+import { ChartSection } from '../../../pages/dashboard/components/ChartSection';
 import MonthlyBarChart from '../../../pages/dashboard/MonthlyBarChart';
 import { useStockSemaine } from '../../../usePerso/fonction.user';
 import { useStoreUuid } from '../../../usePerso/store';
@@ -19,16 +19,9 @@ const MonthlyProductChart = ({ saleData }: { saleData: ProductSaleDetails }) => 
   const saleDate = new Date(saleData.month);
 
   return (
-    <MainCard sx={{ mt: 2 }} content={false}>
-      <Box sx={{ p: 3, pb: 0 }}>
-        <Stack spacing={2}>
-          <Typography variant="h6" color="text.secondary">
-            {format(saleDate, 'MMMM yyyy')}
-          </Typography>
-        </Stack>
-      </Box>
+    <ChartSection title={format(saleDate, 'MMMM yyyy')} className="h-full">
       <MonthlyBarChart details={saleData.details} />
-    </MainCard>
+    </ChartSection>
   );
 };
 
@@ -53,7 +46,7 @@ export default function EtaProduits() {
           <TextField
             label="Année"
             type="number"
-            className='bg-yellow-100'
+            // className='bg-yellow-100'
             size="small"
             value={annee}
             onChange={(e) => setAnnee(Number(e.target.value))}

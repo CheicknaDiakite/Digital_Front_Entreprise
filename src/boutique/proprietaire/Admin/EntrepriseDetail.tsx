@@ -90,7 +90,7 @@ export default function EntrepriseDetail() {
             {unEntreprise.nom && (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, pt: 2, pb: 0.5 }}>
                 <BusinessIcon sx={{ fontSize: 18, color: '#3b82f6' }} />
-                <Typography variant="caption" sx={{ fontWeight: 700, color: '#3b82f6', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5 }}>
                   {unEntreprise.nom}
                 </Typography>
                 {unEntreprise.licence_type && (
