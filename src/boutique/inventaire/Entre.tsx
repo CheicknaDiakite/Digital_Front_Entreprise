@@ -284,7 +284,7 @@ export default function Entre() {
                   variant="outlined"
                   value={searchTerm}
                   onChange={handleSearchChange}
-                  className={`${isMobile ? 'mobile-search-container' : 'bg-white'}`}
+                  // className={`${isMobile ? 'mobile-search-container' : 'bg-white'}`}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -292,19 +292,7 @@ export default function Entre() {
                       </InputAdornment>
                     ),
                   }}
-                  sx={isMobile ? {
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: '16px',
-                      background: 'rgba(255, 255, 255, 0.9)',
-                      backdropFilter: 'blur(10px)',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
-                      transition: 'all 0.3s ease',
-                      '&:focus-within': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.1)'
-                      }
-                    }
-                  } : {}}
+                  
                 />
               </Grid>
 
@@ -316,7 +304,6 @@ export default function Entre() {
                   value={selectedStartDate}
                   onChange={handleStartDateChange}
                   InputLabelProps={{ shrink: true }}
-                  className={`${isMobile ? 'mobile-date-field' : 'bg-white'}`}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -324,18 +311,7 @@ export default function Entre() {
                       </InputAdornment>
                     ),
                   }}
-                  sx={isMobile ? {
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: '12px',
-                      background: 'rgba(255, 255, 255, 0.8)',
-                      backdropFilter: 'blur(10px)',
-                      transition: 'all 0.3s ease',
-                      '&:focus-within': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                      }
-                    }
-                  } : {}}
+                  
                 />
               </Grid>
 
@@ -347,7 +323,6 @@ export default function Entre() {
                   value={selectedEndDate}
                   onChange={handleEndDateChange}
                   InputLabelProps={{ shrink: true }}
-                  className={`${isMobile ? 'mobile-date-field' : 'bg-white'}`}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -355,47 +330,25 @@ export default function Entre() {
                       </InputAdornment>
                     ),
                   }}
-                  sx={isMobile ? {
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: '12px',
-                      background: 'rgba(255, 255, 255, 0.8)',
-                      backdropFilter: 'blur(10px)',
-                      transition: 'all 0.3s ease',
-                      '&:focus-within': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                      }
-                    }
-                  } : {}}
+                  
                 />
               </Grid>
 
               <Grid item xs={6} md={6} lg={3}>
                 <Paper
                   elevation={0}
-                  className={`${isMobile ? 'mobile-stats-card' : 'p-4 bg-blue-50 rounded-lg'} flex items-center justify-between`}
-                  sx={isMobile ? {
-                    borderRadius: '16px',
-                    backdropFilter: 'blur(10px)',
-                    background: 'rgba(255, 255, 255, 0.95)',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    transition: 'all 0.3s ease',
-                    animation: 'scaleIn 0.6s ease-out',
-                    '&:hover': {
-                      transform: 'translateY(-4px)',
-                      boxShadow: '0 12px 24px rgba(0, 0, 0, 0.1)'
-                    }
-                  } : {}}
+                  className={`p-4 flex items-center justify-between`}
+                  
                 >
                   <div>
-                    <Typography variant="subtitle2" className="text-gray-600">
+                    <Typography variant="subtitle2" className="text-gray-50">
                       Total Entrées
                     </Typography>
-                    <Typography variant="h6" className="text-gray-900">
+                    <Typography variant="h6" className="text-gray-100">
                       {filteredBoutiques.length}
                     </Typography>
                   </div>
-                  <InventoryIcon className={`${isMobile ? 'mobile-stats-icon' : 'text-blue-500'}`} />
+                  <InventoryIcon className={`text-blue-50`} />
                 </Paper>
               </Grid>
 
@@ -468,19 +421,14 @@ export default function Entre() {
 
               <Grid item xs={12}>
                 {/* Pagination */}
-                <Box className={`flex justify-center mt-6 mobile-pagination`}>
+                <Box className={`flex justify-center mt-6`}>
                   <Pagination
                     count={totalPages}
                     page={currentPage}
                     onChange={handlePageChange}
                     color="primary"
                     size={isMobile ? "medium" : "large"}
-                    sx={isMobile ? {
-                      '& .MuiPaginationItem-root': {
-                        borderRadius: '8px',
-                        margin: '0 2px'
-                      }
-                    } : {}}
+                    
                   />
                 </Box>
               </Grid>

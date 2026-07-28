@@ -14,7 +14,7 @@ const AuthWrapper: FC<ChildrenProps> = ({ children }) => {
       sx={{
         minHeight: '100vh',
         display: 'flex',
-        bgcolor: '#0f172a',
+        bgcolor: 'background.default',
         position: 'relative',
         overflow: 'hidden',
       }}
@@ -32,11 +32,13 @@ const AuthWrapper: FC<ChildrenProps> = ({ children }) => {
           position: 'relative',
           // Fond gradient sur mobile (pas de panneau gauche)
           ...(isMobile && {
-            background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%)',
+            background: theme.palette.mode === 'dark'
+              ? 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%)'
+              : 'linear-gradient(135deg, #f8fafc 0%, #eef2ff 50%, #f8fafc 100%)',
           }),
           // Fond blanc/clair sur desktop (côté formulaire)
           ...(!isMobile && {
-            bgcolor: theme.palette.mode === 'dark' ? '#111827' : '#f8fafc',
+            bgcolor: 'background.default',
           }),
         }}
       >

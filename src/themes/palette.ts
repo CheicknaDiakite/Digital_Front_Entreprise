@@ -34,6 +34,8 @@ export default function Palette(mode: 'light' | 'dark') {
 
   const paletteColor = ThemeOption(colors);
 
+  const isDark = mode === 'dark';
+
   return createTheme({
     palette: {
       mode,
@@ -43,19 +45,20 @@ export default function Palette(mode: 'light' | 'dark') {
       },
       ...paletteColor,
       text: {
-        primary: '#e2e8f0',
-        secondary: '#94a3b8',
-        disabled: '#64748b'
+        primary: isDark ? '#e2e8f0' : '#172033',
+        secondary: isDark ? '#94a3b8' : '#52627a',
+        disabled: isDark ? '#64748b' : '#8a97aa'
       },
       action: {
-        disabled: '#475569',
-        hover: 'rgba(129, 140, 248, 0.08)',
-        selected: 'rgba(99, 102, 241, 0.16)'
+        disabled: isDark ? '#475569' : '#b7c1d0',
+        disabledBackground: isDark ? 'rgba(71, 85, 105, 0.24)' : 'rgba(183, 193, 208, 0.32)',
+        hover: isDark ? 'rgba(129, 140, 248, 0.10)' : 'rgba(37, 99, 235, 0.07)',
+        selected: isDark ? 'rgba(99, 102, 241, 0.18)' : 'rgba(37, 99, 235, 0.12)'
       },
-      divider: '#26354d',
+      divider: isDark ? '#26354d' : '#dce3ee',
       background: {
-        paper: '#101c30',
-        default: '#07111f'
+        paper: isDark ? '#101c30' : '#ffffff',
+        default: isDark ? '#07111f' : '#f5f7fb'
       }
     }
   });

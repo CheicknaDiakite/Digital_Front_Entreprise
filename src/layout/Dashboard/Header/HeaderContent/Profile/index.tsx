@@ -119,8 +119,8 @@ export default function Profile() {
             p: 0.75,
             px: 1.5,
             borderRadius: '24px',
-            bgcolor: 'rgba(255, 255, 255, 0.08)',
-            border: '1px solid rgba(255, 255, 255, 0.18)',
+            bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.78)',
+            border: `1px solid ${theme.palette.divider}`,
             backdropFilter: 'blur(10px)',
             transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
             boxShadow: open ? '0 0 16px rgba(99, 102, 241, 0.35)' : 'none',
@@ -145,7 +145,7 @@ export default function Profile() {
             <Typography
               variant="subtitle2"
               sx={{
-                color: '#f8fafc',
+                color: 'text.primary',
                 fontWeight: 600,
                 textTransform: 'capitalize',
                 display: { xs: 'none', sm: 'block' },
@@ -183,16 +183,18 @@ export default function Profile() {
                   width: 310,
                   maxWidth: { xs: 290, sm: 310 },
                   borderRadius: '20px',
-                  background: 'linear-gradient(145deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.92) 100%)',
+                  background: theme.palette.mode === 'dark'
+                    ? 'linear-gradient(145deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.92) 100%)'
+                    : 'linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(247, 249, 253, 0.98) 100%)',
                   backdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(255, 255, 255, 0.15)',
-                  boxShadow: '0 20px 40px rgba(0,0,0,0.5), 0 0 20px rgba(99, 102, 241, 0.15)',
+                  border: `1px solid ${theme.palette.divider}`,
+                  boxShadow: theme.palette.mode === 'dark' ? '0 20px 40px rgba(0,0,0,0.5), 0 0 20px rgba(99, 102, 241, 0.15)' : '0 20px 40px rgba(15,23,42,0.16)',
                   overflow: 'hidden',
                 }}
               >
                 <ClickAwayListener onClickAway={handleClose}>
                   <Box>
-                    <Box sx={{ p: 2.5, pb: 2, background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.08) 100%)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                    <Box sx={{ p: 2.5, pb: 2, background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.08) 100%)', borderBottom: `1px solid ${theme.palette.divider}` }}>
                       <Grid container justifyContent="space-between" alignItems="center">
                         <Grid item>
                           <Stack direction="row" spacing={1.5} alignItems="center">
@@ -202,10 +204,10 @@ export default function Profile() {
                               sx={{ width: 42, height: 42, border: '2px solid #6366f1', fontSize: '1rem', fontWeight: 700 }}
                             />
                             <Stack spacing={0.25}>
-                              <Typography variant="subtitle1" sx={{ color: '#f8fafc', fontWeight: 700, lineHeight: 1.2, textTransform: 'capitalize' }}>
+                              <Typography variant="subtitle1" sx={{ color: 'text.primary', fontWeight: 700, lineHeight: 1.2, textTransform: 'capitalize' }}>
                                 {unUser.last_name} {unUser.first_name}
                               </Typography>
-                              <Typography variant="caption" sx={{ color: '#94a3b8', fontSize: '0.75rem' }}>
+                              <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.75rem' }}>
                                 {unUser.role === 1 ? 'Administrateur' : unUser.role === 2 ? 'Gestionnaire' : 'Utilisateur'}
                               </Typography>
                             </Stack>
@@ -235,7 +237,7 @@ export default function Profile() {
                       </Grid>
                     </Box>
 
-                    <Box sx={{ borderBottom: 1, borderColor: 'rgba(255, 255, 255, 0.08)', px: 1.5, pt: 1 }}>
+                    <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 1.5, pt: 1 }}>
                       <Tabs
                         variant="fullWidth"
                         value={value}
@@ -254,7 +256,7 @@ export default function Profile() {
                           sx={{
                             minHeight: 42,
                             py: 1,
-                            color: '#94a3b8',
+                            color: 'text.secondary',
                             fontSize: '0.825rem',
                             fontWeight: 600,
                             textTransform: 'capitalize',
@@ -270,7 +272,7 @@ export default function Profile() {
                             sx={{
                               minHeight: 42,
                               py: 1,
-                              color: '#94a3b8',
+                              color: 'text.secondary',
                               fontSize: '0.825rem',
                               fontWeight: 600,
                               textTransform: 'capitalize',

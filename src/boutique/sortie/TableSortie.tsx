@@ -15,9 +15,36 @@ import { ChangeEvent, useEffect, useState } from 'react';
 import CloseIcon from "@mui/icons-material/Close"
 import BarcodeScanner from '../../_components/Input/BarcodeScanner';
 import M_Abonnement from '../../_components/Card/M_Abonnement';
-
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SaveIcon from '@mui/icons-material/Save';
+import SearchIcon from '@mui/icons-material/Search';
+
+// Styles partagés
+const inputSx = {
+  '& .MuiOutlinedInput-root': {
+    borderRadius: '10px',
+    transition: 'all 0.2s ease',
+    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#6366f1' },
+    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+      borderColor: '#6366f1',
+      boxShadow: '0 0 0 3px rgba(99,102,241,0.15)',
+    },
+  },
+};
+
+const sectionLabel = (text: string) => (
+  <div style={{
+    fontSize: '0.72rem',
+    fontWeight: 700,
+    textTransform: 'uppercase',
+    letterSpacing: '0.08em',
+    color: '#94a3b8',
+    marginBottom: '8px',
+  }}>
+    {text}
+  </div>
+);
 
 export default function TableSortie({
   ent,
@@ -57,72 +84,127 @@ export default function TableSortie({
     setSearchTerm(e.target.value);
   };
 
-  // Filtrage de la liste triée en fonction du terme de recherche
   const sortedList = sortedLi.filter((post: any) =>
     post?.ref?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-
-  // Filtrer la liste "ent" en fonction de scannedCode
-  // On suppose ici que chaque option de "ent" possède une propriété "ref"
   const filteredEnt = scannedCode
     ? ent.filter((option: any) => option.ref === scannedCode)
     : ent;
 
-  // Optionnel : si vous souhaitez auto-sélectionner l'option lorsque
-  // il n'y a qu'un seul résultat, vous pouvez utiliser useEffect :
   useEffect(() => {
     if (filteredEnt && filteredEnt.length === 1) {
       if (handleChange && typeof handleChange === 'function') {
-        handleChange(filteredEnt[0]); // met à jour selectedOption via le callback parent
+        handleChange(filteredEnt[0]);
       }
     }
   }, [filteredEnt, handleChange]);
+
+  // Styles react-select personnalisés
+  const selectStyles = {
+    control: (base: any, state: any) => ({
+      ...base,
+      borderRadius: '10px',
+      border: state.isFocused ? '1.5px solid #6366f1' : '1.5px solid #e2e8f0',
+      boxShadow: state.isFocused ? '0 0 0 3px rgba(99,102,241,0.12)' : 'none',
+      minHeight: '42px',
+      transition: 'all 0.2s',
+      '&:hover': { borderColor: '#6366f1' },
+    }),
+    option: (base: any, state: any) => ({
+      ...base,
+      backgroundColor: state.isFocused ? '#eff6ff' : '#fff',
+      color: '#1e293b',
+      fontWeight: state.isSelected ? 600 : 400,
+      fontSize: '0.85rem',
+    }),
+    singleValue: (base: any) => ({ ...base, color: '#1e293b', fontWeight: 500 }),
+    placeholder: (base: any) => ({ ...base, color: '#94a3b8', fontSize: '0.85rem' }),
+  };
 
   return (
     <>
       <ToastContainer position="top-right" theme="colored" />
 
+      {/* ── Recherche ── */}
       <TextField
-        label="Rechercher par ref"
+        label="Rechercher par référence"
         variant="outlined"
         className="mt-3"
         fullWidth
         value={searchTerm}
         onChange={handleSearchChange}
+        sx={{ ...inputSx, mt: 2, mb: 0.5 }}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon sx={{ color: '#94a3b8', fontSize: 20 }} />
+            </InputAdornment>
+          ),
+        }}
       />
 
+      {/* ── Formulaire ── */}
       <form onSubmit={onSubmit}>
-        <div className="flex flex-col md:mt-1 py-3">
-          <div className="my-2">
-            <Stack direction="row" spacing={2}>
-              <QrCode2Icon onClick={functionopen} color="error" fontSize="large" />
-            </Stack>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px',
+          padding: '20px',
+          marginTop: '16px',
+          borderRadius: '14px',
+          border: '1px solid rgba(99,102,241,0.15)',
+          background: 'rgba(99,102,241,0.03)',
+        }}>
 
-            <Dialog open={open} onClose={closeopen} fullWidth maxWidth="xs">
-              <DialogTitle>
-                Barre Code
-                <IconButton onClick={closeopen} style={{ float: 'right' }}>
-                  <CloseIcon color="primary" />
-                </IconButton>
-              </DialogTitle>
-
-              <DialogContent>
-                <BarcodeScanner onScan={handleScanResult} />
-              </DialogContent>
-            </Dialog>
+          {/* Scanner QR */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <button
+              type="button"
+              onClick={functionopen}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '6px 14px',
+                borderRadius: '999px',
+                background: 'rgba(239,68,68,0.1)',
+                border: '1px solid rgba(239,68,68,0.3)',
+                color: '#ef4444',
+                fontWeight: 600,
+                fontSize: '0.78rem',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(239,68,68,0.18)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(239,68,68,0.1)')}
+            >
+              <QrCode2Icon style={{ fontSize: 18 }} />
+              Scanner code-barres
+            </button>
           </div>
 
-          <div className="my-2">
-            <Typography variant="h5" className="mb-2 text-gray-50">
-              Client
-            </Typography>
+          <Dialog open={open} onClose={closeopen} fullWidth maxWidth="xs">
+            <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontWeight: 700 }}>Scanner un code-barres</span>
+              <IconButton onClick={closeopen} size="small">
+                <CloseIcon />
+              </IconButton>
+            </DialogTitle>
+            <DialogContent>
+              <BarcodeScanner onScan={handleScanResult} />
+            </DialogContent>
+          </Dialog>
+
+          {/* Client */}
+          <div>
+            {sectionLabel('Client')}
             <Select
               options={clients}
               value={selectedClient}
               onChange={handleClient}
-              className="text-gray-900"
-              placeholder="Client"
+              styles={selectStyles}
+              placeholder="Sélectionner un client..."
               isClearable
               getOptionLabel={(option: any) =>
                 typeof option === 'string' ? option : option.nom || ''
@@ -131,242 +213,337 @@ export default function TableSortie({
             />
           </div>
 
-          <div className="my-2">
-            <Typography variant="h5" className="mb-2 text-gray-50">
-              Designation : {scannedCode}
-            </Typography>
+          {/* Désignation */}
+          <div>
+            {sectionLabel(`Désignation${scannedCode ? ` — Code : ${scannedCode}` : ''}`)}
             <Select
               required
-              className="text-gray-900"
-              options={filteredEnt} // on utilise maintenant la liste filtrée par le code scanné
+              styles={selectStyles}
+              options={filteredEnt}
               value={selectedOption}
               onChange={handleChange}
-              placeholder="Designation"
+              placeholder="Sélectionner un article..."
               isClearable
               getOptionLabel={(option: any) =>
-                `${option.categorie_libelle} ${option.libelle ? `(${option.libelle})` : ""} (${option.qte})`
+                `${option.categorie_libelle} ${option.libelle ? `(${option.libelle})` : ''} (${option.qte})`
               }
               getOptionValue={(option: any) => option.uuid.toString()}
             />
-
             {scannedCode && filteredEnt && filteredEnt.length === 0 && (
-              <Typography variant="body2" color="error" className="mt-2">
-                Aucun article trouvé pour le code scanné.
-              </Typography>
+              <div style={{
+                marginTop: 8,
+                padding: '6px 14px',
+                borderRadius: 8,
+                background: 'rgba(239,68,68,0.08)',
+                color: '#ef4444',
+                fontSize: '0.78rem',
+                fontWeight: 500,
+              }}>
+                Aucun article trouvé pour ce code.
+              </div>
             )}
           </div>
-        </div>
 
-        <div className="md:grid grid-cols-3 gap-10">
-          <div className="flex flex-col">
-            <Typography variant="h5" className="mb-2 text-gray-50">
-              Quantite {formValues.unite === "kilos" ? '' : `(${formValues.unite})`}
-            </Typography>
-            <MyTextField
-              required
-              type="number"
-              name="qte"
-              inputProps={{
-                step: '0.01',
-                min: '0',
-              }}
-              // className='bg-white'
-              value={formValues.qte}
-              id="quantity"
-              placeholder="Quantity"
-              onChange={onChange}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <QuantityLimitsIcon color="error" />
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <Typography variant="h5" className="mb-2 text-gray-50">
-              Prix Unitaire
-            </Typography>
-            {formValues.is_prix ?
+          {/* Quantité + PU + Somme */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '16px' }}>
+            {/* Quantité */}
+            <div>
+              {sectionLabel(`Quantité${formValues.unite && formValues.unite !== 'kilos' ? ` (${formValues.unite})` : ''}`)}
               <MyTextField
-                disabled
-                variant="outlined"
+                required
                 type="number"
-                // className='bg-white text-gray-950'
-                inputProps={{
-                  step: '0.01',
-                  min: '0',
-                  max: '9999999999.99',
-                }}
-                name="pu"
+                name="qte"
+                inputProps={{ step: '0.01', min: '0' }}
+                value={formValues.qte}
+                id="quantity"
+                placeholder="0"
                 onChange={onChange}
-                value={formValues.pu}
+                sx={inputSx}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <LocalAtmIcon color="error" />
+                      <QuantityLimitsIcon sx={{ color: '#6366f1', fontSize: 18 }} />
                     </InputAdornment>
                   ),
                 }}
-                sx={{
-                  '& .MuiFormLabel-asterisk': {
-                    color: 'red',
-                  },
-                }}
               />
-              :
+            </div>
+
+            {/* Prix Unitaire */}
+            <div>
+              {sectionLabel('Prix Unitaire')}
               <MyTextField
                 disabled={formValues.is_prix}
                 variant="outlined"
-                // className='bg-white'
                 type="number"
-                inputProps={{
-                  step: '0.01',
-                  min: '0',
-                  max: '9999999999.99',
-                }}
+                inputProps={{ step: '0.01', min: '0', max: '9999999999.99' }}
                 name="pu"
                 onChange={onChange}
                 value={formValues.pu}
+                sx={inputSx}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <LocalAtmIcon color="error" />
+                      <LocalAtmIcon sx={{ color: '#6366f1', fontSize: 18 }} />
                     </InputAdornment>
                   ),
                 }}
-                sx={{
-                  '& .MuiFormLabel-asterisk': {
-                    color: 'red',
-                  },
-                }}
               />
-            }
+            </div>
 
-          </div>
-
-          <div className="flex flex-col text-gray-50">
-            <label htmlFor="amount">
-              Somme <Money size={40} color='red' />
-            </label>
-            <p>{formatNumberWithSpaces(amount)}</p>
-          </div>
-        </div>
-
-        {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
-          <M_Abonnement />
-        ) : (
-          <button
-            type="submit"
-            className="bg-blue-500 mb-5 text-white font-bold mt-2 py-2 px-8 rounded hover:bg-blue-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-blue-400"
-          >
-            Ajouter au panier
-          </button>
-        )}
-      </form>
-
-      {/* Section Panier (Basket) */}
-      {basket && basket.length > 0 && (
-        <Paper elevation={3} className="p-4 mb-8 bg-gray-800 text-white rounded-lg">
-          <Typography variant="h5" className="mb-4 font-bold border-b pb-2 flex flex-col md:flex-row items-center justify-between gap-2">
-            <span>Articles Sélectionnés</span>
-            <span className="text-blue-400 text-lg md:text-xl">Total: {formatNumberWithSpaces(basketTotalAmount)}</span>
-          </Typography>
-
-          {/* Vue Mobile: Liste de cartes */}
-          <div className="md:hidden space-y-4">
-            {basket.map((item: any, index: number) => (
-              <div key={index} className="bg-gray-700 p-4 rounded-md border-l-4 border-blue-500 relative">
-                <div className="flex justify-between items-start mb-2">
-                  <div className="font-bold text-blue-300 pr-8">
-                    {item.categorie_libelle} {item.libelle ? `(${item.libelle})` : ""}
-                  </div>
-                  <IconButton
-                    onClick={() => removeItemFromBasket(index)}
-                    color="error"
-                    size="small"
-                    className="absolute top-2 right-2"
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div className="text-gray-400">Prix:</div>
-                  <div className="text-right">{formatNumberWithSpaces(Number(item.pu || 0))}</div>
-
-                  <div className="text-gray-400">Qté:</div>
-                  <div className="text-right">{item.qte} {item.unite === "kilos" ? "" : item.unite}</div>
-
-                  <div className="text-gray-400 font-bold border-t border-gray-600 pt-1 mt-1">Total:</div>
-                  <div className="text-right font-bold text-blue-400 border-t border-gray-600 pt-1 mt-1">
-                    {formatNumberWithSpaces(Number(item.pu || 0) * Number(item.qte || 0))}
-                  </div>
-                </div>
-              </div>
-            ))}
-
-            <div className="bg-blue-900 bg-opacity-30 p-3 rounded-md border border-blue-800">
-              <div className="flex justify-between items-center font-bold">
-                <span>TOTAL ARTICLES:</span>
-                <span>{basketTotalQte}</span>
+            {/* Somme calculée */}
+            <div>
+              {sectionLabel('Montant')}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                height: '42px',
+                padding: '0 14px',
+                borderRadius: '10px',
+                border: '1.5px solid #e2e8f0',
+                background: 'rgba(99,102,241,0.04)',
+              }}>
+                <Money size={18} color="#6366f1" />
+                <span style={{ fontWeight: 700, fontSize: '1rem', color: '#1e293b', fontVariantNumeric: 'tabular-nums' }}>
+                  {formatNumberWithSpaces(amount)}
+                </span>
               </div>
             </div>
           </div>
 
-          {/* Vue Desktop: Table standard */}
-          <div className="hidden md:block overflow-x-auto">
-            <table className="w-full text-left">
+          {/* Bouton Ajouter */}
+          {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
+            <M_Abonnement />
+          ) : (
+            <button
+              type="submit"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                padding: '11px 28px',
+                borderRadius: '10px',
+                background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                color: '#fff',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                border: 'none',
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(99,102,241,0.35)',
+                transition: 'all 0.2s ease',
+                alignSelf: 'flex-start',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 6px 20px rgba(99,102,241,0.45)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 14px rgba(99,102,241,0.35)';
+              }}
+            >
+              <AddShoppingCartIcon style={{ fontSize: 20 }} />
+              Ajouter au panier
+            </button>
+          )}
+        </div>
+      </form>
+
+      {/* ── Panier ── */}
+      {basket && basket.length > 0 && (
+        <Paper
+          elevation={0}
+          sx={{
+            mt: 3,
+            mb: 3,
+            borderRadius: '16px',
+            border: '1px solid rgba(99,102,241,0.2)',
+            background: 'linear-gradient(135deg, rgba(15,23,42,0.95) 0%, rgba(30,41,59,0.95) 100%)',
+            overflow: 'hidden',
+          }}
+        >
+          {/* Header panier */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '16px 24px',
+            borderBottom: '1px solid rgba(255,255,255,0.08)',
+            flexWrap: 'wrap',
+            gap: 8,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontWeight: 800, fontSize: '1rem', color: '#ffffff' }}>
+                Articles sélectionnés
+              </span>
+              <span style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minWidth: 24,
+                height: 24,
+                borderRadius: '999px',
+                background: '#6366f1',
+                color: '#fff',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                padding: '0 8px',
+              }}>
+                {basket.length}
+              </span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>Total :</span>
+              <span style={{ fontWeight: 800, fontSize: '1.1rem', color: '#a5b4fc', fontVariantNumeric: 'tabular-nums' }}>
+                {formatNumberWithSpaces(basketTotalAmount)} F
+              </span>
+            </div>
+          </div>
+
+          {/* Vue Mobile */}
+          <div className="md:hidden" style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {basket.map((item: any, index: number) => (
+              <div key={index} style={{
+                background: 'rgba(255,255,255,0.05)',
+                borderRadius: '12px',
+                padding: '12px 14px',
+                borderLeft: '3px solid #6366f1',
+                position: 'relative',
+              }}>
+                <div style={{ fontWeight: 700, color: '#a5b4fc', paddingRight: 32, fontSize: '0.85rem' }}>
+                  {item.categorie_libelle} {item.libelle ? `(${item.libelle})` : ''}
+                </div>
+                <IconButton
+                  onClick={() => removeItemFromBasket(index)}
+                  size="small"
+                  sx={{ position: 'absolute', top: 6, right: 6, color: '#f87171' }}
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 8px', marginTop: 8, fontSize: '0.78rem' }}>
+                  <span style={{ color: '#64748b' }}>Prix :</span>
+                  <span style={{ textAlign: 'right', color: '#e2e8f0' }}>{formatNumberWithSpaces(Number(item.pu || 0))}</span>
+                  <span style={{ color: '#64748b' }}>Qté :</span>
+                  <span style={{ textAlign: 'right', color: '#e2e8f0' }}>{item.qte} {item.unite === 'kilos' ? '' : item.unite}</span>
+                  <span style={{ color: '#94a3b8', fontWeight: 700, borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 4 }}>Total :</span>
+                  <span style={{ textAlign: 'right', color: '#a5b4fc', fontWeight: 700, borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 4 }}>
+                    {formatNumberWithSpaces(Number(item.pu || 0) * Number(item.qte || 0))}
+                  </span>
+                </div>
+              </div>
+            ))}
+            <div style={{
+              padding: '10px 14px',
+              borderRadius: '10px',
+              background: 'rgba(99,102,241,0.1)',
+              border: '1px solid rgba(99,102,241,0.2)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              fontSize: '0.82rem',
+              color: '#a5b4fc',
+              fontWeight: 700,
+            }}>
+              <span>Qté totale :</span>
+              <span>{basketTotalQte}</span>
+            </div>
+          </div>
+
+          {/* Vue Desktop */}
+          <div className="hidden md:block" style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
-                <tr className="border-b border-gray-700">
-                  <th className="py-2">Désignation</th>
-                  <th className="py-2">Prix</th>
-                  <th className="py-2">Qté</th>
-                  <th className="py-2">Total</th>
-                  <th className="py-2">Action</th>
+                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                  {['Désignation', 'Prix', 'Qté', 'Total', 'Action'].map(h => (
+                    <th key={h} style={{
+                      padding: '10px 16px',
+                      textAlign: h === 'Action' ? 'center' : 'left',
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.08em',
+                      color: '#64748b',
+                    }}>
+                      {h}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
                 {basket.map((item: any, index: number) => (
-                  <tr key={index} className="border-b border-gray-700 hover:bg-gray-700 transition-colors">
-                    <td className="py-2">
-                      {item.categorie_libelle} {item.libelle ? `(${item.libelle})` : ""}
+                  <tr key={index} style={{
+                    borderBottom: '1px solid rgba(255,255,255,0.05)',
+                    transition: 'background 0.15s',
+                  }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.06)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    <td style={{ padding: '12px 16px', color: '#e2e8f0', fontWeight: 500, fontSize: '0.85rem' }}>
+                      {item.categorie_libelle} {item.libelle ? `(${item.libelle})` : ''}
                     </td>
-                    <td className="py-2">{formatNumberWithSpaces(Number(item.pu || 0))}</td>
-                    <td className="py-2">{item.qte} {item.unite === "kilos" ? "" : item.unite}</td>
-                    <td className="py-2">{formatNumberWithSpaces(Number(item.pu || 0) * Number(item.qte || 0))}</td>
-                    <td className="py-2">
-                      <IconButton onClick={() => removeItemFromBasket(index)} color="error" size="small">
-                        <DeleteIcon />
+                    <td style={{ padding: '12px 16px', color: '#94a3b8', fontSize: '0.85rem', fontVariantNumeric: 'tabular-nums' }}>
+                      {formatNumberWithSpaces(Number(item.pu || 0))}
+                    </td>
+                    <td style={{ padding: '12px 16px', color: '#94a3b8', fontSize: '0.85rem' }}>
+                      {item.qte} {item.unite === 'kilos' ? '' : item.unite}
+                    </td>
+                    <td style={{ padding: '12px 16px', color: '#a5b4fc', fontWeight: 700, fontSize: '0.9rem', fontVariantNumeric: 'tabular-nums' }}>
+                      {formatNumberWithSpaces(Number(item.pu || 0) * Number(item.qte || 0))}
+                    </td>
+                    <td style={{ padding: '12px 16px', textAlign: 'center' }}>
+                      <IconButton
+                        onClick={() => removeItemFromBasket(index)}
+                        size="small"
+                        sx={{
+                          color: '#f87171',
+                          border: '1px solid rgba(248,113,113,0.2)',
+                          borderRadius: '8px',
+                          '&:hover': { background: 'rgba(239,68,68,0.1)' },
+                        }}
+                      >
+                        <DeleteIcon fontSize="small" />
                       </IconButton>
                     </td>
                   </tr>
                 ))}
               </tbody>
               <tfoot>
-                <tr className="font-bold text-lg">
-                  <td colSpan={2} className="py-4 text-right">TOTAUX :</td>
-                  <td className="py-4">{basketTotalQte}</td>
-                  <td className="py-4 text-blue-400">{formatNumberWithSpaces(basketTotalAmount)}</td>
-                  <td></td>
+                <tr style={{ borderTop: '2px solid rgba(255,255,255,0.08)' }}>
+                  <td colSpan={2} style={{ padding: '14px 16px', textAlign: 'right', color: '#64748b', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    Totaux :
+                  </td>
+                  <td style={{ padding: '14px 16px', color: '#94a3b8', fontWeight: 700 }}>{basketTotalQte}</td>
+                  <td style={{ padding: '14px 16px', color: '#a5b4fc', fontWeight: 800, fontSize: '1rem', fontVariantNumeric: 'tabular-nums' }}>
+                    {formatNumberWithSpaces(basketTotalAmount)}
+                  </td>
+                  <td />
                 </tr>
               </tfoot>
             </table>
           </div>
 
-          <div className="flex flex-col md:flex-row justify-end mt-6">
+          {/* Bouton Enregistrer */}
+          <div style={{ padding: '16px 24px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
             <Button
               variant="contained"
-              color="success"
-              fullWidth={true}
+              fullWidth
               startIcon={<SaveIcon />}
               onClick={handleFinalSubmit}
-              className="bg-green-600 hover:bg-green-700 px-6 py-3"
               sx={{
-                fontWeight: 'bold',
-                width: { xs: '100%', md: 'auto' }
+                borderRadius: '10px',
+                fontWeight: 700,
+                textTransform: 'none',
+                fontSize: '0.95rem',
+                py: 1.5,
+                background: 'linear-gradient(135deg, #10b981, #059669)',
+                boxShadow: '0 4px 14px rgba(16,185,129,0.35)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #059669, #047857)',
+                  boxShadow: '0 6px 20px rgba(16,185,129,0.45)',
+                  transform: 'translateY(-1px)',
+                },
+                transition: 'all 0.2s ease',
               }}
             >
               Enregistrer l'achat
@@ -375,33 +552,53 @@ export default function TableSortie({
         </Paper>
       )}
 
-      <TableContainer component={Paper} sx={{ maxHeight: 600 }}>
-        <Table aria-label="sticky table">
+      {/* ── Table historique ── */}
+      <TableContainer
+        component={Paper}
+        sx={{
+          maxHeight: 560,
+          borderRadius: '14px',
+          border: '1px solid rgba(255,255,255,0.08)',
+          background: 'rgba(15,23,42,0.7)',
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+        }}
+      >
+        <Table aria-label="sticky table" stickyHeader>
           <TableHead>
             <TableRow>
-              <TableCell>Image</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell>Ref</TableCell>
-              <TableCell>Client</TableCell>
-              <TableCell>Designation</TableCell>
-              <TableCell>Quantite</TableCell>
-              <TableCell>Prix unitaire</TableCell>
-              <TableCell>Somme</TableCell>
+              {['Image', 'Date', 'Réf.', 'Client', 'Désignation', 'Quantité', 'P.U', 'Montant'].map(col => (
+                <TableCell
+                  key={col}
+                  sx={{
+                    background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+                    color: '#64748b',
+                    fontWeight: 700,
+                    fontSize: '0.68rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                    borderBottom: '1px solid rgba(255,255,255,0.08)',
+                    py: 1.5,
+                  }}
+                >
+                  {col}
+                </TableCell>
+              ))}
+              <TableCell
+                sx={{
+                  background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+                  borderBottom: '1px solid rgba(255,255,255,0.08)',
+                }}
+              />
             </TableRow>
           </TableHead>
           <TableBody>
-            {sortedList.map((row: any) => {
-              return <CardTableSortie key={row.id} row={row} />;
-            })}
+            {sortedList.map((row: any) => (
+              <CardTableSortie key={row.id} row={row} />
+            ))}
           </TableBody>
         </Table>
       </TableContainer>
-
-      <div>
-        <h2 className="flex items-end justify-end text-gray-800 text-4xl font-bold">
-          {/* CFA. {totalPrix} */}
-        </h2>
-      </div>
     </>
   );
 }

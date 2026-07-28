@@ -114,10 +114,9 @@ const NavigationCard: FC<NavigationCardType> = ({ icon, title, description, to, 
       </Typography>
       <Typography
         variant="body2"
-        className="text-gray-300"
         sx={{
           fontSize: { xs: '0.76rem', sm: '0.82rem' },
-          // color: '#64748b',
+          color: 'text.secondary',
           lineHeight: 1.4,
           fontWeight: 500,
         }}
@@ -329,7 +328,7 @@ export default function DashboardDefault() {
                 sx={{
                   fontSize: { xs: '1.5rem', sm: '1.85rem', md: '2.1rem' },
                   fontWeight: 800,
-                  color: '#e0e7ff',
+                  color: 'text.primary',
                   letterSpacing: '-0.02em',
                 }}
               >
@@ -337,8 +336,7 @@ export default function DashboardDefault() {
               </Typography>
               <Typography 
               variant="body1" 
-              className="text-slate-200"
-              sx={{ fontSize: { xs: '0.85rem', sm: '0.95rem' }, mt: 0.5 }}
+              sx={{ fontSize: { xs: '0.85rem', sm: '0.95rem' }, mt: 0.5, color: 'text.secondary' }}
               >
                 Bienvenue dans votre espace de gestion d'entreprise
               </Typography>
@@ -491,13 +489,13 @@ export default function DashboardDefault() {
                 variant="h6"
                 sx={{
                   fontWeight: 700,
-                  color: '#e0e7ff',
+                  color: 'text.primary',
                   fontSize: { xs: '1.1rem', sm: '1.25rem' },
                 }}
               >
                 Navigation rapide
               </Typography>
-              <Typography variant="caption" className="text-gray-300" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' } }}>
+              <Typography variant="caption" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: 'text.secondary' }}>
                 Accès direct aux modules
               </Typography>
             </Box>

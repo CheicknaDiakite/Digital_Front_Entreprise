@@ -17,7 +17,7 @@ import "./print.css";
 import { BASE } from '../../_services/caller.service';
 import { connect } from '../../_services/account.service';
 import { RecupType } from '../../typescript/DataType';
-import { Paper, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Stack, IconButton, Box, Modal, Typography, TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Grid, Checkbox, FormControlLabel } from '@mui/material';
+import { Paper, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Stack, IconButton, Box, Modal, Typography, TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Checkbox, FormControlLabel } from '@mui/material';
 import { useCreateFacSortie } from '../../usePerso/fonction.facture';
 import CloseIcon from '@mui/icons-material/Close';
 import html2pdf from 'html2pdf.js';
@@ -411,137 +411,245 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
       <div className="max-w-full sm:max-w-[1200px] mx-auto px-2 sm:px-4">
         <Paper elevation={0} className="rounded-lg overflow-hidden">
           <div className="p-2 sm:p-6">
-            {/* Redesigned Actions Bar */}
-            <div className="flex flex-col space-y-4 mb-8">
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-4 rounded-2xl border border-gray-100 shadow-sm transition-all duration-300 hover:shadow-md">
 
-                {/* Cancel Group */}
-                <div className="flex items-center gap-2">
+            {/* ── Barre d'actions glassmorphique ── */}
+            <div style={{
+              display: 'flex',
+              flexDirection: isMobile ? 'column' : 'row',
+              alignItems: isMobile ? 'stretch' : 'center',
+              justifyContent: 'space-between',
+              gap: 12,
+              padding: '14px 20px',
+              borderRadius: '16px',
+              background: 'rgba(15,23,42,0.6)',
+              backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+              marginBottom: '16px',
+            }}>
+
+              {/* Annuler */}
+              <button
+                onClick={() => reset()}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  padding: '8px 16px', borderRadius: '10px',
+                  background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)',
+                  color: '#f87171', fontWeight: 600, fontSize: '0.82rem', cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(239,68,68,0.18)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'rgba(239,68,68,0.1)')}
+              >
+                <RemoveIcon style={{ fontSize: 16 }} />
+                Annuler
+              </button>
+
+              {/* Groupe financier */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+                {(unEntreprise.licence_type !== 'Stock Simple') && (
                   <button
-                    onClick={() => reset()}
-                    className="group inline-flex items-center justify-center px-4 py-2 text-red-500 border border-red-100 rounded-xl hover:bg-red-50 hover:border-red-200 transition-all duration-300 shadow-sm"
+                    onClick={handleOpenRemise}
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 6,
+                      padding: '8px 16px', borderRadius: '10px',
+                      background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.25)',
+                      color: '#c084fc', fontWeight: 600, fontSize: '0.82rem', cursor: 'pointer',
+                      transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(168,85,247,0.18)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'rgba(168,85,247,0.1)')}
                   >
-                    <RemoveIcon className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300" />
-                    <span className="font-semibold text-sm">Annuler</span>
+                    Remise Facture
                   </button>
-                </div>
+                )}
 
-                {/* Financial Actions Group */}
-                <div className="flex flex-wrap items-center gap-2">
-                  {(unEntreprise.licence_type != "Stock Simple") &&
+                <button
+                  onClick={toggleModal}
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 6,
+                    padding: '8px 16px', borderRadius: '10px',
+                    background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)',
+                    color: '#a5b4fc', fontWeight: 600, fontSize: '0.82rem', cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.18)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.1)')}
+                >
+                  <LocalAtmIcon style={{ fontSize: 16 }} />
+                  Remise Art.
+                </button>
 
-                    <button
-                      onClick={handleOpenRemise}
-                      className="inline-flex items-center justify-center px-4 py-2 text-purple-400 border border-purple-100 rounded-xl hover:bg-purple-50 transition-all duration-300 shadow-sm"
-                    >
-                      <span className="font-semibold text-sm">Remise Facture</span>
-                    </button>
-                  }
-
-                  <button
-                    onClick={toggleModal}
-                    className="inline-flex items-center justify-center px-4 py-2 text-indigo-500 border border-indigo-100 rounded-xl hover:bg-indigo-100 transition-all duration-300 shadow-sm"
-                  >
-                    <LocalAtmIcon className="w-5 h-5 mr-2" />
-                    <span className="font-semibold text-sm">Remise Art.</span>
-                  </button>
-
-                  <button
-                    onClick={toggleModalPay}
-                    className="inline-flex items-center justify-center px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl hover:from-emerald-600 hover:to-green-700 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-                  >
-                    <LocalAtmIcon className="w-5 h-5 mr-2" />
-                    <span className="font-bold text-sm">Paiement</span>
-                  </button>
-                </div>
-
-                {/* Print & Export Group */}
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-1 rounded-2xl border border-gray-100 shadow-inner">
-                  <div className="flex items-center gap-2">
-                    <ReactToPrint
-                      trigger={() => (
-                        <button className="inline-flex items-center justify-center px-4 py-2 text-blue-600 border border-blue-100 rounded-xl hover:bg-blue-50 transition-all duration-300 shadow-sm">
-                          <PrintIcon className="w-5 h-5 mr-2" />
-                          <span className="font-semibold text-sm">Imprimer</span>
-                        </button>
-                      )}
-                      content={() => componentRef.current}
-                    />
-                    {(unEntreprise.licence_type != "Stock Simple") &&
-                      <button
-                        onClick={() => setOpenModal(true)}
-                        className="inline-flex items-center justify-center px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl hover:from-blue-700 hover:to-indigo-800 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-                      >
-                        <AddIcon className="w-5 h-5 mr-2" />
-                        <span className="font-bold text-sm">Valider & PDF</span>
-                      </button>
-                    }
-                  </div>
-                </div>
+                <button
+                  onClick={toggleModalPay}
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 6,
+                    padding: '8px 20px', borderRadius: '10px',
+                    background: 'linear-gradient(135deg, #10b981, #059669)',
+                    border: 'none', color: '#fff', fontWeight: 700, fontSize: '0.85rem',
+                    cursor: 'pointer', boxShadow: '0 4px 12px rgba(16,185,129,0.35)',
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 6px 18px rgba(16,185,129,0.45)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(16,185,129,0.35)';
+                  }}
+                >
+                  <LocalAtmIcon style={{ fontSize: 16 }} />
+                  Paiement
+                </button>
               </div>
-              {/* Format Selector inside Print Group */}
-              <div className="flex items-center rounded-xl p-1 gap-1">
-                {(['A4', 'Thermal'] as const).map((format) => (
+
+              {/* Impression & Export */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                <ReactToPrint
+                  trigger={() => (
+                    <button style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 6,
+                      padding: '8px 16px', borderRadius: '10px',
+                      background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.25)',
+                      color: '#38bdf8', fontWeight: 600, fontSize: '0.82rem', cursor: 'pointer',
+                      transition: 'all 0.2s',
+                    }}>
+                      <PrintIcon style={{ fontSize: 16 }} />
+                      Imprimer
+                    </button>
+                  )}
+                  content={() => componentRef.current}
+                />
+
+                {(unEntreprise.licence_type !== 'Stock Simple') && (
                   <button
-                    key={format}
-                    onClick={() => setPrintFormat(format)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-300 ${printFormat === format
-                      ? 'bg-white text-blue-600 shadow-sm scale-105'
-                      : 'text-gray-400 hover:text-gray-600'
-                      }`}
+                    onClick={() => setOpenModal(true)}
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 6,
+                      padding: '8px 20px', borderRadius: '10px',
+                      background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                      border: 'none', color: '#fff', fontWeight: 700, fontSize: '0.85rem',
+                      cursor: 'pointer', boxShadow: '0 4px 12px rgba(99,102,241,0.35)',
+                      transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = '0 6px 18px rgba(99,102,241,0.45)';
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(99,102,241,0.35)';
+                    }}
                   >
-                    {format === 'Thermal' ? 'Ticket' : format}
+                    <AddIcon style={{ fontSize: 16 }} />
+                    Valider & PDF
                   </button>
-                ))}
+                )}
+
+                {/* Sélecteur format */}
+                <div style={{
+                  display: 'flex',
+                  gap: 4,
+                  background: 'rgba(255,255,255,0.06)',
+                  borderRadius: '8px',
+                  padding: '3px',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                }}>
+                  {(['A4', 'Thermal'] as const).map((fmt) => (
+                    <button
+                      key={fmt}
+                      onClick={() => setPrintFormat(fmt)}
+                      style={{
+                        padding: '5px 12px',
+                        borderRadius: '6px',
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        border: 'none',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        background: printFormat === fmt
+                          ? 'linear-gradient(135deg, #6366f1, #4f46e5)'
+                          : 'transparent',
+                        color: printFormat === fmt ? '#fff' : '#64748b',
+                        boxShadow: printFormat === fmt ? '0 2px 8px rgba(99,102,241,0.4)' : 'none',
+                        transform: printFormat === fmt ? 'scale(1.05)' : 'scale(1)',
+                      }}
+                    >
+                      {fmt === 'Thermal' ? 'Ticket' : fmt}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
-            <Grid
-              container
-              spacing={isMobile ? 2 : 3}
-              className={isMobile ? 'mt-3' : ''}
-              sx={{
-                '& .MuiGrid-item': {
-                  padding: isMobile ? '8px' : '12px'
-                }
-              }}
-            >
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label="Numéro de Facture"
-                  name="numeroFac"
-                  variant="outlined"
-                  onChange={onChan}
-                  
-                />
-              </Grid>
 
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label="Nom du Client"
-                  name="clientName"
-                  variant="outlined"
-                  value={fac.clientName}
-                  onChange={onChan}
-                  
-                />
-              </Grid>
+            {/* ── Formulaire infos client ── */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+              gap: 16,
+              padding: '20px',
+              borderRadius: '14px',
+              background: 'rgba(99,102,241,0.04)',
+              border: '1px solid rgba(99,102,241,0.12)',
+              marginBottom: '16px',
+              borderLeft: '4px solid #6366f1',
+            }}>
+              <TextField
+                fullWidth
+                label="Numéro de Facture"
+                name="numeroFac"
+                variant="outlined"
+                onChange={onChan}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '10px',
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#6366f1',
+                      boxShadow: '0 0 0 3px rgba(99,102,241,0.12)',
+                    },
+                  },
+                }}
+              />
 
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label="Numero du Client"
-                  name="invoiceNumber"
-                  variant="outlined"
-                  value={fac.invoiceNumber || ''}
-                  onChange={onChan}
-                  
-                />
-              </Grid>
+              <TextField
+                fullWidth
+                label="Nom du Client"
+                name="clientName"
+                variant="outlined"
+                value={fac.clientName}
+                onChange={onChan}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '10px',
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#6366f1',
+                      boxShadow: '0 0 0 3px rgba(99,102,241,0.12)',
+                    },
+                  },
+                }}
+              />
 
-              <Grid item xs={12} md={12}>
-                <Typography variant={isMobile ? "h6" : "h6"} className="text-gray-50">
+              <TextField
+                fullWidth
+                label="Numéro du Client"
+                name="invoiceNumber"
+                variant="outlined"
+                value={fac.invoiceNumber || ''}
+                onChange={onChan}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '10px',
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#6366f1',
+                      boxShadow: '0 0 0 3px rgba(99,102,241,0.12)',
+                    },
+                  },
+                }}
+              />
+
+              <div style={{ gridColumn: isMobile ? '1' : '1 / -1' }}>
+                <Typography variant="body2" style={{ fontWeight: 600, marginBottom: 8, color: '#94a3b8', fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                   Notes additionnelles
                 </Typography>
                 <TextField
@@ -552,11 +660,18 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                   placeholder="Ajouter des notes ou commentaires pour cette facture..."
                   variant="outlined"
                   onChange={onChan}
-                  
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '10px',
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#6366f1',
+                        boxShadow: '0 0 0 3px rgba(99,102,241,0.12)',
+                      },
+                    },
+                  }}
                 />
-              </Grid>
-
-            </Grid>
+              </div>
+            </div>
 
             {/* <div className={`${isMobile ? 'mobile-notes-section' : 'mt-6'}`}> */}
 

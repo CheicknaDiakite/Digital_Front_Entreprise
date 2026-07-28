@@ -1,5 +1,18 @@
 import { useState } from 'react';
-import { Avatar, Dialog, DialogContent, DialogTitle, IconButton, Stack, TableCell, TableRow } from '@mui/material'
+import {
+  Avatar,
+  Box,
+  Chip,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Stack,
+  TableCell,
+  TableRow,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import { Link } from 'react-router-dom';
 import { formatNumberWithSpaces, getBgClass, priceRow } from '../../usePerso/fonctionPerso';
 import { RecupType } from '../../typescript/DataType';
@@ -7,9 +20,9 @@ import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import { format } from 'date-fns';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useFetchUser } from '../../usePerso/fonction.user';
-import img from '../../../public/icon-192x192.png'
+import img from '../../../public/icon-192x192.png';
 import { BASE } from '../../_services/caller.service';
-import CloseIcon from "@mui/icons-material/Close"
+import CloseIcon from '@mui/icons-material/Close';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
 
 // import { saveAs } from 'file-saver';
@@ -55,95 +68,194 @@ export default function CardInvent({ row }: EntreProps) {
   const url = row.image ? BASE(row.image) : img;
   const code_barre = row.code_barre ? BASE(row.code_barre) : img;
   const validDate = row.date ?? new Date();
+  const isCritical = (row.qte ?? 0) <= (row.qte_critique ?? 0);
 
   if (row.qte !== undefined && row.pu_achat !== undefined) {
     const price = priceRow(row.qte, row.pu_achat);
 
     return (
       <>
-        <TableRow className={getBgClass(row.qte, row?.qte_critique)}>
-          <TableCell align="right">
-            {/* <img src={url} alt="img" className="h-16 w-16" /> */}
+        <TableRow
+          className={getBgClass(row.qte, row?.qte_critique)}
+          sx={{
+            transition: 'all 0.2s ease',
+            '&:hover': {
+              backgroundColor: 'rgba(255,255,255,0.08)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)',
+            },
+            '& td': {
+              borderBottom: '1px solid rgba(255,255,255,0.08)',
+            },
+          }}
+        >
+          <TableCell align="left" sx={{ width: 88 }}>
             <Avatar
-              alt="Remy Sharp"
+              alt={row.ref ?? 'article'}
               src={url}
-              sx={{ width: 56, height: 56 }}
+              sx={{
+                width: 58,
+                height: 58,
+                border: '2px solid rgba(255,255,255,0.18)',
+                boxShadow: '0 8px 20px rgba(0,0,0,0.12)',
+              }}
             />
           </TableCell>
-          <TableCell className="text-white">{row.ref}</TableCell>
-          <TableCell className="text-white">{format(new Date(validDate), 'dd/MM/yyyy')}</TableCell>
-          <TableCell className="text-white">
-            {row.client && (
-              <span className="inline-flex items-center rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-700/10">
-                {row.client}
-              </span>
+
+          <TableCell>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.6 }}>
+              <Typography variant="body2" sx={{ fontWeight: 700, color: 'white' }}>
+                {row.ref}
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.74)' }}>
+                {row.uuid?.slice(0, 8).toUpperCase()}
+              </Typography>
+            </Box>
+          </TableCell>
+
+          <TableCell>
+            <Typography variant="body2" sx={{ color: 'white', fontWeight: 600 }}>
+              {format(new Date(validDate), 'dd/MM/yyyy')}
+            </Typography>
+          </TableCell>
+
+          <TableCell>
+            {row.client ? (
+              <Chip
+                label={row.client}
+                size="small"
+                sx={{
+                  bgcolor: 'rgba(129,140,248,0.16)',
+                  color: '#e0e7ff',
+                  border: '1px solid rgba(129,140,248,0.28)',
+                  fontWeight: 600,
+                }}
+              />
+            ) : (
+              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                Aucun fournisseur
+              </Typography>
             )}
           </TableCell>
-          <TableCell className="text-white">
-            {row.categorie_libelle}{' '}
-            {row.libelle && (
-              <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
-                {row.libelle}
-              </span>
-            )}
+
+          <TableCell>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.6 }}>
+              <Typography variant="body2" sx={{ color: 'white', fontWeight: 600 }}>
+                {row.categorie_libelle}
+              </Typography>
+              {row.libelle && (
+                <Chip
+                  label={row.libelle}
+                  size="small"
+                  sx={{
+                    bgcolor: 'rgba(59,130,246,0.16)',
+                    color: '#dbeafe',
+                    border: '1px solid rgba(59,130,246,0.28)',
+                    width: 'fit-content',
+                  }}
+                />
+              )}
+            </Box>
           </TableCell>
-          <TableCell align="right" className="text-white">{row.qte} {row.unite === 'kilos' ? '' : row.unite}</TableCell>
-          <TableCell align="right" className="text-white">{formatNumberWithSpaces(row.pu)}</TableCell>
+
+          <TableCell align="right">
+            <Chip
+              label={`${row.qte} ${row.unite === 'kilos' ? '' : row.unite}`.trim()}
+              color={isCritical ? 'warning' : 'success'}
+              size="small"
+              sx={{ fontWeight: 700 }}
+            />
+          </TableCell>
+
+          <TableCell align="right">
+            <Typography variant="body2" sx={{ color: 'white', fontWeight: 700 }}>
+              {formatNumberWithSpaces(row.pu)}
+            </Typography>
+          </TableCell>
+
           {unUser.role === 1 && (
             <>
-              <TableCell align="right" className="text-white">{formatNumberWithSpaces(row.pu_achat)}</TableCell>
-              <TableCell align="right" className="text-white">
-                {formatNumberWithSpaces(price)}{' '}
-                <LocalAtmIcon color="primary" fontSize="small" />
+              <TableCell align="right">
+                <Typography variant="body2" sx={{ color: 'white', fontWeight: 600 }}>
+                  {formatNumberWithSpaces(row.pu_achat)}
+                </Typography>
+              </TableCell>
+              <TableCell align="right">
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 0.6 }}>
+                  <Typography variant="body2" sx={{ color: 'white', fontWeight: 700 }}>
+                    {formatNumberWithSpaces(price)}
+                  </Typography>
+                  <LocalAtmIcon color="primary" fontSize="small" />
+                </Box>
               </TableCell>
             </>
           )}
+
           {(unUser.role === 1 || unUser.role === 2) && (
-            <TableCell className={row.is_sortie ? 'bg-white' : 'bg-white'}>
+            <TableCell>
               <Link to={`/entre/modif/${row.uuid}`}>
-                <Stack direction="row" spacing={2}>
-                  <VisibilityIcon color={row.is_sortie ? 'info' : 'error'} fontSize="medium" />
-                </Stack>
+                <Tooltip title="Voir les détails">
+                  <IconButton size="small" sx={{ bgcolor: 'rgba(59,130,246,0.14)', color: '#93c5fd' }}>
+                    <VisibilityIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
               </Link>
             </TableCell>
           )}
-          <TableCell className={row.is_sortie ? 'bg-white' : 'bg-white'}>
-            <Stack direction="row" spacing={2}>
-              <QrCode2Icon onClick={functionOpen} color={row.is_sortie ? 'info' : 'error'} fontSize="medium" />
-            </Stack>
+
+          <TableCell>
+            <Tooltip title="Voir le code QR">
+              <IconButton size="small" onClick={functionOpen} sx={{ bgcolor: 'rgba(16,185,129,0.14)', color: '#6ee7b7' }}>
+                <QrCode2Icon fontSize="small" />
+              </IconButton>
+            </Tooltip>
           </TableCell>
         </TableRow>
 
         <Dialog open={open} onClose={closeOpen} fullWidth maxWidth="xs">
-          <DialogTitle>
-            Code (QR)
-            <IconButton onClick={closeOpen} style={{ float: 'right' }}>
-              <CloseIcon color="primary" />
+          <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h6" sx={{ fontWeight: 700 }}>
+              Code QR / barre
+            </Typography>
+            <IconButton onClick={closeOpen} size="small" sx={{ color: '#2563eb' }}>
+              <CloseIcon />
             </IconButton>
           </DialogTitle>
 
-          <DialogContent style={{ textAlign: 'center' }}>
-            {/* Affichage de l'image du code barre */}
-            <img src={code_barre} alt="Code barre" className="h-50 w-50" />
-            {/* Bouton de téléchargement */}
-            <a href={code_barre} download>
-              <button
-                style={{
-                  marginTop: '1rem',
-                  padding: '0.5rem 1rem',
-                  backgroundColor: '#1976d2',
-                  color: '#fff',
+          <DialogContent sx={{ textAlign: 'center', py: 3 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                p: 2,
+                borderRadius: 3,
+                bgcolor: 'rgba(248,250,252,0.9)',
+                border: '1px solid rgba(226,232,240,0.9)',
+              }}
+            >
+              <img src={code_barre} alt="Code barre" style={{ maxHeight: 220, maxWidth: '100%', borderRadius: 12 }} />
+            </Box>
+
+            <a href={code_barre} download style={{ textDecoration: 'none' }}>
+              <Box
+                component="button"
+                sx={{
+                  mt: 2,
+                  px: 2.2,
+                  py: 1.1,
                   border: 'none',
-                  borderRadius: '4px',
+                  borderRadius: 999,
                   cursor: 'pointer',
+                  bgcolor: 'linear-gradient(135deg, #2563eb, #10b981)',
+                  color: '#fff',
+                  fontWeight: 700,
+                  boxShadow: '0 8px 20px rgba(37,99,235,0.2)',
                 }}
               >
-                Télécharger l'image
-              </button>
+                Télécharger l’image
+              </Box>
             </a>
           </DialogContent>
-
-
         </Dialog>
       </>
     );

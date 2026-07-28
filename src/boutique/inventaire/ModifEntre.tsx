@@ -131,10 +131,10 @@ export default function ModifEntre() {
           <Box className="p-6">
             {/* Header */}
             <div className="border-b pb-4 mb-6">
-              <Typography variant="h4" className="font-semibold text-gray-900">
+              <Typography variant="h4" className="font-semibold text-gray-50">
                 Modification d'une Entrée
               </Typography>
-              <Typography variant="body2" className="text-gray-500 mt-1">
+              <Typography variant="body2" className="text-gray-100 mt-1">
                 Modifiez les informations de l'entrée en stock
               </Typography>
 
@@ -162,7 +162,7 @@ export default function ModifEntre() {
                   disabled
                   value={unEntre.categorie_slug}
                   fullWidth
-                  className="bg-gray-50"
+                  // className="bg-gray-50"
                 />
 
                 <TextField
@@ -172,7 +172,7 @@ export default function ModifEntre() {
                   value={unEntre.libelle}
                   onChange={onChange}
                   fullWidth
-                  className="bg-white"
+                  // className="bg-white"
                 />
 
                 <Autocomplete
@@ -198,7 +198,7 @@ export default function ModifEntre() {
                   type="number"
                   value={unEntre.qte}
                   onChange={onChange}
-                  className="bg-white"
+                  // className="bg-white"
                   inputProps={{ step: "0.01", min: "0" }}
                   InputProps={{
                     startAdornment: (
@@ -217,7 +217,7 @@ export default function ModifEntre() {
                   type="number"
                   value={unEntre.pu}
                   onChange={onChange}
-                  className="bg-white"
+                  // className="bg-white"
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -236,7 +236,7 @@ export default function ModifEntre() {
                     type="number"
                     value={unEntre.pu_achat}
                     onChange={onChange}
-                    className="bg-white"
+                    // className="bg-white"
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
@@ -255,7 +255,7 @@ export default function ModifEntre() {
                   type="number"
                   value={unEntre.qte_critique}
                   onChange={onChange}
-                  className="bg-white"
+                  // className="bg-white"
                   inputProps={{ step: "0.01", min: "0" }}
                   InputProps={{
                     startAdornment: (
@@ -277,7 +277,7 @@ export default function ModifEntre() {
                     value={unEntre.description}
                     onChange={onChange}
                     variant="outlined"
-                    className="bg-slate-100 text-red-300"
+                    className="text-red-50"
                   />
                 )}
 
@@ -291,7 +291,7 @@ export default function ModifEntre() {
                       />
                     }
                     label="Prix de vente manuel"
-                    className="text-gray-700"
+                    className="text-gray-100"
                   />
 
                   <FormControlLabel
@@ -303,12 +303,12 @@ export default function ModifEntre() {
                       />
                     }
                     label="Ne pas autoriser la sortie de ce produit"
-                    className="text-gray-700"
+                    className="text-gray-100"
                   />
                 </div>
               </div>
 
-              <div className="px-3 sm:px-6 py-3 sm:py-4 bg-gray-50 border-t flex flex-col sm:flex-row gap-3 sm:gap-6 justify-end">
+              <div className="px-3 sm:px-6 py-3 sm:py-4 border-t flex flex-col sm:flex-row gap-3 sm:gap-6 justify-end">
                 <Button
                   type="submit"
                   variant="contained"

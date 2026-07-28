@@ -22,27 +22,47 @@ interface TableFactProps {
 const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, payerTotal, payDiscount, printFormat = 'A4' }) => {
   const isThermal = printFormat === 'Thermal';
   const resteAPayer = (total - ((total - discountedTotal) + (Number(payDiscount))));
-  // const restTota = (total - )
 
   return (
-    <div className="rounded-lg shadow-sm border border-gray-200 mb-8">
-      <div className="overflow-x-auto">
-        <table className="w-full print-table">
+    <div style={{
+      borderRadius: isThermal ? 0 : '12px',
+      overflow: 'hidden',
+      border: '1px solid rgba(0,0,0,0.08)',
+      marginBottom: '2rem',
+      boxShadow: isThermal ? 'none' : '0 4px 24px rgba(0,0,0,0.08)',
+    }}>
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }} className="print-table">
           {/* Table Header */}
           <thead className="print-table-header">
-            <tr className={`${isThermal ? 'bg-gray-100' : 'bg-gray-600'} border-b-2 border-gray-900`}>
-              <th className={`text-left ${isThermal ? 'p-1 text-gray-900' : 'p-4 text-gray-50'} font-semibold border-r border-gray-100`}>
-                Désignation
-              </th>
-              <th className={`text-right ${isThermal ? 'p-1 text-gray-900' : 'p-4 text-gray-50'} font-semibold border-r border-gray-100`}>
-                Qté
-              </th>
-              <th className={`text-right ${isThermal ? 'p-1 text-gray-900' : 'p-4 text-gray-50'} font-semibold border-r border-gray-100`}>
-                P.U
-              </th>
-              <th className={`text-right ${isThermal ? 'p-1 text-gray-900' : 'p-4 text-gray-50'} font-semibold`}>
-                Total
-              </th>
+            <tr style={{
+              background: isThermal
+                ? '#f3f4f6'
+                : 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
+              borderBottom: '2px solid rgba(0,0,0,0.15)',
+            }}>
+              {[
+                { label: 'Désignation', align: 'left' },
+                { label: 'Qté', align: 'right' },
+                { label: 'P.U', align: 'right' },
+                { label: 'Total', align: 'right' },
+              ].map((col) => (
+                <th
+                  key={col.label}
+                  style={{
+                    textAlign: col.align as 'left' | 'right',
+                    padding: isThermal ? '6px 8px' : '14px 20px',
+                    color: isThermal ? '#374151' : '#e2e8f0',
+                    fontWeight: 700,
+                    fontSize: isThermal ? '0.7rem' : '0.8rem',
+                    letterSpacing: '0.06em',
+                    textTransform: 'uppercase',
+                    borderRight: col.label !== 'Total' ? '1px solid rgba(255,255,255,0.08)' : 'none',
+                  }}
+                >
+                  {col.label}
+                </th>
+              ))}
             </tr>
           </thead>
 
@@ -51,101 +71,188 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
             {list.map((post, index) => (
               <tr
                 key={index}
-                className="hover:bg-gray-50 transition-colors duration-200 border-b border-gray-900"
+                style={{
+                  background: index % 2 === 0 ? '#ffffff' : '#f8fafc',
+                  transition: 'background 0.15s ease',
+                  borderBottom: '1px solid #e2e8f0',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.background = '#eff6ff')}
+                onMouseLeave={e => (e.currentTarget.style.background = index % 2 === 0 ? '#ffffff' : '#f8fafc')}
               >
-                <td className={`${isThermal ? 'p-1' : 'p-4'} border-r border-gray-200`}>
-                  <div>
-                    <Typography variant={isThermal ? "caption" : "body2"} className="font-medium text-gray-100 leading-tight">
-                      {post.categorie_libelle}
-                    </Typography>
-                    {/* <Typography variant="body2" className="text-gray-400">
-                        {post.ref}
-                    </Typography>                       */}
-                  </div>
+                <td style={{
+                  padding: isThermal ? '5px 8px' : '12px 20px',
+                  borderRight: '1px solid #e2e8f0',
+                }}>
+                  <Typography
+                    variant={isThermal ? 'caption' : 'body2'}
+                    style={{ fontWeight: 600, color: '#1e293b', lineHeight: 1.4 }}
+                  >
+                    {post.categorie_libelle}
+                  </Typography>
                 </td>
-                <td className={`text-right ${isThermal ? 'p-1' : 'p-4'} border-r border-gray-200`}>
-                  {post.qte} {post.unite === 'kilos' ? "" : post.unite}
+                <td style={{
+                  textAlign: 'right',
+                  padding: isThermal ? '5px 8px' : '12px 20px',
+                  color: '#475569',
+                  fontSize: isThermal ? '0.7rem' : '0.85rem',
+                  fontVariantNumeric: 'tabular-nums',
+                  borderRight: '1px solid #e2e8f0',
+                }}>
+                  {post.qte} {post.unite === 'kilos' ? '' : post.unite}
                 </td>
-                <td className={`text-right ${isThermal ? 'p-1' : 'p-4'} border-r border-gray-200`}>
+                <td style={{
+                  textAlign: 'right',
+                  padding: isThermal ? '5px 8px' : '12px 20px',
+                  color: '#475569',
+                  fontSize: isThermal ? '0.7rem' : '0.85rem',
+                  fontVariantNumeric: 'tabular-nums',
+                  borderRight: '1px solid #e2e8f0',
+                }}>
                   {formatNumberWithSpaces(post.pu)}
                 </td>
-                <td className={`text-right ${isThermal ? 'p-1' : 'p-4'} font-medium`}>
+                <td style={{
+                  textAlign: 'right',
+                  padding: isThermal ? '5px 8px' : '12px 20px',
+                  fontWeight: 600,
+                  color: '#1e293b',
+                  fontSize: isThermal ? '0.7rem' : '0.9rem',
+                  fontVariantNumeric: 'tabular-nums',
+                }}>
                   {formatNumberWithSpaces(post.prix_total)}
                 </td>
               </tr>
             ))}
 
-            {/* Summary Rows */}
-            <tr className="border-b border-gray-900">
-              <td rowSpan={4} className="border-r border-gray-200"></td>
-              <td
-                colSpan={2}
-                className={`text-right ${isThermal ? 'p-1' : 'p-4'} text-gray-100 font-semibold border-r border-gray-200`}
-              >
+            {/* Sous-total */}
+            <tr style={{ background: '#f8fafc', borderTop: '2px solid #e2e8f0' }}>
+              <td rowSpan={4} style={{ borderRight: '1px solid #e2e8f0' }} />
+              <td colSpan={2} style={{
+                textAlign: 'right',
+                padding: isThermal ? '6px 8px' : '12px 20px',
+                color: '#64748b',
+                fontWeight: 600,
+                fontSize: '0.82rem',
+                letterSpacing: '0.03em',
+                borderRight: '1px solid #e2e8f0',
+              }}>
                 Sous-total
               </td>
-              <td className={`text-right ${isThermal ? 'p-1' : 'p-4'} font-semibold text-gray-100`}>
+              <td style={{
+                textAlign: 'right',
+                padding: isThermal ? '6px 8px' : '12px 20px',
+                fontWeight: 600,
+                color: '#1e293b',
+                fontVariantNumeric: 'tabular-nums',
+              }}>
                 {formatNumberWithSpaces(total)}
               </td>
             </tr>
 
-            <tr className="border-b border-gray-900">
-              <td
-                colSpan={2}
-                className={`text-right ${isThermal ? 'p-1' : 'p-4'} text-gray-100 font-semibold border-r border-gray-200`}
-              >
+            {/* Remise */}
+            <tr style={{ background: '#f8fafc' }}>
+              <td colSpan={2} style={{
+                textAlign: 'right',
+                padding: isThermal ? '6px 8px' : '12px 20px',
+                color: '#64748b',
+                fontWeight: 600,
+                fontSize: '0.82rem',
+                borderRight: '1px solid #e2e8f0',
+              }}>
                 Remise
               </td>
-              <td className={`text-right ${isThermal ? 'p-1' : 'p-4'} font-semibold text-red-600`}>
-                - {formatNumberWithSpaces(total - discountedTotal)}
+              <td style={{
+                textAlign: 'right',
+                padding: isThermal ? '6px 8px' : '12px 20px',
+                fontWeight: 700,
+                color: '#dc2626',
+                fontVariantNumeric: 'tabular-nums',
+              }}>
+                – {formatNumberWithSpaces(total - discountedTotal)}
               </td>
             </tr>
 
+            {/* Montant Payé */}
             {(total - payerTotal) > 0 && (
-              <tr className="border-b border-gray-900">
-                <td
-                  colSpan={2}
-                  className={`text-right ${isThermal ? 'p-1' : 'p-4'} text-gray-100 font-semibold border-r border-gray-200`}
-                >
+              <tr style={{ background: '#f8fafc' }}>
+                <td colSpan={2} style={{
+                  textAlign: 'right',
+                  padding: isThermal ? '6px 8px' : '12px 20px',
+                  color: '#64748b',
+                  fontWeight: 600,
+                  fontSize: '0.82rem',
+                  borderRight: '1px solid #e2e8f0',
+                }}>
                   Montant Payé
                 </td>
-                <td className={`text-right ${isThermal ? 'p-1' : 'p-4'} font-semibold text-green-600`}>
-                  {/* {formatNumberWithSpaces(total - payerTotal)} F */}
+                <td style={{
+                  textAlign: 'right',
+                  padding: isThermal ? '6px 8px' : '12px 20px',
+                  fontWeight: 700,
+                  color: '#059669',
+                  fontVariantNumeric: 'tabular-nums',
+                }}>
                   {formatNumberWithSpaces(payDiscount)}
                 </td>
               </tr>
             )}
 
-            <tr className="border-t-2 border-gray-900 bg-gray-500">
-
-              <td
-                colSpan={2}
-                className={`text-right ${isThermal ? 'p-1' : 'p-4'} text-gray-100 font-bold border-r border-gray-200`}
-              >
-
-                {resteAPayer > 0 && "Reste à payer"}
-                {resteAPayer === 0 && "Total"}
-                {resteAPayer < 0 && "Total"}
+            {/* Total final */}
+            <tr style={{
+              background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
+              borderTop: '2px solid rgba(0,0,0,0.15)',
+            }}>
+              <td colSpan={2} style={{
+                textAlign: 'right',
+                padding: isThermal ? '8px 8px' : '16px 20px',
+                color: '#94a3b8',
+                fontWeight: 700,
+                fontSize: '0.85rem',
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                borderRight: '1px solid rgba(255,255,255,0.1)',
+              }}>
+                {resteAPayer > 0 && 'Reste à payer'}
+                {resteAPayer === 0 && 'Total'}
+                {resteAPayer < 0 && 'Total'}
               </td>
-
-              <td className={`text-right ${isThermal ? 'p-1 text-base' : 'p-4 text-lg'} font-bold text-gray-100`}>
-
+              <td style={{
+                textAlign: 'right',
+                padding: isThermal ? '8px 8px' : '16px 20px',
+                fontWeight: 800,
+                color: '#ffffff',
+                fontSize: isThermal ? '0.95rem' : '1.2rem',
+                fontVariantNumeric: 'tabular-nums',
+                letterSpacing: '-0.01em',
+              }}>
                 {resteAPayer > 0 && formatNumberWithSpaces(resteAPayer)}
                 {resteAPayer === 0 && formatNumberWithSpaces(payDiscount)}
                 {resteAPayer < 0 && formatNumberWithSpaces(discountedTotal)}
-                {" "}F
+                {' '}F
               </td>
-
             </tr>
           </tbody>
         </table>
-        {/* {resteAPayer < 0 && <>money du reste de l'argent {formatNumberWithSpaces(resteAPayer)} F </> } */}
-        {resteAPayer < 0 && (
-          <span className="block mt-2 px-4 py-2 rounded-md bg-yellow-100 text-yellow-700 font-semibold text-center">
-            Monnaie à rendre : {formatNumberWithSpaces(Math.abs(resteAPayer))} F
-          </span>
-        )}
 
+        {/* Badge monnaie à rendre */}
+        {resteAPayer < 0 && (
+          <div style={{
+            margin: '12px 16px',
+            padding: '10px 20px',
+            borderRadius: '999px',
+            background: 'linear-gradient(135deg, #fef3c7, #fde68a)',
+            border: '1px solid #fbbf24',
+            color: '#92400e',
+            fontWeight: 700,
+            fontSize: '0.85rem',
+            textAlign: 'center',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+          }}>
+            💰 Monnaie à rendre : {formatNumberWithSpaces(Math.abs(resteAPayer))} F
+          </div>
+        )}
       </div>
     </div>
   );

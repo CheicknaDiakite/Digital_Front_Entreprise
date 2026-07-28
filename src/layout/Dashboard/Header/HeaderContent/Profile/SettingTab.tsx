@@ -4,6 +4,7 @@ import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Box from '@mui/material/Box';
+import { useTheme } from '@mui/material/styles';
 
 // assets
 import FileCopyIcon from '@mui/icons-material/FileCopy';
@@ -16,6 +17,7 @@ import { useStoreUuid } from '../../../../../usePerso/store';
 // ==============================|| HEADER PROFILE - SETTING TAB ||============================== //
 
 export default function SettingTab() {
+  const theme = useTheme();
   const { unUser } = useFetchUser();
   const uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise } = useFetchEntreprise(uuid);
@@ -25,7 +27,7 @@ export default function SettingTab() {
     mb: 0.5,
     py: 1,
     px: 1.5,
-    color: '#e2e8f0',
+    color: theme.palette.text.primary,
     transition: 'all 0.2s ease',
     '&:hover': {
       bgcolor: 'rgba(99, 102, 241, 0.15)',

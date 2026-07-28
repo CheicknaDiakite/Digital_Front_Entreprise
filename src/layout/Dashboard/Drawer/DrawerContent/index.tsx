@@ -1,5 +1,5 @@
 // project import
-import { Box, IconButton, Typography } from '@mui/material';
+import { Box, IconButton, Typography, useTheme } from '@mui/material';
 import SimpleBar from '../../../../components/third-party/SimpleBar';
 import NavSide from './Navigation/NavSide';
 import { Link } from 'react-router-dom';
@@ -12,6 +12,7 @@ import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 // ==============================|| DRAWER CONTENT ||============================== //
 
 export default function DrawerContent() {
+  const theme = useTheme();
   const uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise } = useFetchEntreprise(uuid);
 
@@ -25,7 +26,7 @@ export default function DrawerContent() {
       <SimpleBar
         sx={{
           '& .simplebar-content': { display: 'flex', flexDirection: 'column' },
-          bgcolor: 'rgba(10, 15, 30, 0.97)',
+          bgcolor: theme.palette.mode === 'dark' ? 'rgba(10, 15, 30, 0.97)' : 'rgba(255, 255, 255, 0.96)',
           backdropFilter: 'blur(20px)',
         }}
       >
@@ -87,7 +88,7 @@ export default function DrawerContent() {
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
-                  color: '#e0e7ff',
+                  color: 'text.primary',
                   fontSize: '0.88rem',
                   letterSpacing: 0.3,
                 }}
@@ -97,7 +98,7 @@ export default function DrawerContent() {
               <Typography
                 sx={{
                   fontSize: '0.67rem',
-                  color: '#475569',
+                  color: 'text.secondary',
                   letterSpacing: 0.5,
                   textTransform: 'uppercase',
                   fontWeight: 600,

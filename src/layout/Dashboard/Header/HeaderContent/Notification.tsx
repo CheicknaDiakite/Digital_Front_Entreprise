@@ -107,10 +107,10 @@ export default function Notification() {
         sx={{
           p: 1,
           borderRadius: '12px',
-          color: open ? '#818cf8' : '#e2e8f0',
-          bgcolor: open ? 'rgba(99, 102, 241, 0.2)' : 'rgba(255, 255, 255, 0.08)',
+          color: open ? 'primary.main' : 'text.primary',
+          bgcolor: open ? 'rgba(99, 102, 241, 0.2)' : theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.78)',
           border: '1px solid',
-          borderColor: open ? 'rgba(99, 102, 241, 0.45)' : 'rgba(255, 255, 255, 0.18)',
+          borderColor: open ? 'rgba(99, 102, 241, 0.45)' : theme.palette.divider,
           backdropFilter: 'blur(10px)',
           transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
           boxShadow: open ? '0 0 16px rgba(99, 102, 241, 0.3)' : 'none',
@@ -154,10 +154,12 @@ export default function Notification() {
                 minWidth: { xs: 300, sm: 360 },
                 maxWidth: { xs: 320, md: 420 },
                 borderRadius: '20px',
-                background: 'linear-gradient(145deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.92) 100%)',
+                background: theme.palette.mode === 'dark'
+                  ? 'linear-gradient(145deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.92) 100%)'
+                  : 'linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(247, 249, 253, 0.98) 100%)',
                 backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.15)',
-                boxShadow: '0 20px 40px rgba(0,0,0,0.5), 0 0 20px rgba(99, 102, 241, 0.15)',
+                border: `1px solid ${theme.palette.divider}`,
+                boxShadow: theme.palette.mode === 'dark' ? '0 20px 40px rgba(0,0,0,0.5), 0 0 20px rgba(99, 102, 241, 0.15)' : '0 20px 40px rgba(15,23,42,0.16)',
                 overflow: 'hidden',
               }}
             >
@@ -171,11 +173,11 @@ export default function Notification() {
                       alignItems: 'center',
                       justifyContent: 'space-between',
                       background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.08) 100%)',
-                      borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                      borderBottom: `1px solid ${theme.palette.divider}`,
                     }}
                   >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Typography variant="subtitle1" sx={{ color: '#f8fafc', fontWeight: 700 }}>
+                      <Typography variant="subtitle1" sx={{ color: 'text.primary', fontWeight: 700 }}>
                         Notifications des Stocks
                       </Typography>
                       {displayCount > 0 && (
@@ -250,18 +252,18 @@ export default function Notification() {
                                   width: 44,
                                   height: 44,
                                   borderRadius: '10px',
-                                  border: '1px solid rgba(255,255,255,0.12)',
+                                  border: `1px solid ${theme.palette.divider}`,
                                 }}
                               />
                             </ListItemAvatar>
                             <ListItemText
                               primary={
-                                <Typography variant="subtitle2" sx={{ color: '#f8fafc', fontWeight: 600, fontSize: '0.875rem' }}>
+                                <Typography variant="subtitle2" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.875rem' }}>
                                   Stock faible : {item.categorie_libelle}
                                 </Typography>
                               }
                               secondary={
-                                <Typography variant="caption" sx={{ color: '#94a3b8', fontSize: '0.775rem' }}>
+                                <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.775rem' }}>
                                   Quantité restante : <strong style={{ color: isCritical ? '#f87171' : '#fbbf24' }}>{qte}</strong>{' '}
                                   {item.unite === 'kilos' ? '' : item.unite}
                                 </Typography>
@@ -288,7 +290,7 @@ export default function Notification() {
                       })
                     ) : (
                       <Box sx={{ p: 3, textAlign: 'center' }}>
-                        <Typography variant="body2" sx={{ color: '#94a3b8' }}>
+                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                           Aucune alerte de stock.
                         </Typography>
                       </Box>

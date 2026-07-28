@@ -16,6 +16,7 @@ import {
   DialogActions,
   Backdrop,
   CircularProgress,
+  useTheme,
 } from "@mui/material";
 import {
   BarChart as DashboardIcon,
@@ -67,13 +68,14 @@ interface FeedbackDialogProps {
 // ── Sub-components ─────────────────────────────────────────────────────────────
 
 /** Small uppercase section title */
-const SectionLabel = ({ label }: { label: string }) => (
-  <Typography
+const SectionLabel = ({ label }: { label: string }) => {
+  const theme = useTheme();
+  return <Typography
     sx={{
       fontSize: '0.65rem',
       fontWeight: 700,
       letterSpacing: 1.6,
-      color: '#475569',
+      color: theme.palette.text.secondary,
       textTransform: 'uppercase',
       px: 1.5,
       pt: 1.5,
@@ -83,12 +85,13 @@ const SectionLabel = ({ label }: { label: string }) => (
   >
     {label}
   </Typography>
-);
+};
 
 /** Thin horizontal separator */
-const NavDivider = () => (
-  <Box sx={{ mx: 1.5, my: 1, height: '1px', bgcolor: 'rgba(255,255,255,0.05)' }} />
-);
+const NavDivider = () => {
+  const theme = useTheme();
+  return <Box sx={{ mx: 1.5, my: 1, height: '1px', bgcolor: theme.palette.divider }} />;
+};
 
 /** Single navigation item */
 const NavItem: React.FC<NavItemProps> = ({
@@ -100,6 +103,7 @@ const NavItem: React.FC<NavItemProps> = ({
   isExpanded,
   isSubItem = false,
 }) => {
+  const theme = useTheme();
   const location = useLocation();
   const isExternal = Boolean(to && /^https?:\/\//.test(to));
   const isActive = to
@@ -152,7 +156,7 @@ const NavItem: React.FC<NavItemProps> = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              bgcolor: isActive ? `${accentColor}28` : 'rgba(255,255,255,0.05)',
+              bgcolor: isActive ? `${accentColor}28` : theme.palette.action.hover,
               transition: 'all 0.2s ease',
               '& .MuiSvgIcon-root': { fontSize: 17 },
             }}
@@ -178,7 +182,7 @@ const NavItem: React.FC<NavItemProps> = ({
 
       <Typography
         sx={{
-          color: isActive ? '#e0e7ff' : isSubItem ? '#94a3b8' : '#cbd5e1',
+          color: isActive ? accentColor : isSubItem ? 'text.secondary' : 'text.primary',
           fontSize: isSubItem ? '0.81rem' : '0.87rem',
           fontWeight: isActive ? 600 : 500,
           flex: 1,
@@ -193,7 +197,7 @@ const NavItem: React.FC<NavItemProps> = ({
       {isExpanded !== undefined && (
         isExpanded
           ? <ExpandLess sx={{ color: accentColor, fontSize: 18, flexShrink: 0 }} />
-          : <ExpandMore sx={{ color: '#475569', fontSize: 18, flexShrink: 0 }} />
+          : <ExpandMore sx={{ color: 'text.secondary', fontSize: 18, flexShrink: 0 }} />
       )}
     </ListItem>
   );
@@ -215,28 +219,33 @@ const NavItem: React.FC<NavItemProps> = ({
 const FeedbackDialog: React.FC<FeedbackDialogProps> = ({
   open, onClose, onSubmit, values, onChange,
 }) => (
-  <Dialog
+  <FeedbackDialogContent open={open} onClose={onClose} onSubmit={onSubmit} values={values} onChange={onChange} />
+);
+
+const FeedbackDialogContent: React.FC<FeedbackDialogProps> = ({ open, onClose, onSubmit, values, onChange }) => {
+  const theme = useTheme();
+  return <Dialog
     open={open}
     onClose={onClose}
     maxWidth="sm"
     fullWidth
     PaperProps={{
       sx: {
-        bgcolor: 'rgba(15, 23, 42, 0.97)',
+        bgcolor: theme.palette.background.paper,
         backdropFilter: 'blur(24px)',
         border: '1px solid rgba(99,102,241,0.2)',
         borderRadius: '20px',
-        boxShadow: '0 25px 60px rgba(0,0,0,0.55)',
+        boxShadow: theme.palette.mode === 'dark' ? '0 25px 60px rgba(0,0,0,0.55)' : '0 25px 60px rgba(15,23,42,0.18)',
       },
     }}
   >
     <DialogTitle sx={{ pb: 1 }}>
       <Box display="flex" justifyContent="space-between" alignItems="flex-start">
         <Box>
-          <Typography variant="h6" sx={{ color: '#e0e7ff', fontWeight: 700 }}>
+          <Typography variant="h6" sx={{ color: 'text.primary', fontWeight: 700 }}>
             Donnez votre avis
           </Typography>
-          <Typography variant="caption" sx={{ color: '#64748b' }}>
+          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
             Votre retour nous aide à améliorer GestStocks
           </Typography>
         </Box>
@@ -245,8 +254,8 @@ const FeedbackDialog: React.FC<FeedbackDialogProps> = ({
           size="small"
           sx={{
             mt: 0.5,
-            color: '#64748b',
-            '&:hover': { color: '#e0e7ff', bgcolor: 'rgba(255,255,255,0.08)' },
+            color: 'text.secondary',
+            '&:hover': { color: 'text.primary', bgcolor: 'action.hover' },
           }}
         >
           <CloseIcon fontSize="small" />
@@ -279,10 +288,10 @@ const FeedbackDialog: React.FC<FeedbackDialogProps> = ({
         <Button
           onClick={onClose}
           sx={{
-            color: '#64748b',
+            color: 'text.secondary',
             borderRadius: '10px',
             px: 2,
-            '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' },
+            '&:hover': { bgcolor: 'action.hover' },
           }}
         >
           Annuler
@@ -303,12 +312,14 @@ const FeedbackDialog: React.FC<FeedbackDialogProps> = ({
         </Button>
       </DialogActions>
     </form>
-  </Dialog>
-);
+  </Dialog>;
+};
 
 // ── Main component ──────────────────────────────────────────────────────────────
 
 const NavSide: React.FC = () => {
+  const theme = useTheme();
+  const iconColor = (dark: string, light: string) => (theme.palette.mode === 'dark' ? dark : light);
   const [expandedSection, setExpandedSection] = useState<number>(0);
   const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
   const [helpDialogOpen, setHelpDialogOpen] = useState(false);
@@ -352,9 +363,9 @@ const NavSide: React.FC = () => {
         maxWidth: '20rem',
         borderRadius: '16px',
         border: '1px solid rgba(99,102,241,0.12)',
-        bgcolor: 'rgba(10, 15, 30, 0.97)',
+        bgcolor: theme.palette.mode === 'dark' ? 'rgba(10, 15, 30, 0.97)' : 'rgba(255, 255, 255, 0.97)',
         backdropFilter: 'blur(20px)',
-        boxShadow: '0 4px 40px rgba(0,0,0,0.5)',
+        boxShadow: theme.palette.mode === 'dark' ? '0 4px 40px rgba(0,0,0,0.5)' : '0 4px 32px rgba(15,23,42,0.10)',
         overflow: 'hidden',
       }}
     >
@@ -380,7 +391,7 @@ const NavSide: React.FC = () => {
           {/* ── ESPACE DE TRAVAIL ── */}
           <SectionLabel label="Espace de travail" />
           <NavItem
-            icon={<AddBusinessIcon sx={{ color: '#818cf8' }} />}
+            icon={<AddBusinessIcon sx={{ color: iconColor('#818cf8', '#4f46e5') }} />}
             label="Entreprise(s)"
             onClick={() => handleSectionExpand(5)}
             accentColor="#6366f1"
@@ -412,7 +423,7 @@ const NavSide: React.FC = () => {
               <SectionLabel label="Navigation" />
 
               <NavItem
-                icon={<DashboardIcon sx={{ color: '#818cf8' }} />}
+                icon={<DashboardIcon sx={{ color: iconColor('#818cf8', '#4f46e5') }} />}
                 label="Accueil"
                 onClick={() => handleSectionExpand(1)}
                 accentColor="#6366f1"
@@ -425,14 +436,14 @@ const NavSide: React.FC = () => {
                     {(unUser.role === 1 || unUser.role === 2) && (
                       <>
                         <NavItem
-                          icon={<CategoryIcon sx={{ color: '#a5b4fc' }} />}
+                          icon={<CategoryIcon sx={{ color: iconColor('#a5b4fc', '#4f46e5') }} />}
                           label="Article"
                           to="/categorie"
                           accentColor="#6366f1"
                           isSubItem
                         />
                         <NavItem
-                          icon={<AddCircleIcon sx={{ color: '#34d399' }} />}
+                          icon={<AddCircleIcon sx={{ color: iconColor('#34d399', '#059669') }} />}
                           label="Entrer (Achat)"
                           to="/entre"
                           accentColor="#10b981"
@@ -445,7 +456,7 @@ const NavSide: React.FC = () => {
                       if (isAccessAllowed(getRestruction)) {
                         return (
                           <NavItem
-                            icon={<ExitToAppIcon sx={{ color: '#f87171' }} />}
+                            icon={<ExitToAppIcon sx={{ color: iconColor('#f87171', '#dc2626') }} />}
                             label="Sortie (Vente)"
                             to="/sortie"
                             accentColor="#ef4444"
@@ -455,7 +466,7 @@ const NavSide: React.FC = () => {
                       }
                     })()}
                     <NavItem
-                      icon={<DiscountIcon sx={{ color: '#fb923c' }} />}
+                      icon={<DiscountIcon sx={{ color: iconColor('#fb923c', '#c2410c') }} />}
                       label="Remise Facture"
                       to="/sortie/remise"
                       accentColor="#f97316"
@@ -473,7 +484,7 @@ const NavSide: React.FC = () => {
               <NavDivider />
               <SectionLabel label="Inventaire" />
               <NavItem
-                icon={<HistoryEduIcon sx={{ color: '#34d399' }} />}
+                icon={<HistoryEduIcon sx={{ color: iconColor('#34d399', '#059669') }} />}
                 label="Inventaire"
                 onClick={() => handleSectionExpand(2)}
                 accentColor="#10b981"
@@ -522,7 +533,7 @@ const NavSide: React.FC = () => {
               <NavDivider />
               <SectionLabel label="Historique" />
               <NavItem
-                icon={<HistoryIcon sx={{ color: '#fbbf24' }} />}
+                icon={<HistoryIcon sx={{ color: iconColor('#fbbf24', '#b45309') }} />}
                 label="Historique"
                 onClick={() => handleSectionExpand(3)}
                 accentColor="#f59e0b"
@@ -553,13 +564,13 @@ const NavSide: React.FC = () => {
               <NavDivider />
               <SectionLabel label="Administration" />
               <NavItem
-                icon={<UserCircleIcon sx={{ color: '#60a5fa' }} />}
+                icon={<UserCircleIcon sx={{ color: iconColor('#60a5fa', '#2563eb') }} />}
                 label="Les Admin"
                 to="/user/admin"
                 accentColor="#3b82f6"
               />
               <NavItem
-                icon={<UserCircleIcon sx={{ color: '#60a5fa' }} />}
+                icon={<UserCircleIcon sx={{ color: iconColor('#60a5fa', '#2563eb') }} />}
                 label="Les Avis"
                 to="/user/avis"
                 accentColor="#3b82f6"
@@ -569,7 +580,7 @@ const NavSide: React.FC = () => {
 
           {(unUser.role === 1 && unUser.is_cabinet) && (
             <NavItem
-              icon={<UserCircleIcon sx={{ color: '#60a5fa' }} />}
+              icon={<UserCircleIcon sx={{ color: iconColor('#60a5fa', '#2563eb') }} />}
               label="Mes inscrits"
               to="/user/mesInscrit"
               accentColor="#3b82f6"
@@ -580,20 +591,20 @@ const NavSide: React.FC = () => {
           <NavDivider />
           <SectionLabel label="Support" />
           <NavItem
-            icon={<DescriptionIcon sx={{ color: '#7dd3fc' }} />}
+            icon={<DescriptionIcon sx={{ color: iconColor('#7dd3fc', '#0369a1') }} />}
             label="Documentation"
             to="https://documentation.gest-stocks.com"
             accentColor="#0ea5e9"
           />
           <NavItem
-            icon={<HelpOutlineIcon sx={{ color: '#c084fc' }} />}
+            icon={<HelpOutlineIcon sx={{ color: iconColor('#c084fc', '#7e22ce') }} />}
             label="Que pensez-vous ?"
             onClick={() => setFeedbackDialogOpen(true)}
             accentColor="#a855f7"
           />
           {(unUser.role === 1 || unUser.role === 2) && (
             <NavItem
-              icon={<HelpOutlineIcon sx={{ color: '#c084fc' }} />}
+              icon={<HelpOutlineIcon sx={{ color: iconColor('#c084fc', '#7e22ce') }} />}
               label="Abonnement ?"
               onClick={() => setHelpDialogOpen(true)}
               accentColor="#a855f7"
@@ -605,7 +616,7 @@ const NavSide: React.FC = () => {
 
       {/* ── Bottom pinned area ── */}
       <Box sx={{ px: 1.5, pb: 1.5, pt: 0.5 }}>
-        <Box sx={{ height: '1px', bgcolor: 'rgba(255,255,255,0.06)', mb: 1.2 }} />
+        <Box sx={{ height: '1px', bgcolor: 'divider', mb: 1.2 }} />
 
         {/* WhatsApp */}
         <a
@@ -635,7 +646,7 @@ const NavSide: React.FC = () => {
             }}
           >
             <WhatsAppIcon sx={{ color: '#22c55e', fontSize: 18 }} />
-            <Typography sx={{ color: '#86efac', fontSize: '0.81rem', fontWeight: 600, letterSpacing: 0.3 }}>
+            <Typography sx={{ color: iconColor('#86efac', '#047857'), fontSize: '0.81rem', fontWeight: 600, letterSpacing: 0.3 }}>
               +223 91 15 48 34
             </Typography>
           </Box>
@@ -662,8 +673,8 @@ const NavSide: React.FC = () => {
             },
           }}
         >
-          <PowerIcon sx={{ color: '#f87171', fontSize: 18 }} />
-          <Typography sx={{ color: '#fca5a5', fontSize: '0.81rem', fontWeight: 600, letterSpacing: 0.3 }}>
+          <PowerIcon sx={{ color: iconColor('#f87171', '#dc2626'), fontSize: 18 }} />
+          <Typography sx={{ color: iconColor('#fca5a5', '#b91c1c'), fontSize: '0.81rem', fontWeight: 600, letterSpacing: 0.3 }}>
             Déconnexion
           </Typography>
         </Box>
@@ -685,25 +696,25 @@ const NavSide: React.FC = () => {
         fullWidth
         PaperProps={{
           sx: {
-            bgcolor: 'rgba(15, 23, 42, 0.97)',
+            bgcolor: theme.palette.background.paper,
             backdropFilter: 'blur(24px)',
             borderRadius: '20px',
             border: '1px solid rgba(99,102,241,0.2)',
-            boxShadow: '0 25px 60px rgba(0,0,0,0.55)',
+            boxShadow: theme.palette.mode === 'dark' ? '0 25px 60px rgba(0,0,0,0.55)' : '0 25px 60px rgba(15,23,42,0.18)',
           },
         }}
       >
         <DialogTitle>
           <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6" sx={{ color: '#e0e7ff', fontWeight: 700 }}>
+            <Typography variant="h6" sx={{ color: 'text.primary', fontWeight: 700 }}>
               Aide & Abonnement
             </Typography>
             <IconButton
               onClick={() => setHelpDialogOpen(false)}
               size="small"
               sx={{
-                color: '#64748b',
-                '&:hover': { color: '#e0e7ff', bgcolor: 'rgba(255,255,255,0.08)' },
+                color: 'text.secondary',
+                '&:hover': { color: 'text.primary', bgcolor: 'action.hover' },
               }}
             >
               <CloseIcon fontSize="small" />

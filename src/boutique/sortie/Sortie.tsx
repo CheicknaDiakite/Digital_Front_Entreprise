@@ -1,4 +1,4 @@
-import { Box, Button, Pagination, Paper, Skeleton, TextField, Typography, Grid } from "@mui/material";
+import { Box, Button, Pagination, Paper, Skeleton, TextField, Typography } from "@mui/material";
 import { ChangeEvent, FormEvent, SyntheticEvent, useEffect, useState } from "react";
 import { RecupType, SortieType } from "../../typescript/DataType";
 import { connect } from "../../_services/account.service";
@@ -366,147 +366,224 @@ export default function Sortie() {
   if (sortiesEntreprise) {
     return (
       <div>
-
+        {/* ── Page principale ── */}
         <Paper
           elevation={0}
-          // className={`${isMobile ? 'mobile-header-container' : 'rounded-lg overflow-hidden'}`}
           sx={{
-            backdropFilter: 'blur(5px)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
+            backdropFilter: 'blur(12px)',
+            border: '1px solid rgba(255,255,255,0.1)',
             borderRadius: '20px',
             marginTop: '24px',
-            bgcolor: 'rgba(255,255,255,0.06)',
+            bgcolor: 'rgba(255,255,255,0.04)',
+            overflow: 'hidden',
           }}
         >
-          <div className={`${isMobile ? 'mobile-p-3' : 'p-3'} space-y-6`}>
-            {/* Header Section */}
-            <div className={`${isMobile ? 'flex flex-col space-y-4' : 'flex justify-between items-center'} border-b pb-6`}>
-              <Typography
-                variant={isMobile ? "h5" : "h4"}
-                className={`${isMobile ? 'font-semibold text-gray-50' : 'font-semibold text-gray-50'}`}
+          <div style={{ padding: isMobile ? '16px' : '24px', display: 'flex', flexDirection: 'column', gap: 24 }}>
 
-              >
-                Gestion des Sorties
-              </Typography>
-              <div className={`${isMobile ? 'mobile-action-buttons' : 'flex space-x-3'}`}>
+            {/* ── Header ── */}
+            <div style={{
+              display: 'flex',
+              flexDirection: isMobile ? 'column' : 'row',
+              justifyContent: 'space-between',
+              alignItems: isMobile ? 'flex-start' : 'center',
+              gap: 16,
+              paddingBottom: 20,
+              borderBottom: '1px solid rgba(255,255,255,0.08)',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: '10px',
+                  background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 4px 12px rgba(99,102,241,0.4)',
+                }}>
+                  <LocalAtmIcon style={{ fontSize: 20, color: '#fff' }} />
+                </div>
+                <div>
+                  <div style={{ fontWeight: 800, fontSize: isMobile ? '1.2rem' : '1.5rem', color: '#f1f5f9', letterSpacing: '-0.02em' }}>
+                    Gestion des Sorties
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 500 }}>
+                    {reversedSorties.length} enregistrement{reversedSorties.length > 1 ? 's' : ''}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                 <Button
                   variant="contained"
-                  color="primary"
-                  onClick={() => {
-                    handleSaveSorties();
-                    handleOnClick();
-                  }}
-                  className={`${isMobile ? 'mobile-button mobile-button-primary' : 'bg-blue-600 hover:bg-blue-700'}`}
-                  sx={isMobile ? {
-                    borderRadius: '12px',
-                    fontWeight: 600,
+                  onClick={() => { handleSaveSorties(); handleOnClick(); }}
+                  sx={{
+                    borderRadius: '10px',
+                    fontWeight: 700,
                     textTransform: 'none',
-                    transition: 'all 0.3s ease',
-                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                    background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                    fontSize: '0.88rem',
+                    px: 3,
+                    py: 1.2,
+                    background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                    boxShadow: '0 4px 14px rgba(99,102,241,0.35)',
                     '&:hover': {
+                      background: 'linear-gradient(135deg, #4f46e5, #4338ca)',
+                      boxShadow: '0 6px 20px rgba(99,102,241,0.5)',
                       transform: 'translateY(-2px)',
-                      boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
-                      background: 'linear-gradient(135deg, #1d4ed8, #1e40af)'
-                    }
-                  } : {}}
+                    },
+                    transition: 'all 0.2s ease',
+                  }}
                 >
                   Créer Facture
                 </Button>
                 <Button
                   variant="outlined"
                   onClick={handleOpenClick}
-                  className={`${isMobile ? 'mobile-button mobile-button-danger' : 'border-red-500 text-red-500 hover:bg-red-50'}`}
-                  sx={isMobile ? {
-                    borderRadius: '12px',
-                    fontWeight: 600,
+                  sx={{
+                    borderRadius: '10px',
+                    fontWeight: 700,
                     textTransform: 'none',
-                    transition: 'all 0.3s ease',
-                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                    background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-                    color: 'white',
+                    fontSize: '0.88rem',
+                    px: 3,
+                    py: 1.2,
+                    borderColor: 'rgba(239,68,68,0.4)',
+                    color: '#f87171',
                     '&:hover': {
+                      background: 'rgba(239,68,68,0.08)',
+                      borderColor: '#ef4444',
                       transform: 'translateY(-2px)',
-                      boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
-                      background: 'linear-gradient(135deg, #dc2626, #b91c1c)'
-                    }
-                  } : {}}
+                    },
+                    transition: 'all 0.2s ease',
+                  }}
                 >
                   Annuler
                 </Button>
               </div>
             </div>
 
-            {/* Date Filter Section */}
+            {/* ── Filtres de dates ── */}
             {(unUser.role === 1 || unUser.role === 2) && (
-
-              <Grid container spacing={2} alignItems="center"
-              // container
-              // spacing={isMobile ? 2 : 3}
-              // className={isMobile ? 'mobile-grid' : ''}
-              >
-                <Grid item xs={6} sm={3}>
-                  <TextField
-                    label="Date de début"
-                    type="date"
-                    value={selectedStartDate}
-                    onChange={handleStartDateChange}
-                    // className={`${isMobile ? 'mobile-date-field' : 'bg-white'}`}
-                    InputLabelProps={{ shrink: true }}
-                    size="small"
-                  />
-                </Grid>
-                <Grid item xs={6} sm={3}>
-                  <TextField
-                    label="Date de fin"
-                    type="date"
-                    value={selectedEndDate}
-                    onChange={handleEndDateChange}
-                    InputLabelProps={{ shrink: true }}
-                    // className={`${isMobile ? 'mobile-date-field' : 'bg-white'}`}
-                    size="small"
-                  />
-                </Grid>
-              </Grid>
-
+              <div style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 12,
+                padding: '16px 20px',
+                borderRadius: '12px',
+                background: 'rgba(99,102,241,0.05)',
+                border: '1px solid rgba(99,102,241,0.15)',
+              }}>
+                <TextField
+                  label="Date de début"
+                  type="date"
+                  value={selectedStartDate}
+                  onChange={handleStartDateChange}
+                  InputLabelProps={{ shrink: true }}
+                  size="small"
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '9px',
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#6366f1',
+                        boxShadow: '0 0 0 3px rgba(99,102,241,0.12)',
+                      },
+                    },
+                  }}
+                />
+                <TextField
+                  label="Date de fin"
+                  type="date"
+                  value={selectedEndDate}
+                  onChange={handleEndDateChange}
+                  InputLabelProps={{ shrink: true }}
+                  size="small"
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '9px',
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#6366f1',
+                        boxShadow: '0 0 0 3px rgba(99,102,241,0.12)',
+                      },
+                    },
+                  }}
+                />
+              </div>
             )}
 
-            {/* Statistics Section */}
+            {/* ── Cartes KPI ── */}
             {unUser.role === 1 && (
-              <Paper
-                elevation={1}
-                className={`p-4`}
-                // sx={isMobile ? {
-                //   borderRadius: '16px',
-                //   backdropFilter: 'blur(10px)',
-                //   background: 'rgba(255, 255, 255, 0.95)',
-                //   border: '1px solid rgba(255, 255, 255, 0.2)',
-                //   transition: 'all 0.3s ease',
-                //   animation: 'scaleIn 0.6s ease-out',
-                //   '&:hover': {
-                //     transform: 'translateY(-4px)',
-                //     boxShadow: '0 12px 24px rgba(0, 0, 0, 0.1)'
-                //   }
-                // } : {}}
-              >
-                <div className={`${isMobile ? 'grid grid-cols-1 gap-4' : 'grid grid-cols-1 md:grid-cols-2 gap-4'}`}>
-                  <div className="flex items-center space-x-2">
-                    <LocalAtmIcon className={`${isMobile ? 'mobile-stats-icon' : ''}`} color="primary" />
-                    <Typography variant={isMobile ? "h6" : "h6"}>
-                      CA: {formatNumberWithSpaces(totalPrice)}
-                    </Typography>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16 }}>
+                {/* CA */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 16,
+                  padding: '20px 24px',
+                  borderRadius: '14px',
+                  background: 'linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(79,70,229,0.08) 100%)',
+                  border: '1px solid rgba(99,102,241,0.25)',
+                  transition: 'all 0.2s ease',
+                }}>
+                  <div style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: '14px',
+                    background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 6px 16px rgba(99,102,241,0.4)',
+                    flexShrink: 0,
+                  }}>
+                    <LocalAtmIcon style={{ fontSize: 26, color: '#fff' }} />
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <QuantityLimitsIcon className={`${isMobile ? 'mobile-stats-icon' : ''}`} color="primary" />
-                    <Typography variant={isMobile ? "h6" : "h6"}>
-                      Qté: {formatNumberWithSpaces(totalQte)}
-                    </Typography>
+                  <div>
+                    <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>
+                      Chiffre d'affaires
+                    </div>
+                    <div style={{ fontSize: isMobile ? '1.3rem' : '1.6rem', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
+                      {formatNumberWithSpaces(totalPrice)}
+                      <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 500, marginLeft: 4 }}>F</span>
+                    </div>
                   </div>
                 </div>
-              </Paper>
+
+                {/* Quantité */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 16,
+                  padding: '20px 24px',
+                  borderRadius: '14px',
+                  background: 'linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(5,150,105,0.06) 100%)',
+                  border: '1px solid rgba(16,185,129,0.2)',
+                  transition: 'all 0.2s ease',
+                }}>
+                  <div style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: '14px',
+                    background: 'linear-gradient(135deg, #10b981, #059669)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 6px 16px rgba(16,185,129,0.4)',
+                    flexShrink: 0,
+                  }}>
+                    <QuantityLimitsIcon style={{ fontSize: 26, color: '#fff' }} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>
+                      Quantité totale
+                    </div>
+                    <div style={{ fontSize: isMobile ? '1.3rem' : '1.6rem', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
+                      {formatNumberWithSpaces(totalQte)}
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
 
-            {/* Table Section */}
+            {/* ── Table Section ── */}
             <div>
               <TableSortie
                 onSubmit={onSubmit}
@@ -535,29 +612,36 @@ export default function Sortie() {
               />
             </div>
 
-            {/* Pagination */}
-            <div className={`flex justify-center mt-6`}>
+            {/* ── Pagination ── */}
+            <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 8 }}>
               <Pagination
                 count={totalPages}
                 page={currentPage}
                 onChange={handlePageChange}
                 color="primary"
-                size={isMobile ? "medium" : "large"}
-                sx={isMobile ? {
+                size={isMobile ? 'medium' : 'large'}
+                sx={{
                   '& .MuiPaginationItem-root': {
                     borderRadius: '8px',
-                    margin: '0 2px'
-                  }
-                } : {}}
+                    fontWeight: 600,
+                    transition: 'all 0.2s ease',
+                    '&:hover': { transform: 'translateY(-1px)' },
+                  },
+                  '& .Mui-selected': {
+                    background: 'linear-gradient(135deg, #6366f1, #4f46e5) !important',
+                    color: '#fff',
+                    boxShadow: '0 4px 12px rgba(99,102,241,0.4)',
+                  },
+                }}
               />
             </div>
 
           </div>
         </Paper>
 
-        {/* Invoice Preview Section */}
+        {/* ── Aperçu Facture ── */}
         {showInvoice && entreprise && (
-          <div className={`mt-3`}>
+          <div style={{ marginTop: 16 }}>
             <Fact
               invoiceDate={itemDate}
               post={entreprise}
@@ -570,7 +654,6 @@ export default function Sortie() {
           </div>
         )}
       </div>
-
     );
   }
 }

@@ -67,14 +67,17 @@ const MainCard = forwardRef<HTMLDivElement, MainCardProps>(
         {...others}
         sx={{
           color: 'text.primary',
-          background: 'linear-gradient(145deg, rgba(20, 33, 56, 0.98), rgba(13, 24, 43, 0.96))',
+          background:
+            theme.palette.mode === 'dark'
+              ? 'linear-gradient(145deg, rgba(20, 33, 56, 0.98), rgba(13, 24, 43, 0.96))'
+              : 'linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 253, 0.98))',
           backdropFilter: 'blur(14px)',
           border: border ? `1px solid ${theme.palette.divider}` : 'none',
           borderRadius: 3,
           boxShadow: boxShadow && (!border || theme.palette.mode === 'dark') ? shadow || theme.customShadows.z1 : 'none',
           transition: 'border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease',
           '&:hover': {
-            borderColor: border ? 'rgba(129, 140, 248, 0.45)' : 'transparent',
+            borderColor: border ? theme.palette.primary.main : 'transparent',
             boxShadow: boxShadow ? shadow || theme.customShadows.z1 : 'none'
           },
           '& pre': {

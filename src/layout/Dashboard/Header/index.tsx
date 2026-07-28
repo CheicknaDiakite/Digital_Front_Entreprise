@@ -43,8 +43,11 @@ export default function Header() {
     right: 0,
     zIndex: theme.zIndex.appBar,
     borderBottom: `1px solid ${theme.palette.divider}`,
-    background: 'linear-gradient(90deg, rgba(7, 17, 31, 0.96), rgba(11, 24, 44, 0.92))',
-    boxShadow: '0 8px 28px rgba(2, 8, 23, 0.24)',
+    background:
+      theme.palette.mode === 'dark'
+        ? 'linear-gradient(90deg, rgba(7, 17, 31, 0.96), rgba(11, 24, 44, 0.92))'
+        : 'linear-gradient(90deg, rgba(255, 255, 255, 0.96), rgba(247, 249, 253, 0.94))',
+    boxShadow: theme.palette.mode === 'dark' ? '0 8px 28px rgba(2, 8, 23, 0.24)' : '0 8px 28px rgba(30, 41, 59, 0.08)',
     backdropFilter: 'blur(18px)',
   };
 

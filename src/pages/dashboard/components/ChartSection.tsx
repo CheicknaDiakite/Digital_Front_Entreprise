@@ -1,12 +1,13 @@
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, useTheme } from '@mui/material';
 import { ChartSectionProps } from '../types';
 
 export const ChartSection: React.FC<ChartSectionProps> = ({ title, children, className }) => {
+  const theme = useTheme();
   return (
     <Box 
       className={className}
       sx={{
-        bgcolor: 'rgba(255, 255, 255, 0.04)',
+        bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.04)' : 'rgba(255, 255, 255, 0.82)',
         backdropFilter: 'blur(16px)',
         border: '1px solid rgba(99, 102, 241, 0.18)',
         borderRadius: '20px',
@@ -14,7 +15,7 @@ export const ChartSection: React.FC<ChartSectionProps> = ({ title, children, cla
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+        boxShadow: theme.palette.mode === 'dark' ? '0 8px 32px rgba(0, 0, 0, 0.15)' : '0 8px 32px rgba(15, 23, 42, 0.08)',
         transition: 'all 0.3s ease',
         '&:hover': {
           borderColor: 'rgba(99, 102, 241, 0.3)',
@@ -29,14 +30,14 @@ export const ChartSection: React.FC<ChartSectionProps> = ({ title, children, cla
           justifyContent: 'space-between',
           pb: 2,
           mb: 2,
-          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          borderBottom: `1px solid ${theme.palette.divider}`,
         }}
       >
         <Typography
           variant="h6"
           sx={{
             fontWeight: 700,
-            color: '#e0e7ff',
+            color: 'text.primary',
             fontSize: { xs: '1.05rem', sm: '1.2rem' },
             letterSpacing: '-0.01em',
             display: 'flex',

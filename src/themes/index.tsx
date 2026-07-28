@@ -2,16 +2,18 @@ import PropTypes from 'prop-types';
 import { useMemo } from 'react';
 import { CssBaseline, Direction, StyledEngineProvider } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import Palette from './palette'; // Assurez-vous que cela retourne un objet palette correct
-import Typography from './typography'; // Assurez-vous que cela retourne un objet Typography correct
-import CustomShadows from './shadows'; // Assurez-vous que cela retourne un objet shadows correct
+import Palette from './palette';
+import Typography from './typography';
+import CustomShadows from './shadows';
 import componentsOverride from './overrides';
 import { ChildrenProps } from '../typescript/Account';
+import { useThemeMode } from './ThemeModeContext';
 
 // ==============================|| DEFAULT THEME - MAIN  ||============================== //
 
 export default function ThemeCustomization({ children }: ChildrenProps) {
-  const theme = Palette('dark');
+  const { mode } = useThemeMode();
+  const theme = useMemo(() => Palette(mode), [mode]);
   const themeTypography = Typography(`'Public Sans', sans-serif`);
   const themeCustomShadows = useMemo(() => CustomShadows(theme), [theme]);
 
@@ -26,7 +28,7 @@ export default function ThemeCustomization({ children }: ChildrenProps) {
           xl: 1440,
         },
       },
-      direction: 'ltr' as Direction, // ou 'rtl' selon le besoin
+      direction: 'ltr' as Direction,
       mixins: {
         toolbar: {
           minHeight: 60,

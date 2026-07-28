@@ -14,7 +14,7 @@ import PeopleOutlineRoundedIcon from '@mui/icons-material/PeopleOutlineRounded';
 import { connect } from '../../../../../_services/account.service';
 import { Link } from 'react-router-dom';
 import { useFetchUser } from '../../../../../usePerso/fonction.user';
-import { Box, Skeleton } from '@mui/material';
+import { Box, Skeleton, useTheme } from '@mui/material';
 import { logout } from '../../../../../usePerso/fonctionPerso';
 import { useStoreUuid } from '../../../../../usePerso/store';
 
@@ -22,6 +22,7 @@ import { useStoreUuid } from '../../../../../usePerso/store';
 // ==============================|| HEADER PROFILE - PROFILE TAB ||============================== //
 
 export default function ProfileTab() {
+  const theme = useTheme();
   const {unUser, isLoading} = useFetchUser()
 
   const uuid = useStoreUuid((state) => state.selectedId)
@@ -50,7 +51,7 @@ export default function ProfileTab() {
     mb: 0.5,
     py: 1,
     px: 1.5,
-    color: '#e2e8f0',
+    color: theme.palette.text.primary,
     transition: 'all 0.2s ease',
     '&:hover': {
       bgcolor: 'rgba(99, 102, 241, 0.15)',
