@@ -17,6 +17,7 @@ import { useFetchUser } from '../../../../../usePerso/fonction.user';
 import { Box, Skeleton, useTheme } from '@mui/material';
 import { logout } from '../../../../../usePerso/fonctionPerso';
 import { useStoreUuid } from '../../../../../usePerso/store';
+import AppSettingsPanel from '../AppSettingsPanel';
 
 
 // ==============================|| HEADER PROFILE - PROFILE TAB ||============================== //
@@ -130,6 +131,8 @@ export default function ProfileTab() {
                 />
               </ListItemButton>
             )}
+
+            <AppSettingsPanel listMode />
 
             <ListItemButton onClick={logout} sx={{ ...listItemBtnSx, '&:hover': { bgcolor: 'rgba(239, 68, 68, 0.15)', transform: 'translateX(4px)' } }}>
               <Box sx={iconBoxSx('rgba(239, 68, 68, 0.15)', '#f87171')}>

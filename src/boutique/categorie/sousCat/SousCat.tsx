@@ -250,7 +250,7 @@ export default function SousCat() {
                 fullWidth
                 value={searchTerm}
                 onChange={handleSearchChange}
-                className={`bg-white ${isMobile ? 'mobile-search-container' : ''}`}
+                // className={`bg-white ${isMobile ? 'mobile-search-container' : ''}`}
                 InputProps={{
                   startAdornment: <SearchIcon className="mr-2 text-gray-400" />,
                 }}

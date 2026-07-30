@@ -16,16 +16,18 @@ import Tabs from '@mui/material/Tabs';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+
 // project import
 import ProfileTab from './ProfileTab';
 import SettingTab from './SettingTab';
-
 import MainCard from '../../../../../components/MainCard';
 import Transitions from '../../../../../components/@extended/Transitions';
+import AppSettingsPanel from '../AppSettingsPanel';
 
 // assets
 import LogoutOutlined from '@ant-design/icons/LogoutOutlined';
 import SettingOutlined from '@ant-design/icons/SettingOutlined';
+import FileTextOutlined from '@ant-design/icons/FileTextOutlined';
 import UserOutlined from '@ant-design/icons/UserOutlined';
 import { Alert, Avatar, CircularProgress } from '@mui/material';
 import { useFetchUser } from '../../../../../usePerso/fonction.user';
@@ -48,7 +50,7 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
-function a11yProps(index : number) {
+function a11yProps(index: number) {
   return {
     id: `profile-tab-${index}`,
     'aria-controls': `profile-tabpanel-${index}`
@@ -59,56 +61,49 @@ function a11yProps(index : number) {
 
 export default function Profile() {
   const theme = useTheme();
-  // const [errorCount, setErrorCount] = useState<number>(() => {
-  //   const savedCount = localStorage.getItem('errorCount');
-  //   return savedCount ? parseInt(savedCount, 10) : 0;
-  // });
 
-  const {unUser, isLoading, isError} = useFetchUser()
-  
+  const { unUser, isLoading, isError } = useFetchUser();
+
   const [value, setValue] = useState(0);
 
   const handleChange = (_: SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 
-  const uuid = useStoreUuid((state) => state.selectedId)
-  // const anchorRef = useRef(null);
-  const anchorRef = useRef<HTMLButtonElement>(null); // Ajustez le type selon votre usage
+  const uuid = useStoreUuid((state) => state.selectedId);
+  const anchorRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
   };
 
-  const handleClose = (event: MouseEvent | TouchEvent) => { // Changez le type si besoin
+  const handleClose = (event: MouseEvent | TouchEvent) => {
     if (anchorRef.current && anchorRef.current.contains(event.target as Node)) {
       return;
     }
     setOpen(false);
   };
 
-  // const [value] = useState(0);
-
-
   if (isLoading) {
-      return (
-        <Box sx={{ width: 300 }}>
-          <CircularProgress />
-        </Box>
-      );
+    return (
+      <Box sx={{ width: 300 }}>
+        <CircularProgress />
+      </Box>
+    );
   }
-  
+
   if (isError) {
-    // if (errorCount < 2) {
-    //   window.location.reload();
-    // }
-    return <Alert severity="error">Probleme de connexion !</Alert>
+    return <Alert severity="error">Probleme de connexion !</Alert>;
   }
 
   if (unUser) {
     return (
-      <Box>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+        {/* Bouton de paramètres d'affichage */}
+        {/* <AppSettingsPanel /> */}
+
+        {/* Bouton avatar / profil */}
         <ButtonBase
           aria-label="open profile"
           ref={anchorRef}
@@ -278,7 +273,7 @@ export default function Profile() {
                               textTransform: 'capitalize',
                               '&.Mui-selected': { color: '#818cf8' },
                             }}
-                            icon={<SettingOutlined style={{ fontSize: '1rem', marginRight: '6px' }} />}
+                            icon={<FileTextOutlined style={{ fontSize: '1rem', marginRight: '6px' }} />}
                             iconPosition="start"
                             label="Factures / Dépenses"
                             {...a11yProps(1)}

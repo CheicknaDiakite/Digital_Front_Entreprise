@@ -45,6 +45,7 @@ import FactureDetail from '../../boutique/sortie/FactureDetail'
 import Historique from '../../boutique/proprietaire/historique/Historique'
 import NotFound from '../../pages/extra-pages/not-found'
 import { notClick } from '../../usePerso/fonctionPerso';
+import { useAppSettings } from '../../themes/AppSettingsContext';
 
 
 export default function PublicRouter() {
@@ -52,14 +53,21 @@ export default function PublicRouter() {
   const uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise, isLoading } = useFetchEntreprise(uuid);
   const url = unEntreprise.image ? BASE(unEntreprise.image) : backgroundImage;
+  const { showBackground } = useAppSettings();
 
   return (
     <Box
       sx={{
-        background: `linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.75)), url(${url})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed',
+        ...(showBackground
+          ? {
+              background: `linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.75)), url(${url})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundAttachment: 'fixed',
+            }
+          : {
+              background: 'transparent',
+            }),
         padding: { sm: '24px', md: '32px' },
       }}
     >

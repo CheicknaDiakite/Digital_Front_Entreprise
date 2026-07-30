@@ -210,6 +210,20 @@ export default function Entre() {
       post?.categorie_libelle?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const tableColumns: Array<{ label: string; align: 'left' | 'right' }> = [
+      { label: 'Image', align: 'left' },
+      { label: 'Référence', align: 'left' },
+      { label: 'Date', align: 'left' },
+      { label: 'Fournisseurs', align: 'left' },
+      { label: 'Désignations', align: 'left' },
+      { label: 'Quantité', align: 'right' },
+      { label: 'Prix Unitaire (vente)', align: 'right' },
+      ...(unUser.role === 1 ? [
+        { label: 'Prix Unitaire (achat)', align: 'right' as const },
+        { label: 'Total', align: 'right' as const },
+      ] : []),
+    ];
+
     return (
       <div>
 
@@ -288,7 +302,7 @@ export default function Entre() {
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <SearchIcon className="text-gray-400" />
+                        <SearchIcon  />
                       </InputAdornment>
                     ),
                   }}
@@ -341,14 +355,14 @@ export default function Entre() {
                   
                 >
                   <div>
-                    <Typography variant="subtitle2" className="text-gray-50">
+                    <Typography variant="subtitle2" >
                       Total Entrées
                     </Typography>
-                    <Typography variant="h6" className="text-gray-100">
+                    <Typography variant="h6">
                       {filteredBoutiques.length}
                     </Typography>
                   </div>
-                  <InventoryIcon className={`text-blue-50`} />
+                  <InventoryIcon />
                 </Paper>
               </Grid>
 
@@ -356,33 +370,62 @@ export default function Entre() {
               <Grid item xs={12} md={12} lg={12}>
                 <Paper
                   elevation={0}
-                  className={`${isMobile ? 'mobile-table-container' : 'overflow-hidden rounded-lg'}`}
-                  sx={isMobile ? {
-                    borderRadius: '16px',
-                    overflow: 'hidden',
-                    background: 'rgba(255, 255, 255, 0.95)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    marginTop: '16px'
-                  } : {}}
+                  className={`rounded-lg`}
+                  // sx={isMobile ? {
+                  //   borderRadius: '16px',
+                  //   overflow: 'hidden',
+                  //   background: 'rgba(255, 255, 255, 0.95)',
+                  //   backdropFilter: 'blur(10px)',
+                  //   border: '1px solid rgba(255, 255, 255, 0.2)',
+                  //   marginTop: '16px'
+                  // } : {}}
                 >
-                  <TableContainer component={Paper} sx={{ maxHeight: 600 }}>
-                    <Table stickyHeader aria-label="sticky table" >
-                      <TableHead >
-                        <TableRow className={isMobile ? 'mobile-table-header' : ''} sx={isMobile ? { backgroundColor: 'rgba(59, 130, 246, 0.1)' } : { backgroundColor: '#f8fafc' }}>
-                          <TableCell >Image</TableCell>
-                          <TableCell >Référence</TableCell>
-                          <TableCell >Date</TableCell>
-                          <TableCell >Fournisseurs</TableCell>
-                          <TableCell >Désignations</TableCell>
-                          <TableCell align="right" >Quantité</TableCell>
-                          <TableCell align="right" >Prix Unitaire (vente)</TableCell>
-                          {unUser.role === 1 && (
-                            <>
-                              <TableCell align="right" >Prix Unitaire (achat)</TableCell>
-                              <TableCell align="right" >Total</TableCell>
-                            </>
-                          )}
+                  <TableContainer 
+                    component={Paper}
+                    sx={{
+                      maxHeight: 560,
+                      borderRadius: '14px',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      background: 'rgba(15,23,42,0.7)',
+                      backdropFilter: 'blur(10px)',
+                      boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+                      overflowY: 'auto',
+                      overflowX: 'auto',
+                    }}
+                  >
+                    <Table aria-label="sticky table" stickyHeader>
+                      <TableHead>
+                        <TableRow>
+                          {tableColumns.map((col) => (
+                            <TableCell
+                              key={col.label}
+                              align={col.align as 'left' | 'right'}
+                              sx={{
+                                // background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+                                // color: '#64748b',
+                                fontWeight: 700,
+                                fontSize: '0.68rem',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.08em',
+                                borderBottom: '1px solid rgba(255,255,255,0.08)',
+                                py: 1.5,
+                              }}
+                            >
+                              {col.label}
+                            </TableCell>
+                          ))}
+                          <TableCell
+                            sx={{
+                              // background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+                              borderBottom: '1px solid rgba(255,255,255,0.08)',
+                            }}
+                          />
+                          <TableCell
+                            sx={{
+                              // background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+                              borderBottom: '1px solid rgba(255,255,255,0.08)',
+                            }}
+                          />
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -392,7 +435,7 @@ export default function Entre() {
                           ))
                         ) : (
                           <TableRow>
-                            <TableCell colSpan={9} align="center" className={`${isMobile ? 'mobile-empty-card py-8' : 'py-8'}`}>
+                            <TableCell colSpan={11} align="center" className={`${isMobile ? 'mobile-empty-card py-8' : 'py-8'}`}>
                               <Typography variant="body1" className="text-gray-500">
                                 Aucune entrée enregistrée
                               </Typography>
@@ -404,12 +447,14 @@ export default function Entre() {
                           <>
                             <TableRow className={isMobile ? 'mobile-total-row' : ''}>
                               <TableCell colSpan={5} />
-                              <TableCell align="right" className="font-medium">Total Quantité:</TableCell>
-                              <TableCell align="right" className="font-medium">{totalQte}</TableCell>
+                              <TableCell align="right" className="font-medium text-gray-100">Total Quantité:</TableCell>
+                              <TableCell align="right" className="font-medium text-gray-100">{totalQte}</TableCell>
                               <TableCell />
-                              <TableCell align="right" className="font-medium">
+                              <TableCell align="right" className="font-medium text-gray-100">
                                 {formatNumberWithSpaces(totalPrice)} <LocalAtmIcon color="primary" fontSize="small" />
                               </TableCell>
+                              <TableCell />
+                              <TableCell />
                             </TableRow>
                           </>
                         )}

@@ -323,7 +323,8 @@ export function StatCard({ title, description, value, icon, backgroundColor }: {
           {icon}
         </Box>
         <Typography 
-          variant="subtitle2" 
+          variant="subtitle2"
+          className="text-gray-300" 
           sx={{ 
             fontWeight: 600,
             fontSize: { xs: '0.78rem', sm: '0.875rem' },
@@ -340,10 +341,11 @@ export function StatCard({ title, description, value, icon, backgroundColor }: {
         </Typography>
         <Typography 
           variant="h5" 
+          className="text-gray-100"
           sx={{ 
             fontWeight: 800,
             fontSize: { xs: '1.25rem', sm: '1.6rem' },
-            color: '#e0e7ff',
+            // color: '#e0e7ff',
             letterSpacing: '-0.02em',
             lineHeight: 1.1,
           }}

@@ -156,6 +156,7 @@ export default function Info() {
               <div>
                 <Typography 
                   variant="h4" 
+                  className="text-gray-50"
                   sx={{ 
                     fontWeight: 800, 
                     // color: '#0f172a',
@@ -175,11 +176,12 @@ export default function Info() {
                 </Typography>
               </div>
 
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }} >
                 <Chip 
                   icon={<ReceiptLongIcon sx={{ fontSize: '16px !important' }} />}
                   label={`${reversedInfos?.length || 0} Ventes enregistrées`}
                   variant="outlined"
+                  className="text-gray-100"
                   sx={{ borderRadius: '8px', fontWeight: 600, borderColor: '#cbd5e1' }}
                 />
               </Box>

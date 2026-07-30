@@ -102,6 +102,7 @@ const NavigationCard: FC<NavigationCardType> = ({ icon, title, description, to, 
       </Box>
       <Typography
         variant="h6"
+        className="text-gray-50"
         sx={{
           fontSize: { xs: '0.92rem', sm: '1.02rem' },
           fontWeight: 700,
@@ -114,9 +115,10 @@ const NavigationCard: FC<NavigationCardType> = ({ icon, title, description, to, 
       </Typography>
       <Typography
         variant="body2"
+        className="text-gray-400"
         sx={{
           fontSize: { xs: '0.76rem', sm: '0.82rem' },
-          color: 'text.secondary',
+          // color: 'text.secondary',
           lineHeight: 1.4,
           fontWeight: 500,
         }}
@@ -302,7 +304,7 @@ export default function DashboardDefault() {
           
           {/* Header Banner */}
           <Box
-            className={`relative p-4 rounded-lg transition-all duration-200 hover:shadow-md border-x-2 animate-border-rotate mobile-shadow-card mobile-hover-effect ${isMobile ? 'mobile-glass' : 'mobile-glass'}`}
+            className={`relative p-4 rounded-lg transition-all duration-200 hover:shadow-md border-x-2 animate-border-rotate mobile-shadow-card mobile-hover-effect mobile-glass`}
             sx={{
               // background: 'linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(139,92,246,0.08) 100%)',
               // backdropFilter: 'blur(16px)',
@@ -325,10 +327,11 @@ export default function DashboardDefault() {
               </Box>
               <Typography
                 variant="h4"
+                className="text-gray-50"
                 sx={{
                   fontSize: { xs: '1.5rem', sm: '1.85rem', md: '2.1rem' },
                   fontWeight: 800,
-                  color: 'text.primary',
+                  // color: 'text.primary',
                   letterSpacing: '-0.02em',
                 }}
               >
@@ -336,7 +339,8 @@ export default function DashboardDefault() {
               </Typography>
               <Typography 
               variant="body1" 
-              sx={{ fontSize: { xs: '0.85rem', sm: '0.95rem' }, mt: 0.5, color: 'text.secondary' }}
+              className="text-gray-300"
+              sx={{ fontSize: { xs: '0.85rem', sm: '0.95rem' }, mt: 0.5 }}
               >
                 Bienvenue dans votre espace de gestion d'entreprise
               </Typography>
