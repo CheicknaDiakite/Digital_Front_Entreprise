@@ -10,6 +10,7 @@ import Typography from '@mui/material/Typography';
 import { Alert, Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Skeleton, TextField, Paper, alpha, useTheme, useMediaQuery } from '@mui/material';
 import { ChangeEvent, useState } from 'react';
 import { RecupType, RouteParams } from '../../../typescript/DataType';
+import { useAppSettings } from '../../../themes/AppSettingsContext';
 import { connect } from '../../../_services/account.service';
 import { Link, useParams } from 'react-router-dom';
 import EditIcon from '@mui/icons-material/BorderColor';
@@ -45,29 +46,29 @@ interface ShadowBoxProps {
 
 function ShadowBox({ shadow }: ShadowBoxProps) {
   const url = shadow.image ? BASE(shadow.image) : img;
-  console.log("shadow.image", url)
   const entreprise_uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise } = useFetchEntreprise(entreprise_uuid);
   const { unUser } = useFetchUser();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const { showBackground } = useAppSettings();
 
   return (
-    <Paper 
-      elevation={isMobile ? 2 : 0} 
+    <Paper
+      elevation={isMobile ? 2 : 0}
       className={`relative p-4 rounded-lg transition-all duration-200 hover:shadow-md border-x-2 animate-border-rotate mobile-product-card mobile-hover-effect ${isMobile ? 'mobile-glass' : 'mobile-glass'}`}
       sx={{
         borderRadius: isMobile ? '20px' : '8px',
         minHeight: { xs: '140px', sm: '160px' }
       }}
     >
-      {((unUser.role === 1 || unUser.role === 2) || (unEntreprise.licence_type != "Stock Simple")) ? (
+      {((unUser.role === 1 || unUser.role === 2) || (unEntreprise.licence_type !== "Stock Simple")) ? (
         <Link to={`/categorie/info/${shadow.uuid}`} className="block">
           <div className="flex flex-col items-center space-y-3 p-2">
             <div className={`w-20 h-20 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center mobile-product-image`}>
-              <img 
-                src={url} 
-                alt={shadow.libelle} 
+              <img
+                src={url}
+                alt={shadow.libelle}
                 className="w-16 h-16 object-contain"
                 style={{
                   width: isMobile ? '48px' : '64px',
@@ -75,12 +76,12 @@ function ShadowBox({ shadow }: ShadowBoxProps) {
                 }}
               />
             </div>
-            <Typography 
-              variant="subtitle1" 
-              className="font-medium text-white"
-              sx={{ 
+            <Typography
+              variant="subtitle1"
+              sx={{
                 fontSize: { xs: '0.9rem', sm: '1rem' },
-                fontWeight: 600
+                fontWeight: 600,
+                color: (theme.palette.mode === 'dark' || showBackground) ? '#ffffff' : 'text.primary'
               }}
             >
               {shadow.libelle}
@@ -100,47 +101,43 @@ function ShadowBox({ shadow }: ShadowBoxProps) {
               border: `2px solid ${alpha(theme.palette.primary.main, 0.1)}`,
             }}
           >
-            <img 
-              src={url} 
-              alt={shadow.libelle} 
+            <img
+              src={url}
+              alt={shadow.libelle}
               className="w-full h-full object-cover"
             />
           </Box>
-          <Typography 
-            variant="subtitle1" 
-            className="font-medium text-gray-900"
-            sx={{ 
+          <Typography
+            variant="subtitle1"
+            sx={{
               fontSize: { xs: '0.9rem', sm: '1rem' },
-              fontWeight: 600
+              fontWeight: 600,
+              color: (theme.palette.mode === 'dark' || showBackground) ? '#ffffff' : 'text.primary'
             }}
           >
             {shadow.libelle}
           </Typography>
         </div>
       )}
-      
+
       <div className="absolute top-2 right-2">
-        {/* <Tooltip title="Modifier" arrow TransitionComponent={Fade}> */}
-          <Link to={`/categorie/sous/modif/${shadow.uuid}`}>
-            <IconButton 
-              size="small" 
-              className={`bg-white hover:bg-gray-50 shadow-sm mobile-edit-button ${isMobile ? 'mobile-glass' : ''}`}
-              sx={{
-                borderRadius: isMobile ? '12px' : '4px'
-              }}
-            >
-              <EditIcon fontSize="small" className="text-blue-600" />
-            </IconButton>
-          </Link>
-        {/* </Tooltip> */}
+        <Link to={`/categorie/sous/modif/${shadow.uuid}`}>
+          <IconButton
+            size="small"
+            className={`bg-white hover:bg-gray-50 shadow-sm mobile-edit-button ${isMobile ? 'mobile-glass' : ''}`}
+            sx={{ borderRadius: isMobile ? '12px' : '4px' }}
+          >
+            <EditIcon fontSize="small" className="text-blue-600" />
+          </IconButton>
+        </Link>
       </div>
     </Paper>
   );
 }
-
 export default function SousCat() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const { showBackground } = useAppSettings();
   
   const { uuid } = useParams<RouteParams>();
   const entreprise_uuid = useStoreUuid((state) => state.selectedId);
@@ -148,6 +145,17 @@ export default function SousCat() {
   const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm<SousCategorieFormType>();
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
+
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) {
+      setValue('image', file as unknown as File, { shouldValidate: true });
+    }
+  };
 
   const { unCategorie } = useFetchCategorie(uuid!)
   
@@ -158,16 +166,6 @@ export default function SousCat() {
   const closeopen = () => {
     reset();
     setOpen(false);
-  };
-
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setValue("image", e.target.files[0]);
-    }
-  };
-
-  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
   };
 
   const onSubmit = (data: SousCategorieFormType) => {
@@ -231,10 +229,11 @@ export default function SousCat() {
             <div className={`mb-6`}>
               <Typography 
                 variant="h4" 
-                className={`font-semibold text-gray-50 `}
+                className="font-semibold"
                 sx={{ 
                   fontSize: { xs: '1.75rem', sm: '2rem' },
-                  textAlign: isMobile ? 'center' : 'left'
+                  textAlign: isMobile ? 'center' : 'left',
+                  color: (theme.palette.mode === 'dark' || showBackground) ? '#ffffff' : 'text.primary'
                 }}
               >
                 {unCategorie?.libelle}

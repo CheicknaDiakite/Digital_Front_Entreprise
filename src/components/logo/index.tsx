@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
 // material-ui
-import { ButtonBase } from '@mui/material';
+import { ButtonBase, useTheme } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import Chip from '@mui/material/Chip';
 
@@ -13,6 +13,8 @@ import { Githubicon } from '../../_components/icons/Githubicon';
 // ==============================|| MAIN LOGO ||============================== //
 
 const LogoSection = ({ sx, to }: any) => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
   return (
     <ButtonBase
       disableRipple
@@ -24,9 +26,8 @@ const LogoSection = ({ sx, to }: any) => {
     >
       <Stack direction="row" spacing={1} alignItems="center">
         {/* <Logo /> */}
-        <Githubicon size={32} />
+        <Githubicon size={32} style={{ color: isDark ? '#fff' : '#1e1b4b' }} />
         <Chip
-          className="text-white" 
           // label={import.meta.env.VITE_APP_VERSION}
           label={"Diakite Digital"}
           variant="outlined"

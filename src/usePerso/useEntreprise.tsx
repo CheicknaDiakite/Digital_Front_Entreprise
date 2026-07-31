@@ -4,6 +4,7 @@ import { useFetchAllSousCate } from "./fonction.categorie";
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import { useState } from "react";
+import { useAppSettings } from "../themes/AppSettingsContext";
 import { useAllClients, useFetchUser } from "./fonction.user";
 import { useStoreUuid } from "./store";
 
@@ -266,6 +267,8 @@ export function CustomTabPanel(props: TabPanelProps) {
 }
 
 export function StatCard({ title, description, value, icon, backgroundColor }: { title: string, description?: string, value: string | number, icon: React.ReactNode, backgroundColor?: string }) {
+  const { showBackground } = useAppSettings();
+
   return (
     <Card 
       elevation={0}
@@ -324,11 +327,10 @@ export function StatCard({ title, description, value, icon, backgroundColor }: {
         </Box>
         <Typography 
           variant="subtitle2"
-          className="text-gray-300" 
           sx={{ 
             fontWeight: 600,
             fontSize: { xs: '0.78rem', sm: '0.875rem' },
-            // color: '#94a3b8',
+            color: showBackground ? 'rgba(255,255,255,0.85)' : 'text.secondary',
             lineHeight: 1.3,
             mb: 0.8,
             maxWidth: '100%',
@@ -341,11 +343,10 @@ export function StatCard({ title, description, value, icon, backgroundColor }: {
         </Typography>
         <Typography 
           variant="h5" 
-          className="text-gray-100"
           sx={{ 
             fontWeight: 800,
             fontSize: { xs: '1.25rem', sm: '1.6rem' },
-            // color: '#e0e7ff',
+            color: showBackground ? '#ffffff' : 'text.primary',
             letterSpacing: '-0.02em',
             lineHeight: 1.1,
           }}
@@ -355,11 +356,10 @@ export function StatCard({ title, description, value, icon, backgroundColor }: {
         {description && (
           <Typography 
             variant="caption" 
-            className="text-gray-300"
             sx={{ 
               mt: 0.8,
               fontSize: '0.72rem',
-              // color: '#64748b',
+              color: showBackground ? 'rgba(255,255,255,0.75)' : 'text.secondary',
               fontWeight: 500
             }}
           >

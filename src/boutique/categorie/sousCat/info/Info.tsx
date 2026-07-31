@@ -41,10 +41,12 @@ import { useFetchUser } from "../../../../usePerso/fonction.user";
 import { motion } from "framer-motion";
 import '../mobile-souscat.css';
 
+import { useAppSettings } from '../../../../themes/AppSettingsContext';
 export default function Info() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
+  const { showBackground } = useAppSettings();
   
   const { uuid } = useParams<RouteParams>();
   const { unUser } = useFetchUser();
@@ -156,10 +158,9 @@ export default function Info() {
               <div>
                 <Typography 
                   variant="h4" 
-                  className="text-gray-50"
                   sx={{ 
                     fontWeight: 800, 
-                    // color: '#0f172a',
+                    color: (theme.palette.mode === 'dark' || showBackground) ? '#ffffff' : 'text.primary',
                     fontSize: { xs: '1.5rem', sm: '2rem' },
                     letterSpacing: '-0.02em',
                     lineHeight: 1.2
@@ -169,8 +170,11 @@ export default function Info() {
                 </Typography>
                 <Typography 
                   variant="body2" 
-                  className="text-gray-300"
-                  sx={{ mt: 0.5, fontSize: { xs: '0.875rem', sm: '0.95rem' } }}
+                  sx={{ 
+                    mt: 0.5, 
+                    fontSize: { xs: '0.875rem', sm: '0.95rem' },
+                    color: (theme.palette.mode === 'dark' || showBackground) ? 'rgba(255,255,255,0.85)' : 'text.secondary'
+                  }}
                 >
                   Aperçu détaillé du stock disponible et des historiques de vente
                 </Typography>
@@ -178,11 +182,13 @@ export default function Info() {
 
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }} >
                 <Chip 
-                  icon={<ReceiptLongIcon sx={{ fontSize: '16px !important' }} />}
+                  icon={<ReceiptLongIcon sx={{ fontSize: '16px !important', color: (theme.palette.mode === 'dark' || showBackground) ? '#ffffff' : 'text.primary' }} />}
                   label={`${reversedInfos?.length || 0} Ventes enregistrées`}
                   variant="outlined"
-                  className="text-gray-100"
-                  sx={{ borderRadius: '8px', fontWeight: 600, borderColor: '#cbd5e1' }}
+                  sx={{
+                    color: (theme.palette.mode === 'dark' || showBackground) ? '#ffffff' : 'text.primary',
+                    borderColor: (theme.palette.mode === 'dark' || showBackground) ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)'
+                  }}
                 />
               </Box>
             </Box>
@@ -480,7 +486,7 @@ export default function Info() {
           <TableContainer>
             <Table>
               <TableHead>
-                <TableRow sx={{ '& th': { py: 2, fontWeight: 700, color: '#475569', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: 0.5 } }}>
+                <TableRow sx={{ '& th': { py: 2, fontWeight: 700, color: (theme.palette.mode === 'dark' || showBackground) ? 'rgba(255,255,255,0.85)' : '#475569', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: 0.5 } }}>
                   <TableCell>Date</TableCell>
                   <TableCell>Client</TableCell>
                   <TableCell>Produit</TableCell>
@@ -500,10 +506,10 @@ export default function Info() {
                     <TableCell colSpan={6} align="center" sx={{ py: 8 }}>
                       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
                         <FilterAltIcon sx={{ fontSize: 48, color: '#cbd5e1' }} />
-                        <Typography variant="h6" sx={{ color: '#475569', fontWeight: 600 }}>
+                        <Typography variant="h6" sx={{ color: (theme.palette.mode === 'dark' || showBackground) ? '#ffffff' : '#475569', fontWeight: 600 }}>
                           Aucune donnée disponible
                         </Typography>
-                        <Typography variant="body2" sx={{ color: '#94a3b8', maxWidth: 360 }}>
+                        <Typography variant="body2" sx={{ color: (theme.palette.mode === 'dark' || showBackground) ? 'rgba(255,255,255,0.85)' : '#94a3b8', maxWidth: 360 }}>
                           Aucune transaction ne correspond à vos critères de recherche ou filtres de date actuels.
                         </Typography>
                         {hasActiveFilters && (
@@ -551,7 +557,7 @@ export default function Info() {
           {/* PAGINATION */}
           {totalPages > 1 && (
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', p: 2.5, borderTop: '1px solid #e2e8f0', bgcolor: '#ffffff', gap: 2 }}>
-              <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 500 }}>
+              <Typography variant="caption" sx={{ color: (theme.palette.mode === 'dark' || showBackground) ? 'rgba(255,255,255,0.85)' : '#64748b', fontWeight: 500 }}>
                 Page <strong>{currentPage}</strong> sur <strong>{totalPages}</strong> ({reversedInfos?.length || 0} transactions au total)
               </Typography>
               <Pagination

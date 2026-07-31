@@ -37,6 +37,7 @@ const AuthLogin: FC = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobileDark = isMobile && theme.palette.mode === 'dark';
 
   const {
     register,
@@ -71,10 +72,14 @@ const AuthLogin: FC = () => {
   const fieldSx = {
     '& .MuiOutlinedInput-root': {
       borderRadius: '12px',
-      bgcolor: isMobile ? 'rgba(255,255,255,0.07)' : theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(248,250,252,1)',
+      bgcolor: isMobileDark
+        ? 'rgba(255,255,255,0.07)'
+        : theme.palette.mode === 'dark'
+        ? 'rgba(255,255,255,0.05)'
+        : 'rgba(248,250,252,1)',
       transition: 'all 0.2s ease',
       '& fieldset': {
-        borderColor: isMobile ? 'rgba(255,255,255,0.15)' : 'rgba(148,163,184,0.22)',
+        borderColor: isMobileDark ? 'rgba(255,255,255,0.15)' : 'rgba(148,163,184,0.22)',
         transition: 'border-color 0.2s ease',
       },
       '&:hover fieldset': {
@@ -86,11 +91,11 @@ const AuthLogin: FC = () => {
       },
     },
     '& .MuiInputLabel-root': {
-      color: isMobile ? 'rgba(255,255,255,0.55)' : 'text.secondary',
+      color: isMobileDark ? 'rgba(255,255,255,0.55)' : 'text.secondary',
       '&.Mui-focused': { color: '#6366f1' },
     },
     '& .MuiOutlinedInput-input': {
-      color: isMobile ? '#f1f5f9' : 'text.primary',
+      color: isMobileDark ? '#f1f5f9' : 'text.primary',
     },
     '& .MuiFormHelperText-root': {
       color: '#ef4444',
@@ -113,18 +118,15 @@ const AuthLogin: FC = () => {
         elevation={0}
         sx={{
           borderRadius: '24px',
-          // Sur mobile : glassmorphism sur fond sombre
-          ...(isMobile
+          ...(isMobileDark
             ? {
-                bgcolor: 'rgba(255,255,255,0.06)',
                 backdropFilter: 'blur(20px)',
                 border: '1px solid rgba(255,255,255,0.12)',
                 boxShadow: '0 25px 50px rgba(0,0,0,0.4)',
               }
             : {
-                bgcolor: '#111c30',
-                border: '1px solid rgba(148,163,184,0.18)',
-                boxShadow: '0 24px 60px rgba(2,8,23,0.38)',
+                border: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(148,163,184,0.18)'}`,
+                boxShadow: '0 24px 60px rgba(2,8,23,0.12)',
               }),
         }}
       >
@@ -152,7 +154,7 @@ const AuthLogin: FC = () => {
               variant="h4"
               sx={{
                 fontWeight: 800,
-                color: isMobile ? '#f1f5f9' : 'text.primary',
+                // color: isMobile ? '#f1f5f9' : 'text.primary',
                 mb: 0.5,
                 fontSize: { xs: '1.6rem', sm: '1.9rem' },
               }}
@@ -161,8 +163,7 @@ const AuthLogin: FC = () => {
             </Typography>
             <Typography
               variant="body2"
-              className="text-slate-300"
-              // sx={{ color: isMobile ? 'rgba(255,255,255,0.5)' : 'text.secondary' }}
+              sx={{ color: 'text.secondary' }}
             >
               Connectez-vous à votre espace GestStocks
             </Typography>
@@ -174,7 +175,7 @@ const AuthLogin: FC = () => {
               {errors.root && (
                 <Alert
                   severity="error"
-                  sx={{ borderRadius: '12px', ...(isMobile && { bgcolor: 'rgba(239,68,68,0.15)', color: '#fca5a5' }) }}
+                  sx={{ borderRadius: '12px', ...(isMobileDark && { bgcolor: 'rgba(239,68,68,0.15)', color: '#fca5a5' }) }}
                 >
                   {errors.root.message}
                 </Alert>
@@ -191,7 +192,9 @@ const AuthLogin: FC = () => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <PersonOutlineIcon sx={{ color: isMobile ? 'rgba(255,255,255,0.4)' : '#6366f1', fontSize: 20 }} />
+                      <PersonOutlineIcon sx={
+                        { color: isMobile ? '#6366f1' : '#6366f1', fontSize: 20 }
+                      } />
                     </InputAdornment>
                   ),
                 }}
@@ -211,7 +214,7 @@ const AuthLogin: FC = () => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <LockOutlinedIcon sx={{ color: isMobile ? 'rgba(255,255,255,0.4)' : '#6366f1', fontSize: 20 }} />
+                      <LockOutlinedIcon sx={{ color: isMobile ? '#6366f1' : '#6366f1', fontSize: 20 }} />
                     </InputAdornment>
                   ),
                   endAdornment: (
@@ -221,7 +224,9 @@ const AuthLogin: FC = () => {
                         onClick={() => setShowPassword(prev => !prev)}
                         edge="end"
                         size="small"
-                        sx={{ color: isMobile ? 'rgba(255,255,255,0.4)' : 'text.secondary' }}
+                        sx={
+                          { color: isMobile ? 'text.secondary' : 'text.secondary' }
+                        }
                       >
                         {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
                       </IconButton>
@@ -249,7 +254,7 @@ const AuthLogin: FC = () => {
                       onChange={(e) => setRememberMe(e.target.checked)}
                       size="small"
                       sx={{
-                        color: isMobile ? 'rgba(255,255,255,0.3)' : 'action.disabled',
+                        color: isMobileDark ? 'rgba(255,255,255,0.3)' : 'action.disabled',
                         '&.Mui-checked': { color: '#6366f1' },
                       }}
                     />
@@ -257,8 +262,7 @@ const AuthLogin: FC = () => {
                   label={
                     <Typography
                       variant="body2"
-                      className="text-slate-300" 
-                      sx={{ color: isMobile ? 'rgba(255,255,255,0.6)' : 'text.secondary', fontSize: '0.83rem' }}
+                      sx={{ color: isMobileDark ? 'rgba(255,255,255,0.6)' : 'text.secondary', fontSize: '0.83rem' }}
                     >
                       Se souvenir de moi
                     </Typography>
@@ -320,7 +324,7 @@ const AuthLogin: FC = () => {
             sx={{
               my: 3.5,
               '&::before, &::after': {
-                borderColor: isMobile ? 'rgba(255,255,255,0.1)' : 'rgba(148,163,184,0.16)',
+                borderColor: isMobileDark ? 'rgba(255,255,255,0.1)' : 'rgba(148,163,184,0.16)',
               },
             }}
           >
@@ -328,7 +332,7 @@ const AuthLogin: FC = () => {
               variant="caption"
               sx={{
                 px: 1.5,
-                color: isMobile ? 'rgba(255,255,255,0.3)' : 'text.disabled',
+                color: isMobileDark ? 'rgba(255,255,255,0.3)' : 'text.disabled',
                 fontWeight: 500,
                 letterSpacing: 1,
               }}
@@ -341,7 +345,7 @@ const AuthLogin: FC = () => {
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 0.8 }}>
             <Typography
               variant="body2"
-              sx={{ color: isMobile ? 'rgba(255,255,255,0.45)' : 'text.secondary', fontSize: '0.88rem' }}
+              sx={{ color: isMobileDark ? 'rgba(255,255,255,0.45)' : 'text.secondary', fontSize: '0.88rem' }}
             >
               Pas encore de compte ?
             </Typography>

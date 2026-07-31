@@ -57,6 +57,7 @@ const AuthRegister: FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobileDark = isMobile && theme.palette.mode === 'dark';
 
   const {
     register,
@@ -93,33 +94,33 @@ const AuthRegister: FC = () => {
   const fieldSx = {
     '& .MuiOutlinedInput-root': {
       borderRadius: '12px',
-      bgcolor: isMobile
+      bgcolor: isMobileDark
         ? 'rgba(255,255,255,0.06)'
         : theme.palette.mode === 'dark'
         ? 'rgba(255,255,255,0.05)'
         : 'rgba(248,250,252,1)',
       transition: 'all 0.2s ease',
       '& fieldset': {
-        borderColor: isMobile ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.09)',
+        borderColor: isMobileDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.09)',
         transition: 'border-color 0.2s ease',
       },
       '&:hover fieldset': { borderColor: '#6366f1' },
       '&.Mui-focused fieldset': { borderColor: '#6366f1', borderWidth: '2px' },
     },
     '& .MuiInputLabel-root': {
-      color: isMobile ? 'rgba(255,255,255,0.5)' : 'text.secondary',
+      color: isMobileDark ? 'rgba(255,255,255,0.5)' : 'text.secondary',
       '&.Mui-focused': { color: '#6366f1' },
     },
     '& .MuiOutlinedInput-input': {
-      color: isMobile ? '#f1f5f9' : 'text.primary',
+      color: isMobileDark ? '#f1f5f9' : 'text.primary',
     },
     '& .MuiFormHelperText-root': { color: '#ef4444' },
     '& .MuiSelect-icon': {
-      color: isMobile ? 'rgba(255,255,255,0.4)' : 'text.secondary',
+      color: isMobileDark ? 'rgba(255,255,255,0.4)' : 'text.secondary',
     },
   };
 
-  const adornmentColor = isMobile ? 'rgba(255,255,255,0.35)' : '#6366f1';
+  const adornmentColor = isMobileDark ? 'rgba(255,255,255,0.35)' : '#6366f1';
 
   return (
     <Box
@@ -137,7 +138,7 @@ const AuthRegister: FC = () => {
         elevation={0}
         sx={{
           borderRadius: '24px',
-          ...(isMobile
+          ...(isMobileDark
             ? {
                 bgcolor: 'rgba(255,255,255,0.06)',
                 backdropFilter: 'blur(20px)',
@@ -145,7 +146,7 @@ const AuthRegister: FC = () => {
                 boxShadow: '0 25px 50px rgba(0,0,0,0.4)',
               }
             : {
-                bgcolor: '#fff',
+                bgcolor: theme.palette.mode === 'dark' ? 'background.paper' : '#fff',
                 border: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'}`,
                 boxShadow: '0 20px 60px rgba(0,0,0,0.08)',
               }),
@@ -174,7 +175,7 @@ const AuthRegister: FC = () => {
               variant="h4"
               sx={{
                 fontWeight: 800,
-                color: isMobile ? '#f1f5f9' : 'text.primary',
+                color: isMobileDark ? '#f1f5f9' : 'text.primary',
                 mb: 0.5,
                 fontSize: { xs: '1.5rem', sm: '1.8rem' },
               }}
@@ -183,8 +184,7 @@ const AuthRegister: FC = () => {
             </Typography>
             <Typography
               variant="body2"
-              className="text-slate-300"
-              // sx={{ color: isMobile ? 'rgba(255,255,255,0.45)' : 'text.secondary' }}
+              sx={{ color: isMobile ? 'rgba(255,255,255,0.45)' : 'text.secondary' }}
             >
               Rejoignez GestStocks et gérez vos stocks simplement
             </Typography>
@@ -206,7 +206,7 @@ const AuthRegister: FC = () => {
                   display: 'flex',
                   alignItems: 'center',
                   gap: 0.6,
-                  bgcolor: isMobile ? 'rgba(99,102,241,0.15)' : 'rgba(99,102,241,0.08)',
+                  bgcolor: isMobileDark ? 'rgba(99,102,241,0.15)' : 'rgba(99,102,241,0.08)',
                   border: '1px solid rgba(99,102,241,0.2)',
                   borderRadius: '20px',
                   px: 1.5,
@@ -218,7 +218,7 @@ const AuthRegister: FC = () => {
                   sx={{
                     fontSize: '0.72rem',
                     fontWeight: 600,
-                    color: isMobile ? '#a5b4fc' : '#6366f1',
+                    color: isMobileDark ? '#a5b4fc' : '#6366f1',
                     whiteSpace: 'nowrap',
                   }}
                 >
@@ -249,7 +249,7 @@ const AuthRegister: FC = () => {
                   sx={{
                     fontSize: '0.75rem',
                     fontWeight: 700,
-                    color: isMobile ? '#a5b4fc' : '#6366f1',
+                    color: isMobileDark ? '#a5b4fc' : '#6366f1',
                     textTransform: 'uppercase',
                     letterSpacing: 1.2,
                     mb: 1.5,
@@ -313,7 +313,7 @@ const AuthRegister: FC = () => {
                   sx={{
                     fontSize: '0.75rem',
                     fontWeight: 700,
-                    color: isMobile ? '#a5b4fc' : '#6366f1',
+                    color: isMobileDark ? '#a5b4fc' : '#6366f1',
                     textTransform: 'uppercase',
                     letterSpacing: 1.2,
                     mb: 1.5,
@@ -394,7 +394,7 @@ const AuthRegister: FC = () => {
                             sx: {
                               maxHeight: 280,
                               borderRadius: '12px',
-                              bgcolor: isMobile ? '#1e1b4b' : '#fff',
+                              bgcolor: isMobileDark ? '#1e1b4b' : theme.palette.mode === 'dark' ? '#1e293b' : '#fff',
                             },
                           },
                         }}
@@ -410,7 +410,7 @@ const AuthRegister: FC = () => {
                             value={option.label}
                             sx={{
                               fontSize: '0.88rem',
-                              ...(isMobile && { color: '#e2e8f0', '&:hover': { bgcolor: 'rgba(99,102,241,0.2)' } }),
+                              ...(isMobileDark && { color: '#e2e8f0', '&:hover': { bgcolor: 'rgba(99,102,241,0.2)' } }),
                             }}
                           >
                             {option.label}
@@ -429,7 +429,7 @@ const AuthRegister: FC = () => {
                   sx={{
                     fontSize: '0.75rem',
                     fontWeight: 700,
-                    color: isMobile ? '#a5b4fc' : '#6366f1',
+                    color: isMobileDark ? '#a5b4fc' : '#6366f1',
                     textTransform: 'uppercase',
                     letterSpacing: 1.2,
                     mb: 1.5,
@@ -462,7 +462,7 @@ const AuthRegister: FC = () => {
                               onClick={() => setShowPassword(prev => !prev)}
                               edge="end"
                               size="small"
-                              sx={{ color: isMobile ? 'rgba(255,255,255,0.4)' : 'text.secondary' }}
+                              sx={{ color: isMobileDark ? 'rgba(255,255,255,0.4)' : 'text.secondary' }}
                             >
                               {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
                             </IconButton>
@@ -498,7 +498,7 @@ const AuthRegister: FC = () => {
                               onClick={() => setShowConfirmPassword(prev => !prev)}
                               edge="end"
                               size="small"
-                              sx={{ color: isMobile ? 'rgba(255,255,255,0.4)' : 'text.secondary' }}
+                              sx={{ color: isMobileDark ? 'rgba(255,255,255,0.4)' : 'text.secondary' }}
                             >
                               {showConfirmPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
                             </IconButton>
@@ -550,7 +550,7 @@ const AuthRegister: FC = () => {
             sx={{
               my: 3,
               '&::before, &::after': {
-                borderColor: isMobile ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.07)',
+                borderColor: isMobileDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.07)',
               },
             }}
           >
@@ -558,7 +558,7 @@ const AuthRegister: FC = () => {
               variant="caption"
               sx={{
                 px: 1.5,
-                color: isMobile ? 'rgba(255,255,255,0.3)' : 'text.disabled',
+                color: isMobileDark ? 'rgba(255,255,255,0.3)' : 'text.disabled',
                 fontWeight: 500,
                 letterSpacing: 1,
               }}
@@ -571,7 +571,7 @@ const AuthRegister: FC = () => {
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 0.8 }}>
             <Typography
               variant="body2"
-              sx={{ color: isMobile ? 'rgba(255,255,255,0.45)' : 'text.secondary', fontSize: '0.88rem' }}
+              sx={{ color: isMobileDark ? 'rgba(255,255,255,0.45)' : 'text.secondary', fontSize: '0.88rem' }}
             >
               Vous avez déjà un compte ?
             </Typography>

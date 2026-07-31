@@ -25,6 +25,7 @@ import { ChartSection } from './components/ChartSection';
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import PaymentsIcon from '@mui/icons-material/Payments';
 import { StatCard } from '../../usePerso/useEntreprise';
+import { useAppSettings } from '../../themes/AppSettingsContext';
 
 // ==============================|| DASHBOARD - DEFAULT ||============================== //
 
@@ -102,11 +103,10 @@ const NavigationCard: FC<NavigationCardType> = ({ icon, title, description, to, 
       </Box>
       <Typography
         variant="h6"
-        className="text-gray-50"
         sx={{
           fontSize: { xs: '0.92rem', sm: '1.02rem' },
           fontWeight: 700,
-          // color: '#e0e7ff',
+          color: 'text.primary',
           mb: 0.6,
           lineHeight: 1.2,
         }}
@@ -115,10 +115,9 @@ const NavigationCard: FC<NavigationCardType> = ({ icon, title, description, to, 
       </Typography>
       <Typography
         variant="body2"
-        className="text-gray-400"
         sx={{
           fontSize: { xs: '0.76rem', sm: '0.82rem' },
-          // color: 'text.secondary',
+          color: 'text.secondary',
           lineHeight: 1.4,
           fontWeight: 500,
         }}
@@ -142,8 +141,10 @@ const NavigationCard: FC<NavigationCardType> = ({ icon, title, description, to, 
 export default function DashboardDefault() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const { showBackground } = useAppSettings();
+  const isDark = theme.palette.mode === 'dark' || showBackground;
 
-  // Gestion d'erreur robuste pour éviter les pages blanches
+  // Utilisation de try-catch pour les hooks qui peuvent échouer
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -299,48 +300,69 @@ export default function DashboardDefault() {
 
   return (
     <Box sx={{ minHeight: '100vh', pb: 4 }}>
-      <Container maxWidth="xl" sx={{ px: { xs: 1, sm: 2, md: 3 } }}>
+      <Container maxWidth="xl" sx={{ px: { xs: 1, sm: 2, md: 3 }, color: showBackground ? '#ffffff' : 'inherit' }}>
         <Stack spacing={isMobile ? 3 : 4}>
           
           {/* Header Banner */}
           <Box
-            className={`relative p-4 rounded-lg transition-all duration-200 hover:shadow-md border-x-2 animate-border-rotate mobile-shadow-card mobile-hover-effect mobile-glass`}
+            className="relative p-4 rounded-lg transition-all duration-300 animate-border-rotate mobile-hover-effect"
             sx={{
-              // background: 'linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(139,92,246,0.08) 100%)',
-              // backdropFilter: 'blur(16px)',
-              border: '1px solid rgba(99,102,241,0.18)',
+              bgcolor: isDark ? 'rgba(15, 23, 42, 0.75)' : 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(16px)',
+              border: '1px solid',
+              borderColor: isDark ? 'rgba(99, 102, 241, 0.25)' : 'rgba(99, 102, 241, 0.18)',
+              boxShadow: isDark
+                ? '0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(99, 102, 241, 0.15)'
+                : '0 10px 30px rgba(99, 102, 241, 0.12), 0 4px 12px rgba(0, 0, 0, 0.05)',
               borderRadius: '20px',
               p: { xs: 2.5, sm: 3.5 },
               display: 'flex',
-              flexDirection: { xs: 'column', sm: 'row' },
-              alignItems: { xs: 'center', sm: 'flex-start' },
+              flexDirection: 'column',
+              alignItems: 'center',
               justifyContent: 'space-between',
-              gap: 2,
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              '&:hover': {
+                boxShadow: isDark
+                  ? '0 14px 40px rgba(0, 0, 0, 0.5), 0 0 25px rgba(99, 102, 241, 0.25)'
+                  : '0 14px 36px rgba(99, 102, 241, 0.2), 0 6px 16px rgba(0, 0, 0, 0.08)',
+                transform: 'translateY(-2px)',
+              },
             }}
           >
-            <Box sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
-              <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, mb: 1, bgcolor: 'rgba(99,102,241,0.15)', px: 1.5, py: 0.4, borderRadius: '20px', border: '1px solid rgba(99,102,241,0.3)' }}>
+            <Box sx={{ textAlign: 'center' }}>
+              <Box
+                sx={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  mb: 1,
+                  bgcolor: isDark ? 'rgba(99,102,241,0.15)' : 'rgba(99,102,241,0.1)',
+                  px: 1.5,
+                  py: 0.4,
+                  borderRadius: '20px',
+                  border: '1px solid',
+                  borderColor: isDark ? 'rgba(99,102,241,0.3)' : 'rgba(99,102,241,0.25)',
+                }}
+              >
                 <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#22c55e', boxShadow: '0 0 8px #22c55e' }} />
-                <Typography variant="caption" sx={{ color: '#c4b5fd', fontWeight: 600, letterSpacing: 0.5 }}>
+                <Typography variant="caption" sx={{ color: isDark ? '#ffffff' : 'primary.main', fontWeight: 600, letterSpacing: 0.5 }}>
                   {unEntreprise?.nom || 'Entreprise'}
                 </Typography>
               </Box>
               <Typography
                 variant="h4"
-                className="text-gray-50"
                 sx={{
                   fontSize: { xs: '1.5rem', sm: '1.85rem', md: '2.1rem' },
                   fontWeight: 800,
-                  // color: 'text.primary',
+                  color: isDark ? '#ffffff' : 'text.primary',
                   letterSpacing: '-0.02em',
                 }}
               >
                 Tableau de bord
               </Typography>
               <Typography 
-              variant="body1" 
-              className="text-gray-300"
-              sx={{ fontSize: { xs: '0.85rem', sm: '0.95rem' }, mt: 0.5 }}
+                variant="body1" 
+                sx={{ fontSize: { xs: '0.85rem', sm: '0.95rem' }, mt: 0.5, color: isDark ? 'rgba(255,255,255,0.85)' : 'text.secondary' }}
               >
                 Bienvenue dans votre espace de gestion d'entreprise
               </Typography>
@@ -493,13 +515,13 @@ export default function DashboardDefault() {
                 variant="h6"
                 sx={{
                   fontWeight: 700,
-                  color: 'text.primary',
+                  color: showBackground ? '#ffffff' : 'text.primary',
                   fontSize: { xs: '1.1rem', sm: '1.25rem' },
                 }}
               >
                 Navigation rapide
               </Typography>
-              <Typography variant="caption" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: 'text.secondary' }}>
+              <Typography variant="caption" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: showBackground ? 'rgba(255,255,255,0.75)' : 'text.secondary' }}>
                 Accès direct aux modules
               </Typography>
             </Box>
