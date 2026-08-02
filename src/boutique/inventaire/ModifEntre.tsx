@@ -23,9 +23,16 @@ import { useDeleteEntre, useFetchEntre, useUpdateEntre } from '../../usePerso/fo
 import { useFetchUser } from '../../usePerso/fonction.user'
 import { useStoreUuid } from '../../usePerso/store'
 import SaveIcon from '@mui/icons-material/Save';
+import { useTheme } from "@mui/material/styles";
+import { useAppSettings } from "../../themes/AppSettingsContext";
 
 export default function ModifEntre() {
+  const theme = useTheme();
   const { uuid } = useParams<RouteParams>()
+
+  const { showBackground } = useAppSettings();
+  const isDarkText = theme.palette.mode === 'dark' || showBackground;
+
   const entreprise_id = useStoreUuid((state) => state.selectedId)
 
   const { unEntre, setUnEntre } = useFetchEntre(uuid!)
@@ -131,10 +138,10 @@ export default function ModifEntre() {
           <Box className="p-6">
             {/* Header */}
             <div className="border-b pb-4 mb-6">
-              <Typography variant="h4" className="font-semibold text-gray-50">
+              <Typography variant="h4" className="font-semibold" sx={{ color: isDarkText ? '#ffffff' : 'text.primary' }}>
                 Modification d'une Entrée
               </Typography>
-              <Typography variant="body2" className="text-gray-100 mt-1">
+              <Typography variant="body2" className=" mt-1" sx={{ color: isDarkText ? '#ffffff' : 'text.primary' }}>
                 Modifiez les informations de l'entrée en stock
               </Typography>
 
@@ -291,7 +298,7 @@ export default function ModifEntre() {
                       />
                     }
                     label="Prix de vente manuel"
-                    className="text-gray-100"
+                    // className="text-gray-100"
                   />
 
                   <FormControlLabel
@@ -303,7 +310,7 @@ export default function ModifEntre() {
                       />
                     }
                     label="Ne pas autoriser la sortie de ce produit"
-                    className="text-gray-100"
+                    // className="text-gray-100"
                   />
                 </div>
               </div>

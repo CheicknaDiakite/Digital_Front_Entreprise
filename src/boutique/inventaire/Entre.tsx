@@ -37,8 +37,13 @@ import SearchIcon from '@mui/icons-material/Search';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import './mobile-entre.css';
+import { useTheme } from "@mui/material/styles";
+import { useAppSettings } from "../../themes/AppSettingsContext";
 
 export default function Entre() {
+  const theme = useTheme();
+  const { showBackground } = useAppSettings();
+  const isDarkText = theme.palette.mode === 'dark' || showBackground;
   const uuid = useStoreUuid((state) => state.selectedId);
   const { unUser } = useFetchUser();
   const { unEntreprise } = useFetchEntreprise(uuid);
@@ -321,7 +326,7 @@ export default function Entre() {
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <DateRangeIcon className="text-gray-400" />
+                        <DateRangeIcon />
                       </InputAdornment>
                     ),
                   }}
@@ -340,7 +345,7 @@ export default function Entre() {
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <DateRangeIcon className="text-gray-400" />
+                        <DateRangeIcon />
                       </InputAdornment>
                     ),
                   }}

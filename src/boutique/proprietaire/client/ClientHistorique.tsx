@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState } from 'react';
 import {
   Paper,
   Table,
@@ -15,19 +15,27 @@ import {
   InputLabel,
   Stack,
   Box,
-  Chip
+  Chip,
+  Skeleton,
+  useTheme,
 } from '@mui/material';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import LocalAtmIcon from '@mui/icons-material/LocalAtm';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { useStoreUuid } from '../../../usePerso/store';
 import { useHistoryClientEntreprise } from '../../../usePerso/fonction.user';
 import { UuType } from '../../../typescript/Account';
 import { formatNumberWithSpaces } from '../../../usePerso/fonctionPerso';
+import { useAppSettings } from '../../../themes/AppSettingsContext';
 
 export default function ClientHistorique(props: UuType) {
+  const theme = useTheme();
+  const { showBackground } = useAppSettings();
+  const isDarkText = theme.palette.mode === 'dark' || showBackground;
   const { uuid } = props;
   const entreprise_uuid = useStoreUuid((state) => state.selectedId);
   const { clientH, isLoading, isError } = useHistoryClientEntreprise(entreprise_uuid!);
-  
+
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
@@ -54,8 +62,6 @@ export default function ClientHistorique(props: UuType) {
 
     // 3. Filter by Type (Entrer vs Sortie)
     if (typeFilter !== 'all') {
-      // Assuming 'entrer' or 'sortie' values in item.type or item.action
-      // Adjust property access if needed based on data structure inspection
       const type = item.type || item.action;
       if (type !== typeFilter) return false;
     }
@@ -64,27 +70,84 @@ export default function ClientHistorique(props: UuType) {
   });
 
   // Calculate total sum
-  const totalSum = clientHistoryFiltered?.reduce((acc: number, item: any) => {
-    const ancien = Number(item.ancien_qte) || 0;
-    const qteRaw = Number(item.qte) || 0;
+  const totalSum =
+    clientHistoryFiltered?.reduce((acc: number, item: any) => {
+      const ancien = Number(item.ancien_qte) || 0;
+      const qteRaw = Number(item.qte) || 0;
 
-    const delta = item.cumuler_qe ? qteRaw : qteRaw - ancien;
-    const deltaText = `${delta > 0 ? '+' : ''}${delta}`;
+      const delta = item.cumuler_qe ? qteRaw : qteRaw - ancien;
+      const deltaText = `${delta > 0 ? '+' : ''}${delta}`;
 
-    const qte = Number(deltaText) || 0;
-    const pu = Number(item.pu_achat) || 0;
-    return acc + (qte * pu);
-  }, 0) || 0;
+      const qte = Number(deltaText) || 0;
+      const pu = Number(item.pu_achat) || 0;
+      return acc + qte * pu;
+    }, 0) || 0;
 
-  if (isLoading) return <div>Chargement...</div>;
-  if (isError) return <div>Erreur lors du chargement de l'historique</div>;
+  if (isLoading) {
+    return (
+      <Box className="space-y-3 p-4">
+        <Skeleton variant="rectangular" height={50} className="rounded-xl" />
+        <Skeleton variant="rectangular" height={250} className="rounded-xl" />
+      </Box>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Paper elevation={0} className="p-8 text-center rounded-xl border border-red-200 bg-red-50/50">
+        <Typography variant="body1" color="error" className="font-semibold">
+          Erreur lors du chargement de l'historique
+        </Typography>
+      </Paper>
+    );
+  }
+
+  const renderActionChip = (action?: string) => {
+    const act = (action || '').toLowerCase();
+    if (act.includes('entrer') || act.includes('entrée') || act.includes('achat')) {
+      return (
+        <Chip
+          icon={<ArrowUpwardIcon fontSize="small" />}
+          label="Entrée"
+          size="small"
+          sx={{
+            bgcolor: '#ecfdf5',
+            color: '#047857',
+            borderColor: '#a7f3d0',
+            fontWeight: 600,
+            borderRadius: '6px',
+          }}
+          variant="outlined"
+        />
+      );
+    }
+    return (
+      <Chip
+        icon={<ArrowDownwardIcon fontSize="small" />}
+        label="Sortie"
+        size="small"
+        sx={{
+          bgcolor: '#eff6ff',
+          color: '#1d4ed8',
+          borderColor: '#bfdbfe',
+          fontWeight: 600,
+          borderRadius: '6px',
+        }}
+        variant="outlined"
+      />
+    );
+  };
 
   return (
-    <Box sx={{ width: '100%' }}>
-      {/* Search Filters */}
-      <Paper elevation={0} sx={{ p: 2, mb: 2, background: 'transparent' }}>
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center" justifyContent="space-between">
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center">
+    <Box className="space-y-6">
+      {/* Search Filters & Total Card */}
+      <Paper
+        elevation={0}
+        className="p-4 rounded-xl border border-gray-200/40 bg-transparent"
+        sx={{ background: 'transparent', bgcolor: 'transparent' }}
+      >
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-center gap-3">
             <TextField
               label="Date début"
               type="date"
@@ -92,7 +155,7 @@ export default function ClientHistorique(props: UuType) {
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
               InputLabelProps={{ shrink: true }}
-              // sx={{ bgcolor: 'white' }}
+              sx={{ minWidth: 160 }}
             />
             <TextField
               label="Date fin"
@@ -101,76 +164,113 @@ export default function ClientHistorique(props: UuType) {
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
               InputLabelProps={{ shrink: true }}
-              // sx={{ bgcolor: 'white' }}
+              sx={{ minWidth: 160 }}
             />
-            <FormControl size="small" sx={{ minWidth: 120 }}>
-              <InputLabel>Type</InputLabel>
+            <FormControl size="small" sx={{ minWidth: 140 }}>
+              <InputLabel>Type d'opération</InputLabel>
               <Select
                 value={typeFilter}
-                label="Type"
+                label="Type d'opération"
                 onChange={(e) => setTypeFilter(e.target.value)}
               >
-                <MenuItem value="all">Tout</MenuItem>
-                <MenuItem value="entrer">Entrée</MenuItem>
-                <MenuItem value="sortie">Sortie</MenuItem>
+                <MenuItem value="all">Toutes les opérations</MenuItem>
+                <MenuItem value="entrer">Entrées uniquement</MenuItem>
+                <MenuItem value="sortie">Sorties uniquement</MenuItem>
               </Select>
             </FormControl>
-          </Stack>
+          </div>
 
-          <Chip
-            icon={<AttachMoneyIcon />}
-            label={`Total: ${formatNumberWithSpaces(totalSum)} `}
-            // color="primary"
-            variant="outlined"
-
-            sx={{ fontWeight: 'bold', fontSize: '1rem' }}
-          />
-        </Stack>
+          <Paper
+            elevation={0}
+            className="p-3 rounded-lg border border-blue-200/50 bg-blue-50/30 flex items-center space-x-3 self-start md:self-auto"
+          >
+            <div className="p-2 rounded-lg bg-blue-100 text-blue-600">
+              <LocalAtmIcon fontSize="small" />
+            </div>
+            <div>
+              <Typography variant="caption" className="font-semibold block uppercase" color={isDarkText ? 'white' : 'text.primary'}>
+                Total historique
+              </Typography>
+              <Typography variant="h6" className="font-bold" color={isDarkText ? 'white' : 'text.primary'}>
+                {formatNumberWithSpaces(totalSum)} F
+              </Typography>
+            </div>
+          </Paper>
+        </div>
       </Paper>
 
-      {(!clientHistoryFiltered || clientHistoryFiltered.length === 0) ? (
-        <Paper elevation={0} sx={{ p: 4, textAlign: 'center', background: 'transparent' }}>
-          <Typography>Aucun historique trouvé pour ces critères.</Typography>
+      {/* Table Section */}
+      {!clientHistoryFiltered || clientHistoryFiltered.length === 0 ? (
+        <Paper
+          elevation={0}
+          className="p-12 text-center rounded-xl border border-gray-200/40 bg-transparent"
+          sx={{ background: 'transparent', bgcolor: 'transparent' }}
+        >
+          <Typography variant="body1" className="font-medium" color={isDarkText ? 'white' : 'text.primary'}>
+            Aucun historique trouvé pour ces critères.
+          </Typography>
         </Paper>
       ) : (
-        <TableContainer component={Paper} sx={{ maxHeight: 600 }}>
-          <Table stickyHeader aria-label="sticky table" >
-            <TableHead >
-              <TableRow sx={{ backgroundColor: '#f8fafc' }}>
-                <TableCell>Date</TableCell>
-                <TableCell>Action</TableCell>
-                <TableCell>Libellé</TableCell>
-                <TableCell>Catégorie</TableCell>
-                <TableCell align="right">Qté</TableCell>
-                <TableCell align="right">PU (Achat)</TableCell>
-                <TableCell align="right">Total</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {clientHistoryFiltered.map((row: any, index: number) => {
-                const ancien = Number(row.ancien_qte) || 0;
-                const qteRaw = Number(row.qte) || 0;
-
-                const delta = row.cumuler_qe ? qteRaw : qteRaw - ancien;
-                const deltaText = `${delta > 0 ? '+' : ''}${delta}`;
-                return <TableRow key={index} hover>
-                  <TableCell>{row.date ? new Date(row.date).toLocaleDateString() : '-'}</TableCell>
-                  <TableCell>{row.action || row.type}</TableCell>
-                  <TableCell>{row.libelle}</TableCell>
-                  <TableCell>{row.categorie}</TableCell>
-                  <TableCell align="right" className="font-bold">{deltaText}</TableCell>
-                  <TableCell align="right">{row.pu_achat ? formatNumberWithSpaces(Number(row.pu_achat)) : '-'}</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-                    {formatNumberWithSpaces(Number(deltaText || 0) * Number(row.pu_achat || 0))}
-                  </TableCell>
-
+        <Paper
+          elevation={0}
+          className="rounded-xl border border-gray-200/40 bg-transparent overflow-hidden"
+          sx={{ background: 'transparent', bgcolor: 'transparent' }}
+        >
+          <TableContainer sx={{ maxHeight: 550 }}>
+            <Table stickyHeader aria-label="tableau d'historique">
+              <TableHead>
+                <TableRow sx={{ '& th': { backgroundColor: '#f8fafc', fontWeight: 700, color: '#334155' } }}>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Action</TableCell>
+                  <TableCell>Libellé</TableCell>
+                  <TableCell>Catégorie</TableCell>
+                  <TableCell align="right">Qté</TableCell>
+                  <TableCell align="right">PU (Achat)</TableCell>
+                  <TableCell align="right">Total</TableCell>
                 </TableRow>
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              </TableHead>
+              <TableBody>
+                {clientHistoryFiltered.map((row: any, index: number) => {
+                  const ancien = Number(row.ancien_qte) || 0;
+                  const qteRaw = Number(row.qte) || 0;
+
+                  const delta = row.cumuler_qe ? qteRaw : qteRaw - ancien;
+                  const deltaText = `${delta > 0 ? '+' : ''}${delta}`;
+                  const rowTotal = Number(deltaText || 0) * Number(row.pu_achat || 0);
+
+                  return (
+                    <TableRow key={index} hover className="transition-colors hover:bg-slate-50/80">
+                      <TableCell sx={{ py: 1.5, color: '#334155', fontWeight: 500 }}>
+                        {row.date ? new Date(row.date).toLocaleDateString() : '-'}
+                      </TableCell>
+                      <TableCell sx={{ py: 1.5 }}>
+                        {renderActionChip(row.action || row.type)}
+                      </TableCell>
+                      <TableCell sx={{ py: 1.5, fontWeight: 500, color: '#1e293b' }}>
+                        {row.libelle || '-'}
+                      </TableCell>
+                      <TableCell sx={{ py: 1.5, color: '#475569' }}>
+                        {row.categorie || '-'}
+                      </TableCell>
+                      <TableCell align="right" sx={{ py: 1.5, fontWeight: 700, color: delta >= 0 ? '#047857' : '#dc2626' }}>
+                        {deltaText}
+                      </TableCell>
+                      <TableCell align="right" sx={{ py: 1.5, color: '#475569' }}>
+                        {row.pu_achat ? `${formatNumberWithSpaces(Number(row.pu_achat))} F` : '-'}
+                      </TableCell>
+                      <TableCell align="right" sx={{ py: 1.5, fontWeight: 700, color: '#2563eb' }}>
+                        {formatNumberWithSpaces(rowTotal)} F
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
       )}
     </Box>
-  )
+  );
 }
+
 

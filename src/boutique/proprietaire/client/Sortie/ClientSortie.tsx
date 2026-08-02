@@ -19,6 +19,7 @@ import {
   TableRow,
   TextField,
   Typography,
+  useTheme,
 } from '@mui/material';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
 import { UuType } from '../../../../typescript/Account'
@@ -40,6 +41,7 @@ import { useStoreCart } from '../../../../usePerso/cart_store';
 import { TypeText } from '../../../sortie/Sortie';
 import { format } from 'date-fns';
 import BarcodeScanner from '../../../../_components/Input/BarcodeScanner';
+import { useAppSettings } from '../../../../themes/AppSettingsContext';
 
 const style = {
   position: 'absolute',
@@ -55,6 +57,9 @@ const style = {
 };
 
 export default function ClientSortie(uuid: UuType) {
+  const theme = useTheme();
+  const { showBackground } = useAppSettings();
+  const isDarkText = theme.palette.mode === 'dark' || showBackground;
   const top = {
     user_id: connect,
     client_id: uuid.uuid,
@@ -297,208 +302,262 @@ export default function ClientSortie(uuid: UuType) {
 
     if (entresEntreprise) {
       return (
-        <div >
-
-          <Paper
-            elevation={0}
-            // className="rounded-lg overflow-hidden"
-            sx={{
-              background: 'transparent',
-              bgcolor: 'transparent',
-              backdropFilter: 'none',
-
-            }}
-          >
-            <div className="space-y-6">
-              {/* Header Section */}
-              <div className="flex justify-between items-center border-b pb-6">
-                <div>
-                  <Typography variant="h4" className="font-semibold text-gray-50">
-                    Gestion des Ventes
-                  </Typography>
-                  <Typography variant="body2" className="text-gray-100 mt-1">
-                    Client : {unClient.nom}
-                  </Typography>
-                </div>
-                <div className="flex space-x-3">
-                  <Button
-                    variant="contained"
-                    onClick={() => {
-                      handleSaveSorties();
-                      handleOnClick();
-                    }}
-                    startIcon={<ReceiptIcon />}
-                    className="bg-blue-600 hover:bg-blue-700"
-                  >
-                    Créer Facture
-                  </Button>
+        <div>
+          <div className="space-y-6">
+            {/* Header Section */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-100 pb-5">
+              <div>
+                <Typography variant="h5" className="font-bold" color={isDarkText ? 'white' : 'text.primary'}>
+                  Gestion des Ventes
+                </Typography>
+                <Typography variant="body2" className="mt-0.5" color={isDarkText ? 'white' : 'text.primary'}>
+                  Client : <span className="font-semibold" color={isDarkText ? 'white' : 'text.primary'}>{unClient.nom}</span>
+                </Typography>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    handleSaveSorties();
+                    handleOnClick();
+                  }}
+                  startIcon={<ReceiptIcon />}
+                  sx={{
+                    backgroundColor: '#2563eb',
+                    '&:hover': { backgroundColor: '#1d4ed8' },
+                    borderRadius: '10px',
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    boxShadow: '0 2px 8px 0 rgba(37, 99, 235, 0.25)',
+                  }}
+                >
+                  Créer Facture
+                </Button>
+                {showInvoice && (
                   <Button
                     variant="outlined"
+                    color="error"
                     onClick={handleOpenClick}
                     startIcon={<CloseIcon />}
-                    className="border-red-500 text-red-500 hover:bg-red-50"
+                    sx={{
+                      borderRadius: '10px',
+                      textTransform: 'none',
+                      fontWeight: 600,
+                    }}
                   >
-                    Annuler
+                    Masquer Facture
                   </Button>
-                </div>
+                )}
               </div>
+            </div>
 
-              {/* Date Filter Section */}
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 rounded-lg shadow-sm">
+            {/* Date Filter & Total Metrics */}
+            <Paper
+              elevation={0}
+              className="p-4 rounded-xl border border-gray-200/40 bg-transparent"
+              sx={{ background: 'transparent', bgcolor: 'transparent' }}
+            >
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                 <TextField
                   fullWidth
+                  size="small"
                   label="Date de début"
                   type="date"
                   value={selectedStartDate}
                   onChange={handleStartDateChange}
                   InputLabelProps={{ shrink: true }}
-                  // className="bg-white"
                 />
                 <TextField
                   fullWidth
+                  size="small"
                   label="Date de fin"
                   type="date"
                   value={selectedEndDate}
                   onChange={handleEndDateChange}
                   InputLabelProps={{ shrink: true }}
-                  // className="bg-white"
                 />
                 {unUser.role === 1 && (
-                  <Paper elevation={0} className="p-4 text-blue-50 rounded-lg">
+                  <Paper
+                    elevation={0}
+                    className="p-3 rounded-lg border border-blue-200/50 bg-blue-50/30 flex items-center justify-between"
+                  >
                     <div className="flex items-center space-x-2">
-                      <LocalAtmIcon color="primary" />
-                      <Typography variant="h6" >
-                        Total : {formatNumberWithSpaces(totalPrice)} F
-                      </Typography>
+                      <div className="p-2 rounded-lg bg-blue-100 text-blue-600">
+                        <LocalAtmIcon fontSize="small" />
+                      </div>
+                      <div>
+                        <Typography variant="caption" className="text-blue-600 font-semibold block uppercase">
+                          Total des ventes
+                        </Typography>
+                        <Typography variant="h6" className="font-bold text-blue-900 leading-tight">
+                          {formatNumberWithSpaces(totalPrice)} F
+                        </Typography>
+                      </div>
                     </div>
                   </Paper>
                 )}
               </div>
+            </Paper>
 
-              {/* New Sale Form */}
-              <Paper elevation={0} className="p-6 rounded-lg">
-                <form onSubmit={onSubmit} className="space-y-6">
+            {/* Formulaire Nouvelle Vente */}
+            <Paper
+              elevation={0}
+              className="p-5 rounded-xl border border-gray-200/40 bg-transparent"
+              sx={{ background: 'transparent', bgcolor: 'transparent' }}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <Typography variant="subtitle1" className="font-bold" color={isDarkText ? 'white' : 'text.primary'}>
+                  Nouvelle Vente
+                </Typography>
 
-                  <div className="my-2">
-                    <Stack direction="row" spacing={2}>
-                      <QrCode2Icon onClick={functionopen} color="error" fontSize="large" />
-                    </Stack>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={functionopen}
+                  startIcon={<QrCode2Icon />}
+                  sx={{
+                    borderRadius: '8px',
+                    textTransform: 'none',
+                    borderColor: '#cbd5e1',
+                    // color: '#475569',
+                    '&:hover': { borderColor: '#94a3b8', bgcolor: '#f8fafc' },
+                  }}
+                >
+                  Scanner Code-Barres
+                </Button>
 
-                    <Dialog open={open} onClose={closeopen} fullWidth maxWidth="xs">
-                      <DialogTitle>
-                        Barre Code
-                        <IconButton onClick={closeopen} style={{ float: 'right' }}>
-                          <CloseIcon color="primary" />
-                        </IconButton>
-                      </DialogTitle>
+                <Dialog open={open} onClose={closeopen} fullWidth maxWidth="xs">
+                  <DialogTitle className="flex justify-between items-center border-b pb-2">
+                    <span className="font-bold text-base" color={isDarkText ? 'white' : 'text.primary'}>Scanner de code-barres</span>
+                    <IconButton onClick={closeopen} size="small">
+                      <CloseIcon />
+                    </IconButton>
+                  </DialogTitle>
+                  <DialogContent className="pt-4">
+                    <BarcodeScanner onScan={handleScanResult} />
+                  </DialogContent>
+                </Dialog>
+              </div>
 
-                      <DialogContent>
-                        <BarcodeScanner onScan={handleScanResult} />
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <Typography variant="subtitle2">Nom du produit</Typography>
-                      </div>
-                      <Autocomplete
-                        value={selectedProduct}
-                        options={filteredEnt}
-                        getOptionLabel={(option) => (typeof option === 'string' ? option : `${option.categorie_libelle} (${option.libelle}) [${option.qte}]` || '')}
-                        onChange={handleAutoCompleteChange}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label={scannedCode ? `Désignation : ${scannedCode}` : "Désignation"}
-                            // className="bg-gray-200"
-                          />
-                        )}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <Typography variant="subtitle2">Quantité</Typography>
-                      </div>
-                      <MyTextField
-                        required
-                        type="number"
-                        name="qte"
-                        // className='bg-white'
-                        value={formValues.qte}
-                        id="quantity"
-                        placeholder="Quantity"
-                        onChange={onChange}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <QuantityLimitsIcon color="error" />
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <Typography variant="subtitle2">Prix Unitaire</Typography>
-                      </div>
-
-                      <MyTextField
-                        disabled={formValues.is_prix}
-                        variant="outlined"
-                        // className='bg-white'
-                        type="number"
-                        name="pu"
-                        onChange={onChange}
-                        value={formValues.pu}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <LocalAtmIcon color="error" />
-                            </InputAdornment>
-                          ),
-                        }}
-                        sx={{
-                          '& .MuiFormLabel-asterisk': {
-                            color: 'red',
-                          },
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <Typography variant="h6" className="text-gray-50">
-                      Montant Total : {formatNumberWithSpaces(amount)} F
+              <form onSubmit={onSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-1.5">
+                    <Typography variant="caption" className="font-semibold" color={isDarkText ? 'white' : 'text.primary'}>
+                      Désignation du produit *
                     </Typography>
+                    <Autocomplete
+                      size="small"
+                      value={selectedProduct}
+                      options={filteredEnt}
+                      getOptionLabel={(option) =>
+                        typeof option === 'string'
+                          ? option
+                          : `${option.categorie_libelle} (${option.libelle}) [${option.qte}]` || ''
+                      }
+                      onChange={handleAutoCompleteChange}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          size="small"
+                          placeholder={scannedCode ? `Code : ${scannedCode}` : "Sélectionner un produit"}
+                        />
+                      )}
+                    />
+                  </div>
 
-                    {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
-                      <Typography variant="subtitle1" color="error">
-                        L'abonnement de cette entreprise a expiré
+                  <div className="space-y-1.5">
+                    <Typography variant="caption" className="font-semibold" color={isDarkText ? 'white' : 'text.primary'}>
+                      Quantité *
+                    </Typography>
+                    <MyTextField
+                      size="small"
+                      required
+                      type="number"
+                      name="qte"
+                      value={formValues.qte}
+                      id="quantity"
+                      placeholder="Quantité"
+                      onChange={onChange}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <QuantityLimitsIcon color="action" fontSize="small" />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                    {stockError && (
+                      <Typography variant="caption" className="font-medium block" color={isDarkText ? 'white' : 'text.primary'}>
+                        {stockError}
                       </Typography>
-                    ) : (
-                      <Button
-                        type="submit"
-                        variant="contained"
-                        className="bg-blue-600 hover:bg-blue-700"
-                      >
-                        Ajouter la vente
-                      </Button>
                     )}
                   </div>
 
-                </form>
-              </Paper>
+                  <div className="space-y-1.5">
+                    <Typography variant="caption" className="font-semibold" color={isDarkText ? 'white' : 'text.primary'}>
+                      Prix Unitaire (F) *
+                    </Typography>
+                    <MyTextField
+                      size="small"
+                      disabled={formValues.is_prix}
+                      variant="outlined"
+                      type="number"
+                      name="pu"
+                      onChange={onChange}
+                      value={formValues.pu}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <LocalAtmIcon color="action" fontSize="small" />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  </div>
+                </div>
 
-              {/* Sales Table */}
-              <TableContainer component={Paper} sx={{ maxHeight: 600 }}>
-                <Table stickyHeader aria-label="sticky table" >
-                  <TableHead >
-                    <TableRow sx={{ backgroundColor: '#f8fafc' }}>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-3 border-t border-gray-100 gap-3">
+                  <div className="flex items-center space-x-2">
+                    <span className="font-medium text-sm" color={isDarkText ? 'white' : 'text.primary'}>Montant Total :</span>
+                    <span className="text-lg font-extrabold" color={isDarkText ? 'white' : 'text.primary'}>
+                      {formatNumberWithSpaces(amount)} F
+                    </span>
+                  </div>
+
+                  {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
+                    <Typography variant="subtitle2" color="error" className="font-semibold">
+                      L'abonnement de cette entreprise a expiré
+                    </Typography>
+                  ) : (
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      sx={{
+                        backgroundColor: '#2563eb',
+                        '&:hover': { backgroundColor: '#1d4ed8' },
+                        borderRadius: '8px',
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        px: 3,
+                      }}
+                    >
+                      Ajouter la vente
+                    </Button>
+                  )}
+                </div>
+              </form>
+            </Paper>
+
+            {/* Sales Table */}
+            <Paper
+              elevation={0}
+              className="rounded-xl border border-gray-200/40 bg-transparent overflow-hidden"
+              sx={{ background: 'transparent', bgcolor: 'transparent' }}
+            >
+              <TableContainer sx={{ maxHeight: 500 }}>
+                <Table stickyHeader aria-label="tableau des ventes">
+                  <TableHead>
+                    <TableRow sx={{ '& th': { backgroundColor: '#f8fafc', fontWeight: 700, color: '#334155' } }}>
                       <TableCell>Image</TableCell>
                       <TableCell>Date</TableCell>
                       <TableCell>Référence</TableCell>
@@ -515,9 +574,9 @@ export default function ClientSortie(uuid: UuType) {
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={7} align="center" className="py-8">
-                          <Typography variant="body1" className="text-gray-500">
-                            Aucune vente enregistrée
+                        <TableCell colSpan={7} align="center" className="py-12">
+                          <Typography variant="body2" className="font-medium" color={isDarkText ? 'white' : 'text.primary'}>
+                            Aucune vente enregistrée pour ce filtre
                           </Typography>
                         </TableCell>
                       </TableRow>
@@ -527,40 +586,46 @@ export default function ClientSortie(uuid: UuType) {
               </TableContainer>
 
               {/* Pagination */}
-              <div className="flex justify-center">
-                <Pagination
-                  count={totalPages}
-                  page={currentPage}
-                  onChange={handlePageChange}
-                  color="primary"
-                  size="large"
+              {totalPages > 1 && (
+                <div className="flex justify-center p-4 border-t border-gray-100 bg-gray-50/50">
+                  <Pagination
+                    count={totalPages}
+                    page={currentPage}
+                    onChange={handlePageChange}
+                    color="primary"
+                    size="medium"
+                  />
+                </div>
+              )}
+            </Paper>
+
+            {/* Invoice Preview */}
+            {showInvoice && entreprise && (
+              <div className="mt-6">
+                <Fact
+                  clientName={unClient.nom}
+                  clientAddress={unClient.adresse}
+                  clientCoordonne={unClient.coordonne}
+                  invoiceNumber={unClient.numero}
+                  invoiceDate={itemDate}
+                  numeroFac={texte.numeroFac}
+                  notes={texte.notes}
+                  post={entreprise}
                 />
               </div>
-            </div>
-          </Paper>
-
-          {/* Invoice Preview */}
-          {(showInvoice && entreprise) && (
-            <div className="mt-6">
-              <Fact
-                clientName={unClient.nom}
-                clientAddress={unClient.adresse}
-                clientCoordonne={unClient.coordonne}
-                invoiceNumber={unClient.numero}
-                invoiceDate={itemDate}
-                numeroFac={texte.numeroFac}
-                notes={texte.notes}
-                post={entreprise}
-              />
-            </div>
-          )}
-
+            )}
+          </div>
         </div>
       );
     }
   } else {
-    return <Typography variant="h6" className="text-gray-700 p-4">
-      Celui-ci est un fournisseur
-    </Typography>
+    return (
+      <Paper elevation={0} className="p-8 text-center rounded-xl border border-gray-200/80 bg-gray-50/50">
+        <Typography variant="body1" className="font-medium" color={isDarkText ? 'white' : 'text.primary'}>
+          Ce contact a le statut de Fournisseur uniquement.
+        </Typography>
+      </Paper>
+    );
   }
 }
+

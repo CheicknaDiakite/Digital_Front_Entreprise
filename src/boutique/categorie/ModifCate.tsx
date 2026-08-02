@@ -19,8 +19,11 @@ import { BASE } from '../../_services/caller.service';
 import img from '../../../public/icon-192x192.png';
 import { useFetchEntreprise, useFetchUser } from '../../usePerso/fonction.user';
 import { useStoreUuid } from '../../usePerso/store';
+import { useAppSettings } from '../../themes/AppSettingsContext';
+import { useTheme } from '@mui/material/styles';
 
 export default function ModifCate() {
+  const theme = useTheme();
   const { uuid } = useParams<RouteParams>()
   const entreprise_uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise } = useFetchEntreprise(entreprise_uuid);
@@ -30,6 +33,9 @@ export default function ModifCate() {
   const {unUser} = useFetchUser()
   const { updateCategorie } = useUpdateCategorie()
   const { deleteCategorie } = useDeleteCategorie()
+
+  const { showBackground } = useAppSettings();
+  const isDarkText = theme.palette.mode === 'dark' || showBackground;
 
   const [showConfirm, setShowConfirm] = useState(false);
 
@@ -78,7 +84,7 @@ export default function ModifCate() {
         <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
           <div className="flex items-center space-x-4">
             
-            <Typography variant="h5" className="font-semibold text-gray-50">
+            <Typography variant="h5" className="font-semibold" sx={{ color: isDarkText ? '#ffffff' : 'text.primary' }}>
               Modifier l'article
             </Typography>
           </div>

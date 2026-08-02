@@ -35,8 +35,13 @@ import { useForm } from "react-hook-form";
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import '../mobile-personnel-client.css';
+import { useTheme } from "@mui/material/styles";
+import { useAppSettings } from "../../../themes/AppSettingsContext";
 
 export default function Client() {
+  const theme = useTheme();
+  const { showBackground } = useAppSettings();
+  const isDarkText = theme.palette.mode === 'dark' || showBackground;
   const uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise } = useFetchEntreprise(uuid);
   const { register, handleSubmit, reset, formState: { errors } } = useForm<ClienType>();
@@ -139,12 +144,12 @@ export default function Client() {
                 <div>
                   <Typography 
                     variant={isMobile ? "h5" : "h4"} 
-                    className={`${isMobile ? 'font-semibold text-gray-50' : 'font-semibold text-gray-50'}`}
-                    
+                    className={`${isMobile ? 'font-semibold' : 'font-semibold'}`}
+                    sx={{ color: isDarkText ? 'common.white' : 'text.primary' }}
                   >
                     Gestion des Clients et Fournisseurs
               </Typography>
-                  <Typography variant="body2" className={`${isMobile ? 'text-gray-100 mt-2' : 'text-gray-100 mt-1'}`}>
+                  <Typography variant="body2" className={`${isDarkText ? 'text-gray-300 mt-2' : 'text-primary mt-1'}`}>
                     Gérez vos relations commerciales
               </Typography>
                 </div>

@@ -12,6 +12,7 @@ import {
   TableRow,
   Tooltip,
   Typography,
+  useTheme,
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { formatNumberWithSpaces, getBgClass, priceRow } from '../../usePerso/fonctionPerso';
@@ -24,6 +25,7 @@ import img from '../../../public/icon-192x192.png';
 import { BASE } from '../../_services/caller.service';
 import CloseIcon from '@mui/icons-material/Close';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
+import { useAppSettings } from '../../themes/AppSettingsContext';
 
 // import { saveAs } from 'file-saver';
 
@@ -56,6 +58,10 @@ type EntreProps = {
 }
 
 export default function CardInvent({ row }: EntreProps) {
+  const theme = useTheme();
+  const { showBackground } = useAppSettings();
+  const isDarkText = theme.palette.mode === 'dark' || showBackground;
+
   const { unUser } = useFetchUser();
   const [open, setOpen] = useState(false);
   const functionOpen = () => {
@@ -229,7 +235,7 @@ export default function CardInvent({ row }: EntreProps) {
                 alignItems: 'center',
                 p: 2,
                 borderRadius: 3,
-                bgcolor: 'rgba(248,250,252,0.9)',
+                // bgcolor: 'rgba(248,250,252,0.9)',
                 border: '1px solid rgba(226,232,240,0.9)',
               }}
             >
@@ -247,7 +253,7 @@ export default function CardInvent({ row }: EntreProps) {
                   borderRadius: 999,
                   cursor: 'pointer',
                   bgcolor: 'linear-gradient(135deg, #2563eb, #10b981)',
-                  color: '#fff',
+                  // color: '#fff',
                   fontWeight: 700,
                   boxShadow: '0 8px 20px rgba(37,99,235,0.2)',
                 }}

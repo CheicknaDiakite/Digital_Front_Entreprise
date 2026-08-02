@@ -18,9 +18,15 @@ import MyTextField from "../../../_components/Input/MyTextField";
 import { BASE } from '../../../_services/caller.service';
 import img from '../../../../public/icon-192x192.png';
 import { useStoreUuid } from "../../../usePerso/store";
+import { useTheme } from "@mui/material/styles";
+import { useAppSettings } from "../../../themes/AppSettingsContext";
 
 export default function ModifSousCate() {
+  const theme = useTheme();
   const { uuid } = useParams<RouteParams>()
+
+  const { showBackground } = useAppSettings();
+  const isDarkText = theme.palette.mode === 'dark' || showBackground;
 
   const entreprise_uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise } = useFetchEntreprise(entreprise_uuid);
@@ -78,7 +84,7 @@ export default function ModifSousCate() {
       <div className="max-w-full sm:max-w-4xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
         <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
           <div className="flex items-center space-x-4">
-            <Typography variant="h5" className="font-semibold text-gray-50">
+            <Typography variant="h5" className="font-semibold" sx={{ color: isDarkText ? '#ffffff' : 'text.primary' }}>
               Modifier le produit
             </Typography>
           </div>

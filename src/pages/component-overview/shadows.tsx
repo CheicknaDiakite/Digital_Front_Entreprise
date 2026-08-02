@@ -119,6 +119,7 @@ export default function ComponentShadow() {
   const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm<CategorieFormType>();
   const [open, setOpen] = useState(false);
   const { showBackground } = useAppSettings();
+  const isDarkText = theme.palette.mode === 'dark' || showBackground;
 
   const functionopen = () => setOpen(true);
   const closeopen = () => {
@@ -182,7 +183,7 @@ export default function ComponentShadow() {
             sx={{ 
               fontSize: { xs: '1.75rem', sm: '2rem' },
               textAlign: isMobile ? 'center' : 'left',
-              color: (theme.palette.mode === 'dark' || showBackground) ? '#ffffff' : 'text.primary'
+              color: isDarkText ? '#ffffff' : 'text.primary'
             }}
           >
             Articles

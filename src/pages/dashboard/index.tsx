@@ -40,18 +40,25 @@ interface NavigationCardType {
 }
 
 const NavigationCard: FC<NavigationCardType> = ({ icon, title, description, to, color = '#6366f1', disabled }) => {
+  const theme = useTheme();
+  const { showBackground } = useAppSettings();
+  const isDarkText = theme.palette.mode === 'dark' || showBackground;
+
   const CardContent = (
     <Paper
       elevation={0}
       className="mobile-nav-card mobile-hover-effect mobile-glass"
-     
       sx={{
         height: '100%',
-        minHeight: { xs: '140px', sm: '155px' },
-        // bgcolor: disabled ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.04)',
-        // backdropFilter: 'blur(16px)',
+        minHeight: { xs: '145px', sm: '160px' },
+        bgcolor: disabled
+          ? isDarkText ? 'rgba(255,255,255,0.02)' : 'rgba(241,245,249,0.5)'
+          : isDarkText ? 'rgba(15, 23, 42, 0.55)' : 'rgba(255, 255, 255, 0.85)',
+        backdropFilter: 'blur(16px)',
         border: '1px solid',
-        borderColor: disabled ? 'rgba(255,255,255,0.05)' : `${color}25`,
+        borderColor: disabled
+          ? 'rgba(255,255,255,0.05)'
+          : isDarkText ? `${color}35` : 'rgba(226, 232, 240, 0.8)',
         borderRadius: '20px',
         p: { xs: 2, sm: 2.5 },
         display: 'flex',
@@ -64,7 +71,11 @@ const NavigationCard: FC<NavigationCardType> = ({ icon, title, description, to, 
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         position: 'relative',
         overflow: 'hidden',
-        boxShadow: disabled ? 'none' : '0 4px 20px rgba(0, 0, 0, 0.12)',
+        boxShadow: disabled
+          ? 'none'
+          : isDarkText
+          ? `0 8px 24px -4px ${color}20`
+          : '0 4px 20px rgba(0, 0, 0, 0.05)',
         '&::before': !disabled ? {
           content: '""',
           position: 'absolute',
@@ -73,30 +84,36 @@ const NavigationCard: FC<NavigationCardType> = ({ icon, title, description, to, 
           right: 0,
           height: '3px',
           background: `linear-gradient(90deg, ${color}, transparent)`,
-          opacity: 0.8,
+          opacity: 0.85,
         } : {},
         '&:hover': !disabled ? {
-          bgcolor: `${color}12`,
-          borderColor: `${color}50`,
-          transform: 'translateY(-5px)',
-          boxShadow: `0 14px 32px ${color}25`,
+          bgcolor: isDarkText ? `${color}22` : `${color}10`,
+          borderColor: `${color}60`,
+          transform: 'translateY(-6px)',
+          boxShadow: `0 16px 32px -4px ${color}35`,
+          '& .icon-box': {
+            transform: 'scale(1.12) rotate(-3deg)',
+            bgcolor: `${color}25`,
+          },
         } : {},
       }}
     >
       <Box
+        className="icon-box"
         sx={{
-          width: 50,
-          height: 50,
-          borderRadius: '14px',
+          width: 52,
+          height: 52,
+          borderRadius: '16px',
           bgcolor: `${color}18`,
           border: `1px solid ${color}35`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           color: color,
-          fontSize: '1.6rem',
+          fontSize: '1.65rem',
           mb: 1.5,
-          transition: 'transform 0.3s ease',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          boxShadow: `0 4px 14px ${color}20`,
         }}
       >
         {icon}
@@ -104,11 +121,11 @@ const NavigationCard: FC<NavigationCardType> = ({ icon, title, description, to, 
       <Typography
         variant="h6"
         sx={{
-          fontSize: { xs: '0.92rem', sm: '1.02rem' },
+          fontSize: { xs: '0.95rem', sm: '1.05rem' },
           fontWeight: 700,
-          color: 'text.primary',
+          color: isDarkText ? '#ffffff' : '#0f172a',
           mb: 0.6,
-          lineHeight: 1.2,
+          lineHeight: 1.25,
         }}
       >
         {title}
@@ -116,8 +133,8 @@ const NavigationCard: FC<NavigationCardType> = ({ icon, title, description, to, 
       <Typography
         variant="body2"
         sx={{
-          fontSize: { xs: '0.76rem', sm: '0.82rem' },
-          color: 'text.secondary',
+          fontSize: { xs: '0.78rem', sm: '0.84rem' },
+          color: isDarkText ? 'rgba(255, 255, 255, 0.75)' : '#64748b',
           lineHeight: 1.4,
           fontWeight: 500,
         }}
