@@ -1,20 +1,52 @@
-import { Autocomplete, Box, Button, Checkbox, FormControlLabel, Stack, TextField, InputAdornment, Card, CardContent, Typography } from "@mui/material";
+import React, { useState } from "react";
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  Stack,
+  TextField,
+  InputAdornment,
+  Card,
+  CardContent,
+  Typography,
+} from "@mui/material";
 import MyTextField from "../_components/Input/MyTextField";
 import { useFetchAllSousCate } from "./fonction.categorie";
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import InventoryIcon from '@mui/icons-material/Inventory';
-import { useState } from "react";
 import { useAppSettings } from "../themes/AppSettingsContext";
 import { useAllClients, useFetchUser } from "./fonction.user";
 import { useStoreUuid } from "./store";
 
+/* ── Types ─────────────────────────────────────────────────── */
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
   value: number;
 }
 
+interface AjoutEntreFormProps {
+  onSubmit: (e: React.FormEvent) => void;
+  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  formValues: Record<string, any>;
+  handleAutoCompleteChange?: (event: any, value: any) => void;
+  handleAutoFourChange?: (event: any, value: any) => void;
+  Ajout_Terminer?: () => void;
+  Is_Sortie?: () => void;
+  Is_Prix?: () => void;
+}
 
+interface StatCardProps {
+  title: string;
+  description?: string;
+  value: string | number;
+  icon: React.ReactNode;
+  backgroundColor?: string;
+}
+
+/* ── Hook Form Values ───────────────────────────────────────── */
 export function useFormValues<T>(initialValues: T) {
   const [values, setValues] = useState<T>(initialValues);
 
@@ -29,6 +61,7 @@ export function useFormValues<T>(initialValues: T) {
   return [values, handleChange, setValues] as const;
 }
 
+/* ── Formulaire Ajout Entrée Stock ─────────────────────────── */
 export function AjoutEntreForm({
   onSubmit,
   onChange,
@@ -37,33 +70,36 @@ export function AjoutEntreForm({
   handleAutoFourChange,
   Ajout_Terminer,
   Is_Sortie,
-  Is_Prix
-}: any) {
-  const uuid = useStoreUuid((state) => state.selectedId)
-  const { souscategories } = useFetchAllSousCate(uuid!)
-  const { unUser } = useFetchUser()
+  Is_Prix,
+}: AjoutEntreFormProps) {
+  const uuid = useStoreUuid((state) => state.selectedId);
+  const { souscategories } = useFetchAllSousCate(uuid!);
+  const { unUser } = useFetchUser();
   const { getClients } = useAllClients(uuid!);
-  const fournisseurs = getClients.filter(info => info.role == 2 || info.role == 3);
+
+  const fournisseurs = getClients.filter((info: any) => info.role === 2 || info.role === 3);
 
   return (
     <form onSubmit={onSubmit}>
       <Stack spacing={2} margin={2}>
-        {handleAutoFourChange &&
+        {handleAutoFourChange && (
           <Autocomplete
-            id="free-solo-demo"
+            id="fournisseur-select"
             freeSolo
             options={fournisseurs}
             getOptionLabel={(option) => (typeof option === 'string' ? option : option.nom || '')}
             onChange={handleAutoFourChange}
-            renderInput={(params) => <TextField {...params}
-              name='client_id'
-              onChange={onChange}
-              label="Fournisseur"
-
-            />}
-
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                name="client_id"
+                onChange={onChange}
+                label="Fournisseur"
+              />
+            )}
           />
-        }
+        )}
+
         <Autocomplete
           id="categorie_slug"
           freeSolo
@@ -75,37 +111,19 @@ export function AjoutEntreForm({
               {...params}
               required
               label="Nom du produit"
-
               sx={{
-                "& .MuiFormLabel-asterisk": { color: "red" },
+                "& .MuiFormLabel-asterisk": { color: "error.main" },
               }}
             />
           )}
         />
 
         <MyTextField
-          label={"libelle / ref"}
-          value={formValues.libelle}
-          name={"libelle"}
+          label="Libellé / Référence"
+          value={formValues.libelle || ''}
+          name="libelle"
           onChange={onChange}
         />
-
-        {/* <MyTextField 
-            variant="outlined" 
-            type='date' 
-            label="Date de livraison" 
-            name='date'
-            value={formValues.date}
-            onChange={onChange}
-            InputLabelProps={{
-              shrink: true, // Force le label à rester au-dessus du champ
-            }}
-            sx={{
-              "& .MuiFormLabel-asterisk": {
-                color: "red", // Personnalise la couleur de l'étoile en rouge
-              },
-            }}
-          /> */}
 
         <Autocomplete
           id="unite"
@@ -119,7 +137,7 @@ export function AjoutEntreForm({
               {...params}
               label="Unité"
               sx={{
-                "& .MuiFormLabel-asterisk": { color: "red" },
+                "& .MuiFormLabel-asterisk": { color: "error.main" },
               }}
             />
           )}
@@ -135,7 +153,7 @@ export function AjoutEntreForm({
             step: "0.01",
             min: "0",
           }}
-          value={formValues.qte}
+          value={formValues.qte || ''}
           onChange={onChange}
           InputProps={{
             startAdornment: (
@@ -145,24 +163,23 @@ export function AjoutEntreForm({
             ),
           }}
           sx={{
-            "& .MuiFormLabel-asterisk": {
-              color: "red", // Personnalise la couleur de l'étoile en rouge
-            },
+            "& .MuiFormLabel-asterisk": { color: "error.main" },
           }}
         />
+
         <MyTextField
           required
           variant="outlined"
           type="number"
           label="Prix Unitaire (prix de vente)"
           inputProps={{
-            step: "0.01", // Décimales à deux chiffres
-            min: "0", // Pas de valeurs négatives
-            max: "9999999999.99", // Correspond à max_digits=10 dans Django
+            step: "0.01",
+            min: "0",
+            max: "9999999999.99",
           }}
           name="pu"
           onChange={onChange}
-          value={formValues.pu}
+          value={formValues.pu || ''}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -171,33 +188,32 @@ export function AjoutEntreForm({
             ),
           }}
           sx={{
-            "& .MuiFormLabel-asterisk": {
-              color: "red",
-            },
+            "& .MuiFormLabel-asterisk": { color: "error.main" },
           }}
         />
-        {unUser.role === 1 &&
+
+        {unUser?.role === 1 && (
           <MyTextField
             variant="outlined"
             type="number"
             inputProps={{
-              step: "0.01", // Décimales à deux chiffres
-              min: "0", // Pas de valeurs négatives
-              max: "9999999999.99", // Correspond à max_digits=10 dans Django
+              step: "0.01",
+              min: "0",
+              max: "9999999999.99",
             }}
             label="Prix Unitaire (prix d'achat)"
             name="pu_achat"
             onChange={onChange}
-            value={formValues.pu_achat}
+            value={formValues.pu_achat || ''}
           />
-        }
+        )}
 
         <MyTextField
           variant="outlined"
           type="number"
           label="Quantité critique"
           name="qte_critique"
-          value={formValues.qte_critique}
+          value={formValues.qte_critique || ''}
           onChange={onChange}
           InputProps={{
             startAdornment: (
@@ -206,50 +222,41 @@ export function AjoutEntreForm({
               </InputAdornment>
             ),
           }}
-          sx={{
-            "& .MuiFormLabel-asterisk": {
-              color: "primary",
-            },
-          }}
         />
 
-        {/* Autres champs ici */}
-        <FormControlLabel
-          control={<Checkbox
-            onChange={Is_Prix} // Appelle la fonction Ajout_Terminer lors du changement
+        {Is_Prix && (
+          <FormControlLabel
+            control={<Checkbox onChange={Is_Prix} />}
+            label="Prix de vente (Manuel)"
+            labelPlacement="end"
           />
-          }
-          label="Prix de vente (Manuelle)"
-          labelPlacement="end"
-          onClick={Is_Prix}
-        />
+        )}
 
-        <FormControlLabel
-          control={<Checkbox
-            onChange={Ajout_Terminer} // Appelle la fonction Ajout_Terminer lors du changement
+        {Ajout_Terminer && (
+          <FormControlLabel
+            control={<Checkbox onChange={Ajout_Terminer} />}
+            label="Ajouter aux derniers stocks ?"
+            labelPlacement="end"
           />
-          }
-          label="Ajouter aux derniers stocks ?"
-          labelPlacement="end"
-          onClick={Ajout_Terminer}
-        />
+        )}
 
-        <FormControlLabel
-          control={<Checkbox
-            onChange={Is_Sortie} // Appelle la fonction Ajout_Terminer lors du changement
+        {Is_Sortie && (
+          <FormControlLabel
+            control={<Checkbox onChange={Is_Sortie} />}
+            label="Ne pas effectuer de sortie pour ce produit ?"
+            labelPlacement="end"
           />
-          }
-          label="Vous ne voulez pas sortir ce produit ?"
-          labelPlacement="end"
-          onClick={Is_Sortie}
-        />
+        )}
 
-        <Button type="submit" color="success" variant="outlined">Envoyer</Button>
+        <Button type="submit" color="success" variant="outlined" sx={{ mt: 1 }}>
+          Envoyer
+        </Button>
       </Stack>
     </form>
   );
 }
 
+/* ── Panel d'onglets ─────────────────────────────────────────── */
 export function CustomTabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
 
@@ -266,18 +273,20 @@ export function CustomTabPanel(props: TabPanelProps) {
   );
 }
 
-export function StatCard({ title, description, value, icon, backgroundColor }: { title: string, description?: string, value: string | number, icon: React.ReactNode, backgroundColor?: string }) {
+/* ── Carte de Statistique ────────────────────────────────────── */
+export function StatCard({
+  title,
+  description,
+  value,
+  icon,
+}: StatCardProps) {
   const { showBackground } = useAppSettings();
 
   return (
     <Card 
       elevation={0}
-      className={`relative p-4 rounded-lg transition-all duration-200 hover:shadow-md border-x-2 animate-border-rotate mobile-shadow-card mobile-hover-effect mobile-glass`}
-
       sx={{ 
         borderRadius: '20px', 
-        // bgcolor: backgroundColor || 'rgba(255, 255, 255, 0.04)',
-        // backdropFilter: 'blur(16px)',
         border: '1px solid rgba(255, 255, 255, 0.08)',
         height: '100%',
         display: 'flex',
@@ -296,16 +305,18 @@ export function StatCard({ title, description, value, icon, backgroundColor }: {
         }
       }}
     >
-      <CardContent sx={{ 
-        p: { xs: 2, sm: 2.5 }, 
-        '&:last-child': { pb: { xs: 2, sm: 2.5 } },
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        textAlign: 'center',
-        width: '100%',
-      }}>
+      <CardContent
+        sx={{ 
+          p: { xs: 2, sm: 2.5 }, 
+          '&:last-child': { pb: { xs: 2, sm: 2.5 } },
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+          width: '100%',
+        }}
+      >
         <Box 
           sx={{ 
             width: 48,
@@ -325,6 +336,7 @@ export function StatCard({ title, description, value, icon, backgroundColor }: {
         >
           {icon}
         </Box>
+
         <Typography 
           variant="subtitle2"
           sx={{ 
@@ -341,6 +353,7 @@ export function StatCard({ title, description, value, icon, backgroundColor }: {
         >
           {title}
         </Typography>
+
         <Typography 
           variant="h5" 
           sx={{ 
@@ -353,6 +366,7 @@ export function StatCard({ title, description, value, icon, backgroundColor }: {
         >
           {value}
         </Typography>
+
         {description && (
           <Typography 
             variant="caption" 

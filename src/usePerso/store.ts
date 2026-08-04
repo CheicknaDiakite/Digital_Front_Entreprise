@@ -9,27 +9,26 @@ export const useAccountStore = create(
                 account: undefined as undefined | null | Account,
             },
             (set) => ({
-                setAccount: (account: Account | null) => set({account}),
+                setAccount: (account: Account | null) => set({ account }),
             })
         ),
-        {name: 'account'}
+        { name: 'account' }
     )
 );
 
-type State = {
-    selectedId: string | null; // ID sélectionné
-    addId: (id: string) => void; // Fonction pour mettre à jour l'ID
-  };
-  
-  export const useStoreUuid = create(
-    persist<State>(
-      (set) => ({
-        selectedId: null,
-        addId: (id) => set({ selectedId: id }), // Met à jour uniquement selectedId
-      }),
-      {
-        name: "entreprise-uuid", // Clé utilisée dans le stockage local
-        // partialize: (state) => ({ selectedId: state.selectedId }), // Persiste uniquement selectedId
-      }
+interface StoreUuidState {
+    selectedId: string | null;
+    addId: (id: string) => void;
+}
+
+export const useStoreUuid = create(
+    persist<StoreUuidState>(
+        (set) => ({
+            selectedId: null,
+            addId: (id) => set({ selectedId: id }),
+        }),
+        {
+            name: "entreprise-uuid",
+        }
     )
-  );
+);

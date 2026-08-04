@@ -3,11 +3,13 @@ import { Worker, Viewer } from '@react-pdf-viewer/core';
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
-import { Alert, CircularProgress, Paper } from '@mui/material';
+import { Alert, CircularProgress, Paper, Box } from '@mui/material';
 
 interface PdfViewerProps {
   fileUrl: string;
 }
+
+const PDF_WORKER_URL = "https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.worker.min.js";
 
 const PdfViewer: React.FC<PdfViewerProps> = ({ fileUrl }) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -21,27 +23,47 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ fileUrl }) => {
   };
 
   return (
-    <Paper elevation={0} className="relative border rounded-lg overflow-hidden">
+    <Paper
+      elevation={0}
+      sx={{
+        position: 'relative',
+        border: '1px solid',
+        borderColor: 'divider',
+        borderRadius: 2,
+        overflow: 'hidden',
+      }}
+    >
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-50 bg-opacity-75 z-10">
-          <CircularProgress size={40} className="text-blue-600" />
-        </div>
+        <Box
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            bgcolor: 'background.paper',
+            opacity: 0.75,
+            zIndex: 10,
+          }}
+        >
+          <CircularProgress size={40} color="primary" />
+        </Box>
       )}
 
       {error && (
-        <Alert severity="error" className="m-4">
+        <Alert severity="error" sx={{ m: 2 }}>
           {error}
         </Alert>
       )}
 
-      <Worker workerUrl="https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.worker.min.js">
-        <div className="h-[500px] bg-gray-50">
+      <Worker workerUrl={PDF_WORKER_URL}>
+        <Box sx={{ height: 500, bgcolor: 'grey.100' }}>
           <Viewer
             fileUrl={fileUrl}
             plugins={[defaultLayoutPluginInstance]}
             onDocumentLoad={handleDocumentLoad}
           />
-        </div>
+        </Box>
       </Worker>
     </Paper>
   );

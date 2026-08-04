@@ -3,21 +3,33 @@ import { RecupType, RestrictionType } from "../typescript/DataType";
 import { useEffect } from "react";
 import { accountService, userService } from "../_services/account.service";
 
+/**
+ * Gestion utilitaire centralisée des erreurs d'authentification (401)
+ */
+export const handleAuthError = (error: any, navigate: (path: string) => void): boolean => {
+  if (error?.response?.status === 401) {
+    accountService.logout();
+    navigate('/auth/login');
+    toast.error("Session expirée. Veuillez vous reconnecter.");
+    return true;
+  }
+  return false;
+};
+
 export function ccyFormat(num: number) {
   return `${num.toFixed(2)}`;
 }
 
-// Pour retouner la multiplication de deux numbres
+// Pour retourner la multiplication de deux nombres
 export function priceRow(qte: number, pu: number) {
   return qte * pu;
 }
 
 export function subtotal(items: readonly RecupType[]) {
   return items
-    .map(({ prix_total }) => prix_total || 0) // Assurez-vous que prix_total est défini
-    .reduce((sum, i) => (sum ?? 0) + (i ?? 0), 0); // Assurez-vous que sum et i sont définis
+    .map(({ prix_total }) => prix_total || 0)
+    .reduce((sum, i) => (sum ?? 0) + (i ?? 0), 0);
 }
-
 
 export const generateOrderNumber = (): string => {
   return 'FAC-' + Math.floor(Math.random() * 1000000).toString();
@@ -58,7 +70,6 @@ export function isRecupType(value: unknown): value is RecupType {
 
 export function reloadOnce() {
   const hasReloaded = localStorage.getItem('hasReloaded');
-
   if (!hasReloaded) {
     localStorage.setItem('hasReloaded', 'true');
     window.location.reload();
@@ -72,9 +83,7 @@ export function notClick() {
     };
 
     document.addEventListener('contextmenu', handleContextMenu, false);
-
     return () => {
-      // Nettoyer l'écouteur d'événements lors du démontage du composant
       document.removeEventListener('contextmenu', handleContextMenu, false);
     };
   }, []);
@@ -82,28 +91,20 @@ export function notClick() {
 
 export function formatNumberWithSpaces(number: string | number | null | undefined): string {
   if (number == null || isNaN(Number(number))) return '0,00';
-
-  // Convertir en nombre si c'est une chaîne
   const num = typeof number === 'string' ? parseFloat(number) : number;
-
-  // Formater en deux décimales et remplacer le point par une virgule
   const formattedNumber = num.toFixed(2).replace('.', ',');
-
-  // Ajouter les espaces comme séparateurs de milliers
   return formattedNumber.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 }
 
 export function foncError(error: any) {
-
-  const message = error?.response?.data?.message || error.message || "Une erreur est survenue";
-
+  const message = error?.response?.data?.message || error?.message || "Une erreur est survenue";
   return toast.error(message);
 }
 
 export const logout = () => {
   accountService.logout();
   userService.userLogout();
-  toast.success("Déconneter");
+  toast.success("Déconnecté");
 };
 
 export const getBgClass = (qte: number, qte_critique?: number): string => {
@@ -112,26 +113,19 @@ export const getBgClass = (qte: number, qte_critique?: number): string => {
   if (qte <= 20) return 'bg-red-500';
   if (qte <= 50) return 'bg-orange-500';
   if (qte <= 100) return 'bg-green-500';
-  return ''; // Pas de classe supplémentaire si qte >= 100
+  return '';
 };
 
 export function stringToColor(string: string) {
   let hash = 0;
-  let i;
-
-  /* eslint-disable no-bitwise */
-  for (i = 0; i < string.length; i += 1) {
+  for (let i = 0; i < string.length; i += 1) {
     hash = string.charCodeAt(i) + ((hash << 5) - hash);
   }
-
   let color = '#';
-
-  for (i = 0; i < 3; i += 1) {
+  for (let i = 0; i < 3; i += 1) {
     const value = (hash >> (i * 8)) & 0xff;
     color += `00${value.toString(16)}`.slice(-2);
   }
-  /* eslint-enable no-bitwise */
-
   return color;
 }
 
@@ -143,9 +137,7 @@ export function stringAvatar(name: string) {
     .toUpperCase();
 
   return {
-    sx: {
-      bgcolor: stringToColor(name),
-    },
+    sx: { bgcolor: stringToColor(name) },
     children: initials,
   };
 }
@@ -161,7 +153,6 @@ export const isAccessAllowed = (getRestruction: RestrictionType) => {
   if (!getRestruction.active) return true;
 
   const now = new Date();
-  // Backend: 0 = Lundi (Monday). JS: 0 = Sunday, 1 = Monday.
   const jsDay = now.getDay();
   const backendDay = jsDay === 0 ? 6 : jsDay - 1;
 
@@ -181,4 +172,3 @@ export const isAccessAllowed = (getRestruction: RestrictionType) => {
 
   return currentTime >= startTime && currentTime <= endTime;
 };
-

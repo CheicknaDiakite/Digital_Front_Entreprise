@@ -2,227 +2,42 @@ import { EntrepriseType } from "../typescript/Account";
 import { DataType, TypeEntreprise } from "../typescript/DataType";
 import Axios from "./caller.service";
 
+const MULTIPART_HEADER = {
+    headers: { "Content-Type": "multipart/form-data" }
+};
 
-/**
- * Récupératoin de la liste des utilisateurs
- */
-const allEntreprise = async (post: string) => {
-    try {
-        const response = await Axios.post('entreprise/get',
-            post, { withCredentials: true });
-        return response;
-    } catch (error) {
-        console.error("Error fetching user profile:", error);
-        throw error;
-    }
+/* ── Service Entreprise ── */
+const allEntreprise = (post: string) => Axios.post('entreprise/get', post);
+const getEntrepriseUsers = (post: string) => Axios.get(`entreprise/get_entreprise_utilisateurs/${post}`);
+const getUserEntreprises = () => Axios.get('entreprise/user_entreprises');
+const allUserEntreprise = (post: string) => Axios.post('entreprise/get/user', post);
+const getEntreprise = (slug: string) => Axios.get(`entreprise/get/${slug}`);
+const historiqueEntreprise = () => Axios.get('entreprise/get_utilisateur_entreprise_historique');
+const historySuppEntreprise = (uuid: string) => Axios.get(`entreprise/get_utilisateur_entreprise_historique_supp/${uuid}`);
+const historyClientEntreprise = (uuid: string) => Axios.get(`entreprise/get_utilisateur_entreprise_historique_client/${uuid}`);
+const stockEntreprise = (entreprise_id: string) => Axios.get(`entreprise/statistiques/${entreprise_id}`);
 
-}
+const sortieUserEntreprise = (entreprise_id: string, user_uuid?: string, start_date?: string, end_date?: string) => {
+    const params = new URLSearchParams();
+    if (user_uuid) params.append('user_uuid', user_uuid);
+    if (start_date) params.append('start_date', start_date);
+    if (end_date) params.append('end_date', end_date);
+    const queryString = params.toString();
+    return Axios.get(`entreprise/count_sortie_par_utilisateur/${entreprise_id}${queryString ? `?${queryString}` : ''}`);
+};
 
-// Pour tous les utilisateurs d'un Entreprise 
-const getEntrepriseUsers = async (post: string) => {
-    try {
-        const response = await Axios.get(`entreprise/get_entreprise_utilisateurs/${post}`,
-            { withCredentials: true });
-        return response;
-    } catch (error) {
-        console.error("Error fetching user profile:", error);
-        throw error;
-    }
+const stockCateSemaine = (entreprise_id: string, annee?: number) =>
+    Axios.get(`entreprise/sous-categories-sorties/${entreprise_id}${annee ? `?annee=${annee}` : ''}`);
 
-}
+const addEntreprise = (data: EntrepriseType) => Axios.post('entreprise/add', data);
+const updateEntreprise = (nom: TypeEntreprise) => Axios.post('entreprise/set', nom, MULTIPART_HEADER);
+const removeUserEntreprise = (nom: DataType) => Axios.post('entreprise/remove_user_from_entreprise', nom);
+const deleteEntreprise = (Entreprise: TypeEntreprise) => Axios.post('entreprise/del', Entreprise);
 
-// Pour tous les entreprises d'un utilisateur 
-const getUserEntreprises = async () => {
-    try {
-        const response = await Axios.get(`entreprise/user_entreprises`,
-            { withCredentials: true });
-        return response;
-    } catch (error) {
-        console.error("Error fetching user profile:", error);
-        throw error;
-    }
-
-}
-
-const allUserEntreprise = async (post: string) => {
-    try {
-        const response = await Axios.post('entreprise/get/user',
-            post, { withCredentials: true });
-        return response;
-    } catch (error) {
-        console.error("Error fetching user profile:", error);
-        throw error;
-    }
-
-}
-
-/**
- * Récupération d'un utilisateur
- */
-const getEntreprise = async (slug: string) => {
-
-    try {
-        const response = await Axios.get(`entreprise/get/${slug}`,
-            { withCredentials: true });
-
-        return response;
-    } catch (error) {
-        console.error("Error fetching user profile:", error);
-        throw error;
-    }
-
-}
-
-const historiqueEntreprise = async () => {
-    try {
-        const response = await Axios.get(`entreprise/get_utilisateur_entreprise_historique`,
-            { withCredentials: true });
-        return response;
-    } catch (error) {
-        console.error("Error fetching user profile:", error);
-        throw error;
-    }
-
-}
-
-const historySuppEntreprise = async (uuid: string) => {
-    try {
-        const response = await Axios.get(`entreprise/get_utilisateur_entreprise_historique_supp/${uuid}`,
-            { withCredentials: true });
-        return response;
-    } catch (error) {
-        console.error("Error fetching user profile:", error);
-        throw error;
-    }
-
-}
-
-const historyClientEntreprise = async (uuid: string) => {
-    try {
-        const response = await Axios.get(`entreprise/get_utilisateur_entreprise_historique_client/${uuid}`,
-            { withCredentials: true });
-        return response;
-    } catch (error) {
-        console.error("Error fetching user profile:", error);
-        throw error;
-    }
-
-}
-
-const stockEntreprise = async (entreprise_id: string) => {
-
-    try {
-
-        const response = await Axios.get(`entreprise/statistiques/${entreprise_id}`,
-            { withCredentials: true });
-
-        return response;
-    } catch (error) {
-        // console.error("Error fetching user profile:", error);
-        throw error;
-    }
-
-
-}
-
-const sortieUserEntreprise = async (entreprise_id: string, user_uuid?: string, start_date?: string, end_date?: string) => {
-
-    try {
-        let url = `entreprise/count_sortie_par_utilisateur/${entreprise_id}?`;
-        if (user_uuid) url += `user_uuid=${user_uuid}&`;
-        if (start_date) url += `start_date=${start_date}&`;
-        if (end_date) url += `end_date=${end_date}&`;
-
-        const response = await Axios.get(url, { withCredentials: true });
-        return response;
-    } catch (error) {
-        // console.error("Error fetching user profile:", error);
-        throw error;
-    }
-
-}
-
-
-const stockCateSemaine = async (entreprise_id: string, annee?: number) => {
-
-    try {
-        const response = await Axios.get(`entreprise/sous-categories-sorties/${entreprise_id}${annee ? `?annee=${annee}` : ''}`,
-            { withCredentials: true });
-
-        return response;
-    } catch (error) {
-        // console.error("Error fetching user profile:", error);
-        throw error;
-    }
-
-
-}
-/**
- * Ajout d'un utilisateur
- */
-const addEntreprise = async (data: EntrepriseType) => {
-    try {
-        const response = await Axios.post('entreprise/add',
-            data, { withCredentials: true });
-        return response;
-    } catch (error) {
-        console.error("Error fetching user profile:", error);
-        throw error;
-    }
-
-}
-
-/**
- * Mise à jour d'un utilisateur
- */
-const updateEntreprise = async (nom: TypeEntreprise) => {
-    try {
-        const response = await Axios.post('entreprise/set',
-            nom, {
-            headers: {
-                "Content-Type": "multipart/form-data"
-            },
-            withCredentials: true
-        });
-        return response;
-    } catch (error) {
-        console.error("Error fetching user profile:", error);
-        throw error;
-    }
-
-}
-const removeUserEntreprise = async (nom: DataType) => {
-    try {
-        const response = await Axios.post('entreprise/remove_user_from_entreprise',
-            nom, { withCredentials: true });
-        return response;
-    } catch (error) {
-        console.error("Error fetching user profile:", error);
-        throw error;
-    }
-
-}
-
-/**
- * Suppression d'un utilsateur
- */
-const deleteEntreprise = async (Entreprise: TypeEntreprise) => {
-    try {
-        const response = await Axios.post(`entreprise/del`,
-            Entreprise, { withCredentials: true });
-        return response;
-    } catch (error) {
-        console.error("Error fetching user profile:", error);
-        throw error;
-    }
-
-}
-
-// Décaraltion des esrvices pour import
 export const entrepriseService = {
     allEntreprise, getEntreprise, addEntreprise,
     updateEntreprise, deleteEntreprise, allUserEntreprise,
     getEntrepriseUsers, getUserEntreprises, removeUserEntreprise,
     stockEntreprise, stockCateSemaine, historiqueEntreprise, historySuppEntreprise,
     sortieUserEntreprise, historyClientEntreprise
-}
+};

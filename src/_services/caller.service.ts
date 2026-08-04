@@ -1,22 +1,16 @@
 import axios, { AxiosInstance } from "axios";
 
-// URL de base pour l'API
-// http://127.0.0.1:8000
-// https://backend.diakitedigital.com
-// https://back.gest-stocks.com
-
 const BaseDomaine = {
-    URL: 'https://backend.diakitedigital.com'
-}
+    URL: 'http://127.0.0.1:8000'
+};
 
 export const Base = {
     baseURL: `${BaseDomaine.URL}/api`
-}
+};
 
-// Créer une instance d'Axios
+// Instance Axios configurée
 const Axios: AxiosInstance = axios.create({
-    baseURL: `${Base.baseURL}`,
-    // timeout: 5000,
+    baseURL: Base.baseURL,
     withCredentials: true,
     headers: {
         "Content-Type": "application/json",
@@ -24,31 +18,27 @@ const Axios: AxiosInstance = axios.create({
     }
 });
 
-// Injecter automatiquement le token d'accès sur chaque requête
+// Intercepteur de requêtes : injection automatique du Bearer Token
 Axios.interceptors.request.use((config) => {
-    const accessToken = localStorage.getItem('token_1'); // access
-    
+    const accessToken = localStorage.getItem('token_1');
     if (accessToken) {
         config.headers = config.headers || {};
-        (config.headers as any)['Authorization'] = `Bearer ${accessToken}`;
+        config.headers['Authorization'] = `Bearer ${accessToken}`;
     }
     return config;
 });
 
-// Gérer le rafraîchissement du token sur 401
+// Intercepteur de réponses : rafraîchissement automatique du token sur HTTP 401
 Axios.interceptors.response.use(
-    
     (response) => response,
     async (error) => {
-         
         const originalRequest = error?.config;
         if (!originalRequest) return Promise.reject(error);
-        
-        // éviter les boucles infinies
-        if (error.response?.status === 401 && !(originalRequest as any)._retry) {
-            (originalRequest as any)._retry = true;
 
-            const refreshToken = localStorage.getItem('token'); // refresh
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
+
+            const refreshToken = localStorage.getItem('token');
             if (!refreshToken) {
                 return Promise.reject(error);
             }
@@ -61,15 +51,14 @@ Axios.interceptors.response.use(
                 );
 
                 const newAccess = refreshResponse?.data?.access;
-                
+
                 if (newAccess) {
                     localStorage.setItem('token_1', newAccess);
                     originalRequest.headers = originalRequest.headers || {};
-                    (originalRequest.headers as any)['Authorization'] = `Bearer ${newAccess}`;
+                    originalRequest.headers['Authorization'] = `Bearer ${newAccess}`;
                     return Axios.request(originalRequest);
                 }
             } catch (e) {
-                // échec du refresh -> nettoyer et laisser l'appel échouer
                 localStorage.removeItem('token');
                 localStorage.removeItem('token_1');
                 return Promise.reject(e);
@@ -80,7 +69,6 @@ Axios.interceptors.response.use(
     }
 );
 
-// Exposer Axios pour utilisation ailleurs
 export default Axios;
 
 export const BASE = (img: string | File | unknown) => {

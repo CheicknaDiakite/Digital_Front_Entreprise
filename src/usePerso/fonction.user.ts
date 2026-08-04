@@ -6,23 +6,11 @@ import { FormType, FormValueType } from "../typescript/FormType";
 import { useNavigate } from "react-router-dom";
 
 import { DataType, RecupType, SortieUserType, StockType, TypeEntreprise, TypeSlug } from "../typescript/DataType";
-import { foncError } from "./fonctionPerso";
+import { foncError, handleAuthError } from "./fonctionPerso";
 import { AvisType, ClienType, UnUserType, UserType, UtilisateurType } from "../typescript/UserType";
 import { entrepriseService } from "../_services/entreprise.service";
 import { EntrepriseType, HistoriqueType } from "../typescript/Account";
 import { FormClienType } from "../typescript/ClienType";
-
-// Fonction utilitaire pour gérer les erreurs d'authentification
-const handleAuthError = (error: any, navigate: any) => {
-  if (error?.response?.status === 401) {
-    // Token expiré et refresh échoué
-    accountService.logout();
-    navigate('/auth/login');
-    toast.error("Session expirée. Veuillez vous reconnecter.");
-    return true;
-  }
-  return false;
-};
 
 // Avis
 

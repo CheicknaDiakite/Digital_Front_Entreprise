@@ -233,7 +233,7 @@ const EnterpriseCard: FC<EnterpriseCardProps> = ({ post, index, onSelect }) => {
                 gap: 0.4,
                 bgcolor: 'rgba(34,197,94,0.15)',
                 border: '1px solid rgba(34,197,94,0.35)',
-                color: '#86efac',
+                // color: '#86efac',
                 fontSize: '0.66rem',
                 fontWeight: 700,
                 px: 1.1,
@@ -429,10 +429,10 @@ const EmptyState: FC<{ onAdd: () => void }> = ({ onAdd }) => (
       <AddBusinessRoundedIcon sx={{ fontSize: 44, color: '#818cf8' }} />
     </Box>
     <Box>
-      <Typography sx={{ fontSize: '1.3rem', fontWeight: 800, color: '#e0e7ff', mb: 0.5 }}>
+      <Typography sx={{ fontSize: '1.3rem', fontWeight: 800, mb: 0.5 }}>
         Aucune entreprise
       </Typography>
-      <Typography sx={{ fontSize: '0.9rem', color: '#475569', maxWidth: 320 }}>
+      <Typography sx={{ fontSize: '0.9rem', maxWidth: 320 }}>
         Commencez par créer votre première entreprise pour gérer vos stocks.
       </Typography>
     </Box>
@@ -500,10 +500,10 @@ const EntrepriseDialog: FC<{
     >
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Box>
-          <Typography variant="h6" sx={{ color: '#e0e7ff', fontWeight: 700 }}>
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
             Ajouter une entreprise
           </Typography>
-          <Typography variant="caption" sx={{ color: '#64748b' }}>
+          <Typography variant="caption">
             Renseignez les informations de votre entreprise
           </Typography>
         </Box>
@@ -517,9 +517,9 @@ const EntrepriseDialog: FC<{
       </Box>
     </DialogTitle>
 
-    <DialogContent sx={{ pt: 3, px: 3, pb: 1 }}>
+    <DialogContent sx={{ pt: 5, px: 3, pb: 1 }}>
       <form onSubmit={onSubmit} id="entreprise-form">
-        <Stack spacing={2.5}>
+        <Stack spacing={2.5} className="form-stack pt-5">
           <MyTextField label="Nom de l'entreprise" name="nom" value={formValues.nom} onChange={onChange} required />
           <MyTextField label="Email" name="email" type="email" value={formValues.email} onChange={onChange} />
           <MyTextField label="Numéro de téléphone" name="numero" type="tel" value={formValues.numero || ''} onChange={onChange} />
@@ -656,7 +656,7 @@ export default function Entreprise() {
           >
             Mes entreprises
           </Typography>
-          <Typography sx={{ color: '#475569', fontSize: '0.88rem', mt: 0.4 }}>
+          <Typography sx={{ fontSize: '0.88rem', mt: 0.4 }}>
             {userEntreprises.length} entreprise{userEntreprises.length > 1 ? 's' : ''} enregistrée{userEntreprises.length > 1 ? 's' : ''}
           </Typography>
         </Box>
@@ -703,7 +703,7 @@ export default function Entreprise() {
           <Typography
             sx={{
               textAlign: 'center',
-              color: '#cbd5e1',
+              // color: '#cbd5e1',
               fontSize: { xs: '0.88rem', sm: '0.95rem' },
               lineHeight: 1.8,
             }}
