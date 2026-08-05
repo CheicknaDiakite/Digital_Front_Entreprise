@@ -28,6 +28,7 @@ export function useAddAvis() {
             }
           } else {
             useQ.invalidateQueries({ queryKey: ["AvisGet"] });
+            useQ.invalidateQueries({ queryKey: ["avis"] });
             toast.success("Votre avis a ete envoyer.");
           }
         })
@@ -387,7 +388,7 @@ export function useLoginUser() {
               toast.error(res.data.message);
             }
           } else {
-            accountService.saveToken(res.data.id!, res.data.access)
+            accountService.saveToken(res.data.refresh!, res.data.access)
             navigate('/')
             toast.success("Connexion réussie");
           }
@@ -404,7 +405,7 @@ export function useLoginUser() {
       if (res.data.etat === false) {
         toast.error(res.data.message);
       } else {
-        accountService.saveToken(res.data.id!, res.data.access);
+        accountService.saveToken(res.data.refresh!, res.data.access);
         navigate('/');
         toast.success("Connexion Google réussie");
       }

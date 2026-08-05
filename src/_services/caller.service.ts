@@ -1,7 +1,12 @@
 import axios, { AxiosInstance } from "axios";
 
+// https://test.diakitedigital.com
+
+
+// Set VITE_API_URL in .env.local or .env.production for deployed environments.
+const configuredApiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 const BaseDomaine = {
-    URL: 'http://127.0.0.1:8000'
+    URL: configuredApiUrl.replace(/\/$/, '')
 };
 
 export const Base = {
@@ -45,7 +50,7 @@ Axios.interceptors.response.use(
 
             try {
                 const refreshResponse = await axios.post(
-                    `${Base.baseURL}/utilisateur/token/refresh/`,
+                    `${Base.baseURL}/utilisateur/token/refresh`,
                     { refresh: refreshToken },
                     { withCredentials: true }
                 );
@@ -72,5 +77,7 @@ Axios.interceptors.response.use(
 export default Axios;
 
 export const BASE = (img: string | File | unknown) => {
-    return `${BaseDomaine.URL}/${img}`;
+    if (typeof img !== 'string' || !img) return '';
+    if (/^https?:\/\//i.test(img)) return img;
+    return `${BaseDomaine.URL}/${img.replace(/^\//, '')}`;
 };

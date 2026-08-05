@@ -198,9 +198,10 @@ export default function PublicRouter() {
 
           <Route path='user'>
 
+            <Route path="avis" element={<Avis />} />
+
             <Route element={<ProtectedRoute requiredRole={1} redirectPath="/" />}>
               <Route path="admin" element={<Users />} />
-              <Route path="avis" element={<Avis />} />
 
             </Route>
 

@@ -65,7 +65,8 @@ export type ClienType = {
 export type AvisType = {
     libelle: string;
     description: string;
-    user_id: string
+    user_id?: string;
+    entreprise_id?: string;
 }
 
 export type UnUserType = UtilisateurType; // ou réutilisez le même type directement
@@ -86,6 +87,7 @@ export type RegisType = {
     token: string;
     id?: string;
     access?: string;
+    refresh?: string;
 }
 export interface RegisterResponse {
     // Ajoutez ici les propriétés de la réponse selon votre API

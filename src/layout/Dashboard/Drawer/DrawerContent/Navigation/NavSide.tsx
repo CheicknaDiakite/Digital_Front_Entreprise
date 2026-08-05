@@ -36,8 +36,8 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import CloseIcon from "@mui/icons-material/Close";
 import HistoryIcon from '@mui/icons-material/History';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
 import { Link, useLocation } from "react-router-dom";
-import { connect } from "../../../../../_services/account.service";
 import { useAddAvis, useFetchEntreprise, useFetchUser, useGetUserEntreprises, useRestructionUsers } from "../../../../../usePerso/fonction.user";
 import { isAccessAllowed, logout } from "../../../../../usePerso/fonctionPerso";
 import { useStoreUuid } from "../../../../../usePerso/store";
@@ -349,8 +349,8 @@ const NavSide: React.FC = () => {
 
   const handleAvisSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    createAvis({ ...avisValues, user_id: connect });
-    setAvisValues({ libelle: '', description: '', user_id: '' });
+    createAvis({ ...avisValues, entreprise_id: uuid || undefined });
+    setAvisValues({ libelle: '', description: '' });
     setFeedbackDialogOpen(false);
   };
 
@@ -569,13 +569,16 @@ const NavSide: React.FC = () => {
                 to="/user/admin"
                 accentColor="#3b82f6"
               />
-              <NavItem
-                icon={<UserCircleIcon sx={{ color: iconColor('#60a5fa', '#2563eb') }} />}
-                label="Les Avis"
-                to="/user/avis"
-                accentColor="#3b82f6"
-              />
             </>
+          )}
+
+          {unUser.role === 1 && (
+            <NavItem
+              icon={<RateReviewOutlinedIcon sx={{ color: iconColor('#60a5fa', '#2563eb') }} />}
+              label="Les avis"
+              to="/user/avis"
+              accentColor="#3b82f6"
+            />
           )}
 
           {(unUser.role === 1 && unUser.is_cabinet) && (
@@ -598,8 +601,8 @@ const NavSide: React.FC = () => {
           />
           <NavItem
             icon={<HelpOutlineIcon sx={{ color: iconColor('#c084fc', '#7e22ce') }} />}
-            label="Que pensez-vous ?"
-            onClick={() => setFeedbackDialogOpen(true)}
+            label="Donner mon avis"
+            to="/user/avis"
             accentColor="#a855f7"
           />
           {(unUser.role === 1 || unUser.role === 2) && (

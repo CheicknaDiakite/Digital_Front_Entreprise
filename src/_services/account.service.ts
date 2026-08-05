@@ -21,10 +21,10 @@ const avisCreate = (data: AvisType) =>
     Axios.post('entreprise/avis/add', data);
 
 const userLogin = (post: LoginType): Promise<RegisterResponse> =>
-    Axios.post('/utilisateur/login', post).then(r => r.data);
+    Axios.post('/utilisateur/login', post);
 
 const googleLogin = (token: string): Promise<RegisterResponse> =>
-    Axios.post('/utilisateur/google-login', { token }).then(r => r.data);
+    Axios.post('/utilisateur/google-login', { token });
 
 const userUnGet = () => Axios.get('/utilisateur/user/profil');
 
@@ -34,8 +34,11 @@ const userGet = (post: string) => Axios.post('utilisateur/profile/get', post);
 
 const avisGet = (post: string) => Axios.post('entreprise/avis/get', post);
 
+const avisReply = (data: { avis_uuid: string; reponse: string }) =>
+    Axios.post('entreprise/avis/repondre', data);
+
 const userAll = (data?: TypeSlug): Promise<ReponseUser> =>
-    Axios.post('utilisateur/get', data).then(r => r.data);
+    Axios.post('utilisateur/get', data);
 
 const allUsers = (data: string) => Axios.get(`utilisateur/get/${data}`);
 
@@ -76,7 +79,7 @@ const userLogout = () => Axios.get('utilisateur/deconnxion');
 export const userService = {
     userRegister, userLogin, userGet, userUpdate, userDelete,
     userAll, userLogout, userUnGet, userAdminRegister, allUsers,
-    userForgot, userUpdatePassword, avisDelete, avisGet, avisCreate, allMesUsers,
+    userForgot, userUpdatePassword, avisDelete, avisGet, avisReply, avisCreate, allMesUsers,
     allClients, userClient, userUnClient, clientUpdate, clientDelete,
     userCabinetRegister, unUser, userRestrictionDetail, userRestriction,
     googleLogin
