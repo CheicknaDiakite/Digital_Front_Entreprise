@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from "axios";
+﻿import axios, { AxiosInstance } from "axios";
 
 // https://test.diakitedigital.com
 
@@ -23,7 +23,7 @@ const Axios: AxiosInstance = axios.create({
     }
 });
 
-// Intercepteur de requêtes : injection automatique du Bearer Token
+// Intercepteur de requêtes : injection automatique du token
 Axios.interceptors.request.use((config) => {
     const accessToken = localStorage.getItem('token_1');
     if (accessToken) {

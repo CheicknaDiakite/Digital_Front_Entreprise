@@ -40,7 +40,7 @@ const avisReply = (data: { avis_uuid: string; reponse: string }) =>
 const userAll = (data?: TypeSlug): Promise<ReponseUser> =>
     Axios.post('utilisateur/get', data);
 
-const allUsers = (data: string) => Axios.get(`utilisateur/get/${data}`);
+const allUsers = () => Axios.get(`utilisateur/user/all`);
 
 const unUser = (data: string) => Axios.get(`utilisateur/user/${data}`);
 

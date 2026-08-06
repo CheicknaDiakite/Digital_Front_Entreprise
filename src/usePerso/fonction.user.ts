@@ -222,13 +222,13 @@ export function useRestructionUsers() {
   return { getRestruction, setRestruction, isLoading, isError };
 }
 
-export function useAllUsers(slug: string) {
+export function useAllUsers() {
   const [getUsers, setUsers] = useState([]);
 
   const { data: us, isLoading, isError } = useQuery({
-    queryKey: ["UserGet", slug],
+    queryKey: ["UserGetAll"],
     queryFn: () =>
-      userService.allUsers(slug).then((res) => {
+      userService.allUsers().then((res) => {
         if (res.data.etat === true) {
           return res.data.donnee;
         } else {
@@ -476,11 +476,11 @@ export function useCreateAdminUser() {
         .then((res) => {
           if (res.data.etat === false) {
             if (res.data.message !== "requette invalide") {
-              toast.error(res.data.message);
+              // toast.error(res.data.message);
             }
           } else {
             useQ.invalidateQueries({ queryKey: ["UserGet"] });
-            toast.success("Inscription réussie");
+            // toast.success("Inscription réussie");
           }
         })
     },

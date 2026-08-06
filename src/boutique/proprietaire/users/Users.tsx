@@ -374,7 +374,7 @@ export default function Users() {
 
   // Read token lazily at render time — NOT from a stale module-level constant
   const token = accountService.getToken();
-  const { getUsers, isLoading, isError } = useAllUsers(token);
+  const { getUsers, isLoading, isError } = useAllUsers();
   const { createAdmin } = useCreateAdminUser();
 
   const itemsPerPage = 10;
