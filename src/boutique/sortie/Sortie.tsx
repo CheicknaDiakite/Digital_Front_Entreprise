@@ -1,7 +1,6 @@
 import { Box, Button, Pagination, Paper, Skeleton, TextField, Typography } from "@mui/material";
 import { ChangeEvent, FormEvent, SyntheticEvent, useEffect, useState } from "react";
 import { RecupType, SortieType } from "../../typescript/DataType";
-import { connect } from "../../_services/account.service";
 import { useStoreCart } from "../../usePerso/cart_store";
 import { useCreateSortie, useGetAllEntre, useGetAllSortie } from "../../usePerso/fonction.entre";
 import Fact from "../factureCard/Fact";
@@ -294,7 +293,7 @@ export default function Sortie() {
     // Ajouter au panier au lieu d'envoyer directement
     const newItem: SortieType = {
       ...formValues,
-      user_id: connect,
+      user_id: unUser.uuid,
     }
 
     setBasket([...basket, newItem]);

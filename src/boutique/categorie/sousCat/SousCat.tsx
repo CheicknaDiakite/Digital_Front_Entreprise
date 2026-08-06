@@ -168,10 +168,22 @@ export default function SousCat() {
     setOpen(false);
   };
 
+  const { unUser } = useFetchUser();
+
   const onSubmit = (data: SousCategorieFormType) => {
-    data.user_id = connect;
+    const user_id = unUser?.uuid || '';
     data.categorie_slug = uuid || '';
-    ajoutSousCate(data);
+    if (data.image instanceof File) {
+      const form = new FormData();
+      form.append('libelle', data.libelle || '');
+      form.append('user_id', user_id);
+      form.append('categorie_slug', data.categorie_slug || '');
+      form.append('image', data.image as File);
+      ajoutSousCate(form as any);
+    } else {
+      const payload = { ...data, user_id };
+      ajoutSousCate(payload as any);
+    }
     closeopen();
   };
 

@@ -15,7 +15,8 @@ import TableFact from './TableFact';
 import "./print.css";
 // import { generateOrderNumber } from '../../usePerso/fonctionPerso';
 import { BASE } from '../../_services/caller.service';
-import { connect } from '../../_services/account.service';
+// import { connect } from '../../_services/account.service';
+import { useFetchUser } from '../../usePerso/fonction.user';
 import { RecupType } from '../../typescript/DataType';
 import { Paper, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Stack, IconButton, Box, Modal, Typography, TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Checkbox, FormControlLabel } from '@mui/material';
 import { useCreateFacSortie } from '../../usePerso/fonction.facture';
@@ -376,7 +377,8 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
       }
 
       // Préparer le formData
-      const user_id = connect;
+      const { unUser } = useFetchUser();
+      const user_id = unUser?.uuid || '';
       const entreprise_id = post.entreprise_id || post.uuid || '';
       const formData: any = {
         ...form,

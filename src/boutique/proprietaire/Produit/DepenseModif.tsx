@@ -16,13 +16,12 @@ import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import DescriptionIcon from '@mui/icons-material/Description';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import DateRangeIcon from '@mui/icons-material/DateRange';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { ChangeEvent, FormEvent, useState } from 'react';
 import { useDeleteDepense, useFetchDepense, useUpdateDepense } from '../../../usePerso/fonction.entre';
-import { connect } from '../../../_services/account.service';
+
 import { BASE } from '../../../_services/caller.service';
 import { useFetchUser } from '../../../usePerso/fonction.user';
-import Nav from '../../../_components/Button/Nav';
 import PdfViewer from '../../../usePerso/PdfFile';
 
 export default function DepenseModif() {
@@ -34,7 +33,9 @@ export default function DepenseModif() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [image, setImage] = useState<File | null>(null);
 
-  unDepense["user_id"] = connect;
+  const user_id = unUser?.uuid || '';
+
+  unDepense["user_id"] = user_id;
   const url = BASE(unDepense.facture ? unDepense.facture : '');
 
   const handleDelete = () => {
@@ -62,7 +63,7 @@ export default function DepenseModif() {
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    unDepense["user_id"] = connect;
+    unDepense["user_id"] = user_id;
     unDepense["facture"] = image;
     updateDepense(unDepense);
   };

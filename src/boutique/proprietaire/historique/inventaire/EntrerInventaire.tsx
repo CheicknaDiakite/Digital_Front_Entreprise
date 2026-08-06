@@ -44,7 +44,7 @@ export default function EntrerInventaire() {
       {/* <Nav /> */}
       <Grid container spacing={3}>
         <Grid item xs={12}>
-          <Typography variant="h5" className='text-gray-50' component="h1" gutterBottom>
+          <Typography variant="h5" className='' component="h1" gutterBottom>
             Statistiques des achats mensuels
           </Typography>
         </Grid>
@@ -68,7 +68,7 @@ export default function EntrerInventaire() {
                   pied="Total prix d'achat"
                   pied_qte="Quantité achetée :"
                   qte={details.somme_qte || 0}
-                  className="bg-blue-100"
+                  className="mobile-glass"
                   user={unUser.role}
                   color="primary"
                 />

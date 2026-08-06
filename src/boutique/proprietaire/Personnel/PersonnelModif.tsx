@@ -8,21 +8,19 @@ import {
   SelectChangeEvent,
   Paper,
   Box,
-  IconButton,
   Divider,
   Alert,
   FormControlLabel,
   Switch,
 } from "@mui/material";
-import DeleteIcon from '@mui/icons-material/DeleteOutline';
 import SaveIcon from '@mui/icons-material/Save';
 import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
 import { useParams } from "react-router-dom";
-import { connect, userService } from "../../../_services/account.service";
+import { userService } from "../../../_services/account.service";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
-import { useDeleteUser, useFetchUnUser, useUpdateUser } from "../../../usePerso/fonction.user";
+import { useDeleteUser, useFetchUnUser, useFetchUser, useUpdateUser } from "../../../usePerso/fonction.user";
 import MyTextField from "../../../_components/Input/MyTextField";
 import { useStoreUuid } from "../../../usePerso/store";
 
@@ -31,6 +29,9 @@ export function PersonnelModif() {
   const entreprise_id = useStoreUuid((state) => state.selectedId);
   const { unUser, setUnUser } = useFetchUnUser(uuid!);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  const { unUser: un } = useFetchUser();
+  const user_id = un?.uuid || '';
   const [restriction, setRestriction] = useState({
     active: false,
     day_start: 0,
@@ -49,7 +50,7 @@ export function PersonnelModif() {
     }
   }, [uuid]);
 
-  unUser["user_id"] = connect;
+  unUser["user_id"] = user_id;
   const { updateUser } = useUpdateUser();
   const { deleteUser } = useDeleteUser();
 

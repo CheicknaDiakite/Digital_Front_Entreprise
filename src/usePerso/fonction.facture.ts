@@ -110,11 +110,11 @@ export function useCreateFacEntre() {
         return facEntrerService.addFacEntre(data).then((res) => {
           if (res.data?.etat === false) {
             if (res.data?.message !== "requette invalide") {
-              toast.error(res.data?.message);
+              // toast.error(res.data?.message);
             }
           } else {
             useQ.invalidateQueries({ queryKey: ["facEntre"] });
-            toast.success("Ajouté avec succès");
+            
           }
         });
       },
@@ -136,11 +136,11 @@ export function useUpdateFacEntre() {
       mutationFn: (data: FacSorType) => {
         return facEntrerService.updateFacEntre(data).then((res) => {
           if (res.data?.etat === true) {
-            toast.success("Modification réussie");
+            // toast.success("Modification réussie");
             useQ.invalidateQueries({ queryKey: ["facEntre"] });
             navigate(-1);
           } else {
-            toast.error(res.data?.message);
+            // toast.error(res.data?.message);
           }
         });
       },
@@ -285,11 +285,11 @@ export function useCreateFacSortie() {
         return facSortieService.addFacSortie(data).then((res) => {
           if (res.data?.etat === false) {
             if (res.data?.message !== "requette invalide") {
-              toast.error(res.data?.message);
+              // toast.error(res.data?.message);
             }
           } else {
             useQ.invalidateQueries({ queryKey: ["facSortie"] });
-            toast.success("Ajouté avec succès");
+            // toast.success("Ajouté avec succès");
           }
         });
       },
@@ -311,11 +311,11 @@ export function useUpdateFacSortie() {
       mutationFn: (data: EntreType) => {
         return facSortieService.updateFacSortie(data).then((res) => {
           if (res.data?.etat === true) {
-            toast.success("Modification réussie");
+            // toast.success("Modification réussie");
             useQ.invalidateQueries({ queryKey: ["entre"] });
             navigate(-1);
           } else {
-            toast.error(res.data?.message);
+            // toast.error(res.data?.message);
           }
         });
       },

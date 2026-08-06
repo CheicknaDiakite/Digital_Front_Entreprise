@@ -28,7 +28,7 @@ interface TabPanelProps {
 }
 
 interface AjoutEntreFormProps {
-  onSubmit: (e: React.FormEvent) => void;
+  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   formValues: Record<string, any>;
   handleAutoCompleteChange?: (event: any, value: any) => void;
@@ -50,7 +50,7 @@ interface StatCardProps {
 export function useFormValues<T>(initialValues: T) {
   const [values, setValues] = useState<T>(initialValues);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setValues({
       ...values,
@@ -285,6 +285,7 @@ export function StatCard({
   return (
     <Card 
       elevation={0}
+      className="mobile-glass"
       sx={{ 
         borderRadius: '20px', 
         border: '1px solid rgba(255, 255, 255, 0.08)',

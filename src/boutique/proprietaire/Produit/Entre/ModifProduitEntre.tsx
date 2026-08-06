@@ -11,7 +11,7 @@ import {
   InputAdornment,
 } from '@mui/material';
 import { ChangeEvent, FormEvent, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useDeleteFacEntre, useFacEntre, useUpdateFacEntre } from '../../../../usePerso/fonction.facture';
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
 import SaveIcon from '@mui/icons-material/Save';
@@ -19,9 +19,7 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import { BASE } from '../../../../_services/caller.service';
-import { connect } from '../../../../_services/account.service';
 import PdfViewer from '../../../../usePerso/PdfFile';
-import Nav from '../../../../_components/Button/Nav';
 import { useFetchUser } from '../../../../usePerso/fonction.user';
 
 export default function ModifProduitEntre() {
@@ -31,6 +29,8 @@ export default function ModifProduitEntre() {
   const {updateFacEntre} = useUpdateFacEntre();
   const {unUser} = useFetchUser();
   const [showConfirm, setShowConfirm] = useState(false);
+  
+  const user_id = unUser?.uuid || '';
 
   const handleDelete = () => {
     setShowConfirm(true);
@@ -41,7 +41,7 @@ export default function ModifProduitEntre() {
     setShowConfirm(false);
   };
 
-  unFacEntre["user_id"] = connect;
+  unFacEntre["user_id"] = user_id;
   const url = BASE(unFacEntre.facture ? unFacEntre.facture : '');
   
   const [image, setImage] = useState<File | null>(null);
@@ -62,7 +62,7 @@ export default function ModifProduitEntre() {
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    unFacEntre["user_id"] = connect;
+    unFacEntre["user_id"] = user_id;
     unFacEntre["facture"] = image;
     updateFacEntre(unFacEntre);
   };

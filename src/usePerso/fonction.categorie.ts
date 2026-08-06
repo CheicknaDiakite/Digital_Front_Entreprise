@@ -54,7 +54,7 @@ export function useCategoriesEntreprise(slug: string) {
         if (res.data?.etat === true) {
           return (res.data.donnee as unknown as CateBouType[]) || [];
         } else {
-          toast.error(res.data?.message);
+          // toast.error(res.data?.message);
         }
       },
     });
@@ -83,7 +83,7 @@ export function useCreateCategorie() {
             }
           } else {
             useQ.invalidateQueries({ queryKey: ["enRecup"] });
-            toast.success("Ajouté avec succès");
+            // toast.success("Ajouté avec succès");
           }
         });
       },
@@ -105,7 +105,7 @@ export function useUpdateCategorie() {
       mutationFn: (data: CategorieType) => {
         return categorieService.updateCategorie(data).then((res) => {
           if (res.data?.etat === true) {
-            toast.success("Modification réussie");
+            // toast.success("Modification réussie");
             useQ.invalidateQueries({ queryKey: ["entre"] });
             navigate(-1);
           } else {
@@ -251,7 +251,7 @@ export function useInfoSousCate(slug: SlugType) {
         if (res.data?.etat === true) {
           return res.data.donnee;
         } else {
-          toast.error(res.data?.message);
+          // toast.error(res.data?.message);
         }
       }),
   });
@@ -305,11 +305,11 @@ export function useCreateSousCate() {
       return souscategorieService.addSousCategorie(data).then((res) => {
         if (res.data?.etat === false) {
           if (res.data?.message !== "requette invalide") {
-            toast.error(res.data?.message);
+            // toast.error(res.data?.message);
           }
         } else {
           useQ.invalidateQueries({ queryKey: ["SouCategorie"] });
-          toast.success("Ajouté avec succès");
+          // toast.success("Ajouté avec succès");
         }
       });
     },
@@ -331,7 +331,7 @@ export function useUpdateSousCate() {
     mutationFn: (data: SousCategorieFormType) => {
       return souscategorieService.updateSousCategorie(data).then((res) => {
         if (res.data?.etat === true) {
-          toast.success("Modification réussie");
+          // toast.success("Modification réussie");
           useQ.invalidateQueries({ queryKey: ["SouCategorie"] });
           navigate(-1);
         } else {

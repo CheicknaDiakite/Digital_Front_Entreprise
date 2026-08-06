@@ -19,7 +19,6 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import { BASE } from '../../../../_services/caller.service';
-import { connect } from '../../../../_services/account.service';
 import PdfViewer from '../../../../usePerso/PdfFile';
 import Nav from '../../../../_components/Button/Nav';
 import { useFetchUser } from '../../../../usePerso/fonction.user';
@@ -33,6 +32,8 @@ export default function ModifProduitSortie() {
   const {unUser} = useFetchUser();
   const [showConfirm, setShowConfirm] = useState(false);
 
+  const user_id = unUser?.uuid || '';
+
   const handleDelete = () => {
     setShowConfirm(true);
   };
@@ -42,7 +43,7 @@ export default function ModifProduitSortie() {
     setShowConfirm(false);
   };
 
-  unFacSortie["user_id"] = connect;
+  unFacSortie["user_id"] = user_id;
   const url = BASE(unFacSortie.facture ?? "");
   
   const [image, setImage] = useState<File | null>(null);
@@ -63,7 +64,7 @@ export default function ModifProduitSortie() {
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    unFacSortie["user_id"] = connect;
+    unFacSortie["user_id"] = user_id;
     unFacSortie["facture"] = image;
     updateFacSortie(unFacSortie);
   };

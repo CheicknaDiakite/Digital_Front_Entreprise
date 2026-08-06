@@ -6,10 +6,10 @@ import Axios from "./caller.service";
 
 /* ── Service Utilisateur ── */
 const userRegister = (post: FormValueType): Promise<RegisterResponse> =>
-    Axios.post('/utilisateur/register', post).then(r => r.data);
+    Axios.post('/utilisateur/register', post);
 
 const userClient = (post: ClienType): Promise<RegisterResponse> =>
-    Axios.post('/entreprise/client/add', post).then(r => r.data);
+    Axios.post('/entreprise/client/add', post);
 
 const userAdminRegister = (data: FormValueType) =>
     Axios.post('utilisateur/admin/inscription', data);
@@ -56,19 +56,19 @@ const allMesUsers = (data: string) => Axios.get(`utilisateur/get/mes_user/${data
 const allClients = (data: string) => Axios.get(`entreprise/clients/${data}`);
 
 const userUpdate = (post: UserType): Promise<ReponseUser> =>
-    Axios.post('utilisateur/profile/set', post).then(r => r.data);
+    Axios.post('utilisateur/profile/set', post);
 
 const clientUpdate = (post: FormClienType): Promise<ReponseClient> =>
-    Axios.post('entreprise/client/set', post).then(r => r.data);
+    Axios.post('entreprise/client/set', post);
 
 const userDelete = (post: UtilisateurType): Promise<ReponseUser> =>
-    Axios.post('utilisateur/profile/del', post).then(r => r.data);
+    Axios.post('utilisateur/profile/del', post);
 
 const clientDelete = (post: FormClienType): Promise<ReponseUser> =>
-    Axios.post('entreprise/client/del', post).then(r => r.data);
+    Axios.post('entreprise/client/del', post);
 
 const avisDelete = (post: FormClienType): Promise<ReponseUser> =>
-    Axios.post('entreprise/avis/del', post).then(r => r.data);
+    Axios.post('entreprise/avis/del', post);
 
 const userForgot = (post: FormType) => Axios.post('utilisateur/forgot-password', post);
 

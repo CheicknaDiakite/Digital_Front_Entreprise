@@ -9,7 +9,6 @@ import {
   FormControl,
   SelectChangeEvent,
   Checkbox,
-  FormControlLabel,
   Box,
   Stack,
   alpha,
@@ -23,14 +22,13 @@ import DeleteIcon from "@mui/icons-material/DeleteOutline";
 import SaveIcon from "@mui/icons-material/SaveOutlined";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
-import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import WorkspacePremiumOutlinedIcon from "@mui/icons-material/WorkspacePremiumOutlined";
 import BusinessCenterOutlinedIcon from "@mui/icons-material/BusinessCenterOutlined";
-import { connect } from "../../../_services/account.service";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   useDeleteUser,
   useFetchUnUser,
+  useFetchUser,
   useUpdateUser,
 } from "../../../usePerso/fonction.user";
 import MyTextField from "../../../_components/Input/MyTextField";
@@ -83,11 +81,13 @@ const Section: FC<{ title: string; icon: React.ReactNode; children: React.ReactN
 export const UserModif: FC = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
-  const navigate = useNavigate();
   const { uuid } = useParams();
   const { unUser, setUnUser } = useFetchUnUser(uuid!);
 
-  unUser["user_id"] = connect;
+  const { unUser: un } = useFetchUser();
+  const user_id = un?.uuid || '';
+
+  unUser["user_id"] = user_id;
   const { updateUser } = useUpdateUser();
   const { deleteUser } = useDeleteUser();
 

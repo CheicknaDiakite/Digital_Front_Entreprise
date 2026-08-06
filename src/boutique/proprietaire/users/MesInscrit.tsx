@@ -30,8 +30,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import CloseIcon from "@mui/icons-material/Close";
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import { FormValueType } from "../../../typescript/FormType";
-import { useAllMesUsers, useCreateCabinetUser } from "../../../usePerso/fonction.user";
-import { connect } from "../../../_services/account.service";
+import { useAllMesUsers, useCreateCabinetUser, useFetchUser } from "../../../usePerso/fonction.user";
 import Nav from "../../../_components/Button/Nav";
 import MyTextField from "../../../_components/Input/MyTextField";
 
@@ -195,7 +194,10 @@ const MesInscrit: FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 25;
 
-  const { getMesUsers, isLoading, isError } = useAllMesUsers(connect);
+  const { unUser } = useFetchUser();
+  const user_id = unUser?.uuid || '';
+
+  const { getMesUsers, isLoading, isError } = useAllMesUsers(user_id);
   const { createCabinetAdmin } = useCreateCabinetUser();
 
   const sortedUsers = getMesUsers?.slice().sort((a: UserData, b: UserData) => b.id - a.id) || [];

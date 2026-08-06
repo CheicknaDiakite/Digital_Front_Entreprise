@@ -10,7 +10,8 @@ import ImageIcon from '@mui/icons-material/Image';
 // project import
 import { Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Paper, Skeleton, TextField, Tooltip, Fade, alpha, useTheme, useMediaQuery } from '@mui/material';
 import { ChangeEvent, useState } from 'react';
-import { connect } from '../../_services/account.service';
+// import { connect } from '../../_services/account.service';
+import { useFetchUser } from '../../usePerso/fonction.user';
 import { Link } from 'react-router-dom';
 import { useCategoriesEntreprise, useCreateCategorie } from '../../usePerso/fonction.categorie';
 import MyTextField from '../../_components/Input/MyTextField';
@@ -41,7 +42,7 @@ function ShadowBox({ shadow }: ShadowBoxProps) {
   return (
     <Paper 
       elevation={isMobile ? 2 : 0} 
-      className={`relative p-4 rounded-lg transition-all duration-200 hover:shadow-md border-x-2 animate-border-rotate mobile-shadow-card mobile-hover-effect ${isMobile ? 'mobile-glass' : 'mobile-glass'}`}
+      className={`relative p-4 rounded-lg transition-all duration-200 hover:shadow-md border-x-2 animate-border-rotate mobile-shadow-card mobile-hover-effect mobile-glass`}
       sx={{
         borderRadius: isMobile ? '20px' : '8px',
         minHeight: { xs: '140px', sm: '160px' }
@@ -142,11 +143,22 @@ export default function ComponentShadow() {
     setSearchTerm(e.target.value);
   };
 
-  const onSubmit = (data: CategorieFormType) => {
-    data.user_id = connect;
-    data.entreprise_id = uuid!;
+  const { unUser } = useFetchUser();
 
-    ajoutCategorie(data);
+  const onSubmit = (data: CategorieFormType) => {
+    const user_id = unUser?.uuid || '';
+    data.entreprise_id = uuid!;
+    if (data.image instanceof File) {
+      const form = new FormData();
+      form.append('libelle', data.libelle || '');
+      form.append('user_id', user_id);
+      form.append('entreprise_id', data.entreprise_id || '');
+      form.append('image', data.image as File);
+      ajoutCategorie(form as any);
+    } else {
+      const payload = { ...data, user_id };
+      ajoutCategorie(payload as any);
+    }
     closeopen();
   };
 
@@ -172,6 +184,7 @@ export default function ComponentShadow() {
   const filteredCategories = cateEntreprises?.filter((post) =>
     post.libelle?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
 
   return (
     <div className={`min-h-screen `}>

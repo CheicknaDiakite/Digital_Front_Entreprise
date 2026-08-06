@@ -18,7 +18,8 @@ import {
   TextField, 
   Typography,
   Tooltip,
-  Fade
+  Fade,
+  Stack
 } from '@mui/material'
 import CloseIcon from "@mui/icons-material/Close"
 import AddIcon from '@mui/icons-material/Add';
@@ -26,7 +27,6 @@ import ReceiptIcon from '@mui/icons-material/Receipt';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 import DescriptionIcon from '@mui/icons-material/Description';
 import { ChangeEvent, FormEvent, useState, useEffect } from 'react';
-import { connect } from '../../../../_services/account.service';
 import { useCreateFacEntre, useGetAllFacEntre } from '../../../../usePerso/fonction.facture';
 import CardFacEntre from './CardFacEntre';
 import MyTextField from '../../../../_components/Input/MyTextField';
@@ -34,7 +34,7 @@ import { FacSorType } from '../../../../typescript/fac';
 import { useStoreUuid } from '../../../../usePerso/store';
 import { RecupType } from '../../../../typescript/DataType';
 import M_Abonnement from '../../../../_components/Card/M_Abonnement';
-import { useFetchEntreprise } from '../../../../usePerso/fonction.user';
+import { useFetchEntreprise, useFetchUser } from '../../../../usePerso/fonction.user';
 import { isLicenceExpired } from '../../../../usePerso/fonctionPerso';
 import '../mobile-produit.css';
 
@@ -43,8 +43,11 @@ export default function FacEntre() {
   const {unEntreprise} = useFetchEntreprise(uuid)
   const [isMobile, setIsMobile] = useState(false);
 
+  const { unUser } = useFetchUser();
+  const user_id = unUser?.uuid || '';
+
   const {ajoutFacEntre} = useCreateFacEntre()
-  const {facEntresUtilisateur, isLoading, isError}= useGetAllFacEntre(connect, uuid!)
+  const {facEntresUtilisateur, isLoading, isError}= useGetAllFacEntre(user_id, uuid!)
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = isMobile ? 10 : 25;
@@ -130,7 +133,7 @@ export default function FacEntre() {
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    formValues["user_id"] = connect;
+    formValues["user_id"] = user_id;
     formValues["facture"] = image;
     formValues["entreprise_id"] = uuid!;
 
@@ -309,129 +312,132 @@ export default function FacEntre() {
             ) : (        
               <DialogContent className={`${isMobile ? 'mobile-p-4' : 'mt-4'}`}>              
                 <form onSubmit={onSubmit} className="space-y-4 p-2">
-                  <MyTextField
-                    required
-                    fullWidth
-                    label="Libellé"
-                    name="libelle"
-                    onChange={onChange}
-                    className={`${isMobile ? 'mobile-form-field' : ''}`}
-                    InputProps={{
-                      startAdornment: <DescriptionIcon className="mr-2 text-gray-400" />,
-                    }}
-                    sx={isMobile ? {
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '12px',
-                        background: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(10px)',
-                        transition: 'all 0.3s ease',
-                        '&:focus-within': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                        }
-                      }
-                    } : {}}
-                  />
-                  
-                  <MyTextField
-                    required
-                    fullWidth
-                    label="Référence"
-                    name="ref"
-                    onChange={onChange}
-                    className={`${isMobile ? 'mobile-form-field' : ''}`}
-                    InputProps={{
-                      startAdornment: <ReceiptIcon className="mr-2 text-gray-400" />,
-                    }}
-                    sx={isMobile ? {
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '12px',
-                        background: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(10px)',
-                        transition: 'all 0.3s ease',
-                        '&:focus-within': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                        }
-                      }
-                    } : {}}
-                  />
-                  
-                  <MyTextField
-                    required
-                    fullWidth
-                    label="Date"
-                    name="date"
-                    type="date"
-                    onChange={onChange}
-                    InputLabelProps={{ shrink: true }}
-                    className={`${isMobile ? 'mobile-date-field' : ''}`}
-                    InputProps={{
-                      startAdornment: <DateRangeIcon className="mr-2 text-gray-400" />,
-                    }}
-                    sx={isMobile ? {
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '12px',
-                        background: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(10px)',
-                        transition: 'all 0.3s ease',
-                        '&:focus-within': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                        }
-                      }
-                    } : {}}
-                  />
-                  
-                  <MyTextField 
-                    fullWidth
-                    label="Facture"
-                    name="facture"
-                    type="file"
-                    onChange={handleImageChange}
-                    InputLabelProps={{ shrink: true }}
-                    className={`${isMobile ? 'mobile-file-field' : ''}`}
-                    InputProps={{
-                      startAdornment: <ReceiptIcon className="mr-2 text-gray-400" />,
-                    }}
-                    sx={isMobile ? {
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '12px',
-                        background: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(10px)',
-                        transition: 'all 0.3s ease',
-                        border: '2px dashed rgba(59, 130, 246, 0.3)',
-                        '&:focus-within': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-                          borderColor: 'rgba(59, 130, 246, 0.6)'
-                        }
-                      }
-                    } : {}}
-                  />
-                  
-                  <div className={`${isMobile ? 'mobile-action-buttons' : 'pt-4 border-t flex justify-end'}`}>
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      className={`${isMobile ? 'mobile-button mobile-button-primary' : 'bg-blue-600 hover:bg-blue-700'}`}
+                  <Stack spacing={2} margin={2}>
+                    
+                    <MyTextField
+                      required
+                      fullWidth
+                      label="Libellé"
+                      name="libelle"
+                      onChange={onChange}
+                      className={`${isMobile ? 'mobile-form-field' : ''}`}
+                      InputProps={{
+                        startAdornment: <DescriptionIcon className="mr-2 text-gray-400" />,
+                      }}
                       sx={isMobile ? {
-                        borderRadius: '12px',
-                        fontWeight: 600,
-                        textTransform: 'none',
-                        transition: 'all 0.3s ease',
-                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                        background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                        '&:hover': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
-                          background: 'linear-gradient(135deg, #1d4ed8, #1e40af)'
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: '12px',
+                          background: 'rgba(255, 255, 255, 0.8)',
+                          backdropFilter: 'blur(10px)',
+                          transition: 'all 0.3s ease',
+                          '&:focus-within': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                          }
                         }
                       } : {}}
-                    >
-                      Enregistrer
-                    </Button>
-                  </div>
+                    />
+                    
+                    <MyTextField
+                      required
+                      fullWidth
+                      label="Référence"
+                      name="ref"
+                      onChange={onChange}
+                      className={`${isMobile ? 'mobile-form-field' : ''}`}
+                      InputProps={{
+                        startAdornment: <ReceiptIcon className="mr-2 text-gray-400" />,
+                      }}
+                      sx={isMobile ? {
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: '12px',
+                          background: 'rgba(255, 255, 255, 0.8)',
+                          backdropFilter: 'blur(10px)',
+                          transition: 'all 0.3s ease',
+                          '&:focus-within': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                          }
+                        }
+                      } : {}}
+                    />
+                    
+                    <MyTextField
+                      required
+                      fullWidth
+                      label="Date"
+                      name="date"
+                      type="date"
+                      onChange={onChange}
+                      InputLabelProps={{ shrink: true }}
+                      className={`${isMobile ? 'mobile-date-field' : ''}`}
+                      InputProps={{
+                        startAdornment: <DateRangeIcon className="mr-2 text-gray-400" />,
+                      }}
+                      sx={isMobile ? {
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: '12px',
+                          background: 'rgba(255, 255, 255, 0.8)',
+                          backdropFilter: 'blur(10px)',
+                          transition: 'all 0.3s ease',
+                          '&:focus-within': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                          }
+                        }
+                      } : {}}
+                    />
+                    
+                    <MyTextField 
+                      fullWidth
+                      label="Facture"
+                      name="facture"
+                      type="file"
+                      onChange={handleImageChange}
+                      InputLabelProps={{ shrink: true }}
+                      className={`${isMobile ? 'mobile-file-field' : ''}`}
+                      InputProps={{
+                        startAdornment: <ReceiptIcon className="mr-2 text-gray-400" />,
+                      }}
+                      sx={isMobile ? {
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: '12px',
+                          background: 'rgba(255, 255, 255, 0.8)',
+                          backdropFilter: 'blur(10px)',
+                          transition: 'all 0.3s ease',
+                          border: '2px dashed rgba(59, 130, 246, 0.3)',
+                          '&:focus-within': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                            borderColor: 'rgba(59, 130, 246, 0.6)'
+                          }
+                        }
+                      } : {}}
+                    />
+                    
+                    <div className={`${isMobile ? 'mobile-action-buttons' : 'pt-4 border-t flex justify-end'}`}>
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        className={`${isMobile ? 'mobile-button mobile-button-primary' : 'bg-blue-600 hover:bg-blue-700'}`}
+                        sx={isMobile ? {
+                          borderRadius: '12px',
+                          fontWeight: 600,
+                          textTransform: 'none',
+                          transition: 'all 0.3s ease',
+                          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                          background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                          '&:hover': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
+                            background: 'linear-gradient(135deg, #1d4ed8, #1e40af)'
+                          }
+                        } : {}}
+                      >
+                        Enregistrer
+                      </Button>
+                    </div>
+                  </Stack>
                 </form>
               </DialogContent>
             )}

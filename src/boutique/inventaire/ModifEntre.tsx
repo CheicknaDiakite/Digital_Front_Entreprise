@@ -15,7 +15,6 @@ import {
   InputAdornment,
   Autocomplete,
 } from '@mui/material'
-import { connect } from '../../_services/account.service'
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import InventoryIcon from '@mui/icons-material/Inventory';
@@ -37,6 +36,8 @@ export default function ModifEntre() {
 
   const { unEntre, setUnEntre } = useFetchEntre(uuid!)
   const { unUser } = useFetchUser()
+
+  const user_id = unUser?.uuid || '';
   const { updateEntre } = useUpdateEntre()
   const { deleteEntre } = useDeleteEntre()
 
@@ -90,7 +91,7 @@ export default function ModifEntre() {
     });
   };
 
-  unEntre["user_id"] = connect
+  unEntre["user_id"] = user_id
   unEntre["entreprise_id"] = entreprise_id!
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

@@ -27,6 +27,7 @@ import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
 import { FormValueType } from "../../../typescript/FormType";
+import { TypeSlug } from "../../../typescript/DataType";
 import { useCreateAdminUser, useFetchAllUsers, useFetchEntreprise } from "../../../usePerso/fonction.user";
 import MyTextField from "../../../_components/Input/MyTextField";
 import { useStoreUuid } from "../../../usePerso/store";
@@ -195,9 +196,9 @@ export default function Personnel() {
   const functionopen = () => setOpen(true);
   const closeopen = () => { reset(); setOpen(false); };
 
-  const top = {
-    entreprise_id: uuid,
-  };
+  const top: TypeSlug | null = uuid
+    ? { entreprise_id: uuid }
+    : null;
 
   const { getUser, isLoading, isError } = useFetchAllUsers(top);
   const { createAdmin } = useCreateAdminUser();

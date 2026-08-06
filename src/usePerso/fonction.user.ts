@@ -173,14 +173,14 @@ export function useFetchUnUser(slug: string) {
 }
 
 
-export function useFetchAllUsers(slug: TypeSlug) {
+export function useFetchAllUsers(slug: TypeSlug | null) {
 
   const [getUser, setUser] = useState<UtilisateurType[]>([]);
 
   const { data: us, isLoading, isError } = useQuery({
     queryKey: ["UserGet", slug],
     queryFn: async () => {
-      const res = await userService.userAll(slug);
+      const res = await userService.userAll(slug ?? {});
       if (res.data.etat === true) {
         const donnees = res.data.donnee as unknown as UtilisateurType[]; // Si c'est un tableau
         return donnees || [];
@@ -188,7 +188,8 @@ export function useFetchAllUsers(slug: TypeSlug) {
         toast.error(res.data.message);
         return [];
       }
-    }
+    },
+    enabled: Boolean(slug && (slug.entreprise_id || slug.user_id || slug.client_id || slug.all)),
   });
 
 
@@ -534,12 +535,11 @@ export function useCreateClient() {
             if (res.data.message === "L'utilisateur existe déjà") {
               toast.error("Cet utilisateur existe déjà. Veuillez vous connecter.");
             } else if (res.data.message !== "requette invalide") {
-              toast.error(res.data.message);
+              // toast.error(res.data.message);
             }
           } else {
             useQ.invalidateQueries({ queryKey: ["ClientGet"] });
-            toast.success("Creation réussie");
-
+            
           }
         })
         .catch((error) => {

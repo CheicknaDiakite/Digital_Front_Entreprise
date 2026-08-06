@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { ChangeEvent, FormEvent } from "react";
 import { connect } from "../../../../_services/account.service";
-import { useUnClient, useUpdateClient } from "../../../../usePerso/fonction.user";
+import { useFetchUser, useUnClient, useUpdateClient } from "../../../../usePerso/fonction.user";
 import MyTextField from "../../../../_components/Input/MyTextField";
 import { UuType } from "../../../../typescript/Account";
 import { useStoreUuid } from "../../../../usePerso/store";
@@ -30,8 +30,8 @@ export function ClientModif(uuid: UuType) {
   const isDarkText = theme.palette.mode === 'dark' || showBackground;
   const entreprise_id = useStoreUuid((state) => state.selectedId);
   const { unClient, setUnClient } = useUnClient(uuid.uuid!);
-
-  unClient["user_id"] = connect;
+  const { unUser } = useFetchUser()
+  unClient["user_id"] = unUser.uuid;
   const { updateClient } = useUpdateClient();
 
   const onChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

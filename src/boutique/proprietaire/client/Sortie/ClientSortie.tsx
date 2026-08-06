@@ -25,7 +25,6 @@ import QrCode2Icon from '@mui/icons-material/QrCode2';
 import { UuType } from '../../../../typescript/Account'
 import CardClientSortie from './CardClientSortie';
 import MyTextField from '../../../../_components/Input/MyTextField';
-import { connect } from '../../../../_services/account.service';
 import { ChangeEvent, FormEvent, SyntheticEvent, useEffect, useState, useMemo } from 'react';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import QuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
@@ -60,11 +59,11 @@ export default function ClientSortie(uuid: UuType) {
   const theme = useTheme();
   const { showBackground } = useAppSettings();
   const isDarkText = theme.palette.mode === 'dark' || showBackground;
+  const { unUser } = useFetchUser()
   const top = {
-    user_id: connect,
+    user_id: unUser.uuid,
     client_id: uuid.uuid,
   }
-  const { unUser } = useFetchUser()
   const { unClient } = useUnClient(uuid.uuid!);
 
   // const {ajoutEntre} = useCreateEntre()
@@ -113,7 +112,7 @@ export default function ClientSortie(uuid: UuType) {
   const setSorties = useStoreCart(state => state.setSorties)
   const top_st = {
     all: "all",
-    user_id: connect
+    user_id: unUser.uuid
   }
 
   const { sorties } = useFetchAllSortie(top_st)
@@ -278,7 +277,7 @@ export default function ClientSortie(uuid: UuType) {
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    formValues["user_id"] = connect!
+    formValues["user_id"] = unUser.uuid
     formValues["client_id"] = uuid.uuid
     ajoutSortie(formValues)
 

@@ -49,7 +49,7 @@ export default function SortieInventaire() {
       {/* <Nav /> */}
       <Grid container rowSpacing={4.5} columnSpacing={2.75}>
         <Grid item xs={12} sx={{ mb: -2.25 }}>
-          <Typography variant="h5" className='text-gray-50' component="h1" gutterBottom>
+          <Typography variant="h5" className='' component="h1" gutterBottom>
             Statistiques des ventes mensuelles
           </Typography>
         </Grid>
@@ -73,7 +73,7 @@ export default function SortieInventaire() {
                   pied="Chiffre d'affaires"
                   pied_qte="Quantité vendue :"
                   qte={details.somme_qte || 0}
-                  className="bg-blue-100"
+                  className="mobile-glass"
                   user={unUser.role}
                   color="primary"
                 />

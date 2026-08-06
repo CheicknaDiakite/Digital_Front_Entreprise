@@ -9,7 +9,6 @@ import {
   Alert
 } from "@mui/material"
 import { ChangeEvent, FormEvent, useState } from "react";
-import { connect } from "../../../_services/account.service";
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
 import ImageIcon from '@mui/icons-material/Image';
 import { useFetchEntreprise, useFetchUser } from "../../../usePerso/fonction.user";
@@ -27,13 +26,12 @@ export default function ModifSousCate() {
 
   const { showBackground } = useAppSettings();
   const isDarkText = theme.palette.mode === 'dark' || showBackground;
-
+  const { updateSousCate } = useUpdateSousCate()
   const entreprise_uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise } = useFetchEntreprise(entreprise_uuid);
 
   // const {unSousCate, setUnSousCate, updateSousCate, deleteSousCate} = useSousCategorie(slug!)
   const { unSousCate, setUnSousCate } = useFetchSousCate(uuid!)
-  unSousCate["user_id"] = connect
   const {unUser} = useFetchUser()
   const {deleteSousCate} = useDeleteSousCate()
 
@@ -46,7 +44,12 @@ export default function ModifSousCate() {
   };
 
   const confirmDelete = () => {
-    deleteSousCate(unSousCate);
+    const payload = {
+      id: (unSousCate as any).id || undefined,
+      slug: (unSousCate as any).slug || undefined,
+      user_id: unUser?.uuid || ''
+    };
+    deleteSousCate(payload as any);
     setShowConfirm(false);
   };
   
@@ -65,14 +68,17 @@ export default function ModifSousCate() {
       setPreviewUrl(URL.createObjectURL(file));
     }
   };
-  
-  const { updateSousCate } = useUpdateSousCate()
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    unSousCate.user_id = connect;
-    unSousCate.image = image || unSousCate.image;
-    updateSousCate(unSousCate);
+    const user_id = unUser?.uuid || '';
+    const form = new FormData();
+    form.append('libelle', unSousCate.libelle || '');
+    if ((unSousCate as any).uuid) form.append('uuid', (unSousCate as any).uuid);
+    if ((unSousCate as any).slug) form.append('slug', (unSousCate as any).slug);
+    form.append('user_id', user_id);
+    if (image) form.append('image', image);
+    updateSousCate(form as unknown as any);
   };
 
   const url = unSousCate.image ? BASE(unSousCate.image) : img;

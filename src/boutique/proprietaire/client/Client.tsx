@@ -18,13 +18,13 @@ import {
   ListItemText,
   Chip,
   Grid,
-  Paper
+  Paper,
+  Stack
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import { ChangeEvent, Fragment, useState, useEffect } from "react";
 import CloseIcon from "@mui/icons-material/Close";
-import { useAllClients, useCreateClient, useFetchEntreprise, useRestructionUsers } from "../../../usePerso/fonction.user";
-import { connect } from "../../../_services/account.service";
+import { useAllClients, useCreateClient, useFetchEntreprise, useFetchUser } from "../../../usePerso/fonction.user";
 import MyTextField from "../../../_components/Input/MyTextField";
 import { useStoreUuid } from "../../../usePerso/store";
 import { ClienType } from "../../../typescript/UserType";
@@ -93,9 +93,10 @@ export default function Client() {
    };
   
   const { createClient } = useCreateClient();
+  const { unUser } = useFetchUser();
 
   const onSubmit = (data: ClienType) => {
-    data.user_id = connect;
+    data.user_id = unUser?.uuid || '';
     data.entreprise_id = uuid!;
     createClient(data);
     closeopen();
@@ -387,186 +388,189 @@ export default function Client() {
             ) : (
               <DialogContent className={`${isMobile ? 'mobile-p-4' : 'mt-4'}`}>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                <MyTextField                                              
-                  label="Nom complet"
-                  {...register("nom", { required: "Ce champ est obligatoire" })}
-                  error={!!errors.nom}
-                  helperText={errors.nom?.message}
-                    fullWidth
-                    className={isMobile ? 'mobile-form-field' : ''}
-                    sx={isMobile ? {
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '12px',
-                        background: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(10px)',
-                        transition: 'all 0.3s ease',
-                        '&:focus-within': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                        }
-                      }
-                    } : {}}
-                />
+                  <Stack spacing={2} margin={2}>
 
-                <MyTextField                                              
-                    label="Téléphone"
-                  {...register("numero")}
-                  error={!!errors.numero}
-                  helperText={errors.numero?.message}
-                    inputProps={{
-                      pattern: "^[+]?\\d*$",
-                      maxLength: 15,
-                    }}
-                    fullWidth
-                    className={isMobile ? 'mobile-form-field' : ''}
-                    sx={isMobile ? {
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '12px',
-                        background: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(10px)',
-                        transition: 'all 0.3s ease',
-                        '&:focus-within': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                        }
-                      }
-                    } : {}}
-                />
-                
-                <MyTextField 
-                  label="Email"
-                  type="email"
-                  {...register("email")}
-                  error={!!errors.email}
-                  helperText={errors.email?.message}
-                    fullWidth
-                    className={isMobile ? 'mobile-form-field' : ''}
-                    sx={isMobile ? {
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '12px',
-                        background: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(10px)',
-                        transition: 'all 0.3s ease',
-                        '&:focus-within': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                        }
-                      }
-                    } : {}}
-                />
+                    <MyTextField                                              
+                      label="Nom complet"
+                      {...register("nom", { required: "Ce champ est obligatoire" })}
+                      error={!!errors.nom}
+                      helperText={errors.nom?.message}
+                        fullWidth
+                        className={isMobile ? 'mobile-form-field' : ''}
+                        sx={isMobile ? {
+                          '& .MuiOutlinedInput-root': {
+                            borderRadius: '12px',
+                            background: 'rgba(255, 255, 255, 0.8)',
+                            backdropFilter: 'blur(10px)',
+                            transition: 'all 0.3s ease',
+                            '&:focus-within': {
+                              transform: 'translateY(-2px)',
+                              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                            }
+                          }
+                        } : {}}
+                    />
 
-                <MyTextField                                              
-                  label="Adresse"
-                  {...register("adresse")}
-                  error={!!errors.adresse}
-                  helperText={errors.adresse?.message}
-                    fullWidth
-                    className={isMobile ? 'mobile-form-field' : ''}
-                    sx={isMobile ? {
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '12px',
-                        background: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(10px)',
-                        transition: 'all 0.3s ease',
-                        '&:focus-within': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                        }
-                      }
-                    } : {}}
-                />
-                
-                <MyTextField                                              
-                    label="Coordonnées supplémentaires"
-                  {...register("coordonne")}
-                  error={!!errors.coordonne}
-                  helperText={errors.coordonne?.message}
-                    fullWidth
-                    multiline
-                    rows={2}
-                    className={isMobile ? 'mobile-form-field' : ''}
-                    sx={isMobile ? {
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '12px',
-                        background: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(10px)',
-                        transition: 'all 0.3s ease',
-                        '&:focus-within': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                        }
-                      }
-                    } : {}}
-                />
+                    <MyTextField                                              
+                        label="Téléphone"
+                      {...register("numero")}
+                      error={!!errors.numero}
+                      helperText={errors.numero?.message}
+                        inputProps={{
+                          pattern: "^[+]?\\d*$",
+                          maxLength: 15,
+                        }}
+                        fullWidth
+                        className={isMobile ? 'mobile-form-field' : ''}
+                        sx={isMobile ? {
+                          '& .MuiOutlinedInput-root': {
+                            borderRadius: '12px',
+                            background: 'rgba(255, 255, 255, 0.8)',
+                            backdropFilter: 'blur(10px)',
+                            transition: 'all 0.3s ease',
+                            '&:focus-within': {
+                              transform: 'translateY(-2px)',
+                              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                            }
+                          }
+                        } : {}}
+                    />
+                    
+                    <MyTextField 
+                      label="Email"
+                      type="email"
+                      {...register("email")}
+                      error={!!errors.email}
+                      helperText={errors.email?.message}
+                        fullWidth
+                        className={isMobile ? 'mobile-form-field' : ''}
+                        sx={isMobile ? {
+                          '& .MuiOutlinedInput-root': {
+                            borderRadius: '12px',
+                            background: 'rgba(255, 255, 255, 0.8)',
+                            backdropFilter: 'blur(10px)',
+                            transition: 'all 0.3s ease',
+                            '&:focus-within': {
+                              transform: 'translateY(-2px)',
+                              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                            }
+                          }
+                        } : {}}
+                    />
 
-                  <FormControl fullWidth className={isMobile ? 'mobile-select' : ''}>
-                    <InputLabel id="role-label">Type de contact</InputLabel>
-                  <Select
-                    labelId="role-label"
-                      label="Type de contact"
-                    {...register("role", { required: "Ce champ est obligatoire" })}
-                    error={!!errors.role}
-                    sx={isMobile ? {
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '12px',
-                        background: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(10px)',
-                        transition: 'all 0.3s ease',
-                        '&:focus-within': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                        }
-                      }
-                    } : {}}
-                  >
-                    <MenuItem value={1}>Client</MenuItem>
-                    <MenuItem value={2}>Fournisseur</MenuItem>
-                    <MenuItem value={3}>Client/Fournisseur</MenuItem>
-                  </Select>
-                </FormControl>
-                
-                  <div className={`${isMobile ? 'mobile-action-buttons' : 'pt-4 flex justify-end space-x-3'}`}>
-                    <Button 
-                      onClick={closeopen} 
-                      variant="outlined"
-                      className={isMobile ? 'mobile-button' : ''}
+                    <MyTextField                                              
+                      label="Adresse"
+                      {...register("adresse")}
+                      error={!!errors.adresse}
+                      helperText={errors.adresse?.message}
+                        fullWidth
+                        className={isMobile ? 'mobile-form-field' : ''}
+                        sx={isMobile ? {
+                          '& .MuiOutlinedInput-root': {
+                            borderRadius: '12px',
+                            background: 'rgba(255, 255, 255, 0.8)',
+                            backdropFilter: 'blur(10px)',
+                            transition: 'all 0.3s ease',
+                            '&:focus-within': {
+                              transform: 'translateY(-2px)',
+                              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                            }
+                          }
+                        } : {}}
+                    />
+                    
+                    <MyTextField                                              
+                        label="Coordonnées supplémentaires"
+                      {...register("coordonne")}
+                      error={!!errors.coordonne}
+                      helperText={errors.coordonne?.message}
+                        fullWidth
+                        multiline
+                        rows={2}
+                        className={isMobile ? 'mobile-form-field' : ''}
+                        sx={isMobile ? {
+                          '& .MuiOutlinedInput-root': {
+                            borderRadius: '12px',
+                            background: 'rgba(255, 255, 255, 0.8)',
+                            backdropFilter: 'blur(10px)',
+                            transition: 'all 0.3s ease',
+                            '&:focus-within': {
+                              transform: 'translateY(-2px)',
+                              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                            }
+                          }
+                        } : {}}
+                    />
+
+                    <FormControl fullWidth className={isMobile ? 'mobile-select' : ''}>
+                      <InputLabel id="role-label">Type de contact</InputLabel>
+                    <Select
+                      labelId="role-label"
+                        label="Type de contact"
+                      {...register("role", { required: "Ce champ est obligatoire" })}
+                      error={!!errors.role}
                       sx={isMobile ? {
-                        borderRadius: '12px',
-                        fontWeight: 600,
-                        textTransform: 'none',
-                        transition: 'all 0.3s ease',
-                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                        '&:hover': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)'
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: '12px',
+                          background: 'rgba(255, 255, 255, 0.8)',
+                          backdropFilter: 'blur(10px)',
+                          transition: 'all 0.3s ease',
+                          '&:focus-within': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                          }
                         }
                       } : {}}
                     >
-                      Annuler
-                    </Button>
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      className={`${isMobile ? 'mobile-button mobile-button-primary' : 'bg-blue-600 hover:bg-blue-700'}`}
-                      sx={isMobile ? {
-                        borderRadius: '12px',
-                        fontWeight: 600,
-                        textTransform: 'none',
-                        transition: 'all 0.3s ease',
-                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                        background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                        '&:hover': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
-                          background: 'linear-gradient(135deg, #1d4ed8, #1e40af)'
-                        }
-                      } : {}}
-                    >
-                  Ajouter
-                </Button>
-                  </div>
-            </form>
-          </DialogContent>
+                      <MenuItem value={1}>Client</MenuItem>
+                      <MenuItem value={2}>Fournisseur</MenuItem>
+                      <MenuItem value={3}>Client/Fournisseur</MenuItem>
+                    </Select>
+                    </FormControl>
+                  
+                    <div className={`${isMobile ? 'mobile-action-buttons' : 'pt-4 flex justify-end space-x-3'}`}>
+                      <Button 
+                        onClick={closeopen} 
+                        variant="outlined"
+                        className={isMobile ? 'mobile-button' : ''}
+                        sx={isMobile ? {
+                          borderRadius: '12px',
+                          fontWeight: 600,
+                          textTransform: 'none',
+                          transition: 'all 0.3s ease',
+                          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                          '&:hover': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)'
+                          }
+                        } : {}}
+                      >
+                        Annuler
+                      </Button>
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        className={`${isMobile ? 'mobile-button mobile-button-primary' : 'bg-blue-600 hover:bg-blue-700'}`}
+                        sx={isMobile ? {
+                          borderRadius: '12px',
+                          fontWeight: 600,
+                          textTransform: 'none',
+                          transition: 'all 0.3s ease',
+                          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                          background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                          '&:hover': {
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
+                            background: 'linear-gradient(135deg, #1d4ed8, #1e40af)'
+                          }
+                        } : {}}
+                      >
+                    Ajouter
+                  </Button>
+                    </div>
+                  </Stack>
+                </form>
+              </DialogContent>
             )}
           </Dialog>
         </div>

@@ -376,14 +376,7 @@ export default function Entre() {
                 <Paper
                   elevation={0}
                   className={`rounded-lg`}
-                  // sx={isMobile ? {
-                  //   borderRadius: '16px',
-                  //   overflow: 'hidden',
-                  //   background: 'rgba(255, 255, 255, 0.95)',
-                  //   backdropFilter: 'blur(10px)',
-                  //   border: '1px solid rgba(255, 255, 255, 0.2)',
-                  //   marginTop: '16px'
-                  // } : {}}
+                  
                 >
                   <TableContainer 
                     component={Paper}

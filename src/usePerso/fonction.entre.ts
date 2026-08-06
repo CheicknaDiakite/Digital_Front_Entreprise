@@ -139,11 +139,11 @@ export function useCreateDepense() {
       return depenseService.addDepense(data).then((res) => {
         if (res.data?.etat === false) {
           if (res.data?.message !== "requette invalide") {
-            toast.error(res.data?.message);
+            // toast.error(res.data?.message);
           }
         } else {
           useQ.invalidateQueries({ queryKey: ["depenses"] });
-          toast.success("Ajouté avec succès");
+          // toast.success("Ajouté avec succès");
         }
       });
     },
@@ -165,11 +165,11 @@ export function useUpdateDepense() {
     mutationFn: (data: DepenseType) => {
       return depenseService.updateDepense(data).then((res) => {
         if (res.data?.etat === true) {
-          toast.success("Modification réussie");
+          // toast.success("Modification réussie");
           useQ.invalidateQueries({ queryKey: ["depenses"] });
           navigate(-1);
         } else {
-          toast.error(res.data?.message);
+          // toast.error(res.data?.message);
         }
       });
     },
@@ -264,6 +264,7 @@ export function useFetchAllEntre(slug: TypeSlug) {
           throw new Error(res.data?.message);
         }
       }),
+    enabled: Boolean(slug?.user_id),
   });
 
   useEffect(() => {
@@ -433,7 +434,7 @@ export function useFetchAllSortie(slug: DataSlugType) {
         if (res.data?.etat === true) {
           return res.data.donnee;
         } else {
-          toast.error(res.data?.message);
+          // toast.error(res.data?.message);
           throw new Error(res.data?.message);
         }
       }),

@@ -54,7 +54,7 @@ export default function PersonnelInfo() {
   };
 
   const totalVentes = sortiesUser.total_nombre_vente.find(u => u.user_uuid === user_uuid)?.total || 0;
-  console.log('Sorties User:', sortiesUser);
+  
   return (
     <Box sx={{ p: { xs: 2, md: 4 } }}>
       {/* Header with Back Button */}

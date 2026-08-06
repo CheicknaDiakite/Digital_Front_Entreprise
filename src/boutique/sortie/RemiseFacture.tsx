@@ -19,7 +19,6 @@ import {
   Typography,
   IconButton,
   Stack,
-  Tooltip,
   InputAdornment,
   Divider,
 } from '@mui/material';
@@ -125,7 +124,7 @@ export default function RemiseFacture() {
   return (
     <Box sx={{ mt: 3, pb: 4 }}>
       {/* Action Bar & Stats */}
-      <Paper elevation={0} sx={{ p: 4, mb: 4, borderRadius: 4, border: '1px solid', borderColor: 'divider', background: 'linear-gradient(145deg, #ffffff 0%, #f8faff 100%)' }}>
+      <Paper elevation={0} sx={{ p: 4, mb: 4, borderRadius: 4, border: '1px solid', borderColor: 'divider' }}>
         <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ xs: 'stretch', md: 'center' }} spacing={3}>
           <Box>
             <Typography variant="h4" fontWeight="900" sx={{ display: 'flex', alignItems: 'center', gap: 2, color: 'primary.dark' }}>

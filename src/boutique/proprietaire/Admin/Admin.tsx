@@ -23,7 +23,6 @@ import {
 } from '@mui/material';
 import { ChangeEvent, FormEvent, useState } from 'react';
 import { useFetchUser, useUpdateUser } from '../../../usePerso/fonction.user';
-import { connect } from '../../../_services/account.service';
 import countryList from 'react-select-country-list';
 import toast from 'react-hot-toast';
 import { logout } from '../../../usePerso/fonctionPerso';
@@ -36,7 +35,6 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import PublicIcon from '@mui/icons-material/Public';
 import BadgeIcon from '@mui/icons-material/Badge';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import EditIcon from '@mui/icons-material/Edit';
 import SecurityIcon from '@mui/icons-material/Security';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
@@ -50,6 +48,10 @@ export default function Admin() {
   const [showRePassword, setShowRePassword] = useState(false);
   const { unUser, setUnUser, isLoading, isError } = useFetchUser();
   const { updateUser } = useUpdateUser();
+
+  const { unUser: un } = useFetchUser();
+  const user_id = un?.uuid || '';
+
   const options = countryList().getData();
 
   const handleOpen = () => setOpen(true);
@@ -66,14 +68,14 @@ export default function Admin() {
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    unUser['user_id'] = connect;
+    unUser['user_id'] = user_id;
     updateUser(unUser);
   };
 
   const onSubmitPass = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    unUser['uuid'] = connect;
-    unUser['user_id'] = connect;
+    unUser['uuid'] = user_id;
+    unUser['user_id'] = user_id;
     if (unUser.password !== unUser.repassword) {
       toast.error('Les deux mots de passe ne correspondent pas');
       return;

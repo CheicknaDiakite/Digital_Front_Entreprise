@@ -1,7 +1,6 @@
 import { ChangeEvent, FormEvent, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Button, Card, CardContent, DialogContent, DialogTitle, Stack, TextField, Typography, Alert, FormControlLabel, Switch } from '@mui/material'
-import { connect } from '../../_services/account.service'
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { useDeleteSortie, useFetchSortie, useUpdateSortie } from '../../usePerso/fonction.entre'
@@ -14,9 +13,6 @@ export default function ModifSortie() {
 
   const {unUser} = useFetchUser()
   const {unSortie, setUnSortie} = useFetchSortie(uuid!)
- 
-  unSortie["user_id"] = connect
-  unSortie["entreprise_id"] = entreprise_id!
   const {updateSortie} = useUpdateSortie()
   const {deleteSortie} = useDeleteSortie()
 
@@ -31,20 +27,23 @@ export default function ModifSortie() {
     setShowCancelConfirm(true);
   };
 
+  const buildPayload = (action?: string) => ({
+    ...unSortie,
+    user_id: unUser.uuid,
+    entreprise_id: entreprise_id ?? unSortie.entreprise_id,
+    action,
+    uuid: unSortie.uuid ?? uuid,
+  });
+
   const confirmDelete = () => {
-    const payload = { ...unSortie, action: 'delete' };
-    setUnSortie(payload);
+    const payload = buildPayload('delete');
     deleteSortie(payload);
-    
     setShowConfirm(false);
   };
   
   const confirmCancel = () => {
-    const payload = { ...unSortie, action: 'cancel' };
-    setUnSortie(payload);
-    // on utilise updateSortie pour marquer la sortie comme annulée
+    const payload = buildPayload('cancel');
     deleteSortie(payload);
-    
     setShowCancelConfirm(false);
   };
 
@@ -59,11 +58,7 @@ export default function ModifSortie() {
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    unSortie["user_id"]= connect
-    // formValues["user_id"]= connect
-    // formValues["user_id"]= connect
-
-    updateSortie(unSortie)
+    updateSortie(buildPayload());
   };
   
   return (<>

@@ -24,8 +24,8 @@ import {
   Grid,
   Chip
 } from '@mui/material';
-import { connect } from '../../../../../_services/account.service';
-import { useDeleteEntreprise, useFetchEntreprise, useUpdateEntreprise } from '../../../../../usePerso/fonction.user';
+
+import { useDeleteEntreprise, useFetchEntreprise, useFetchUser, useUpdateEntreprise } from '../../../../../usePerso/fonction.user';
 import countryList from 'react-select-country-list';
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
 import CloseIcon from '@mui/icons-material/Close';
@@ -47,6 +47,10 @@ export default function ModifEntreprise() {
   const { unEntreprise, setUnEntreprise, isLoading, isError } = useFetchEntreprise(uuid);
   const { deleteEntreprise } = useDeleteEntreprise();
   const { updateEntreprise } = useUpdateEntreprise();
+
+  const { unUser } = useFetchUser();
+  const user_id = unUser?.uuid || '';
+  
   const [open, setOpen] = useState(false);
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
@@ -56,7 +60,7 @@ export default function ModifEntreprise() {
   const handleDelete = () => setShowConfirm(true);
 
   const confirmDelete = () => {
-    deleteEntreprise({ ...unEntreprise, user_id: connect });
+    deleteEntreprise({ ...unEntreprise, user_id: user_id });
     setShowConfirm(false);
   };
 
@@ -81,12 +85,12 @@ export default function ModifEntreprise() {
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    updateEntreprise({ ...unEntreprise, user_id: connect, image });
+    updateEntreprise({ ...unEntreprise, user_id: user_id, image });
   };
 
   const onSubmitAbon = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    updateEntreprise({ ...unEntreprise, user_id: connect });
+    updateEntreprise({ ...unEntreprise, user_id: user_id });
     setOpen(false);
   };
 

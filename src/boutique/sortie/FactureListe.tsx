@@ -20,8 +20,6 @@ import {
   Skeleton,
   Divider,
   Grid,
-  Card,
-  CardContent,
   Avatar,
   useTheme,
   alpha

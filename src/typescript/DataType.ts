@@ -3,6 +3,7 @@ export type TypeSlug = {
     all?: string | undefined;
     user_id?: string | null | undefined;
     client_id?: string;
+    entreprise_id?: string | null | undefined;
 }
 export type DataType = {
     user_id: string;
@@ -44,6 +45,7 @@ export type EntreRecupType = {
 
 export type SortieType = {
     user_id: string;
+    uuid?: string;
     client_id?: string;
     ref?: string;
     description?: string;

@@ -1,4 +1,4 @@
-import { Box, Container, Paper, Tab, Tabs } from '@mui/material';
+import { Box, Paper, Tab, Tabs } from '@mui/material';
 import React, { useEffect, useState } from 'react'
 import { CustomTabPanel } from '../../usePerso/useEntreprise';
 import RemiseFacture from './RemiseFacture';
@@ -24,61 +24,55 @@ export default function FactureDetail() {
   };
 
   return (
+    <Paper
+      elevation={0}
+      // className={`border rounded-lg overflow-hidden ${isMobile ? 'mobile-modif-paper' : ''}`}
+      sx={{
+        background: 'transparent',
+        bgcolor: 'transparent',
+        backdropFilter: 'none',
 
-    <Box>
-      <Container maxWidth="xl" className="relative z-10">
-        <Paper
-          elevation={0}
-          // className={`border rounded-lg overflow-hidden ${isMobile ? 'mobile-modif-paper' : ''}`}
-          sx={{
-            background: 'transparent',
-            bgcolor: 'transparent',
-            backdropFilter: 'none',
-
-          }}
+      }}
+    >
+      <Box className={`border-b backdrop-blur-sm ${isMobile ? 'mobile-admin-tabs' : ''}`}>
+        <Tabs
+          value={value}
+          onChange={handleChange}
+          variant="scrollable"
+          scrollButtons="auto"
+          allowScrollButtonsMobile
+          aria-label="enterprise tabs"
+          className={`min-h-[48px] ${isMobile ? 'mobile-admin-tabs' : ''}`}
         >
-          <Box className={`border-b bg-gray-100 backdrop-blur-sm ${isMobile ? 'mobile-admin-tabs' : ''}`}>
-            <Tabs
-              value={value}
-              onChange={handleChange}
-              variant="scrollable"
-              scrollButtons="auto"
-              allowScrollButtonsMobile
-              aria-label="enterprise tabs"
-              className={`min-h-[48px] ${isMobile ? 'mobile-admin-tabs' : ''}`}
-            >
-              <Tab
-                label="Tous les Remises"
-                // icon={<InfoIcon />} 
-                iconPosition="start"
-                {...a11yProps(0)}
-                className={`min-h-[48px] ${isMobile ? 'mobile-admin-tab' : ''}`}
-              />
-              <Tab
-                label="Remises par facture"
-                // icon={<GroupIcon />} 
-                iconPosition="start"
-                {...a11yProps(1)}
-                className={`min-h-[48px] ${isMobile ? 'mobile-admin-tab' : ''}`}
-              />
+          <Tab
+            label="Tous les Remises"
+            // icon={<InfoIcon />} 
+            iconPosition="start"
+            {...a11yProps(0)}
+            className={`min-h-[48px] ${isMobile ? 'mobile-admin-tab' : ''}`}
+          />
+          <Tab
+            label="Remises par facture"
+            // icon={<GroupIcon />} 
+            iconPosition="start"
+            {...a11yProps(1)}
+            className={`min-h-[48px] ${isMobile ? 'mobile-admin-tab' : ''}`}
+          />
 
-            </Tabs>
-          </Box>
+        </Tabs>
+      </Box>
 
-          <Box
-          >
-            <CustomTabPanel value={value} index={0}>
-              <RemiseFacture />
-            </CustomTabPanel>
+      <Box
+      >
+        <CustomTabPanel value={value} index={0}>
+          <RemiseFacture />
+        </CustomTabPanel>
 
-            <CustomTabPanel value={value} index={1}>
-              <FactureListe />
-            </CustomTabPanel>
+        <CustomTabPanel value={value} index={1}>
+          <FactureListe />
+        </CustomTabPanel>
 
-          </Box>
-        </Paper>
-      </Container>
-    </Box>
-
+      </Box>
+    </Paper>
   );
 }

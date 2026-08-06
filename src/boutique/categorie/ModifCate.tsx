@@ -8,7 +8,6 @@ import {
   Alert
 } from '@mui/material';
 import { ChangeEvent, FormEvent, useState } from 'react';
-import { connect } from '../../_services/account.service';
 import { RouteParams } from '../../typescript/DataType';
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
 import ImageIcon from '@mui/icons-material/Image';
@@ -29,7 +28,6 @@ export default function ModifCate() {
   const { unEntreprise } = useFetchEntreprise(entreprise_uuid);
   // const {unCategorie, setCategorie, updateCategorie, deleteCategorie} = useCategorie(slug!)
   const { unCategorie, setUnCategorie } = useFetchCategorie(uuid!)
-  unCategorie["user_id"] = connect
   const {unUser} = useFetchUser()
   const { updateCategorie } = useUpdateCategorie()
   const { deleteCategorie } = useDeleteCategorie()
@@ -44,7 +42,12 @@ export default function ModifCate() {
   };
 
   const confirmDelete = () => {
-    deleteCategorie(unCategorie);
+    const payload = {
+      id: (unCategorie as any).id || undefined,
+      slug: unCategorie.slug,
+      user_id: unUser?.uuid || ''
+    };
+    deleteCategorie(payload as any);
     setShowConfirm(false);
   };
   
@@ -69,9 +72,14 @@ export default function ModifCate() {
   
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    unCategorie.user_id = connect;
-    unCategorie.image = image || unCategorie.image;
-    updateCategorie(unCategorie);
+    const user_id = unUser?.uuid || '';
+    const form = new FormData();
+    form.append('libelle', unCategorie.libelle || '');
+    if (unCategorie.uuid) form.append('uuid', unCategorie.uuid);
+    if (unCategorie.slug) form.append('slug', unCategorie.slug);
+    form.append('user_id', user_id);
+    if (image) form.append('image', image);
+    updateCategorie(form as unknown as any);
   };
 
   const url = unCategorie.image ? BASE(unCategorie.image) : img;

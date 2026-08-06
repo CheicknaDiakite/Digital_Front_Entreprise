@@ -23,12 +23,11 @@ import {
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from '@mui/icons-material/Add';
-import { connect } from '../../../../_services/account.service';
 import { RecupType } from '../../../../typescript/DataType';
 import { EntreFormType } from '../../../../typescript/FormType';
 import { useCreateEntre, useFetchAllEntre } from '../../../../usePerso/fonction.entre';
 import CardClientEntrer from './CardClientEntrer';
-import { useFetchEntreprise, useUnClient } from '../../../../usePerso/fonction.user';
+import { useFetchEntreprise, useFetchUser, useUnClient } from '../../../../usePerso/fonction.user';
 import { useStoreUuid } from '../../../../usePerso/store';
 import { formatNumberWithSpaces, isLicenceExpired } from '../../../../usePerso/fonctionPerso';
 import { AjoutEntreForm, useFormValues } from '../../../../usePerso/useEntreprise';
@@ -39,9 +38,9 @@ export default function ClientEntrer(uuid: UuType) {
   const theme = useTheme();
   const { showBackground } = useAppSettings();
   const isDarkText = theme.palette.mode === 'dark' || showBackground;
-
+  const { unUser } = useFetchUser()
   const top = {
-    user_id: connect,
+    user_id: unUser.uuid,
     client_id: uuid.uuid,
   }
   const {unClient} = useUnClient(uuid.uuid!);
@@ -146,7 +145,7 @@ export default function ClientEntrer(uuid: UuType) {
     formValues["cumuler_quantite"] = ajout_terminer;
     formValues["is_sortie"] = is_sortie;
     formValues["is_prix"] = is_prix;
-    formValues["user_id"] = connect;
+    formValues["user_id"] = unUser.uuid || '';
     formValues["client_id"] = uuid.uuid;
     
     ajoutEntre(formValues);

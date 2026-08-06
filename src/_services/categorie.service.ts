@@ -9,19 +9,23 @@ const MULTIPART_HEADER = {
 
 /* ── Service Catégorie ── */
 const categoriesEntreprise = (uuid: string): Promise<ReponseCategorie> =>
-    Axios.get(`entreprise/categorie/get_categories_utilisateur/${uuid}`).then(r => r.data);
+    Axios.get(`entreprise/categorie/get_categories_utilisateur/${uuid}`);
 
 const getCategorie = (slug: string): Promise<ReponseCategorie> =>
-    Axios.get(`entreprise/categorie/${slug}`).then(r => r.data);
+    Axios.get(`entreprise/categorie/${slug}`);
 
-const addCategorie = (data: CategorieFormType): Promise<ReponseCategorie> =>
-    Axios.post('entreprise/categorie/add', data, MULTIPART_HEADER).then(r => r.data);
+const addCategorie = (data: CategorieFormType | FormData): Promise<ReponseCategorie> =>
+    (data instanceof FormData)
+        ? Axios.post('entreprise/categorie/add', data, MULTIPART_HEADER)
+        : Axios.post('entreprise/categorie/add', data as CategorieFormType);
 
-const updateCategorie = (nom: CategorieType): Promise<ReponseCategorie> =>
-    Axios.post('entreprise/categorie/set', nom, MULTIPART_HEADER).then(r => r.data);
+const updateCategorie = (nom: CategorieType | FormData): Promise<ReponseCategorie> =>
+    (nom instanceof FormData)
+        ? Axios.post('entreprise/categorie/set', nom, MULTIPART_HEADER)
+        : Axios.post('entreprise/categorie/set', nom as CategorieType);
 
 const deleteCategorie = (categorie: CategorieType): Promise<ReponseCategorie> =>
-    Axios.post('entreprise/categorie/del', categorie).then(r => r.data);
+    Axios.post('entreprise/categorie/del', categorie);
 
 export const categorieService = {
     getCategorie, addCategorie, updateCategorie, deleteCategorie, categoriesEntreprise
@@ -43,11 +47,15 @@ const getSousCategoriesUser = (uuid: string) =>
 const getInfo = (slug: SlugType) =>
     Axios.post('entreprise/info_sous_cat/get', slug);
 
-const addSousCategorie = (data: SousCategorieFormType) =>
-    Axios.post('entreprise/sous_categorie/add', data, MULTIPART_HEADER);
+const addSousCategorie = (data: SousCategorieFormType | FormData) =>
+    (data instanceof FormData)
+        ? Axios.post('entreprise/sous_categorie/add', data, MULTIPART_HEADER)
+        : Axios.post('entreprise/sous_categorie/add', data as SousCategorieFormType);
 
-const updateSousCategorie = (nom: SousCategorieFormType) =>
-    Axios.post('entreprise/sous_categorie/set', nom, MULTIPART_HEADER);
+const updateSousCategorie = (nom: SousCategorieFormType | FormData) =>
+    (nom instanceof FormData)
+        ? Axios.post('entreprise/sous_categorie/set', nom, MULTIPART_HEADER)
+        : Axios.post('entreprise/sous_categorie/set', nom as SousCategorieFormType);
 
 const deleteSousCategorie = (categorie: DataType) =>
     Axios.post('entreprise/sous_categorie/del', categorie);

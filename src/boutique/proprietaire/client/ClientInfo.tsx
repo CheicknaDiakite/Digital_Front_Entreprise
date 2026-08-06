@@ -2,7 +2,6 @@ import * as React from 'react';
 import {
   Box,
   Paper,
-  IconButton,
   Button,
   Avatar,
   Chip,
@@ -25,8 +24,7 @@ import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import { useParams } from 'react-router-dom';
 import { ClientModif } from './ModifClient/ClientModif';
-import { useDeleteClient, useFetchEntreprise, useUnClient } from '../../../usePerso/fonction.user';
-import { connect } from '../../../_services/account.service';
+import { useDeleteClient, useFetchEntreprise, useFetchUser, useUnClient } from '../../../usePerso/fonction.user';
 import { a11yProps } from '../../../usePerso/fonctionPerso';
 import { CustomTabPanel } from '../../../usePerso/useEntreprise';
 import ClientEntrer from './Entrer/ClientEntrer';
@@ -46,7 +44,10 @@ export default function ClientInfo() {
   const entreprise_uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise } = useFetchEntreprise(entreprise_uuid);
 
-  unClient["user_id"] = connect;
+  const { unUser } = useFetchUser();
+  const user_id = unUser?.uuid || '';
+
+  unClient["user_id"] = user_id;
 
   const { deleteClient } = useDeleteClient();
   const [value, setValue] = React.useState(unEntreprise.licence_type === "Stock Simple" ? 2 : 0);
