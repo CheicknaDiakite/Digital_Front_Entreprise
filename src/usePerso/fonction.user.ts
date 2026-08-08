@@ -309,7 +309,7 @@ export function useCreateUser() {
   });
 
   const create = (post: FormValueType) => {
-    ajout.mutate(post);
+    return ajout.mutateAsync(post);
   };
 
   return { create }

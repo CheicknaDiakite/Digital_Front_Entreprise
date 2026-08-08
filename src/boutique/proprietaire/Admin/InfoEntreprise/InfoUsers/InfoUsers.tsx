@@ -26,8 +26,7 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import PersonIcon from '@mui/icons-material/Person';
 import GroupIcon from '@mui/icons-material/Group';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import { connect } from '../../../../../_services/account.service';
-import { useGetEntrepriseUsers, useRemoveUserEntreprise } from '../../../../../usePerso/fonction.user';
+import { useFetchUser, useGetEntrepriseUsers, useRemoveUserEntreprise } from '../../../../../usePerso/fonction.user';
 import { useStoreUuid } from '../../../../../usePerso/store';
 import { useState } from 'react';
 import '../../mobile-admin.css';
@@ -38,7 +37,10 @@ export default function InfoUsers() {
   const { removeEntreprise } = useRemoveUserEntreprise();
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
-
+  
+  const { unUser } = useFetchUser();
+  const user_id = unUser?.uuid || '';
+  
   const handleDelete = (userId: string) => {
     setUserToDelete(userId);
     setShowConfirmDelete(true);
@@ -49,7 +51,7 @@ export default function InfoUsers() {
       removeEntreprise({
         entreprise_id: uuid!,
         user_id: userToDelete,
-        admin_id: connect,
+        admin_id: user_id,
       });
     }
     setShowConfirmDelete(false);
@@ -168,7 +170,7 @@ export default function InfoUsers() {
         {entrepriseUsers && entrepriseUsers.length > 0 ? (
           <List disablePadding>
             {entrepriseUsers.map((user, index) => {
-              const isAdmin = user.uuid === connect;
+              const isAdmin = user.uuid === user_id;
               return (
                 <Box key={user.uuid || index}>
                   <ListItem
