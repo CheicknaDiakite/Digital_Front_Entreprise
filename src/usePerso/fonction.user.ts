@@ -300,7 +300,7 @@ export function useCreateUser() {
         })
         .catch((error) => {
           if (error.code === "ECONNABORTED") {
-            toast.error("La requête a pris trop de temps, veuillez réessayer.");
+            // toast.error("La requête a pris trop de temps, veuillez réessayer.");
           } else {
             toast.error("Une erreur s'est produite lors de l'inscription");
           }
@@ -386,7 +386,7 @@ export function useLoginUser() {
         .then((res) => {
           if (res.data.etat === false) {
             if (res.data.message !== "requette invalide") {
-              toast.error(res.data.message);
+              // toast.error(res.data.message);
             }
           } else {
             accountService.saveToken(res.data.refresh!, res.data.access)

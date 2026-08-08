@@ -18,6 +18,7 @@ import BusinessRoundedIcon from '@mui/icons-material/BusinessRounded';
 import AddBusinessRoundedIcon from '@mui/icons-material/AddBusinessRounded';
 import VerifiedRoundedIcon from '@mui/icons-material/VerifiedRounded';
 import ErrorOutlineRoundedIcon from '@mui/icons-material/ErrorOutlineRounded';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import { EntrepriseType } from '../../../typescript/Account';
 import { connect } from '../../../_services/account.service';
 import { Link } from 'react-router-dom';
@@ -395,7 +396,7 @@ const ErrorState = () => {
 
 // ── Empty state ────────────────────────────────────────────────────────────────
 
-const EmptyState: FC<{ onAdd: () => void }> = ({ onAdd }) => (
+const EmptyState: FC<{ onAdd: () => void; role?: number }> = ({ onAdd, role }) => (
   <Box
     sx={{
       minHeight: '60vh',
@@ -428,36 +429,101 @@ const EmptyState: FC<{ onAdd: () => void }> = ({ onAdd }) => (
     >
       <AddBusinessRoundedIcon sx={{ fontSize: 44, color: '#818cf8' }} />
     </Box>
-    <Box>
-      <Typography sx={{ fontSize: '1.3rem', fontWeight: 800, mb: 0.5 }}>
-        Aucune entreprise
-      </Typography>
-      <Typography sx={{ fontSize: '0.9rem', maxWidth: 320 }}>
-        Commencez par créer votre première entreprise pour gérer vos stocks.
-      </Typography>
-    </Box>
-    <Button
-      variant="contained"
-      onClick={onAdd}
-      startIcon={<AddBusinessRoundedIcon />}
-      sx={{
-        bgcolor: '#6366f1',
-        px: 4,
-        py: 1.4,
-        borderRadius: '12px',
-        fontWeight: 700,
-        fontSize: '0.92rem',
-        boxShadow: '0 4px 20px rgba(99,102,241,0.45)',
-        transition: 'all 0.3s ease',
-        '&:hover': {
-          bgcolor: '#4f46e5',
-          boxShadow: '0 8px 30px rgba(99,102,241,0.6)',
-          transform: 'translateY(-2px)',
-        },
-      }}
-    >
-      Créer une entreprise
-    </Button>
+
+    {role === 1 ? (
+      /* ── Rôle autorisé : afficher le bouton de création ── */
+      <>
+        <Box>
+          <Typography sx={{ fontSize: '1.3rem', fontWeight: 800, mb: 0.5 }}>
+            Aucune entreprise
+          </Typography>
+          <Typography sx={{ fontSize: '0.9rem', maxWidth: 320 }}>
+            Commencez par créer votre première entreprise pour gérer vos stocks.
+          </Typography>
+        </Box>
+        <Button
+          variant="contained"
+          onClick={onAdd}
+          startIcon={<AddBusinessRoundedIcon />}
+          sx={{
+            bgcolor: '#6366f1',
+            px: 4,
+            py: 1.4,
+            borderRadius: '12px',
+            fontWeight: 700,
+            fontSize: '0.92rem',
+            boxShadow: '0 4px 20px rgba(99,102,241,0.45)',
+            transition: 'all 0.3s ease',
+            '&:hover': {
+              bgcolor: '#4f46e5',
+              boxShadow: '0 8px 30px rgba(99,102,241,0.6)',
+              transform: 'translateY(-2px)',
+            },
+          }}
+        >
+          Créer une entreprise
+        </Button>
+      </>
+    ) : (
+      /* ── Pas encore de rôle : message d'attente d'activation ── */
+      <Box
+        sx={{
+          background: 'linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(139,92,246,0.08) 100%)',
+          border: '1px solid rgba(99,102,241,0.2)',
+          borderRadius: '16px',
+          p: { xs: 3, sm: 4 },
+          backdropFilter: 'blur(10px)',
+          maxWidth: 420,
+        }}
+      >
+        <Typography sx={{ fontSize: '1.3rem', fontWeight: 800, mb: 1.5 }}>
+          Compte en attente
+        </Typography>
+        <Typography
+          sx={{
+            textAlign: 'center',
+            fontSize: { xs: '0.88rem', sm: '0.95rem' },
+            lineHeight: 1.8,
+          }}
+        >
+          Nous vous remercions pour votre inscription sur Gest Stocks.<br />
+          Veuillez-vous patienter avant l'activation de votre compte !<br />
+          Pour plus d'information contacter :
+        </Typography>
+        <a
+          href="https://wa.me/22391154834"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ textDecoration: 'none' }}
+        >
+          <Box
+            sx={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 1,
+              bgcolor: 'rgba(34, 197, 94, 0.07)',
+              border: '1px solid rgba(34, 197, 94, 0.18)',
+              borderRadius: '10px',
+              px: 2,
+              py: 0.8,
+              mt: 1.5,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              '&:hover': {
+                bgcolor: 'rgba(34, 197, 94, 0.14)',
+                border: '1px solid rgba(34, 197, 94, 0.35)',
+                transform: 'translateY(-1px)',
+              },
+            }}
+          >
+            <WhatsAppIcon sx={{ color: '#22c55e', fontSize: 18 }} />
+            <Typography sx={{ color: '#22c55e', fontSize: '0.88rem', fontWeight: 600, letterSpacing: 0.3 }}>
+              +223 91 15 48 34
+            </Typography>
+          </Box>
+        </a>
+      </Box>
+    )}
   </Box>
 );
 
@@ -621,8 +687,8 @@ export default function Entreprise() {
   if (!userEntreprises || userEntreprises.length === 0) {
     return (
       <>
-        <EmptyState onAdd={() => setIsDialogOpen(true)} />
-        <EntrepriseDialog {...dialogProps} />
+        <EmptyState onAdd={() => setIsDialogOpen(true)} role={unUser.role} />
+        {unUser.role === 1 && <EntrepriseDialog {...dialogProps} />}
       </>
     );
   }
