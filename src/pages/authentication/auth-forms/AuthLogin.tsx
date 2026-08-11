@@ -43,6 +43,7 @@ const AuthLogin: FC = () => {
     register,
     handleSubmit,
     reset,
+    setError,
     formState: { errors, isSubmitting }
   } = useForm<LoginFormData>({
     defaultValues: {
@@ -61,10 +62,22 @@ const AuthLogin: FC = () => {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      await login(data);
-      reset();
-    } catch (error) {
+      const res = await login(data);
+      if (res && res.etat === false) {
+        setError('root', {
+          type: 'manual',
+          message: res.message || "Nom d'utilisateur ou mot de passe incorrect."
+        });
+      } else if (res && res.etat === true) {
+        reset();
+      }
+    } catch (error: any) {
       console.error(error);
+      const errorMessage = error?.response?.data?.message || "Nom d'utilisateur ou mot de passe incorrect.";
+      setError('root', {
+        type: 'manual',
+        message: errorMessage
+      });
     }
   };
 

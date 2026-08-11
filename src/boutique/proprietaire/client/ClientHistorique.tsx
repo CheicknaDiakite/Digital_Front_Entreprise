@@ -35,7 +35,7 @@ export default function ClientHistorique(props: UuType) {
   const { uuid } = props;
   const entreprise_uuid = useStoreUuid((state) => state.selectedId);
   const { clientH, isLoading, isError } = useHistoryClientEntreprise(entreprise_uuid!);
-
+  
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
@@ -46,7 +46,8 @@ export default function ClientHistorique(props: UuType) {
   // Filter first by client, then by date and type
   const clientHistoryFiltered = historyList?.filter((item: any) => {
     // 1. Filter by client UUID
-    if (item.client !== uuid) return false;
+    const itemClientUuid = typeof item.client === 'object' ? item.client?.uuid : item.client;
+    if (!itemClientUuid || String(itemClientUuid).toLowerCase() !== String(uuid).toLowerCase()) return false;
 
     // 2. Filter by Date Range
     if (startDate) {
@@ -69,17 +70,16 @@ export default function ClientHistorique(props: UuType) {
     return true;
   });
 
-  // Calculate total sum
+  // Calculate total sum — mirrors the rowTotal logic in the table
   const totalSum =
     clientHistoryFiltered?.reduce((acc: number, item: any) => {
       const ancien = Number(item.ancien_qte) || 0;
       const qteRaw = Number(item.qte) || 0;
 
       const delta = item.cumuler_qe ? qteRaw : qteRaw - ancien;
-      const deltaText = `${delta > 0 ? '+' : ''}${delta}`;
-
-      const qte = Number(deltaText) || 0;
-      const pu = Number(item.pu_achat) || 0;
+      const qte = Math.abs(delta); // on prend la valeur absolue pour que entrées et sorties s'additionnent
+      const itemType = item.type || item.action;
+      const pu = itemType === 'entrer' ? (Number(item.pu_achat) || 0) : (Number(item.pu) || 0);
       return acc + qte * pu;
     }, 0) || 0;
 
@@ -236,15 +236,17 @@ export default function ClientHistorique(props: UuType) {
 
                   const delta = row.cumuler_qe ? qteRaw : qteRaw - ancien;
                   const deltaText = `${delta > 0 ? '+' : ''}${delta}`;
-                  const rowTotal = Number(deltaText || 0) * Number(row.pu_achat || 0);
-
+                  const rowType = row.type || row.action;
+                  const rowPu = rowType === 'entrer' ? (Number(row.pu_achat) || 0) : (Number(row.pu) || 0);
+                  const rowTotal = Math.abs(delta) * rowPu;
+                  
                   return (
                     <TableRow key={index} hover className="transition-colors hover:bg-slate-50/80">
                       <TableCell sx={{ py: 1.5, color: '#334155', fontWeight: 500 }}>
                         {row.date ? new Date(row.date).toLocaleDateString() : '-'}
                       </TableCell>
                       <TableCell sx={{ py: 1.5 }}>
-                        {renderActionChip(row.action || row.type)}
+                        {renderActionChip(row.type || row.action)}
                       </TableCell>
                       <TableCell sx={{ py: 1.5, fontWeight: 500, color: '#1e293b' }}>
                         {row.libelle || '-'}
@@ -256,7 +258,7 @@ export default function ClientHistorique(props: UuType) {
                         {deltaText}
                       </TableCell>
                       <TableCell align="right" sx={{ py: 1.5, color: '#475569' }}>
-                        {row.pu_achat ? `${formatNumberWithSpaces(Number(row.pu_achat))} F` : '-'}
+                        {row.pu_achat ? `${formatNumberWithSpaces(Number(row.pu_achat))} F` : `${formatNumberWithSpaces(Number(row.pu))} F`}
                       </TableCell>
                       <TableCell align="right" sx={{ py: 1.5, fontWeight: 700, color: '#2563eb' }}>
                         {formatNumberWithSpaces(rowTotal)} F

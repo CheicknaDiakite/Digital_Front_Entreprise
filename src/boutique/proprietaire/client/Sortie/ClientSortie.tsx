@@ -260,8 +260,7 @@ export default function ClientSortie(uuid: UuType) {
 
   const filteredEnt = useMemo(() => scannedCode
     ? entres.filter((option: any) => {
-      // console.log('Code option :', option);
-      // console.log('Code scannedCode :', scannedCode);
+      
       return option.ref === scannedCode
     }
     )
@@ -297,7 +296,7 @@ export default function ClientSortie(uuid: UuType) {
     return <div>Error fetching data</div>
   }
 
-  if (unClient.role === 1 || unClient.role === 3 || unClient.role === 2) {
+  if (unClient.role === 1 || unClient.role === 3) {
 
     if (entresEntreprise) {
       return (

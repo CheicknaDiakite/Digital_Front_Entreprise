@@ -297,13 +297,7 @@ export function useCreateUser() {
             navigate("/");
             window.location.reload(); // Rechargement pour déclencher les toasts
           }
-        })
-        .catch((error) => {
-          if (error.code === "ECONNABORTED") {
-            // toast.error("La requête a pris trop de temps, veuillez réessayer.");
-          } else {
-            toast.error("Une erreur s'est produite lors de l'inscription");
-          }
+          return res.data;
         });
     },
   });
@@ -393,6 +387,7 @@ export function useLoginUser() {
             navigate('/')
             toast.success("Connexion réussie");
           }
+          return res.data;
         })
     },
   });
@@ -779,6 +774,7 @@ export function useHistoryClientEntreprise(slug: string) {
 
     queryFn: () =>
       entrepriseService.historyClientEntreprise(slug).then((res) => {
+        
         if (res.data.etat === true) {
           return res.data.donnee;
         } else {

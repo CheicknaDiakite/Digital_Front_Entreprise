@@ -1,6 +1,7 @@
 ﻿import axios, { AxiosInstance } from "axios";
 
 // https://test.diakitedigital.com
+// http://127.0.0.1:8000
 
 
 // Set VITE_API_URL in .env.local or .env.production for deployed environments.

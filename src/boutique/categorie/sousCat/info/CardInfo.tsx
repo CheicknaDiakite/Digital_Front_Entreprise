@@ -13,6 +13,8 @@ export default function CardInfo({ row }: any) {
   const clientName = row?.client || 'Client anonyme';
   const firstLetter = clientName.charAt(0).toUpperCase();
 
+  console.log("prix",row)
+
   return (
     <TableRow 
       sx={{

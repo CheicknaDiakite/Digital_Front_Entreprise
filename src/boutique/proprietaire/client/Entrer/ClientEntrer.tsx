@@ -186,7 +186,7 @@ export default function ClientEntrer(uuid: UuType) {
     );
   }
 
-  if (unClient.role === 2 || unClient.role === 3 || unClient.role === 1) {
+  if (unClient.role === 2 || unClient.role === 3) {
     if (entresEntreprise) {
       return (
         <div className="space-y-6">
@@ -282,7 +282,7 @@ export default function ClientEntrer(uuid: UuType) {
                     <TableCell align="right">Quantité</TableCell>
                     <TableCell align="right">Prix Unitaire (Achat)</TableCell>
                     <TableCell align="right">Total</TableCell>
-                    {(unClient.role === 1 || unClient.role === 2) && <TableCell align="center">Action</TableCell>}
+                    {(unClient.role === 2 || unClient.role === 3) && <TableCell align="center">Action</TableCell>}
                   </TableRow>
                 </TableHead>
                 <TableBody>

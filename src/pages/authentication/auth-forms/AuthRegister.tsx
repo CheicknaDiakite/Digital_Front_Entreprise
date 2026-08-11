@@ -65,6 +65,7 @@ const AuthRegister: FC = () => {
     watch,
     reset,
     setValue,
+    setError,
     formState: { errors, isSubmitting }
   } = useForm<RegisterFormData>({
     defaultValues: {
@@ -83,10 +84,22 @@ const AuthRegister: FC = () => {
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
-      await create(data);
-      reset();
-    } catch (error) {
+      const res = await create(data);
+      if (res && res.etat === false) {
+        setError('root', {
+          type: 'manual',
+          message: res.message || "Une erreur est survenue lors de l'inscription."
+        });
+      } else if (res && res.etat === true) {
+        reset();
+      }
+    } catch (error: any) {
       console.error(error);
+      const errorMessage = error?.response?.data?.message || "Une erreur est survenue lors de l'inscription.";
+      setError('root', {
+        type: 'manual',
+        message: errorMessage
+      });
     }
   };
 
