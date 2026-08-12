@@ -217,7 +217,7 @@ export default function Entre() {
 
     const tableColumns: Array<{ label: string; align: 'left' | 'right' }> = [
       { label: 'Image', align: 'left' },
-      { label: 'Référence', align: 'left' },
+      
       { label: 'Date', align: 'left' },
       { label: 'Fournisseurs', align: 'left' },
       { label: 'Désignations', align: 'left' },
@@ -494,12 +494,13 @@ export default function Entre() {
             className: "rounded-10",
             sx: isMobile ? {
               borderRadius: '20px',
-              background: 'rgba(255, 255, 255, 0.95)',
               backdropFilter: 'blur(10px)'
             } : {}
           }}
         >
-          <DialogTitle className={`flex justify-between items-center bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700 text-white border-b pb-3`}>
+          <DialogTitle 
+          className={`flex justify-between items-center bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700 text-white border-b pb-3`}
+          >
             <Typography variant="h6" className="font-semibold">
               Nouvelle Entrée
             </Typography>

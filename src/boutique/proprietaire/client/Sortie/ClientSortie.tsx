@@ -552,17 +552,39 @@ export default function ClientSortie(uuid: UuType) {
               className="rounded-xl border border-gray-200/40 bg-transparent overflow-hidden"
               sx={{ background: 'transparent', bgcolor: 'transparent' }}
             >
-              <TableContainer sx={{ maxHeight: 500 }}>
+              <TableContainer
+                sx={{
+                  maxHeight: 500,
+                  backgroundColor: 'rgba(255, 255, 255, 0.18)',
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)',
+                  borderRadius: '12px',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+                }}
+              >
                 <Table stickyHeader aria-label="tableau des ventes">
                   <TableHead>
-                    <TableRow sx={{ '& th': { backgroundColor: '#f8fafc', fontWeight: 700, color: '#334155' } }}>
-                      <TableCell>Image</TableCell>
-                      <TableCell>Date</TableCell>
-                      <TableCell>Référence</TableCell>
-                      <TableCell>Désignation</TableCell>
-                      <TableCell align="right">Quantité</TableCell>
-                      <TableCell align="right">Prix Unitaire</TableCell>
-                      <TableCell align="right">Total</TableCell>
+                    <TableRow>
+                      {['Image', 'Date', 'Référence', 'Désignation', 'Quantité', 'Prix Unitaire', 'Total'].map((header, i) => (
+                        <TableCell
+                          key={header}
+                          align={i >= 4 ? 'right' : 'left'}
+                          sx={{
+                            backgroundColor: 'rgba(30, 41, 59, 0.75)',
+                            backdropFilter: 'blur(10px)',
+                            WebkitBackdropFilter: 'blur(10px)',
+                            color: '#f1f5f9',
+                            fontWeight: 700,
+                            fontSize: '0.85rem',
+                            letterSpacing: '0.05em',
+                            textTransform: 'uppercase',
+                            borderBottom: '1px solid rgba(255,255,255,0.2)',
+                          }}
+                        >
+                          {header}
+                        </TableCell>
+                      ))}
                     </TableRow>
                   </TableHead>
                   <TableBody>

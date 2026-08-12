@@ -226,11 +226,9 @@ export default function FacEntre() {
                       value={selectedStartDate}
                       onChange={handleStartDateChange}
                       InputLabelProps={{ shrink: true }}
-                      className={`${isMobile ? 'mobile-date-field' : 'bg-white'}`}
                       sx={isMobile ? {
                         '& .MuiOutlinedInput-root': {
                           borderRadius: '12px',
-                          background: 'rgba(255, 255, 255, 0.8)',
                           backdropFilter: 'blur(10px)',
                           transition: 'all 0.3s ease',
                           '&:focus-within': {
@@ -249,11 +247,9 @@ export default function FacEntre() {
                       value={selectedEndDate}
                       onChange={handleEndDateChange}
                       InputLabelProps={{ shrink: true }}
-                      className={`${isMobile ? 'mobile-date-field' : 'bg-white'}`}
                       sx={isMobile ? {
                         '& .MuiOutlinedInput-root': {
                           borderRadius: '12px',
-                          background: 'rgba(255, 255, 255, 0.8)',
                           backdropFilter: 'blur(10px)',
                           transition: 'all 0.3s ease',
                           '&:focus-within': {
@@ -273,7 +269,6 @@ export default function FacEntre() {
                   onChange={handlePageChange}
                   color="primary"
                   size={isMobile ? "medium" : "large"}
-                  className={`${isMobile ? 'mobile-pagination' : 'mt-4 md:mt-0'}`}
                   sx={isMobile ? {
                     '& .MuiPaginationItem-root': {
                       borderRadius: '8px',
@@ -295,7 +290,6 @@ export default function FacEntre() {
               className: "rounded-10",
               sx: isMobile ? {
                 borderRadius: '20px',
-                background: 'rgba(255, 255, 255, 0.95)',
                 backdropFilter: 'blur(10px)'
               } : {}
             }}
@@ -310,7 +304,7 @@ export default function FacEntre() {
             {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
               <M_Abonnement />  
             ) : (        
-              <DialogContent className={`${isMobile ? 'mobile-p-4' : 'mt-4'}`}>              
+              <DialogContent className={`mt-4`}>              
                 <form onSubmit={onSubmit} className="space-y-4 p-2">
                   <Stack spacing={2} margin={2}>
                     
@@ -320,14 +314,13 @@ export default function FacEntre() {
                       label="Libellé"
                       name="libelle"
                       onChange={onChange}
-                      className={`${isMobile ? 'mobile-form-field' : ''}`}
+                      className={``}
                       InputProps={{
                         startAdornment: <DescriptionIcon className="mr-2 text-gray-400" />,
                       }}
                       sx={isMobile ? {
                         '& .MuiOutlinedInput-root': {
                           borderRadius: '12px',
-                          background: 'rgba(255, 255, 255, 0.8)',
                           backdropFilter: 'blur(10px)',
                           transition: 'all 0.3s ease',
                           '&:focus-within': {
@@ -344,14 +337,13 @@ export default function FacEntre() {
                       label="Référence"
                       name="ref"
                       onChange={onChange}
-                      className={`${isMobile ? 'mobile-form-field' : ''}`}
+                      className={``}
                       InputProps={{
                         startAdornment: <ReceiptIcon className="mr-2 text-gray-400" />,
                       }}
                       sx={isMobile ? {
                         '& .MuiOutlinedInput-root': {
                           borderRadius: '12px',
-                          background: 'rgba(255, 255, 255, 0.8)',
                           backdropFilter: 'blur(10px)',
                           transition: 'all 0.3s ease',
                           '&:focus-within': {
@@ -370,14 +362,13 @@ export default function FacEntre() {
                       type="date"
                       onChange={onChange}
                       InputLabelProps={{ shrink: true }}
-                      className={`${isMobile ? 'mobile-date-field' : ''}`}
+                      className={``}
                       InputProps={{
                         startAdornment: <DateRangeIcon className="mr-2 text-gray-400" />,
                       }}
                       sx={isMobile ? {
                         '& .MuiOutlinedInput-root': {
                           borderRadius: '12px',
-                          background: 'rgba(255, 255, 255, 0.8)',
                           backdropFilter: 'blur(10px)',
                           transition: 'all 0.3s ease',
                           '&:focus-within': {
@@ -395,14 +386,13 @@ export default function FacEntre() {
                       type="file"
                       onChange={handleImageChange}
                       InputLabelProps={{ shrink: true }}
-                      className={`${isMobile ? 'mobile-file-field' : ''}`}
+                      className={``}
                       InputProps={{
                         startAdornment: <ReceiptIcon className="mr-2 text-gray-400" />,
                       }}
                       sx={isMobile ? {
                         '& .MuiOutlinedInput-root': {
                           borderRadius: '12px',
-                          background: 'rgba(255, 255, 255, 0.8)',
                           backdropFilter: 'blur(10px)',
                           transition: 'all 0.3s ease',
                           border: '2px dashed rgba(59, 130, 246, 0.3)',
@@ -415,11 +405,11 @@ export default function FacEntre() {
                       } : {}}
                     />
                     
-                    <div className={`${isMobile ? 'mobile-action-buttons' : 'pt-4 border-t flex justify-end'}`}>
+                    <div className={`pt-4 border-t flex justify-end`}>
                       <Button
                         type="submit"
                         variant="contained"
-                        className={`${isMobile ? 'mobile-button mobile-button-primary' : 'bg-blue-600 hover:bg-blue-700'}`}
+                        className={`bg-blue-600 hover:bg-blue-700`}
                         sx={isMobile ? {
                           borderRadius: '12px',
                           fontWeight: 600,
@@ -443,14 +433,39 @@ export default function FacEntre() {
             )}
           </Dialog>
       
-          <TableContainer component={Paper} sx={{ maxHeight: 600 }}>
+          <TableContainer
+            component={Paper}
+            sx={{
+              maxHeight: 600,
+              backgroundColor: 'rgba(255, 255, 255, 0.18)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+            }}
+          >
             <Table stickyHeader aria-label="sticky table">
-              <TableHead >
+              <TableHead>
                 <TableRow>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Libellé</TableCell>
-                  <TableCell>Référence</TableCell>
-                  <TableCell>Actions</TableCell>
+                  {['Date', 'Libellé', 'Référence', 'Actions'].map((header) => (
+                    <TableCell
+                      key={header}
+                      sx={{
+                        backgroundColor: 'rgba(30, 41, 59, 0.75)',
+                        backdropFilter: 'blur(10px)',
+                        WebkitBackdropFilter: 'blur(10px)',
+                        color: '#f1f5f9',
+                        fontWeight: 700,
+                        fontSize: '0.85rem',
+                        letterSpacing: '0.05em',
+                        textTransform: 'uppercase',
+                        borderBottom: '1px solid rgba(255,255,255,0.2)',
+                      }}
+                    >
+                      {header}
+                    </TableCell>
+                  ))}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -460,7 +475,12 @@ export default function FacEntre() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={4} align="center" className={`${isMobile ? 'mobile-empty-card py-8' : 'py-8'} text-gray-500`}>
+                    <TableCell
+                      colSpan={4}
+                      align="center"
+                      sx={{ color: '#475569', fontWeight: 500, py: 4 }}
+                      className={isMobile ? 'mobile-empty-card' : ''}
+                    >
                       Aucune facture d'entrée disponible
                     </TableCell>
                   </TableRow>

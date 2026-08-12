@@ -319,14 +319,39 @@ export default function Depense() {
                   
                   {/* Table */}
                   <Grid item xs={12} md={12}>
-                    <TableContainer component={Paper} sx={{ maxHeight: 600 }}>
+                    <TableContainer
+                      component={Paper}
+                      sx={{
+                        maxHeight: 600,
+                        backgroundColor: 'rgba(255, 255, 255, 0.18)',
+                        backdropFilter: 'blur(10px)',
+                        WebkitBackdropFilter: 'blur(10px)',
+                        borderRadius: '12px',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+                      }}
+                    >
                       <Table stickyHeader aria-label="sticky table">
                         <TableHead>
                           <TableRow>
-                            <TableCell>Date</TableCell>
-                            <TableCell>Libellé</TableCell>
-                            <TableCell>Montant</TableCell>
-                            <TableCell>Actions</TableCell>
+                            {['Date', 'Libellé', 'Montant', 'Actions'].map((header) => (
+                              <TableCell
+                                key={header}
+                                sx={{
+                                  backgroundColor: 'rgba(30, 41, 59, 0.75)',
+                                  backdropFilter: 'blur(10px)',
+                                  WebkitBackdropFilter: 'blur(10px)',
+                                  color: '#f1f5f9',
+                                  fontWeight: 700,
+                                  fontSize: '0.85rem',
+                                  letterSpacing: '0.05em',
+                                  textTransform: 'uppercase',
+                                  borderBottom: '1px solid rgba(255,255,255,0.2)',
+                                }}
+                              >
+                                {header}
+                              </TableCell>
+                            ))}
                           </TableRow>
                         </TableHead>
                         <TableBody>
@@ -336,7 +361,12 @@ export default function Depense() {
                             ))
                           ) : (
                             <TableRow>
-                              <TableCell colSpan={4} align="center" className={`${isMobile ? 'mobile-empty-card py-8' : 'py-8'} text-gray-500`}>
+                              <TableCell
+                                colSpan={4}
+                                align="center"
+                                sx={{ color: '#475569', fontWeight: 500, py: 4 }}
+                                className={isMobile ? 'mobile-empty-card' : ''}
+                              >
                                 Aucune dépense enregistrée
                               </TableCell>
                             </TableRow>
@@ -378,7 +408,6 @@ export default function Depense() {
               className: "rounded-10",
               sx: isMobile ? {
                 borderRadius: '20px',
-                background: 'rgba(255, 255, 255, 0.95)',
                 backdropFilter: 'blur(10px)'
               } : {}
             }}
@@ -395,7 +424,7 @@ export default function Depense() {
             {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
               <M_Abonnement />
             ) : (
-              <DialogContent className={`${isMobile ? 'mobile-p-4' : 'mt-4'}`}>
+              <DialogContent className={`mt-4`}>
                 <form onSubmit={onSubmit} className="space-y-4">
                   <Stack spacing={2} margin={2}>
 
@@ -406,11 +435,9 @@ export default function Depense() {
                       name="libelle"
                       onChange={(e) => setFormValues({...formValues, libelle: e.target.value})}
                       value={formValues.libelle}
-                      className={`${isMobile ? 'mobile-form-field' : 'bg-white'}`}
                       sx={isMobile ? {
                         '& .MuiOutlinedInput-root': {
                           borderRadius: '12px',
-                          background: 'rgba(255, 255, 255, 0.8)',
                           backdropFilter: 'blur(10px)',
                           transition: 'all 0.3s ease',
                           '&:focus-within': {
@@ -430,11 +457,9 @@ export default function Depense() {
                       onChange={(e) => setFormValues({...formValues, date: e.target.value})}
                       value={formValues.date}
                       InputLabelProps={{ shrink: true }}
-                      className={`${isMobile ? 'mobile-date-field' : 'bg-white'}`}
                       sx={isMobile ? {
                         '& .MuiOutlinedInput-root': {
                           borderRadius: '12px',
-                          background: 'rgba(255, 255, 255, 0.8)',
                           backdropFilter: 'blur(10px)',
                           transition: 'all 0.3s ease',
                           '&:focus-within': {
@@ -460,11 +485,9 @@ export default function Depense() {
                           </InputAdornment>
                         ),
                       }}
-                      className={`${isMobile ? 'mobile-form-field' : 'bg-white'}`}
                       sx={isMobile ? {
                         '& .MuiOutlinedInput-root': {
                           borderRadius: '12px',
-                          background: 'rgba(255, 255, 255, 0.8)',
                           backdropFilter: 'blur(10px)',
                           transition: 'all 0.3s ease',
                           '&:focus-within': {
@@ -488,11 +511,9 @@ export default function Depense() {
                           </InputAdornment>
                         ),
                       }}
-                      className={`${isMobile ? 'mobile-file-field' : 'bg-white'}`}
                       sx={isMobile ? {
                         '& .MuiOutlinedInput-root': {
                           borderRadius: '12px',
-                          background: 'rgba(255, 255, 255, 0.8)',
                           backdropFilter: 'blur(10px)',
                           transition: 'all 0.3s ease',
                           border: '2px dashed rgba(59, 130, 246, 0.3)',
@@ -505,11 +526,10 @@ export default function Depense() {
                       } : {}}
                     />
 
-                    <div className={`${isMobile ? 'mobile-action-buttons' : 'flex justify-end space-x-2'} pt-4`}>
+                    <div className={`flex justify-end space-x-2 pt-4`}>
                       <Button 
                         onClick={() => setOpen(false)} 
                         variant="outlined"
-                        className={isMobile ? 'mobile-button' : ''}
                         sx={isMobile ? {
                           borderRadius: '12px',
                           fontWeight: 600,

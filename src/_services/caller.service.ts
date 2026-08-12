@@ -1,11 +1,11 @@
 ﻿import axios, { AxiosInstance } from "axios";
 
-// https://test.diakitedigital.com
+// https://backend.diakitedigital.com
 // http://127.0.0.1:8000
 
 
 // Set VITE_API_URL in .env.local or .env.production for deployed environments.
-const configuredApiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+const configuredApiUrl = import.meta.env.VITE_API_URL || 'https://backend.diakitedigital.com';
 const BaseDomaine = {
     URL: configuredApiUrl.replace(/\/$/, '')
 };

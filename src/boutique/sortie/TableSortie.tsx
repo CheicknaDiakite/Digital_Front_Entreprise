@@ -472,7 +472,8 @@ export default function TableSortie({
               </thead>
               <tbody>
                 {basket.map((item: any, index: number) => (
-                  <tr key={index} style={{
+                  <tr key={index} 
+                  style={{
                     borderBottom: '1px solid rgba(255,255,255,0.05)',
                     transition: 'background 0.15s',
                   }}

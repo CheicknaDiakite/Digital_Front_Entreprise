@@ -350,7 +350,6 @@ export default function SousCat() {
               className: "rounded-10",
               sx: isMobile ? {
                 borderRadius: '20px',
-                background: 'rgba(255, 255, 255, 0.95)',
                 backdropFilter: 'blur(10px)'
               } : {}
             }}
@@ -382,7 +381,7 @@ export default function SousCat() {
               <M_Abonnement />
             ) : (
               <DialogContent className="mt-4">
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-3">
                   <MyTextField
                     fullWidth
                     label="Nom du produit"

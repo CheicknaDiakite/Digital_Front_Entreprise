@@ -369,7 +369,6 @@ export default function Client() {
               className: "rounded-10",
               sx: isMobile ? {
                 borderRadius: '20px',
-                background: 'rgba(255, 255, 255, 0.95)',
                 backdropFilter: 'blur(10px)'
               } : {}
             }}
@@ -386,7 +385,7 @@ export default function Client() {
           {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
           <M_Abonnement />  
             ) : (
-              <DialogContent className={`${isMobile ? 'mobile-p-4' : 'mt-4'}`}>
+              <DialogContent className={`mt-4`}>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                   <Stack spacing={2} margin={2}>
 
@@ -396,11 +395,10 @@ export default function Client() {
                       error={!!errors.nom}
                       helperText={errors.nom?.message}
                         fullWidth
-                        className={isMobile ? 'mobile-form-field' : ''}
+                        className={''}
                         sx={isMobile ? {
                           '& .MuiOutlinedInput-root': {
                             borderRadius: '12px',
-                            background: 'rgba(255, 255, 255, 0.8)',
                             backdropFilter: 'blur(10px)',
                             transition: 'all 0.3s ease',
                             '&:focus-within': {
@@ -421,11 +419,10 @@ export default function Client() {
                           maxLength: 15,
                         }}
                         fullWidth
-                        className={isMobile ? 'mobile-form-field' : ''}
+                        className={''}
                         sx={isMobile ? {
                           '& .MuiOutlinedInput-root': {
                             borderRadius: '12px',
-                            background: 'rgba(255, 255, 255, 0.8)',
                             backdropFilter: 'blur(10px)',
                             transition: 'all 0.3s ease',
                             '&:focus-within': {
@@ -443,11 +440,10 @@ export default function Client() {
                       error={!!errors.email}
                       helperText={errors.email?.message}
                         fullWidth
-                        className={isMobile ? 'mobile-form-field' : ''}
+                        className={''}
                         sx={isMobile ? {
                           '& .MuiOutlinedInput-root': {
                             borderRadius: '12px',
-                            background: 'rgba(255, 255, 255, 0.8)',
                             backdropFilter: 'blur(10px)',
                             transition: 'all 0.3s ease',
                             '&:focus-within': {
@@ -464,11 +460,10 @@ export default function Client() {
                       error={!!errors.adresse}
                       helperText={errors.adresse?.message}
                         fullWidth
-                        className={isMobile ? 'mobile-form-field' : ''}
+                        className={''}
                         sx={isMobile ? {
                           '& .MuiOutlinedInput-root': {
                             borderRadius: '12px',
-                            background: 'rgba(255, 255, 255, 0.8)',
                             backdropFilter: 'blur(10px)',
                             transition: 'all 0.3s ease',
                             '&:focus-within': {
@@ -487,11 +482,10 @@ export default function Client() {
                         fullWidth
                         multiline
                         rows={2}
-                        className={isMobile ? 'mobile-form-field' : ''}
+                        className={''}
                         sx={isMobile ? {
                           '& .MuiOutlinedInput-root': {
                             borderRadius: '12px',
-                            background: 'rgba(255, 255, 255, 0.8)',
                             backdropFilter: 'blur(10px)',
                             transition: 'all 0.3s ease',
                             '&:focus-within': {
@@ -502,7 +496,7 @@ export default function Client() {
                         } : {}}
                     />
 
-                    <FormControl fullWidth className={isMobile ? 'mobile-select' : ''}>
+                    <FormControl fullWidth className={''}>
                       <InputLabel id="role-label">Type de contact</InputLabel>
                     <Select
                       labelId="role-label"
@@ -512,7 +506,6 @@ export default function Client() {
                       sx={isMobile ? {
                         '& .MuiOutlinedInput-root': {
                           borderRadius: '12px',
-                          background: 'rgba(255, 255, 255, 0.8)',
                           backdropFilter: 'blur(10px)',
                           transition: 'all 0.3s ease',
                           '&:focus-within': {
@@ -528,11 +521,11 @@ export default function Client() {
                     </Select>
                     </FormControl>
                   
-                    <div className={`${isMobile ? 'mobile-action-buttons' : 'pt-4 flex justify-end space-x-3'}`}>
+                    <div className={`pt-4 flex justify-end space-x-3`}>
                       <Button 
                         onClick={closeopen} 
                         variant="outlined"
-                        className={isMobile ? 'mobile-button' : ''}
+                        className={''}
                         sx={isMobile ? {
                           borderRadius: '12px',
                           fontWeight: 600,

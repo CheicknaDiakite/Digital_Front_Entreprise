@@ -435,6 +435,7 @@ export default function Personnel() {
         >
           {/* Dialog Header */}
           <DialogTitle
+            className={`bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700`}
             sx={{
               p: 0,
               background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
@@ -489,7 +490,7 @@ export default function Personnel() {
           {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
             <M_Abonnement />
           ) : (
-            <DialogContent sx={{ p: 3, bgcolor: "#fafafa" }}>
+            <DialogContent sx={{ p: 3 }}>
               <form onSubmit={handleSubmit(onSubmit)}>
                 <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
                   <MyTextField
@@ -501,7 +502,6 @@ export default function Personnel() {
                     sx={{
                       "& .MuiOutlinedInput-root": {
                         borderRadius: "12px",
-                        bgcolor: "#ffffff",
                         "&.Mui-focused fieldset": { borderColor: "#6366f1", borderWidth: 2 },
                       },
                     }}
@@ -515,7 +515,6 @@ export default function Personnel() {
                     sx={{
                       "& .MuiOutlinedInput-root": {
                         borderRadius: "12px",
-                        bgcolor: "#ffffff",
                         "&.Mui-focused fieldset": { borderColor: "#6366f1", borderWidth: 2 },
                       },
                     }}
@@ -530,7 +529,6 @@ export default function Personnel() {
                     sx={{
                       "& .MuiOutlinedInput-root": {
                         borderRadius: "12px",
-                        bgcolor: "#ffffff",
                         "&.Mui-focused fieldset": { borderColor: "#6366f1", borderWidth: 2 },
                       },
                     }}
@@ -545,7 +543,6 @@ export default function Personnel() {
                     sx={{
                       "& .MuiOutlinedInput-root": {
                         borderRadius: "12px",
-                        bgcolor: "#ffffff",
                         "&.Mui-focused fieldset": { borderColor: "#6366f1", borderWidth: 2 },
                       },
                     }}
@@ -560,7 +557,6 @@ export default function Personnel() {
                     sx={{
                       "& .MuiOutlinedInput-root": {
                         borderRadius: "12px",
-                        bgcolor: "#ffffff",
                         "&.Mui-focused fieldset": { borderColor: "#6366f1", borderWidth: 2 },
                       },
                     }}
@@ -578,8 +574,6 @@ export default function Personnel() {
                         fontWeight: 700,
                         py: 1.25,
                         borderColor: "#e2e8f0",
-                        color: "#475569",
-                        bgcolor: "#ffffff",
                         "&:hover": { bgcolor: "#f8fafc", borderColor: "#cbd5e1" },
                       }}
                     >

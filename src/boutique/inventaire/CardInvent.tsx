@@ -107,7 +107,7 @@ export default function CardInvent({ row }: EntreProps) {
             />
           </TableCell>
 
-          <TableCell>
+          {/* <TableCell>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.6 }}>
               <Typography variant="body2" sx={{ fontWeight: 700, color: 'white' }}>
                 {row.ref}
@@ -116,7 +116,7 @@ export default function CardInvent({ row }: EntreProps) {
                 {row.uuid?.slice(0, 8).toUpperCase()}
               </Typography>
             </Box>
-          </TableCell>
+          </TableCell> */}
 
           <TableCell>
             <Typography variant="body2" sx={{ color: 'white', fontWeight: 600 }}>

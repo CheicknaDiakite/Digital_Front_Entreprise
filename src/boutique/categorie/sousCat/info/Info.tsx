@@ -483,13 +483,22 @@ export default function Info() {
             // bgcolor: '#ffffff'
           }}
         >
-          <TableContainer>
+          <TableContainer
+            sx={{
+              backgroundColor: 'rgba(255, 255, 255, 0.18)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+            }}
+          >
             <Table>
               <TableHead>
                 <TableRow sx={{ '& th': { py: 2, fontWeight: 700, color: (theme.palette.mode === 'dark' || showBackground) ? 'rgba(255,255,255,0.85)' : '#475569', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: 0.5 } }}>
                   <TableCell>Date</TableCell>
                   <TableCell>Client</TableCell>
-                  <TableCell>Produit</TableCell>
+                  <TableCell>Stock</TableCell>
                   <TableCell align="right">Quantité</TableCell>
                   <TableCell align="right">Prix Unitaire</TableCell>
                   <TableCell align="right">Total</TableCell>

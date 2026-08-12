@@ -273,16 +273,57 @@ export default function ClientEntrer(uuid: UuType) {
             className="rounded-xl border border-gray-200/40 bg-transparent overflow-hidden"
             sx={{ background: 'transparent', bgcolor: 'transparent' }}
           >
-            <TableContainer sx={{ maxHeight: 550 }}>
+            <TableContainer
+              sx={{
+                maxHeight: 550,
+                backgroundColor: 'rgba(255, 255, 255, 0.18)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                borderRadius: '12px',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+              }}
+            >
               <Table stickyHeader aria-label="tableau des entrées">
                 <TableHead>
-                  <TableRow sx={{ '& th': { backgroundColor: '#f8fafc', fontWeight: 700, color: '#334155' } }}>
-                    <TableCell>Date</TableCell>
-                    <TableCell>Désignation</TableCell>
-                    <TableCell align="right">Quantité</TableCell>
-                    <TableCell align="right">Prix Unitaire (Achat)</TableCell>
-                    <TableCell align="right">Total</TableCell>
-                    {(unClient.role === 2 || unClient.role === 3) && <TableCell align="center">Action</TableCell>}
+                  <TableRow>
+                    {['Date', 'Désignation', 'Quantité', 'Prix Unitaire (Achat)', 'Total'].map((header, i) => (
+                      <TableCell
+                        key={header}
+                        align={i >= 2 ? 'right' : 'left'}
+                        sx={{
+                          backgroundColor: 'rgba(30, 41, 59, 0.75)',
+                          backdropFilter: 'blur(10px)',
+                          WebkitBackdropFilter: 'blur(10px)',
+                          color: '#f1f5f9',
+                          fontWeight: 700,
+                          fontSize: '0.85rem',
+                          letterSpacing: '0.05em',
+                          textTransform: 'uppercase',
+                          borderBottom: '1px solid rgba(255,255,255,0.2)',
+                        }}
+                      >
+                        {header}
+                      </TableCell>
+                    ))}
+                    {(unClient.role === 2 || unClient.role === 3) && (
+                      <TableCell
+                        align="center"
+                        sx={{
+                          backgroundColor: 'rgba(30, 41, 59, 0.75)',
+                          backdropFilter: 'blur(10px)',
+                          WebkitBackdropFilter: 'blur(10px)',
+                          color: '#f1f5f9',
+                          fontWeight: 700,
+                          fontSize: '0.85rem',
+                          letterSpacing: '0.05em',
+                          textTransform: 'uppercase',
+                          borderBottom: '1px solid rgba(255,255,255,0.2)',
+                        }}
+                      >
+                        Action
+                      </TableCell>
+                    )}
                   </TableRow>
                 </TableHead>
                 <TableBody>

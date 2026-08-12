@@ -549,7 +549,6 @@ const EntrepriseDialog: FC<{
         m: 2,
         width: 'calc(100% - 2rem)',
         maxWidth: '500px',
-        bgcolor: 'rgba(15, 23, 42, 0.97)',
         backdropFilter: 'blur(24px)',
         border: '1px solid rgba(99,102,241,0.2)',
         borderRadius: '20px',
@@ -558,8 +557,9 @@ const EntrepriseDialog: FC<{
     }}
   >
     <DialogTitle
+      className={`bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700`}
       sx={{
-        background: 'linear-gradient(135deg, rgba(99,102,241,0.2) 0%, rgba(139,92,246,0.15) 100%)',
+        // background: 'linear-gradient(135deg, rgba(99,102,241,0.2) 0%, rgba(139,92,246,0.15) 100%)',
         borderBottom: '1px solid rgba(99,102,241,0.15)',
         pb: 2,
       }}

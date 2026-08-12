@@ -297,7 +297,6 @@ export default function ComponentShadow() {
             className: "rounded-10",
             sx: isMobile ? {
               borderRadius: '20px',
-              background: 'rgba(255, 255, 255, 0.95)',
               backdropFilter: 'blur(10px)'
             } : {}
           }}
@@ -329,17 +328,17 @@ export default function ComponentShadow() {
             <M_Abonnement />
           ) : (
             <DialogContent className="mt-4">
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-3">
                 <MyTextField
                   fullWidth
                   label="Nom de l'article"
                   {...register("libelle", { required: "Ce champ est obligatoire" })}
                   error={!!errors.libelle}
                   helperText={errors.libelle?.message}
-                  className={isMobile ? 'mobile-form-field' : ''}
+                  className={''}
                   sx={{
                     '& .MuiOutlinedInput-root': {
-                      borderRadius: isMobile ? '12px' : '4px',
+                      borderRadius: '4px',
                     }
                   }}
                 />
@@ -354,10 +353,10 @@ export default function ComponentShadow() {
                   InputProps={{
                     startAdornment: <ImageIcon className="mr-2 text-gray-400" />,
                   }}
-                  className={isMobile ? 'mobile-form-field' : ''}
+                  className={''}
                   sx={{
                     '& .MuiOutlinedInput-root': {
-                      borderRadius: isMobile ? '12px' : '4px',
+                      borderRadius: '4px',
                     }
                   }}
                 />}
@@ -366,10 +365,10 @@ export default function ComponentShadow() {
                   <Button
                     type="submit"
                     variant="contained"
-                    className={`bg-blue-600 hover:bg-blue-700 ${isMobile ? 'mobile-button' : ''}`}
+                    className={`bg-blue-600 hover:bg-blue-700`}
                     sx={{
-                      borderRadius: isMobile ? '12px' : '4px',
-                      fontWeight: isMobile ? 600 : 400
+                      borderRadius: '4px',
+                      fontWeight: 400
                     }}
                   >
                     Enregistrer
