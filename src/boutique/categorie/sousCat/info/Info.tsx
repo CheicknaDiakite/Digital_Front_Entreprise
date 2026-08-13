@@ -47,6 +47,7 @@ export default function Info() {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
   const { showBackground } = useAppSettings();
+  const isDark = theme.palette.mode === 'dark' || showBackground;
   
   const { uuid } = useParams<RouteParams>();
   const { unUser } = useFetchUser();
@@ -485,17 +486,17 @@ export default function Info() {
         >
           <TableContainer
             sx={{
-              backgroundColor: 'rgba(255, 255, 255, 0.18)',
+              backgroundColor: isDark ? 'rgba(15, 23, 42, 0.65)' : 'rgba(255, 255, 255, 0.85)',
               backdropFilter: 'blur(10px)',
               WebkitBackdropFilter: 'blur(10px)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.3)',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+              border: isDark ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(226, 232, 240, 0.8)',
+              boxShadow: isDark ? '0 8px 32px rgba(0, 0, 0, 0.35)' : '0 8px 32px rgba(31, 38, 135, 0.07)',
             }}
           >
             <Table>
               <TableHead>
-                <TableRow sx={{ '& th': { py: 2, fontWeight: 700, color: (theme.palette.mode === 'dark' || showBackground) ? 'rgba(255,255,255,0.85)' : '#475569', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: 0.5 } }}>
+                <TableRow sx={{ backgroundColor: isDark ? 'rgba(30, 41, 59, 0.85)' : 'rgba(241, 245, 249, 0.95)', '& th': { py: 2, fontWeight: 700, color: isDark ? '#f1f5f9' : '#475569', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: 0.5, borderBottom: isDark ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(226, 232, 240, 0.8)' } }}>
                   <TableCell>Date</TableCell>
                   <TableCell>Client</TableCell>
                   <TableCell>Stock</TableCell>

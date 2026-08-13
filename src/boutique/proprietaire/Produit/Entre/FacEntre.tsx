@@ -19,7 +19,8 @@ import {
   Typography,
   Tooltip,
   Fade,
-  Stack
+  Stack,
+  useTheme
 } from '@mui/material'
 import CloseIcon from "@mui/icons-material/Close"
 import AddIcon from '@mui/icons-material/Add';
@@ -37,8 +38,12 @@ import M_Abonnement from '../../../../_components/Card/M_Abonnement';
 import { useFetchEntreprise, useFetchUser } from '../../../../usePerso/fonction.user';
 import { isLicenceExpired } from '../../../../usePerso/fonctionPerso';
 import '../mobile-produit.css';
+import { useAppSettings } from '../../../../themes/AppSettingsContext';
 
 export default function FacEntre() {
+  const theme = useTheme();
+  const { showBackground } = useAppSettings();
+  const isDark = theme.palette.mode === 'dark' || showBackground;
   const uuid = useStoreUuid((state) => state.selectedId)
   const {unEntreprise} = useFetchEntreprise(uuid)
   const [isMobile, setIsMobile] = useState(false);
@@ -437,12 +442,12 @@ export default function FacEntre() {
             component={Paper}
             sx={{
               maxHeight: 600,
-              backgroundColor: 'rgba(255, 255, 255, 0.18)',
+              backgroundColor: isDark ? 'rgba(15, 23, 42, 0.65)' : 'rgba(255, 255, 255, 0.85)',
               backdropFilter: 'blur(10px)',
               WebkitBackdropFilter: 'blur(10px)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.3)',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+              border: isDark ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(226, 232, 240, 0.8)',
+              boxShadow: isDark ? '0 8px 32px rgba(0, 0, 0, 0.35)' : '0 8px 32px rgba(31, 38, 135, 0.07)',
             }}
           >
             <Table stickyHeader aria-label="sticky table">
@@ -452,15 +457,15 @@ export default function FacEntre() {
                     <TableCell
                       key={header}
                       sx={{
-                        backgroundColor: 'rgba(30, 41, 59, 0.75)',
+                        backgroundColor: isDark ? 'rgba(30, 41, 59, 0.85)' : 'rgba(241, 245, 249, 0.95)',
                         backdropFilter: 'blur(10px)',
                         WebkitBackdropFilter: 'blur(10px)',
-                        color: '#f1f5f9',
+                        color: isDark ? '#f1f5f9' : '#1e293b',
                         fontWeight: 700,
                         fontSize: '0.85rem',
                         letterSpacing: '0.05em',
                         textTransform: 'uppercase',
-                        borderBottom: '1px solid rgba(255,255,255,0.2)',
+                        borderBottom: isDark ? '1px solid rgba(255,255,255,0.15)' : '1px solid rgba(226, 232, 240, 0.8)',
                       }}
                     >
                       {header}
@@ -478,7 +483,7 @@ export default function FacEntre() {
                     <TableCell
                       colSpan={4}
                       align="center"
-                      sx={{ color: '#475569', fontWeight: 500, py: 4 }}
+                      sx={{ color: isDark ? '#94a3b8' : '#475569', fontWeight: 500, py: 4 }}
                       className={isMobile ? 'mobile-empty-card' : ''}
                     >
                       Aucune facture d'entrée disponible

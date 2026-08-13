@@ -1,11 +1,16 @@
-import { TableCell, TableRow, Avatar, Box, Typography, Chip } from '@mui/material';
+import { TableCell, TableRow, Avatar, Box, Typography, Chip, useTheme } from '@mui/material';
 import { formatNumberWithSpaces, priceRow } from '../../../../usePerso/fonctionPerso';
 import { format } from 'date-fns';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import { useAppSettings } from '../../../../themes/AppSettingsContext';
 
 export default function CardInfo({ row }: any) {
+  const theme = useTheme();
+  const { showBackground } = useAppSettings();
+  const isDark = theme.palette.mode === 'dark' || showBackground;
+
   const validDate = row?.date ? new Date(row.date) : new Date();
   const price = priceRow(row?.qte || 0, row?.pu || 0);
 
@@ -13,17 +18,15 @@ export default function CardInfo({ row }: any) {
   const clientName = row?.client || 'Client anonyme';
   const firstLetter = clientName.charAt(0).toUpperCase();
 
-  console.log("prix",row)
-
   return (
     <TableRow 
       sx={{
+        transition: 'background-color 0.2s ease-in-out',
         '&:hover': {
-          backgroundColor: 'rgba(59, 130, 246, 0.04)',
-          transition: 'background-color 0.2s ease-in-out',
+          backgroundColor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(59, 130, 246, 0.04)',
         },
         '& td': {
-          borderColor: 'rgba(226, 232, 240, 0.8)',
+          borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(226, 232, 240, 0.8)',
           py: 1.75
         }
       }}
@@ -31,8 +34,8 @@ export default function CardInfo({ row }: any) {
       {/* Date */}
       <TableCell>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <CalendarMonthIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-          <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary', fontSize: '0.85rem' }}>
+          <CalendarMonthIcon sx={{ fontSize: 16, color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'text.secondary' }} />
+          <Typography variant="body2" sx={{ fontWeight: 500, color: isDark ? '#f1f5f9' : 'text.primary', fontSize: '0.85rem' }}>
             {isNaN(validDate.getTime()) ? '-' : format(validDate, 'dd/MM/yyyy')}
           </Typography>
         </Box>
@@ -47,15 +50,15 @@ export default function CardInfo({ row }: any) {
               height: 28, 
               fontSize: '0.75rem', 
               fontWeight: 600,
-              bgcolor: 'primary.light', 
-              color: 'primary.main',
+              bgcolor: isDark ? 'rgba(59, 130, 246, 0.2)' : 'primary.light', 
+              color: isDark ? '#93c5fd' : 'primary.main',
               border: '1px solid',
-              borderColor: 'primary.200'
+              borderColor: isDark ? 'rgba(59, 130, 246, 0.4)' : 'primary.200'
             }}
           >
             {firstLetter || <PersonOutlineIcon sx={{ fontSize: 16 }} />}
           </Avatar>
-          <Typography variant="body2" sx={{ fontWeight: 500, color: 'gray.800', fontSize: '0.875rem' }}>
+          <Typography variant="body2" sx={{ fontWeight: 500, color: isDark ? '#f1f5f9' : 'gray.800', fontSize: '0.875rem' }}>
             {clientName}
           </Typography>
         </Box>
@@ -90,7 +93,8 @@ export default function CardInfo({ row }: any) {
           sx={{ 
             fontWeight: 600, 
             fontFamily: 'monospace',
-            bgcolor: 'rgba(241, 245, 249, 0.8)',
+            bgcolor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(241, 245, 249, 0.8)',
+            color: isDark ? '#f1f5f9' : 'text.primary',
             px: 1,
             py: 0.25,
             borderRadius: '4px',
@@ -103,7 +107,7 @@ export default function CardInfo({ row }: any) {
 
       {/* Prix Unitaire */}
       <TableCell align="right">
-        <Typography variant="body2" sx={{ fontFamily: 'monospace', color: 'text.secondary', fontWeight: 500 }}>
+        <Typography variant="body2" sx={{ fontFamily: 'monospace', color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'text.secondary', fontWeight: 500 }}>
           {formatNumberWithSpaces(row?.pu ?? 0)} F
         </Typography>
       </TableCell>

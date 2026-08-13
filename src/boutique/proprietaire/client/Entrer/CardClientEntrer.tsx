@@ -1,27 +1,45 @@
-import { TableCell, TableRow } from '@mui/material';
+import { TableCell, TableRow, useTheme } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { RecupType } from '../../../../typescript/DataType';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import { formatNumberWithSpaces, priceRow } from '../../../../usePerso/fonctionPerso';
 import { useFetchUser } from '../../../../usePerso/fonction.user';
+import { useAppSettings } from '../../../../themes/AppSettingsContext';
 
 type EntreProps = {
   row: RecupType;
 };
 
 export default function CardClientEntrer({ row }: EntreProps) {
+  const theme = useTheme();
+  const { showBackground } = useAppSettings();
+  const isDark = theme.palette.mode === 'dark' || showBackground;
+
   const validDate = row.date ?? new Date();
   const { unUser } = useFetchUser();
   if (row.qte !== undefined && row.pu_achat !== undefined) {
     const price = priceRow(row.qte, row.pu_achat);
 
     return (
-      <TableRow hover className="transition-colors hover:bg-slate-50/80">
+      <TableRow 
+        hover 
+        sx={{
+          transition: 'background-color 0.2s ease',
+          '&:hover': {
+            backgroundColor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.03)',
+          },
+          '& .MuiTableCell-root': {
+            color: isDark ? '#f1f5f9' : '#334155',
+            borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(226, 232, 240, 0.8)',
+          },
+        }}
+      >
         <TableCell sx={{ py: 1.5 }}>
           <Link
             to={`/entre/modif/${row.uuid}`}
-            className="text-gray-800 hover:text-blue-600 font-medium hover:underline text-sm"
+            style={{ color: isDark ? '#93c5fd' : '#1e293b' }}
+            className="font-medium hover:underline text-sm"
           >
             {format(new Date(validDate), 'dd/MM/yyyy')}
           </Link>
@@ -29,7 +47,7 @@ export default function CardClientEntrer({ row }: EntreProps) {
 
         <TableCell sx={{ py: 1.5 }}>
           <div className="flex items-center space-x-1.5 flex-wrap">
-            <span className="text-gray-800 font-medium text-sm">{row.categorie_libelle}</span>
+            <span style={{ color: isDark ? '#f1f5f9' : '#1e293b' }} className="font-medium text-sm">{row.categorie_libelle}</span>
             {row.libelle && (
               <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
                 {row.libelle}
@@ -38,15 +56,15 @@ export default function CardClientEntrer({ row }: EntreProps) {
           </div>
         </TableCell>
 
-        <TableCell align="right" sx={{ py: 1.5, fontWeight: 600, color: '#334155' }}>
+        <TableCell align="right" sx={{ py: 1.5, fontWeight: 600, color: isDark ? '#f1f5f9' : '#334155' }}>
           {row.qte}
         </TableCell>
 
-        <TableCell align="right" sx={{ py: 1.5, color: '#475569' }}>
+        <TableCell align="right" sx={{ py: 1.5, color: isDark ? 'rgba(255, 255, 255, 0.75)' : '#475569' }}>
           {formatNumberWithSpaces(row.pu_achat)} F
         </TableCell>
 
-        <TableCell align="right" sx={{ py: 1.5, fontWeight: 700, color: '#2563eb' }}>
+        <TableCell align="right" sx={{ py: 1.5, fontWeight: 700, color: isDark ? '#60a5fa' : '#2563eb' }}>
           {formatNumberWithSpaces(price)} F
         </TableCell>
 

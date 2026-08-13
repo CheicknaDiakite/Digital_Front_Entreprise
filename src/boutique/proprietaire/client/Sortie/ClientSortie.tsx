@@ -555,12 +555,12 @@ export default function ClientSortie(uuid: UuType) {
               <TableContainer
                 sx={{
                   maxHeight: 500,
-                  backgroundColor: 'rgba(255, 255, 255, 0.18)',
+                  backgroundColor: isDarkText ? 'rgba(15, 23, 42, 0.65)' : 'rgba(255, 255, 255, 0.85)',
                   backdropFilter: 'blur(10px)',
                   WebkitBackdropFilter: 'blur(10px)',
                   borderRadius: '12px',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+                  border: isDarkText ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(226, 232, 240, 0.8)',
+                  boxShadow: isDarkText ? '0 8px 32px rgba(0, 0, 0, 0.35)' : '0 8px 32px rgba(31, 38, 135, 0.07)',
                 }}
               >
                 <Table stickyHeader aria-label="tableau des ventes">
@@ -571,15 +571,15 @@ export default function ClientSortie(uuid: UuType) {
                           key={header}
                           align={i >= 4 ? 'right' : 'left'}
                           sx={{
-                            backgroundColor: 'rgba(30, 41, 59, 0.75)',
+                            backgroundColor: isDarkText ? 'rgba(30, 41, 59, 0.85)' : 'rgba(241, 245, 249, 0.95)',
                             backdropFilter: 'blur(10px)',
                             WebkitBackdropFilter: 'blur(10px)',
-                            color: '#f1f5f9',
+                            color: isDarkText ? '#f1f5f9' : '#1e293b',
                             fontWeight: 700,
                             fontSize: '0.85rem',
                             letterSpacing: '0.05em',
                             textTransform: 'uppercase',
-                            borderBottom: '1px solid rgba(255,255,255,0.2)',
+                            borderBottom: isDarkText ? '1px solid rgba(255,255,255,0.15)' : '1px solid rgba(226, 232, 240, 0.8)',
                           }}
                         >
                           {header}

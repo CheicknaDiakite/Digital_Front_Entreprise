@@ -156,10 +156,11 @@ const NavigationCard: FC<NavigationCardType> = ({ icon, title, description, to, 
 };
 
 export default function DashboardDefault() {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  
   const { showBackground } = useAppSettings();
+  const theme = useTheme();
   const isDark = theme.palette.mode === 'dark' || showBackground;
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   // Utilisation de try-catch pour les hooks qui peuvent échouer
   const [hasError, setHasError] = useState(false);

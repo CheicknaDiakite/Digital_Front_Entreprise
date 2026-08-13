@@ -219,12 +219,12 @@ export default function ClientHistorique(props: UuType) {
           <TableContainer
             sx={{
               maxHeight: 550,
-              backgroundColor: 'rgba(255, 255, 255, 0.18)',
+              backgroundColor: isDarkText ? 'rgba(15, 23, 42, 0.65)' : 'rgba(255, 255, 255, 0.85)',
               backdropFilter: 'blur(10px)',
               WebkitBackdropFilter: 'blur(10px)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 255, 255, 0.3)',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+              border: isDarkText ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(226, 232, 240, 0.8)',
+              boxShadow: isDarkText ? '0 8px 32px rgba(0, 0, 0, 0.35)' : '0 8px 32px rgba(31, 38, 135, 0.07)',
             }}
           >
             <Table stickyHeader aria-label="tableau d'historique">
@@ -235,15 +235,15 @@ export default function ClientHistorique(props: UuType) {
                       key={header}
                       align={i >= 4 ? 'right' : 'left'}
                       sx={{
-                        backgroundColor: 'rgba(30, 41, 59, 0.75)',
+                        backgroundColor: isDarkText ? 'rgba(30, 41, 59, 0.85)' : 'rgba(241, 245, 249, 0.95)',
                         backdropFilter: 'blur(10px)',
                         WebkitBackdropFilter: 'blur(10px)',
-                        color: '#f1f5f9',
+                        color: isDarkText ? '#f1f5f9' : '#1e293b',
                         fontWeight: 700,
                         fontSize: '0.85rem',
                         letterSpacing: '0.05em',
                         textTransform: 'uppercase',
-                        borderBottom: '1px solid rgba(255,255,255,0.2)',
+                        borderBottom: isDarkText ? '1px solid rgba(255,255,255,0.15)' : '1px solid rgba(226, 232, 240, 0.8)',
                       }}
                     >
                       {header}
@@ -263,26 +263,38 @@ export default function ClientHistorique(props: UuType) {
                   const rowTotal = Math.abs(delta) * rowPu;
                   
                   return (
-                    <TableRow key={index} hover className="transition-colors hover:bg-slate-50/80">
-                      <TableCell sx={{ py: 1.5, color: '#334155', fontWeight: 500 }}>
+                    <TableRow 
+                      key={index} 
+                      hover 
+                      sx={{
+                        transition: 'background-color 0.2s ease',
+                        '&:hover': {
+                          backgroundColor: isDarkText ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.03)',
+                        },
+                        '& .MuiTableCell-root': {
+                          borderColor: isDarkText ? 'rgba(255, 255, 255, 0.1)' : 'rgba(226, 232, 240, 0.8)',
+                        },
+                      }}
+                    >
+                      <TableCell sx={{ py: 1.5, color: isDarkText ? '#f1f5f9' : '#334155', fontWeight: 500 }}>
                         {row.date ? new Date(row.date).toLocaleDateString() : '-'}
                       </TableCell>
                       <TableCell sx={{ py: 1.5 }}>
                         {renderActionChip(row.type || row.action)}
                       </TableCell>
-                      <TableCell sx={{ py: 1.5, fontWeight: 500, color: '#1e293b' }}>
+                      <TableCell sx={{ py: 1.5, fontWeight: 500, color: isDarkText ? '#f1f5f9' : '#1e293b' }}>
                         {row.libelle || '-'}
                       </TableCell>
-                      <TableCell sx={{ py: 1.5, color: '#475569' }}>
+                      <TableCell sx={{ py: 1.5, color: isDarkText ? 'rgba(255, 255, 255, 0.75)' : '#475569' }}>
                         {row.categorie || '-'}
                       </TableCell>
-                      <TableCell align="right" sx={{ py: 1.5, fontWeight: 700, color: delta >= 0 ? '#047857' : '#dc2626' }}>
+                      <TableCell align="right" sx={{ py: 1.5, fontWeight: 700, color: delta >= 0 ? '#10b981' : '#f87171' }}>
                         {deltaText}
                       </TableCell>
-                      <TableCell align="right" sx={{ py: 1.5, color: '#475569' }}>
+                      <TableCell align="right" sx={{ py: 1.5, color: isDarkText ? 'rgba(255, 255, 255, 0.75)' : '#475569' }}>
                         {row.pu_achat ? `${formatNumberWithSpaces(Number(row.pu_achat))} F` : `${formatNumberWithSpaces(Number(row.pu))} F`}
                       </TableCell>
-                      <TableCell align="right" sx={{ py: 1.5, fontWeight: 700, color: '#2563eb' }}>
+                      <TableCell align="right" sx={{ py: 1.5, fontWeight: 700, color: isDarkText ? '#60a5fa' : '#2563eb' }}>
                         {formatNumberWithSpaces(rowTotal)} F
                       </TableCell>
                     </TableRow>

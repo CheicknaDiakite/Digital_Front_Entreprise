@@ -22,6 +22,7 @@ import {
   CardContent,
   Alert,
   Stack,
+  useTheme,
 } from '@mui/material';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import CloseIcon from "@mui/icons-material/Close";
@@ -38,6 +39,7 @@ import M_Abonnement from '../../../_components/Card/M_Abonnement';
 import { useFetchEntreprise, useFetchUser } from '../../../usePerso/fonction.user';
 import Chart_Dep from '../../../_components/Chart/Chart_Dep';
 import './mobile-produit.css';
+import { useAppSettings } from '../../../themes/AppSettingsContext';
 
 export default function Depense() {
   const {ajoutDepense} = useCreateDepense();
@@ -46,6 +48,10 @@ export default function Depense() {
   
   const {depensesEntreprise, isLoading, isError} = useGetAllDepense(uuid!);
   const [isMobile, setIsMobile] = useState(false);
+
+  const { showBackground } = useAppSettings();
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark' || showBackground;
   
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = isMobile ? 10 : 25;
@@ -323,12 +329,12 @@ export default function Depense() {
                       component={Paper}
                       sx={{
                         maxHeight: 600,
-                        backgroundColor: 'rgba(255, 255, 255, 0.18)',
+                        backgroundColor: isDark ? 'rgba(15, 23, 42, 0.65)' : 'rgba(255, 255, 255, 0.85)',
                         backdropFilter: 'blur(10px)',
                         WebkitBackdropFilter: 'blur(10px)',
                         borderRadius: '12px',
-                        border: '1px solid rgba(255, 255, 255, 0.3)',
-                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+                        border: isDark ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(226, 232, 240, 0.8)',
+                        boxShadow: isDark ? '0 8px 32px rgba(0, 0, 0, 0.35)' : '0 8px 32px rgba(31, 38, 135, 0.07)',
                       }}
                     >
                       <Table stickyHeader aria-label="sticky table">
@@ -338,15 +344,15 @@ export default function Depense() {
                               <TableCell
                                 key={header}
                                 sx={{
-                                  backgroundColor: 'rgba(30, 41, 59, 0.75)',
+                                  backgroundColor: isDark ? 'rgba(30, 41, 59, 0.85)' : 'rgba(241, 245, 249, 0.95)',
                                   backdropFilter: 'blur(10px)',
                                   WebkitBackdropFilter: 'blur(10px)',
-                                  color: '#f1f5f9',
+                                  color: isDark ? '#f1f5f9' : '#1e293b',
                                   fontWeight: 700,
                                   fontSize: '0.85rem',
                                   letterSpacing: '0.05em',
                                   textTransform: 'uppercase',
-                                  borderBottom: '1px solid rgba(255,255,255,0.2)',
+                                  borderBottom: isDark ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(226, 232, 240, 0.8)',
                                 }}
                               >
                                 {header}
@@ -364,7 +370,7 @@ export default function Depense() {
                               <TableCell
                                 colSpan={4}
                                 align="center"
-                                sx={{ color: '#475569', fontWeight: 500, py: 4 }}
+                                sx={{ color: isDark ? '#94a3b8' : '#475569', fontWeight: 500, py: 4 }}
                                 className={isMobile ? 'mobile-empty-card' : ''}
                               >
                                 Aucune dépense enregistrée
