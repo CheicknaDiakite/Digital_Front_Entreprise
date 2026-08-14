@@ -80,7 +80,7 @@ export default function CardInfo({ row }: any) {
             }}
           />
         ) : (
-          <Typography variant="caption" sx={{ color: 'text.disabled', italic: true }}>
+          <Typography variant="caption" sx={{ color: 'text.disabled', fontStyle: 'italic' }}>
             Non spécifié
           </Typography>
         )}

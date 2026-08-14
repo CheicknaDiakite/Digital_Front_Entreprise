@@ -96,6 +96,16 @@ const NavigationCard: FC<NavigationCardType> = ({ icon, title, description, to, 
             bgcolor: `${color}25`,
           },
         } : {},
+        '&:active': !disabled ? {
+          bgcolor: isDarkText ? `${color}22` : `${color}10`,
+          borderColor: `${color}60`,
+          transform: 'translateY(-3px)',
+          boxShadow: `0 16px 32px -4px ${color}35`,
+          '& .icon-box': {
+            transform: 'scale(1.12) rotate(-3deg)',
+            bgcolor: `${color}25`,
+          },
+        } : {},
       }}
     >
       <Box

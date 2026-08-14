@@ -37,7 +37,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import HistoryIcon from '@mui/icons-material/History';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAddAvis, useFetchEntreprise, useFetchUser, useGetUserEntreprises, useRestructionUsers } from "../../../../../usePerso/fonction.user";
 import { isAccessAllowed, logout } from "../../../../../usePerso/fonctionPerso";
 import { useStoreUuid } from "../../../../../usePerso/store";
@@ -318,6 +318,7 @@ const FeedbackDialogContent: React.FC<FeedbackDialogProps> = ({ open, onClose, o
 // ── Main component ──────────────────────────────────────────────────────────────
 
 const NavSide: React.FC = () => {
+  const navigate = useNavigate();
   const theme = useTheme();
   const iconColor = (dark: string, light: string) => (theme.palette.mode === 'dark' ? dark : light);
   const [expandedSection, setExpandedSection] = useState<number>(0);
@@ -350,7 +351,7 @@ const NavSide: React.FC = () => {
   const handleAvisSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     createAvis({ ...avisValues, entreprise_id: uuid || undefined });
-    setAvisValues({ libelle: '', description: '' });
+    setAvisValues({ libelle: '', description: '', user_id: '' });
     setFeedbackDialogOpen(false);
   };
 
@@ -406,7 +407,10 @@ const NavSide: React.FC = () => {
                   onClick={() => {
                     setLoading(true);
                     addId(entreprise.uuid!);
-                    window.location.reload();
+                    setTimeout(() => {
+                      setLoading(false);
+                      navigate('/entreprise');
+                    }, 600);
                   }}
                   to="/entreprise"
                   accentColor="#6366f1"

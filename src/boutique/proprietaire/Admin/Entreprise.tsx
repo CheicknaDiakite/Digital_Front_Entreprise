@@ -4,6 +4,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import {
   Box,
+  CircularProgress,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -21,7 +22,7 @@ import ErrorOutlineRoundedIcon from '@mui/icons-material/ErrorOutlineRounded';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import { EntrepriseType } from '../../../typescript/Account';
 import { connect } from '../../../_services/account.service';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCreateEntreprise, useFetchUser, useGetUserEntreprises } from '../../../usePerso/fonction.user';
 import { isLicenceExpired } from '../../../usePerso/fonctionPerso';
 import { BASE } from '../../../_services/caller.service';
@@ -84,9 +85,21 @@ interface EnterpriseCardProps {
 }
 
 const EnterpriseCard: FC<EnterpriseCardProps> = ({ post, index, onSelect }) => {
+  const navigate = useNavigate();
   const url = post.image ? BASE(post.image) : backgroundImage;
   const expired = isLicenceExpired(post.licence_date_expiration);
   const [hovered, setHovered] = useState(false);
+  const [selecting, setSelecting] = useState(false);
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (expired || selecting) { e.preventDefault(); return; }
+    e.preventDefault();
+    setSelecting(true);
+    onSelect();
+    setTimeout(() => {
+      navigate('/entreprise');
+    }, 600);
+  };
 
   return (
     <Box
@@ -106,7 +119,7 @@ const EnterpriseCard: FC<EnterpriseCardProps> = ({ post, index, onSelect }) => {
     >
       <Link
         to="/entreprise"
-        onClick={onSelect}
+        onClick={handleClick}
         style={{ textDecoration: 'none', display: 'block' }}
         tabIndex={expired ? -1 : 0}
         aria-disabled={expired}
@@ -344,6 +357,54 @@ const EnterpriseCard: FC<EnterpriseCardProps> = ({ post, index, onSelect }) => {
           </Box>
         </Box>
       </Link>
+
+      {/* ── Selecting overlay loader ── */}
+      {selecting && (
+        <Box
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            borderRadius: '20px',
+            bgcolor: 'rgba(10, 14, 30, 0.72)',
+            backdropFilter: 'blur(8px)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 1.5,
+            zIndex: 10,
+            animation: 'fadeInOverlay 0.2s ease forwards',
+            '@keyframes fadeInOverlay': {
+              from: { opacity: 0 },
+              to:   { opacity: 1 },
+            },
+          }}
+        >
+          <CircularProgress
+            size={36}
+            thickness={4}
+            sx={{
+              color: '#6366f1',
+              filter: 'drop-shadow(0 0 8px rgba(99,102,241,0.7))',
+            }}
+          />
+          <Typography
+            sx={{
+              fontSize: '0.78rem',
+              fontWeight: 600,
+              color: 'rgba(255,255,255,0.85)',
+              letterSpacing: 0.5,
+              animation: 'pulse 1s ease-in-out infinite',
+              '@keyframes pulse': {
+                '0%, 100%': { opacity: 1 },
+                '50%':       { opacity: 0.55 },
+              },
+            }}
+          >
+            Chargement…
+          </Typography>
+        </Box>
+      )}
     </Box>
   );
 };
