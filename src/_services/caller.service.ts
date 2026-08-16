@@ -1,6 +1,7 @@
 ﻿import axios, { AxiosInstance } from "axios";
 
 // https://backend.diakitedigital.com
+// https://back.gest-stocks.com/
 // http://127.0.0.1:8000
 
 

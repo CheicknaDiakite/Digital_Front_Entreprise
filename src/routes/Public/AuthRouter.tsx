@@ -7,7 +7,7 @@ import MdpUpdate from '../../pages/authentication/MdpUpdate'
 import { notClick } from '../../usePerso/fonctionPerso'
 
 export default function AuthRouter() {
-  // notClick()
+  notClick()
   return (
     <Routes>
       <Route element={<MinimalLayout />}>
