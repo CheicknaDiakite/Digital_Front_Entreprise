@@ -30,6 +30,24 @@ const inputSx = {
       borderColor: '#6366f1',
       boxShadow: '0 0 0 3px rgba(99,102,241,0.15)',
     },
+    '&.Mui-disabled': {
+      backgroundColor: '#f8fafc',
+      cursor: 'not-allowed',
+      '& .MuiOutlinedInput-notchedOutline': {
+        borderColor: '#cbd5e1',
+        borderWidth: '1.5px',
+      },
+    },
+    '& .MuiInputBase-input.Mui-disabled': {
+      WebkitTextFillColor: '#0f172a',
+      color: '#0f172a',
+      fontWeight: 700,
+      fontSize: '0.95rem',
+      opacity: 1,
+    },
+    '& .MuiInputAdornment-root .MuiSvgIcon-root': {
+      opacity: 1,
+    },
   },
 };
 
@@ -66,7 +84,9 @@ export default function TableSortie({
   handleFinalSubmit,
   removeItemFromBasket,
   basketTotalAmount,
-  basketTotalQte
+  basketTotalQte,
+  modePaiement,
+  setModePaiement,
 }: any) {
   const entreprise_uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise } = useFetchEntreprise(entreprise_uuid);
@@ -87,6 +107,57 @@ export default function TableSortie({
   const sortedList = sortedLi.filter((post: any) =>
     post?.ref?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // État pour le paiement fractionné / mixte
+  const [isPaiementMixte, setIsPaiementMixte] = useState<boolean>(false);
+  const [splitAmounts, setSplitAmounts] = useState<{ [key: string]: string }>({
+    'Caisse': '',
+    'Orange Money': '',
+    'Wave': '',
+    'Moov': '',
+    'Sama Money': '',
+    'Visa/Mastercard': '',
+  });
+
+  const paymentMethods = [
+    { value: 'Caisse', label: '💵 Caisse', color: '#10b981' },
+    { value: 'Orange Money', label: '🟠 Orange Money', color: '#f97316' },
+    { value: 'Wave', label: '🌊 Wave', color: '#3b82f6' },
+    { value: 'Moov', label: '🟣 Moov', color: '#8b5cf6' },
+    { value: 'Sama Money', label: '🟡 Sama Money', color: '#eab308' },
+    { value: 'Visa/Mastercard', label: '💳 Visa/Mastercard', color: '#6366f1' },
+  ];
+
+  // Calcul du total réparti dans le paiement mixte
+  const splitTotal = Object.values(splitAmounts).reduce((acc, val) => acc + (Number(val) || 0), 0);
+  const splitRemaining = (Number(basketTotalAmount) || 0) - splitTotal;
+
+  // Mise à jour de la chaîne mode_paiement quand on modifie la ventilation
+  const handleSplitAmountChange = (method: string, value: string) => {
+    const cleanVal = value.replace(/[^0-9]/g, '');
+    const newSplits = { ...splitAmounts, [method]: cleanVal };
+    setSplitAmounts(newSplits);
+
+    // Générer la chaîne descriptive
+    const activeEntries = Object.entries(newSplits)
+      .filter(([_, amt]) => Number(amt) > 0)
+      .map(([m, amt]) => `${m} (${formatNumberWithSpaces(Number(amt))} F)`);
+
+    if (activeEntries.length > 0) {
+      setModePaiement(`Mixte: ${activeEntries.join(' + ')}`);
+    } else {
+      setModePaiement('Caisse');
+    }
+  };
+
+  // Remplissage automatique du reste pour un mode donné
+  const handleFillRemaining = (method: string) => {
+    const otherTotal = Object.entries(splitAmounts)
+      .filter(([m, _]) => m !== method)
+      .reduce((acc, [_, amt]) => acc + (Number(amt) || 0), 0);
+    const needed = Math.max(0, (Number(basketTotalAmount) || 0) - otherTotal);
+    handleSplitAmountChange(method, String(needed));
+  };
 
   const filteredEnt = scannedCode
     ? ent.filter((option: any) => option.ref === scannedCode)
@@ -305,7 +376,7 @@ export default function TableSortie({
                 background: 'rgba(99,102,241,0.04)',
               }}>
                 <Money size={18} color="#6366f1" />
-                <span style={{ fontWeight: 700, fontSize: '1rem', color: '#1e293b', fontVariantNumeric: 'tabular-nums' }}>
+                <span style={{ fontWeight: 700, fontSize: '1rem', fontVariantNumeric: 'tabular-nums' }}>
                   {formatNumberWithSpaces(amount)}
                 </span>
               </div>
@@ -524,13 +595,262 @@ export default function TableSortie({
             </table>
           </div>
 
+          {/* Mode de Paiement */}
+          <div style={{ padding: '0 24px 16px' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '12px',
+              flexWrap: 'wrap',
+              gap: 8,
+            }}>
+              <div style={{
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+                color: '#94a3b8',
+              }}>
+                Mode de règlement
+              </div>
+
+              {/* Sélecteur de type de paiement : Unique vs Mixte */}
+              <div style={{
+                display: 'inline-flex',
+                background: 'rgba(255,255,255,0.06)',
+                borderRadius: '10px',
+                padding: '3px',
+                border: '1px solid rgba(255,255,255,0.1)',
+              }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsPaiementMixte(false);
+                    setModePaiement('Caisse');
+                  }}
+                  style={{
+                    padding: '5px 12px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: !isPaiementMixte ? 'linear-gradient(135deg, #6366f1, #4f46e5)' : 'transparent',
+                    color: !isPaiementMixte ? '#fff' : '#94a3b8',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  ⚡ Mode Unique
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsPaiementMixte(true);
+                    // Initialiser avec Caisse = total panier
+                    const initSplits = {
+                      'Caisse': String(basketTotalAmount || ''),
+                      'Orange Money': '',
+                      'Wave': '',
+                      'Moov': '',
+                      'Sama Money': '',
+                      'Visa/Mastercard': '',
+                    };
+                    setSplitAmounts(initSplits);
+                    setModePaiement(`Mixte: Caisse (${formatNumberWithSpaces(Number(basketTotalAmount || 0))} F)`);
+                  }}
+                  style={{
+                    padding: '5px 12px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: isPaiementMixte ? 'linear-gradient(135deg, #ec4899, #8b5cf6)' : 'transparent',
+                    color: isPaiementMixte ? '#fff' : '#94a3b8',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  🔀 Mode Mixte / Fractionné
+                </button>
+              </div>
+            </div>
+
+            {/* Vue Mode Unique */}
+            {!isPaiementMixte ? (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                {paymentMethods.map(({ value, label, color }) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setModePaiement(value)}
+                    style={{
+                      padding: '7px 14px',
+                      borderRadius: '20px',
+                      border: modePaiement === value
+                        ? `2px solid ${color}`
+                        : '2px solid rgba(255,255,255,0.1)',
+                      background: modePaiement === value
+                        ? `${color}22`
+                        : 'rgba(255,255,255,0.04)',
+                      color: modePaiement === value ? color : '#94a3b8',
+                      fontWeight: modePaiement === value ? 700 : 500,
+                      fontSize: '0.78rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              /* Vue Mode Mixte / Fractionné */
+              <div style={{
+                background: 'rgba(255,255,255,0.03)',
+                borderRadius: '12px',
+                padding: '14px',
+                border: '1px solid rgba(255,255,255,0.08)',
+              }}>
+                {/* Barre d'état de la répartition */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: '14px',
+                  padding: '10px 14px',
+                  borderRadius: '10px',
+                  background: splitRemaining === 0
+                    ? 'rgba(16,185,129,0.12)'
+                    : splitRemaining > 0
+                      ? 'rgba(245,158,11,0.12)'
+                      : 'rgba(239,68,68,0.12)',
+                  border: `1px solid ${
+                    splitRemaining === 0
+                      ? 'rgba(16,185,129,0.3)'
+                      : splitRemaining > 0
+                        ? 'rgba(245,158,11,0.3)'
+                        : 'rgba(239,68,68,0.3)'
+                  }`,
+                  fontSize: '0.8rem',
+                  flexWrap: 'wrap',
+                  gap: 8,
+                }}>
+                  <div>
+                    <span style={{ color: '#94a3b8' }}>Total saisi : </span>
+                    <strong style={{ color: '#fff' }}>{formatNumberWithSpaces(splitTotal)} F</strong>
+                    <span style={{ color: '#64748b' }}> / {formatNumberWithSpaces(Number(basketTotalAmount || 0))} F</span>
+                  </div>
+                  <div>
+                    {splitRemaining === 0 ? (
+                      <span style={{ color: '#34d399', fontWeight: 700 }}>
+                        ✓ Montant parfaitement équilibré
+                      </span>
+                    ) : splitRemaining > 0 ? (
+                      <span style={{ color: '#fbbf24', fontWeight: 700 }}>
+                        ⚠️ Reste à allouer : {formatNumberWithSpaces(splitRemaining)} F
+                      </span>
+                    ) : (
+                      <span style={{ color: '#f87171', fontWeight: 700 }}>
+                        ⚠️ Dépassement : +{formatNumberWithSpaces(Math.abs(splitRemaining))} F
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Grille des modes de paiement avec input */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+                  gap: '10px',
+                }}>
+                  {paymentMethods.map(({ value, label, color }) => {
+                    const currentVal = splitAmounts[value] || '';
+                    const isFilled = Number(currentVal) > 0;
+                    return (
+                      <div
+                        key={value}
+                        style={{
+                          background: isFilled ? `${color}15` : 'rgba(255,255,255,0.03)',
+                          borderRadius: '10px',
+                          padding: '10px 12px',
+                          border: `1px solid ${isFilled ? `${color}55` : 'rgba(255,255,255,0.08)'}`,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: 6,
+                          transition: 'all 0.2s',
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <span style={{ fontSize: '0.78rem', fontWeight: 700, color: isFilled ? color : '#cbd5e1' }}>
+                            {label}
+                          </span>
+                          {splitRemaining > 0 && !isFilled && (
+                            <button
+                              type="button"
+                              onClick={() => handleFillRemaining(value)}
+                              style={{
+                                background: 'transparent',
+                                border: `1px dashed ${color}`,
+                                borderRadius: '6px',
+                                color: color,
+                                fontSize: '0.68rem',
+                                fontWeight: 700,
+                                padding: '2px 6px',
+                                cursor: 'pointer',
+                              }}
+                              title="Allouer le reste à ce mode"
+                            >
+                              + Solder
+                            </button>
+                          )}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            placeholder="0"
+                            value={currentVal}
+                            onChange={(e) => handleSplitAmountChange(value, e.target.value)}
+                            style={{
+                              width: '100%',
+                              background: 'rgba(15,23,42,0.8)',
+                              border: `1px solid ${isFilled ? color : 'rgba(255,255,255,0.15)'}`,
+                              borderRadius: '8px',
+                              padding: '6px 10px',
+                              color: '#fff',
+                              fontSize: '0.85rem',
+                              fontWeight: 700,
+                              outline: 'none',
+                              textAlign: 'right',
+                            }}
+                          />
+                          <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>F</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Bouton Enregistrer */}
           <div style={{ padding: '16px 24px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
             <Button
               variant="contained"
               fullWidth
               startIcon={<SaveIcon />}
-              onClick={handleFinalSubmit}
+              onClick={() => {
+                if (isPaiementMixte && splitRemaining !== 0) {
+                  const confirmProceed = window.confirm(
+                    `Attention : Le montant réparti (${formatNumberWithSpaces(splitTotal)} F) ne correspond pas au total du panier (${formatNumberWithSpaces(Number(basketTotalAmount || 0))} F).\n\nSouhaitez-vous quand même enregistrer ?`
+                  );
+                  if (!confirmProceed) return;
+                }
+                handleFinalSubmit();
+              }}
               sx={{
                 borderRadius: '10px',
                 fontWeight: 700,

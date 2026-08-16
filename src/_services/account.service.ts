@@ -97,7 +97,7 @@ const logout = () => {
     localStorage.removeItem('entreprise-uuid');
     localStorage.removeItem('token_1');
     localStorage.removeItem('errorCount');
-    window.location.reload();
+    window.location.href = '/auth/login';
 };
 
 const isLogged = () => !!localStorage.getItem('token');

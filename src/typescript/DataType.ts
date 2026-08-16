@@ -58,6 +58,7 @@ export type SortieType = {
     entre_id?: string;
     unite?: string;
     libelle?: string;
+    mode_paiement?: string;
 }
 
 export type SousType = {
@@ -266,6 +267,7 @@ export type RecupType = {
     is_prix?: boolean,
     is_remise?: boolean,
     remise_code?: string,
+    mode_paiement?: string,
     image?: File | undefined | null;
     code_barre?: File | undefined | null;
     invoiceNumber?: number,

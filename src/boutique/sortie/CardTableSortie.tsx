@@ -141,16 +141,71 @@ export default function CardTableSortie({ row }: any) {
 
       {/* Somme */}
       <TableCell sx={{ py: 1.5 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <span style={{
-            fontWeight: 700,
-            fontSize: '0.88rem',
-            color: '#a5b4fc',
-            fontVariantNumeric: 'tabular-nums',
-          }}>
-            {formatNumberWithSpaces(row.prix_total)}
-          </span>
-          <LocalAtmIcon sx={{ fontSize: 14, color: '#6366f1' }} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{
+              fontWeight: 700,
+              fontSize: '0.88rem',
+              color: '#a5b4fc',
+              fontVariantNumeric: 'tabular-nums',
+            }}>
+              {formatNumberWithSpaces(row.prix_total)}
+            </span>
+            <LocalAtmIcon sx={{ fontSize: 14, color: '#6366f1' }} />
+          </div>
+          {row.mode_paiement && (
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              padding: '2px 8px',
+              borderRadius: '999px',
+              background: row.mode_paiement.startsWith('Mixte') || row.mode_paiement.includes('+')
+                ? 'linear-gradient(135deg, rgba(236,72,153,0.15), rgba(139,92,246,0.15))'
+                : row.mode_paiement === 'Caisse'
+                  ? 'rgba(16,185,129,0.15)'
+                  : row.mode_paiement === 'Orange Money'
+                    ? 'rgba(249,115,22,0.15)'
+                    : row.mode_paiement === 'Wave'
+                      ? 'rgba(59,130,246,0.15)'
+                      : row.mode_paiement === 'Visa/Mastercard'
+                        ? 'rgba(99,102,241,0.15)'
+                        : 'rgba(139,92,246,0.15)',
+              border: `1px solid ${
+                row.mode_paiement.startsWith('Mixte') || row.mode_paiement.includes('+')
+                  ? 'rgba(236,72,153,0.4)'
+                  : row.mode_paiement === 'Caisse'
+                    ? 'rgba(16,185,129,0.3)'
+                    : row.mode_paiement === 'Orange Money'
+                      ? 'rgba(249,115,22,0.3)'
+                      : row.mode_paiement === 'Wave'
+                        ? 'rgba(59,130,246,0.3)'
+                        : row.mode_paiement === 'Visa/Mastercard'
+                          ? 'rgba(99,102,241,0.3)'
+                          : 'rgba(139,92,246,0.3)'
+              }`,
+              color: row.mode_paiement.startsWith('Mixte') || row.mode_paiement.includes('+')
+                ? '#f472b6'
+                : row.mode_paiement === 'Caisse'
+                  ? '#10b981'
+                  : row.mode_paiement === 'Orange Money'
+                    ? '#f97316'
+                    : row.mode_paiement === 'Wave'
+                      ? '#3b82f6'
+                      : row.mode_paiement === 'Visa/Mastercard'
+                        ? '#6366f1'
+                        : '#8b5cf6',
+              fontSize: '0.65rem',
+              fontWeight: 700,
+              maxWidth: '220px',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+            title={row.mode_paiement}
+            >
+              {row.mode_paiement}
+            </span>
+          )}
         </div>
       </TableCell>
 

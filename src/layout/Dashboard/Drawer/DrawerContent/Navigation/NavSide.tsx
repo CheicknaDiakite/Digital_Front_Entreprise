@@ -576,14 +576,14 @@ const NavSide: React.FC = () => {
             </>
           )}
 
-          {unUser.role === 1 && (
+          {/* {unUser.role === 1 && (
             <NavItem
               icon={<RateReviewOutlinedIcon sx={{ color: iconColor('#60a5fa', '#2563eb') }} />}
               label="Les avis"
               to="/user/avis"
               accentColor="#3b82f6"
             />
-          )}
+          )} */}
 
           {(unUser.role === 1 && unUser.is_cabinet) && (
             <NavItem

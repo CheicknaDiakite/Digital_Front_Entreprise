@@ -228,7 +228,6 @@ const MesInscrit: FC = () => {
 
   return (
     <>
-      <Nav />
       <Card elevation={3}>
         <CardHeader
           title={

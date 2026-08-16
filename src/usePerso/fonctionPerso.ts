@@ -101,10 +101,13 @@ export function foncError(error: any) {
   return toast.error(message);
 }
 
-export const logout = () => {
+export const logout = async () => {
+  try {
+    await userService.userLogout();
+  } catch {
+    // Ignorer si la session est déjà expirée
+  }
   accountService.logout();
-  userService.userLogout();
-  toast.success("Déconnecté");
 };
 
 export const getBgClass = (qte: number, qte_critique?: number): string => {

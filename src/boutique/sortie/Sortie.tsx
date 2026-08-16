@@ -62,6 +62,7 @@ export default function Sortie() {
   const { ajoutSortie } = useCreateSortie()
 
   const [basket, setBasket] = useState<SortieType[]>([]);
+  const [modePaiement, setModePaiement] = useState<string>('Caisse');
 
   const itemsPerPage = isMobile ? 10 : 25; // Nombre d'éléments par page
 
@@ -314,8 +315,10 @@ export default function Sortie() {
   const handleFinalSubmit = async () => {
     if (basket.length === 0) return;
 
-    await ajoutSortie(basket as any);
+    const itemsWithPayment = basket.map(item => ({ ...item, mode_paiement: modePaiement }));
+    await ajoutSortie(itemsWithPayment as any);
     setBasket([]);
+    setModePaiement('Caisse');
     setSelectedClient(null);
     setClientInfo({ clientName: '', clientAddress: '', clientCoordonne: '', clientId: '', clientNumero: 0 });
     await refetch();
@@ -608,6 +611,8 @@ export default function Sortie() {
                 removeItemFromBasket={removeItemFromBasket}
                 basketTotalAmount={basketTotalAmount}
                 basketTotalQte={basketTotalQte}
+                modePaiement={modePaiement}
+                setModePaiement={setModePaiement}
               />
             </div>
 
