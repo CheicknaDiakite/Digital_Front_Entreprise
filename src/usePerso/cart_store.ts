@@ -9,6 +9,7 @@ interface CartState {
 
 interface CartActions {
     toggleId: (id: number) => void;
+    selectAllIds: (ids: number[]) => void;
     reset: () => void;
     setSorties: (sorties: any[]) => void;
     setCategories: (categories: any[]) => void;
@@ -39,6 +40,10 @@ export const useStoreCart = create<CartState & CartActions>((set) => ({
             }
             return { selectedIds: newIds };
         });
+    },
+
+    selectAllIds(ids: number[]) {
+        set({ selectedIds: new Set(ids) });
     },
 
     reset() {

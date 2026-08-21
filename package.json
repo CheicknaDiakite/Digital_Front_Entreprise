@@ -141,5 +141,8 @@
     "wait-on": "^8.0.3",
     "web-vitals": "^3.5.2",
     "yup": "^1.4.0"
+  },
+  "allowScripts": {
+    "esbuild@0.21.5": true
   }
 }

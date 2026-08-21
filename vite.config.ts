@@ -119,6 +119,11 @@ export default defineConfig({
         threshold: 10240,
         deleteOriginFile: false
     })],
+    server: {
+        watch: {
+            ignored: ['**/dist.zip', '**/dist/**'],
+        },
+    },
     build: {
         target: 'esnext',
         rollupOptions: {

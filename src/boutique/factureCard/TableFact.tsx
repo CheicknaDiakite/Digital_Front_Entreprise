@@ -11,17 +11,20 @@ interface TableFactProps {
     prix_total: number;
     date: string;
     ref: string;
+    mode_paiement?: string;
   }[];
   total: number;
   discountedTotal: number;
   payerTotal: number;
   payDiscount?: number | string;
   printFormat?: string;
+  modePaiement?: string;
 }
 
-const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, payerTotal, payDiscount, printFormat = 'A4' }) => {
+const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, payerTotal, payDiscount, printFormat = 'A4', modePaiement }) => {
   const isThermal = printFormat === 'Thermal';
   const resteAPayer = (total - ((total - discountedTotal) + (Number(payDiscount))));
+  const effectiveModePaiement = modePaiement || list?.[0]?.mode_paiement;
 
   return (
     <div style={{
@@ -125,7 +128,7 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
 
             {/* Sous-total */}
             <tr style={{ background: '#f8fafc', borderTop: '2px solid #e2e8f0' }}>
-              <td rowSpan={4} style={{ borderRight: '1px solid #e2e8f0' }} />
+              <td rowSpan={4 + (effectiveModePaiement ? 1 : 0)} style={{ borderRight: '1px solid #e2e8f0' }} />
               <td colSpan={2} style={{
                 textAlign: 'right',
                 padding: isThermal ? '6px 8px' : '12px 20px',
@@ -170,6 +173,32 @@ const TableFact: React.FC<TableFactProps> = ({ list, total, discountedTotal, pay
                 – {formatNumberWithSpaces(total - discountedTotal)}
               </td>
             </tr>
+
+            {/* Mode de règlement */}
+            {effectiveModePaiement && (
+              <tr style={{ background: '#f8fafc' }}>
+                <td colSpan={2} style={{
+                  textAlign: 'right',
+                  padding: isThermal ? '6px 8px' : '12px 20px',
+                  color: '#64748b',
+                  fontWeight: 600,
+                  fontSize: '0.82rem',
+                  borderRight: '1px solid #e2e8f0',
+                }}>
+                  Règlement
+                </td>
+                <td style={{
+                  textAlign: 'right',
+                  padding: isThermal ? '6px 8px' : '12px 20px',
+                  fontWeight: 700,
+                  color: '#4f46e5',
+                  fontSize: isThermal ? '0.72rem' : '0.85rem',
+                  fontVariantNumeric: 'tabular-nums',
+                }}>
+                  {effectiveModePaiement}
+                </td>
+              </tr>
+            )}
 
             {/* Montant Payé */}
             {(total - payerTotal) > 0 && (

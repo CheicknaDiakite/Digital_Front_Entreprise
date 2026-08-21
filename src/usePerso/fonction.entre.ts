@@ -456,7 +456,7 @@ export function useGetAllSortie(slug: string, params?: any) {
 
   const [sortiesEntreprise, setSortie] = useState<RecupType[]>([]);
 
-  const { data: us, isLoading, isError, error } = useQuery({
+  const { data: us, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["sortie", slug, params],
     queryFn: () =>
       sortieService.getAllSortie(slug, params).then((res) => {
@@ -477,7 +477,7 @@ export function useGetAllSortie(slug: string, params?: any) {
     if (us) setSortie(us);
   }, [us]);
 
-  return { sortiesEntreprise, setSortie, isLoading, isError };
+  return { sortiesEntreprise, setSortie, isLoading, isError, refetch };
 }
 
 export function useCreateSortie() {
@@ -504,7 +504,7 @@ export function useCreateSortie() {
     },
   });
 
-  return { ajoutSortie: (post: SortieType) => ajout.mutate(post) };
+  return { ajoutSortie: (post: SortieType) => ajout.mutateAsync(post) };
 }
 
 export function useUpdateSortie() {

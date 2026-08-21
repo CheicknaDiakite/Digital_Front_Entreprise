@@ -147,7 +147,7 @@ function ChildModal({ discountAmount, clientName, clientId, numeroFac, total, am
   );
 }
 
-export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate, numeroFac, post, discountedTotal, payerTotal }: RecupType | any) {
+export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate, numeroFac, post, discountedTotal, payerTotal, modePaiement }: RecupType | any) {
   // let url = BASE(post.image);
 
   const url = post.image ? BASE(post.image) : post.image;
@@ -160,6 +160,8 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
   const sorties = useStoreCart(state => state.sorties);
   const selectSorties = sorties.filter((sor) => sor.id !== undefined && selectedIds.has(sor.id as number));
   // const totalPrix = selectSorties.reduce((sum, sor) => sum + sor.prix_total, 0);
+
+  const effectivePaymentMode = modePaiement || selectSorties?.[0]?.mode_paiement || 'Caisse';
 
   const totalPrix = selectSorties?.reduce((acc, sortie) => {
     // Convertir prix_total en nombre ou utiliser 0 si invalide
@@ -243,14 +245,14 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
 
   const [isMobile, setIsMobile] = useState(false);
   const [fac, setNom] = useState<TypeText>({
-    clientName: '',
+    clientName: clientName || '',
     clientAddress: '',
     clientCoordonne: '',
-    invoiceDate: '',
+    invoiceDate: invoiceDate || '',
     dueDate: '',
     notes: '',
-    numeroFac: '',
-    invoiceNumber: undefined,
+    numeroFac: numeroFac || '',
+    invoiceNumber: invoiceNumber || undefined,
   });
 
   const onChan = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -278,14 +280,13 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
   }, [total]);
 
   useEffect(() => {
-    if (clientName || invoiceNumber) {
-      setNom(prev => ({
-        ...prev,
-        clientName: clientName || prev.clientName,
-        invoiceNumber: invoiceNumber || prev.invoiceNumber
-      }));
-    }
-  }, [clientName, invoiceNumber]);
+    setNom(prev => ({
+      ...prev,
+      clientName: clientName !== undefined && clientName !== '' ? clientName : prev.clientName,
+      invoiceNumber: invoiceNumber !== undefined && invoiceNumber !== 0 ? invoiceNumber : prev.invoiceNumber,
+      numeroFac: numeroFac || prev.numeroFac,
+    }));
+  }, [clientName, invoiceNumber, numeroFac]);
 
   const [quantity] = useState<number>(0);
   const [price] = useState<number>(0);
@@ -601,6 +602,7 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                 fullWidth
                 label="Numéro de Facture"
                 name="numeroFac"
+                value={fac.numeroFac}
                 variant="outlined"
                 onChange={onChan}
                 sx={{
@@ -694,6 +696,7 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                 clientName={clientName || fac.clientName}
                 invoiceDate={invoiceDate}
                 invoiceNumber={invoiceNumber || fac.invoiceNumber}
+                modePaiement={effectivePaymentMode}
                 printFormat={printFormat}
               />
 
@@ -704,6 +707,7 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                   discountedTotal={finalDiscountedTotal}
                   payerTotal={finalPayerTotal}
                   payDiscount={payDiscount}
+                  modePaiement={effectivePaymentMode}
                   printFormat={printFormat}
                 />
               </div>

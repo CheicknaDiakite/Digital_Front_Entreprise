@@ -1,4 +1,4 @@
-import { Box, Button, Pagination, Paper, Skeleton, TextField, Typography } from "@mui/material";
+import { Box, Button, Pagination, Paper, Skeleton, TextField, Typography, Dialog, DialogContent, IconButton, Divider } from "@mui/material";
 import { ChangeEvent, FormEvent, SyntheticEvent, useEffect, useState } from "react";
 import { RecupType, SortieType } from "../../typescript/DataType";
 import { useStoreCart } from "../../usePerso/cart_store";
@@ -7,6 +7,12 @@ import Fact from "../factureCard/Fact";
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import TableSortie from "./TableSortie";
 import QuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import CloseIcon from '@mui/icons-material/Close';
+import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
+import PersonIcon from '@mui/icons-material/Person';
+import PaymentIcon from '@mui/icons-material/Payment';
 import { useFetchEntreprise, useFetchUser } from "../../usePerso/fonction.user";
 import { useStoreUuid } from "../../usePerso/store";
 import { formatNumberWithSpaces } from "../../usePerso/fonctionPerso";
@@ -34,6 +40,23 @@ export default function Sortie() {
 
   const [showInvoice, setShowInvoice] = useState(false); // État pour afficher ou masquer la section de facture
 
+  // État pour le modal de proposition de génération de facture après enregistrement
+  const [openPostSaleModal, setOpenPostSaleModal] = useState(false);
+  const [lastSaleDetails, setLastSaleDetails] = useState<{
+    clientName: string;
+    clientNumero: number | string;
+    clientId: string;
+    totalAmount: number;
+    totalQte: number;
+    itemCount: number;
+    modePaiement: string;
+    newIds: number[];
+    invoiceCode: string;
+    date: string;
+  } | null>(null);
+  const [invoicePaymentMode, setInvoicePaymentMode] = useState<string>('Caisse');
+  const [generatedInvoiceNum, setGeneratedInvoiceNum] = useState<string>('');
+
   // Détection mobile
   useEffect(() => {
     const checkMobile = () => {
@@ -55,11 +78,11 @@ export default function Sortie() {
 
   const { unEntreprise: entreprise } = useFetchEntreprise(entreprise_uuid)
 
-  const setSorties = useStoreCart(state => state.setSorties)
-
-  const { sortiesEntreprise, isLoading, isError } = useGetAllSortie(entreprise_uuid!)
+  const { sortiesEntreprise, isLoading, isError, refetch } = useGetAllSortie(entreprise_uuid!)
 
   const { ajoutSortie } = useCreateSortie()
+  const setSorties = useStoreCart(state => state.setSorties)
+  const selectAllIds = useStoreCart(state => state.selectAllIds)
 
   const [basket, setBasket] = useState<SortieType[]>([]);
   const [modePaiement, setModePaiement] = useState<string>('Caisse');
@@ -264,7 +287,7 @@ export default function Sortie() {
     }
   };
 
-  const { entresEntreprise: entres, refetch } = useGetAllEntre(entreprise_uuid!)
+  const { entresEntreprise: entres, refetch: refetchEntres } = useGetAllEntre(entreprise_uuid!)
 
   const ent = entres.filter(info => info.qte !== 0 && info.is_sortie);
 
@@ -315,13 +338,96 @@ export default function Sortie() {
   const handleFinalSubmit = async () => {
     if (basket.length === 0) return;
 
+    // Snapshot des IDs existants avant enregistrement
+    const idsBefore = new Set(
+      sortiesEntreprise.map((s: any) => s.id).filter(Boolean)
+    );
+
+    // Sauvegarder les données de la transaction actuelle
+    const currentBasket = [...basket];
+    const currentTotal = basketTotalAmount;
+    const currentQte = basketTotalQte;
+    const currentPaymentMode = modePaiement;
+    const currentClientName = clientInfo.clientName || (selectedClient?.nom ? String(selectedClient.nom) : '');
+    const currentClientNumero = clientInfo.clientNumero || (selectedClient?.numero ? selectedClient.numero : 0);
+    const currentClientId = clientInfo.clientId || (selectedClient?.uuid ? String(selectedClient.uuid) : '');
+    const todayStr = format(new Date(), 'dd/MM/yyyy HH:mm');
+    const autoInvoiceCode = `FAC-${format(new Date(), 'yyyyMMdd')}-${Math.floor(1000 + Math.random() * 9000)}`;
+
     const itemsWithPayment = basket.map(item => ({ ...item, mode_paiement: modePaiement }));
     await ajoutSortie(itemsWithPayment as any);
+
+    // Refetch pour obtenir les nouvelles sorties
+    const result = await refetch();
+    const freshSorties: any[] = result.data ?? [];
+
+    // Sélectionner automatiquement les nouveaux IDs (ceux absents avant)
+    const newIds = freshSorties
+      .map((s: any) => s.id)
+      .filter((id: number) => id !== undefined && !idsBefore.has(id));
+
+    // Mettre à jour les sorties disponibles dans le store
+    setSorties(freshSorties);
+
+    // Préparer les données pour le modal et la facture
+    const saleInfo = {
+      clientName: currentClientName,
+      clientNumero: currentClientNumero,
+      clientId: currentClientId,
+      totalAmount: currentTotal,
+      totalQte: currentQte,
+      itemCount: currentBasket.length,
+      modePaiement: currentPaymentMode,
+      newIds: newIds.length > 0 ? newIds : [],
+      invoiceCode: autoInvoiceCode,
+      date: todayStr,
+    };
+
+    setLastSaleDetails(saleInfo);
+    setInvoicePaymentMode(currentPaymentMode);
+    setGeneratedInvoiceNum(autoInvoiceCode);
+
+    // Réinitialiser le formulaire de saisie et le panier
     setBasket([]);
     setModePaiement('Caisse');
+    setSelectedOption(null);
+    setScannedCode('');
+
+    // Ouvrir le modal de proposition de facture
+    setOpenPostSaleModal(true);
+  };
+
+  const handleGenerateInvoiceFromModal = () => {
+    if (lastSaleDetails) {
+      if (lastSaleDetails.newIds && lastSaleDetails.newIds.length > 0) {
+        selectAllIds(lastSaleDetails.newIds);
+      }
+      setClientInfo({
+        clientName: lastSaleDetails.clientName,
+        clientAddress: '',
+        clientCoordonne: '',
+        clientId: lastSaleDetails.clientId,
+        clientNumero: Number(lastSaleDetails.clientNumero) || 0,
+      });
+      setInvoicePaymentMode(lastSaleDetails.modePaiement);
+      setGeneratedInvoiceNum(lastSaleDetails.invoiceCode);
+      setShowInvoice(true);
+    }
+    setOpenPostSaleModal(false);
+
+    // Défilement fluide vers la section facture
+    setTimeout(() => {
+      const invoiceElement = document.getElementById('section-facture-preview');
+      if (invoiceElement) {
+        invoiceElement.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 150);
+  };
+
+  const handleClosePostSaleModal = () => {
+    setOpenPostSaleModal(false);
     setSelectedClient(null);
     setClientInfo({ clientName: '', clientAddress: '', clientCoordonne: '', clientId: '', clientNumero: 0 });
-    await refetch();
   };
 
   const removeItemFromBasket = (index: number) => {
@@ -643,9 +749,210 @@ export default function Sortie() {
           </div>
         </Paper>
 
+        {/* ── Modal Post-Enregistrement Vente / Proposition Facture ── */}
+        <Dialog
+          open={openPostSaleModal}
+          onClose={handleClosePostSaleModal}
+          maxWidth="sm"
+          fullWidth
+          PaperProps={{
+            sx: {
+              borderRadius: '24px',
+              background: 'linear-gradient(135deg, rgba(15,23,42,0.98) 0%, rgba(30,41,59,0.98) 100%)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(99,102,241,0.25)',
+              boxShadow: '0 25px 60px rgba(0,0,0,0.5), 0 0 40px rgba(99,102,241,0.15)',
+              overflow: 'hidden',
+              color: '#fff',
+            }
+          }}
+        >
+          {/* Header du Dialog */}
+          <div style={{
+            padding: '24px 24px 16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            borderBottom: '1px solid rgba(255,255,255,0.08)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div style={{
+                width: 48,
+                height: 48,
+                borderRadius: '14px',
+                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 6px 18px rgba(16,185,129,0.4)',
+              }}>
+                <CheckCircleIcon sx={{ fontSize: 28, color: '#fff' }} />
+              </div>
+              <div>
+                <Typography variant="h6" sx={{ fontWeight: 800, color: '#ffffff', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+                  Achat enregistré avec succès !
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#94a3b8', fontSize: '0.82rem', mt: 0.5 }}>
+                  La transaction a été validée dans le stock.
+                </Typography>
+              </div>
+            </div>
+            <IconButton onClick={handleClosePostSaleModal} size="small" sx={{ color: '#94a3b8', '&:hover': { color: '#fff', background: 'rgba(255,255,255,0.08)' } }}>
+              <CloseIcon />
+            </IconButton>
+          </div>
+
+          <DialogContent sx={{ p: '24px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
+            {/* Box récapitulatif transaction */}
+            <div style={{
+              background: 'rgba(255,255,255,0.03)',
+              borderRadius: '16px',
+              border: '1px solid rgba(255,255,255,0.08)',
+              padding: '18px 20px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 14,
+            }}>
+              <div style={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#818cf8' }}>
+                Récapitulatif de la transaction
+              </div>
+
+              {/* Ligne Client */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#94a3b8', fontSize: '0.85rem' }}>
+                  <PersonIcon sx={{ fontSize: 18, color: '#818cf8' }} />
+                  <span>Client :</span>
+                </div>
+                <div style={{ fontWeight: 700, color: '#f1f5f9', fontSize: '0.9rem' }}>
+                  {lastSaleDetails?.clientName || 'Client Comptoir'}
+                  {lastSaleDetails?.clientNumero ? ` (${lastSaleDetails.clientNumero})` : ''}
+                </div>
+              </div>
+
+              {/* Ligne Articles & Qté */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#94a3b8', fontSize: '0.85rem' }}>
+                  <ShoppingBagIcon sx={{ fontSize: 18, color: '#818cf8' }} />
+                  <span>Articles vendus :</span>
+                </div>
+                <div style={{ fontWeight: 600, color: '#e2e8f0', fontSize: '0.88rem' }}>
+                  {lastSaleDetails?.itemCount || 0} référence(s) ({lastSaleDetails?.totalQte || 0} unités)
+                </div>
+              </div>
+
+              {/* Ligne Mode de Paiement */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#94a3b8', fontSize: '0.85rem' }}>
+                  <PaymentIcon sx={{ fontSize: 18, color: '#818cf8' }} />
+                  <span>Mode de règlement :</span>
+                </div>
+                <div style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  padding: '4px 10px',
+                  borderRadius: '8px',
+                  background: 'rgba(99,102,241,0.12)',
+                  border: '1px solid rgba(99,102,241,0.3)',
+                  color: '#a5b4fc',
+                  fontWeight: 700,
+                  fontSize: '0.8rem',
+                }}>
+                  {lastSaleDetails?.modePaiement || 'Caisse'}
+                </div>
+              </div>
+
+              {/* Ligne Réf Facture suggérée */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#94a3b8', fontSize: '0.85rem' }}>
+                  <ReceiptIcon sx={{ fontSize: 18, color: '#818cf8' }} />
+                  <span>Réf. Facture :</span>
+                </div>
+                <div style={{ fontFamily: 'monospace', fontWeight: 700, color: '#38bdf8', fontSize: '0.85rem' }}>
+                  {lastSaleDetails?.invoiceCode}
+                </div>
+              </div>
+
+              <Divider sx={{ borderColor: 'rgba(255,255,255,0.08)', my: 0.5 }} />
+
+              {/* Total */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.95rem', fontWeight: 700, color: '#cbd5e1' }}>Montant Total :</span>
+                <span style={{ fontSize: '1.35rem', fontWeight: 800, color: '#34d399', fontVariantNumeric: 'tabular-nums' }}>
+                  {formatNumberWithSpaces(lastSaleDetails?.totalAmount || 0)} FCFA
+                </span>
+              </div>
+            </div>
+
+            {/* Question d'invitation */}
+            <div style={{
+              textAlign: 'center',
+              padding: '12px 16px',
+              borderRadius: '12px',
+              background: 'rgba(99,102,241,0.08)',
+              border: '1px solid rgba(99,102,241,0.2)',
+            }}>
+              <Typography sx={{ color: '#e0e7ff', fontWeight: 600, fontSize: '0.92rem' }}>
+                📄 Souhaitez-vous générer et imprimer la facture maintenant ?
+              </Typography>
+              <Typography sx={{ color: '#94a3b8', fontSize: '0.78rem', mt: 0.5 }}>
+                Toutes les informations et le mode de règlement seront pré-remplis automatiquement.
+              </Typography>
+            </div>
+
+            {/* Boutons d'action */}
+            <div style={{ display: 'flex', gap: 12, marginTop: 8, flexDirection: isMobile ? 'column' : 'row' }}>
+              <Button
+                variant="contained"
+                fullWidth
+                onClick={handleGenerateInvoiceFromModal}
+                startIcon={<ReceiptIcon />}
+                sx={{
+                  py: 1.5,
+                  borderRadius: '12px',
+                  fontWeight: 700,
+                  fontSize: '0.92rem',
+                  textTransform: 'none',
+                  background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                  boxShadow: '0 6px 20px rgba(99,102,241,0.4)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)',
+                    boxShadow: '0 8px 25px rgba(99,102,241,0.5)',
+                    transform: 'translateY(-1px)',
+                  },
+                  transition: 'all 0.2s',
+                }}
+              >
+                Générer la Facture
+              </Button>
+
+              <Button
+                variant="outlined"
+                fullWidth
+                onClick={handleClosePostSaleModal}
+                sx={{
+                  py: 1.5,
+                  borderRadius: '12px',
+                  fontWeight: 600,
+                  fontSize: '0.92rem',
+                  textTransform: 'none',
+                  borderColor: 'rgba(255,255,255,0.2)',
+                  color: '#cbd5e1',
+                  '&:hover': {
+                    borderColor: 'rgba(255,255,255,0.4)',
+                    background: 'rgba(255,255,255,0.05)',
+                  },
+                  transition: 'all 0.2s',
+                }}
+              >
+                Non, terminer
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         {/* ── Aperçu Facture ── */}
         {showInvoice && entreprise && (
-          <div style={{ marginTop: 16 }}>
+          <div id="section-facture-preview" style={{ marginTop: 16 }}>
             <Fact
               invoiceDate={itemDate}
               post={entreprise}
@@ -654,6 +961,8 @@ export default function Sortie() {
               clientName={clientInfo.clientName}
               invoiceNumber={clientInfo.clientNumero}
               clientId={clientInfo.clientId}
+              modePaiement={invoicePaymentMode || lastSaleDetails?.modePaiement || modePaiement}
+              numeroFac={generatedInvoiceNum || lastSaleDetails?.invoiceCode}
             />
           </div>
         )}

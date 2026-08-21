@@ -16,6 +16,7 @@ export default function Header({
   invoiceDate,
   invoiceNumber,
   email,
+  modePaiement,
   printFormat = 'A4'
 }: any) {
   const isThermal = printFormat === 'Thermal';
@@ -147,6 +148,16 @@ export default function Header({
               {invoiceDate}
             </div>
           </div>
+          {modePaiement && (
+            <div style={{ marginTop: 8 }}>
+              <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                Règlement
+              </span>
+              <div style={{ fontSize: isThermal ? '0.78rem' : '0.9rem', fontWeight: 700, color: '#4f46e5' }}>
+                {modePaiement}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Infos Client */}
