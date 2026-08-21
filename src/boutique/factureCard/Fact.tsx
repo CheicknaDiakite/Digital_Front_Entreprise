@@ -154,6 +154,7 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
 
   const entreprise_uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise } = useFetchEntreprise(entreprise_uuid);
+  const { unUser } = useFetchUser();
 
   const selectedIds = useStoreCart(state => state.selectedIds)
   const reset = useStoreCart(state => state.reset)
@@ -378,7 +379,6 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
       }
 
       // Préparer le formData
-      const { unUser } = useFetchUser();
       const user_id = unUser?.uuid || '';
       const entreprise_id = post.entreprise_id || post.uuid || '';
       const formData: any = {
@@ -757,11 +757,11 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                     />
                   </Stack>
                   <DialogActions className="mt-4">
-                    <Button onClick={() => setOpenModal(false)} color="secondary" disabled={loadingPdf}>
+                    <Button onClick={() => setOpenModal(false)} disabled={loadingPdf}>
                       Annuler
                     </Button>
 
-                    <Button type="submit" variant="contained" color="primary" disabled={loadingPdf}>
+                    <Button type="submit" variant="contained" disabled={loadingPdf}>
                       {loadingPdf ? 'Génération...' : 'Ajouter'}
                     </Button>
                   </DialogActions>
@@ -775,12 +775,12 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                 sx={isMobile ? {
                   ...style,
                   borderRadius: '20px',
-                  background: 'rgba(255, 255, 255, 0.95)',
+                  // background: 'rgba(255, 255, 255, 0.95)',
                   backdropFilter: 'blur(10px)',
                   border: '1px solid rgba(255, 255, 255, 0.2)',
                   animation: 'bounceIn 0.6s ease-out'
                 } : style}
-                className={isMobile ? 'mobile-modal' : ''}
+                // className={isMobile ? 'mobile-modal' : ''}
               >
                 <Typography variant="h6" className="mb-4">
                   Appliquer une remise
@@ -793,19 +793,7 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                     value={fixedDiscount}
                     onChange={(e) => setFixedDiscount(normalizeInput(e.target.value))}
                     helperText="Ex: 1500 ou 85.45"
-                    className={isMobile ? 'mobile-form-field' : ''}
-                    sx={isMobile ? {
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '12px',
-                        background: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(10px)',
-                        transition: 'all 0.3s ease',
-                        '&:focus-within': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                        }
-                      }
-                    } : {}}
+                    
                   />
                   <TextField
                     fullWidth
@@ -814,36 +802,13 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                     value={percentageDiscount}
                     onChange={(e) => setPercentageDiscount(normalizeInput(e.target.value))}
                     helperText="Ex: 2% ou 5%"
-                    className={isMobile ? 'mobile-form-field' : ''}
-                    sx={isMobile ? {
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '12px',
-                        background: 'rgba(255, 255, 255, 0.8)',
-                        backdropFilter: 'blur(10px)',
-                        transition: 'all 0.3s ease',
-                        '&:focus-within': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                        }
-                      }
-                    } : {}}
+                    
                   />
                   <div className={`${isMobile ? 'mobile-action-buttons' : 'flex justify-end space-x-3 pt-4'}`}>
                     <Button
                       variant="outlined"
                       onClick={toggleModal}
-                      className={isMobile ? 'mobile-button' : ''}
-                      sx={isMobile ? {
-                        borderRadius: '12px',
-                        fontWeight: 600,
-                        textTransform: 'none',
-                        transition: 'all 0.3s ease',
-                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                        '&:hover': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)'
-                        }
-                      } : {}}
+                      
                     >
                       Annuler
                     </Button>
@@ -851,20 +816,7 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                       variant="contained"
                       color="primary"
                       onClick={handleApplyDiscount}
-                      className={`${isMobile ? 'mobile-button mobile-button-primary' : ''}`}
-                      sx={isMobile ? {
-                        borderRadius: '12px',
-                        fontWeight: 600,
-                        textTransform: 'none',
-                        transition: 'all 0.3s ease',
-                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                        background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                        '&:hover': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
-                          background: 'linear-gradient(135deg, #1d4ed8, #1e40af)'
-                        }
-                      } : {}}
+                      
                     >
                       Appliquer
                     </Button>
@@ -879,12 +831,12 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                 sx={isMobile ? {
                   ...style,
                   borderRadius: '20px',
-                  background: 'rgba(255, 255, 255, 0.95)',
+                  // background: 'rgba(255, 255, 255, 0.95)',
                   backdropFilter: 'blur(10px)',
                   border: '1px solid rgba(255, 255, 255, 0.2)',
                   animation: 'bounceIn 0.6s ease-out'
                 } : style}
-                className={isMobile ? 'mobile-modal' : ''}
+                // className={isMobile ? 'mobile-modal' : ''}
               >
                 <Typography variant="h6" className="mb-4">
                   Enregistrer le paiement
@@ -896,36 +848,14 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                   value={payDiscount}
                   onChange={(e) => setPayDiscount(normalizeInput(e.target.value))}
                   helperText="Ex: 1500 ou 85.45"
-                  className={`${isMobile ? 'mobile-form-field mb-4' : 'mb-4'}`}
-                  sx={isMobile ? {
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: '12px',
-                      background: 'rgba(255, 255, 255, 0.8)',
-                      backdropFilter: 'blur(10px)',
-                      transition: 'all 0.3s ease',
-                      '&:focus-within': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                      }
-                    }
-                  } : {}}
+                  className={`mb-4`}
+                  
                 />
-                <div className={`${isMobile ? 'mobile-action-buttons' : 'flex justify-end space-x-3'}`}>
+                <div className={`flex justify-end space-x-3`}>
                   <Button
                     variant="outlined"
                     onClick={toggleModalPay}
-                    className={isMobile ? 'mobile-button' : ''}
-                    sx={isMobile ? {
-                      borderRadius: '12px',
-                      fontWeight: 600,
-                      textTransform: 'none',
-                      transition: 'all 0.3s ease',
-                      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                      '&:hover': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)'
-                      }
-                    } : {}}
+                    
                   >
                     Annuler
                   </Button>
@@ -933,20 +863,7 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                     variant="contained"
                     color="primary"
                     onClick={handleApplyPayer}
-                    className={`${isMobile ? 'mobile-button mobile-button-success' : ''}`}
-                    sx={isMobile ? {
-                      borderRadius: '12px',
-                      fontWeight: 600,
-                      textTransform: 'none',
-                      transition: 'all 0.3s ease',
-                      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                      background: 'linear-gradient(135deg, #10b981, #059669)',
-                      '&:hover': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
-                        background: 'linear-gradient(135deg, #059669, #047857)'
-                      }
-                    } : {}}
+                    
                   >
                     Confirmer
                   </Button>
@@ -969,29 +886,29 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                 overflow: 'auto',
                 ...(isMobile && {
                   borderRadius: '20px',
-                  background: 'rgba(255, 255, 255, 0.95)',
+                  // background: 'rgba(255, 255, 255, 0.95)',
                   backdropFilter: 'blur(10px)',
                   border: '1px solid rgba(255, 255, 255, 0.2)',
                   animation: 'bounceIn 0.6s ease-out'
                 })
               }}
-                className={isMobile ? 'mobile-confirmation-section' : ''}
+                // className={isMobile ? 'mobile-confirmation-section' : ''}
               >
                 <div className="space-y-6">
                   {/* Header */}
-                  <div className={`${isMobile ? 'mobile-modal-header' : 'border-b pb-4'}`}>
+                  <div className={`border-b pb-4`}>
                     <Typography
                       id="confirmation-modal-title"
                       variant="h5"
                       component="h2"
-                      className="font-semibold text-gray-900"
+                      className="font-semibold"
                     >
                       Confirmation de Remise
                     </Typography>
                     <Typography
                       id="confirmation-modal-description"
                       variant="subtitle1"
-                      className="text-gray-600 mt-1"
+                      className="mt-1"
                     >
                       Veuillez vérifier les détails de la remise avant de confirmer
                     </Typography>
@@ -1012,7 +929,7 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                   <TableContainer
                     component={Paper}
                     elevation={0}
-                    className={isMobile ? 'mobile-table-container' : ''}
+                    // className={isMobile ? 'mobile-table-container' : ''}
                     sx={{
                       backgroundColor: 'transparent',
                       '& .MuiTable-root': {
@@ -1022,78 +939,63 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                       ...(isMobile && {
                         borderRadius: '16px',
                         overflow: 'hidden',
-                        background: 'rgba(255, 255, 255, 0.95)',
+                        // background: 'rgba(255, 255, 255, 0.95)',
                         backdropFilter: 'blur(10px)',
                         border: '1px solid rgba(255, 255, 255, 0.2)'
                       })
                     }}
                   >
                     <Table
-                      sx={{
-                        minWidth: '100%',
-                        '& .MuiTableCell-root': {
-                          borderBottom: 'none',
-                          padding: '16px',
-                        },
-                        '& .MuiTableRow-root': {
-                          backgroundColor: '#fff',
-                          '&:hover': {
-                            backgroundColor: '#f8fafc',
-                          },
-                        },
-                        '& .MuiTableHead-root .MuiTableRow-root': {
-                          backgroundColor: '#f1f5f9',
-                        },
-                      }}
+                      
                     >
                       <TableHead>
-                        <TableRow className={isMobile ? 'mobile-table-header' : ''}>
-                          <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} font-semibold`}>Désignation</TableCell>
-                          <TableCell align="right" className={`${isMobile ? 'mobile-table-cell' : ''} font-semibold`}>Quantité</TableCell>
-                          <TableCell align="right" className={`${isMobile ? 'mobile-table-cell' : ''} font-semibold`}>Prix unitaire</TableCell>
-                          <TableCell align="right" className={`${isMobile ? 'mobile-table-cell' : ''} font-semibold`}>Total</TableCell>
+                        <TableRow >
+                          <TableCell className={` font-semibold`}>Désignation</TableCell>
+                          <TableCell align="right" className={`font-semibold`}>Quantité</TableCell>
+                          <TableCell align="right" className={`font-semibold`}>Prix unitaire</TableCell>
+                          <TableCell align="right" className={`font-semibold`}>Total</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
                         {selectSorties.map((post, index) => (
                           <TableRow key={index}>
-                            <TableCell className={`${isMobile ? 'mobile-table-cell' : ''} text-gray-900`}>
+                            <TableCell >
                               <div className="flex flex-col">
                                 {/* <span className="font-medium">{post.ref}</span> */}
-                                <span className="text-gray-500 text-sm">{post.categorie_libelle}</span>
+                                <span className="text-sm">{post.categorie_libelle}</span>
                               </div>
                             </TableCell>
-                            <TableCell align="right" className={isMobile ? 'mobile-table-cell' : ''}>{post.qte}</TableCell>
-                            <TableCell align="right" className={isMobile ? 'mobile-table-cell' : ''}>{formatNumberWithSpaces(post.pu)} F</TableCell>
-                            <TableCell align="right" className={`${isMobile ? 'mobile-table-cell' : ''} font-medium`}>
+                            <TableCell align="right" >{post.qte}</TableCell>
+                            <TableCell align="right" >{formatNumberWithSpaces(post.pu)} F</TableCell>
+                            <TableCell align="right" className={`font-medium`}>
                               {formatNumberWithSpaces(post.prix_total)} F
                             </TableCell>
                           </TableRow>
                         ))}
 
                         {/* Summary Rows */}
-                        <TableRow className={isMobile ? 'mobile-total-row' : ''} sx={{ backgroundColor: '#f8fafc !important' }}>
+                        <TableRow >
                           <TableCell rowSpan={4} />
                           <TableCell
                             colSpan={2}
                             align="right"
-                            sx={{ color: '#64748b', fontWeight: 600 }}
+                            sx={{ fontWeight: 600 }}
                           >
                             Sous-total
                           </TableCell>
                           <TableCell
                             align="right"
-                            sx={{ color: '#0f172a', fontWeight: 600 }}
+                            sx={{ fontWeight: 600 }}
                           >
                             {formatNumberWithSpaces(total)} F
                           </TableCell>
                         </TableRow>
 
-                        <TableRow className={isMobile ? 'mobile-total-row' : ''} sx={{ backgroundColor: '#f8fafc !important' }}>
+                        <TableRow>
                           <TableCell
                             colSpan={2}
                             align="right"
-                            sx={{ color: '#64748b', fontWeight: 600 }}
+                            sx={{ fontWeight: 600 }}
                           >
                             Remise
                           </TableCell>
@@ -1106,11 +1008,11 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                         </TableRow>
 
                         {(total - payerTotal) > 0 && (
-                          <TableRow className={isMobile ? 'mobile-total-row' : ''} sx={{ backgroundColor: '#f8fafc !important' }}>
+                          <TableRow>
                             <TableCell
                               colSpan={2}
                               align="right"
-                              sx={{ color: '#64748b', fontWeight: 600 }}
+                              sx={{ fontWeight: 600 }}
                             >
                               Montant Payé
                             </TableCell>
@@ -1123,11 +1025,11 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                           </TableRow>
                         )}
 
-                        <TableRow className={isMobile ? 'mobile-total-row' : ''} sx={{ backgroundColor: '#f8fafc !important' }}>
+                        <TableRow>
                           <TableCell
                             colSpan={2}
                             align="right"
-                            sx={{ color: '#64748b', fontWeight: 600 }}
+                            sx={{ fontWeight: 600 }}
                           >
                             {resteAPayer > 0 && "Reste à payer"}
                             {resteAPayer === 0 && "Total"}
@@ -1135,7 +1037,7 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                           </TableCell>
                           <TableCell
                             align="right"
-                            sx={{ color: '#0f172a', fontWeight: 600, fontSize: '1.1em' }}
+                            sx={{ fontWeight: 600, fontSize: '1.1em' }}
                           >
                             {resteAPayer > 0 && formatNumberWithSpaces(resteAPayer)}
                             {resteAPayer === 0 && formatNumberWithSpaces(payDiscount)}
@@ -1147,22 +1049,12 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                   </TableContainer>
 
                   {/* Actions */}
-                  <div className={`${isMobile ? 'mobile-action-buttons' : 'flex justify-end space-x-3'} pt-4 border-t`}>
+                  <div className={`flex justify-end space-x-3 pt-4 border-t`}>
                     <Button
                       variant="outlined"
                       onClick={handleCloseRemise}
-                      className={`${isMobile ? 'mobile-button' : 'text-gray-600 border-gray-300 hover:bg-gray-50'}`}
-                      sx={isMobile ? {
-                        borderRadius: '12px',
-                        fontWeight: 600,
-                        textTransform: 'none',
-                        transition: 'all 0.3s ease',
-                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                        '&:hover': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)'
-                        }
-                      } : {}}
+                      className={`border-gray-300 hover:bg-gray-50`}
+
                     >
                       Annuler
                     </Button>
