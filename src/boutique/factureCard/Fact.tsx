@@ -305,11 +305,14 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
 
   // Fonction utilitaire pour attendre le chargement de l'image
   const waitImageLoad = (imgUrl: string) => {
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<void>((resolve) => {
+      if (!imgUrl) return resolve();
       const img = new window.Image();
+      img.crossOrigin = 'anonymous';
       img.src = imgUrl;
       img.onload = () => resolve();
-      img.onerror = reject;
+      img.onerror = () => resolve();
+      setTimeout(resolve, 2000);
     });
   };
 
@@ -338,10 +341,16 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
       };
 
       const opt = {
-        margin: printFormat === 'Thermal' ? 0.1 : 0.2,
+        margin: printFormat === 'Thermal' ? [1, 1, 1, 1] : 0.2,
         filename: `facture-${form.ref || Date.now()}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          letterRendering: true,
+        },
         jsPDF: formatOptions[printFormat],
       };
 
@@ -682,7 +691,14 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
             {/* Invoice Content */}
             <div
               ref={componentRef}
-              className={`p-2 sm:p-8 rounded-lg shadow-sm border border-gray-100 print-container format-${printFormat.toLowerCase()}`}
+              style={{
+                width: printFormat === 'Thermal' ? '78mm' : '100%',
+                maxWidth: printFormat === 'Thermal' ? '78mm' : '100%',
+                margin: printFormat === 'Thermal' ? '0 auto' : undefined,
+                boxSizing: 'border-box',
+                backgroundColor: '#ffffff',
+              }}
+              className={`${printFormat === 'Thermal' ? 'p-1 sm:p-2' : 'p-2 sm:p-8'} rounded-lg shadow-sm border border-gray-100 print-container format-${printFormat.toLowerCase()}`}
             >
               <Header
                 // orderNumber={orderNumber}
@@ -700,7 +716,7 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                 printFormat={printFormat}
               />
 
-              <div className="overflow-x-auto w-full">
+              <div className={printFormat === 'Thermal' ? 'w-full' : 'overflow-x-auto w-full'}>
                 <TableFact
                   list={selectSorties}
                   total={totalPrix}

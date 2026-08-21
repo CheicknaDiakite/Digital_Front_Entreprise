@@ -1,8 +1,6 @@
-import { Divider } from "@mui/material";
 import EmailIcon from '@mui/icons-material/Email';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PhoneIcon from '@mui/icons-material/Phone';
-import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 
 export default function Header({
   orderNumber,
@@ -30,6 +28,7 @@ export default function Header({
         flexDirection: isThermal ? 'column' : 'row',
         alignItems: isThermal ? 'center' : 'center',
         justifyContent: isThermal ? 'center' : 'space-between',
+        backgroundColor: '#1d4ed8',
         background: 'linear-gradient(135deg, #4338ca 0%, #1d4ed8 60%, #0369a1 100%)',
         borderRadius: isThermal ? '0' : '12px 12px 0 0',
         padding: isThermal ? '16px 12px' : '24px 32px',
@@ -48,6 +47,7 @@ export default function Header({
             <img
               src={url}
               alt={nom}
+              crossOrigin="anonymous"
               style={{
                 width: isThermal ? 48 : 72,
                 height: isThermal ? 48 : 72,
@@ -55,7 +55,7 @@ export default function Header({
                 borderRadius: '10px',
                 border: '2px solid rgba(255,255,255,0.4)',
                 boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
-                background: 'rgba(255,255,255,0.1)',
+                backgroundColor: 'rgba(255,255,255,0.15)',
               }}
             />
           )}
@@ -117,7 +117,7 @@ export default function Header({
         display: 'grid',
         gridTemplateColumns: isThermal ? '1fr' : '1fr 1fr',
         gap: isThermal ? 0 : '1px',
-        background: '#e2e8f0',
+        backgroundColor: '#e2e8f0',
         border: '1px solid #e2e8f0',
         borderTop: 'none',
         borderRadius: isThermal ? '0' : '0 0 12px 12px',
@@ -126,7 +126,7 @@ export default function Header({
       }}>
         {/* Infos Facture */}
         <div style={{
-          background: '#f8fafc',
+          backgroundColor: '#f8fafc',
           padding: isThermal ? '12px' : '20px 28px',
           textAlign: isThermal ? 'center' : 'left',
         }}>
@@ -162,7 +162,7 @@ export default function Header({
 
         {/* Infos Client */}
         <div style={{
-          background: '#ffffff',
+          backgroundColor: '#ffffff',
           padding: isThermal ? '12px' : '20px 28px',
           textAlign: isThermal ? 'center' : 'left',
           borderLeft: isThermal ? 'none' : 'none',
@@ -183,24 +183,27 @@ export default function Header({
       </div>
 
       {/* ── Titre FACTURE ── */}
-      <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-        <Divider sx={{ mb: 2 }} />
+      <div style={{ textAlign: 'center', margin: isThermal ? '10px 0' : '20px 0' }}>
         <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 10,
-          padding: '8px 28px',
-          borderRadius: '999px',
-          background: 'linear-gradient(135deg, #1e293b, #334155)',
-          boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+          height: '1px',
+          backgroundColor: '#e2e8f0',
+          marginBottom: isThermal ? '10px' : '16px',
+        }} />
+        <div style={{
+          display: 'inline-block',
+          backgroundColor: '#1e293b',
+          color: '#ffffff',
+          padding: isThermal ? '6px 20px' : '8px 32px',
+          borderRadius: '24px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
         }}>
-          <ReceiptLongIcon style={{ fontSize: 18, color: '#94a3b8' }} />
           <span style={{
             fontWeight: 800,
-            fontSize: isThermal ? '0.9rem' : '1rem',
+            fontSize: isThermal ? '0.85rem' : '1.05rem',
             color: '#ffffff',
-            letterSpacing: '0.2em',
+            letterSpacing: '0.25em',
             textTransform: 'uppercase',
+            display: 'inline-block',
           }}>
             FACTURE
           </span>

@@ -546,7 +546,7 @@ export default function FactureListe() {
             </Box>
           </Box>
 
-          <Box ref={componentRef} className={`print-container format-${printFormat.toLowerCase()}`} sx={{ p: 4, bgcolor: 'white' }}>
+          <Box ref={componentRef} className={`print-container format-${printFormat.toLowerCase()}`} sx={{ p: 4 }}>
             <Box sx={{ mb: 4, textAlign: 'center', display: 'none', '.print-container &': { display: 'block' } }}>
               <Typography variant="h4" fontWeight="bold">{selectedFactureDetail?.entreprise_nom || 'Facture'}</Typography>
               {/* <Typography variant="body2">{selectedFactureDetail?.adresse_entreprise}</Typography> */}
