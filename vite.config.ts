@@ -16,8 +16,7 @@ export default defineConfig({
             'icon-167x167.png',
             'icon-152x152.png',
             'icon-120x120.png',
-            'C_D.ico',
-            'offline.html'
+            'C_D.ico'
         ],
         manifest: {
             name: 'Gest Stocks',
@@ -72,7 +71,7 @@ export default defineConfig({
         workbox: {
             globPatterns: ['**/*{js,css,html,ico,png,svg}'],
             maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
-            navigateFallback: '/offline.html',
+            navigateFallback: 'index.html',
             runtimeCaching: [
                 {
                     urlPattern: /^https:\/\/diakitedigital\.com\/.*/i,
