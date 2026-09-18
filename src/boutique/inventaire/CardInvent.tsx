@@ -242,6 +242,15 @@ export default function CardInvent({ row }: EntreProps) {
               <img src={code_barre} alt="Code barre" style={{ maxHeight: 220, maxWidth: '100%', borderRadius: 12 }} />
             </Box>
 
+            <Typography variant="body2" sx={{ mt: 1.5, fontWeight: 700, color: '#334155', letterSpacing: '0.05em' }}>
+              Code : {row.barcode_value || row.ref}
+            </Typography>
+            {row.categorie_libelle && (
+              <Typography variant="caption" sx={{ color: '#64748b', display: 'block', mb: 1 }}>
+                {row.categorie_libelle} {row.libelle ? `(${row.libelle})` : ''}
+              </Typography>
+            )}
+
             <a href={code_barre} download style={{ textDecoration: 'none' }}>
               <Box
                 component="button"

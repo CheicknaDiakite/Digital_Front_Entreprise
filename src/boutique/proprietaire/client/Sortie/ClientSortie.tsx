@@ -28,6 +28,7 @@ import MyTextField from '../../../../_components/Input/MyTextField';
 import { ChangeEvent, FormEvent, SyntheticEvent, useEffect, useState, useMemo } from 'react';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import QuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
+import toast from 'react-hot-toast';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import CloseIcon from '@mui/icons-material/Close';
 import { RecupType, SortieType } from '../../../../typescript/DataType';
@@ -252,18 +253,30 @@ export default function ClientSortie(uuid: UuType) {
   };
 
   const handleScanResult = (code: string) => {
-    setScannedCode(code);
-
-    // Optionnel : fermer le dialog après scan
+    const trimmed = (code || '').trim();
+    setScannedCode(trimmed);
     openchange(false);
+
+    if (!trimmed) return;
+
+    const found = entres.find((item: any) =>
+      (item.barcode_value && String(item.barcode_value).trim().toLowerCase() === trimmed.toLowerCase()) ||
+      (item.ref && String(item.ref).trim().toLowerCase() === trimmed.toLowerCase())
+    );
+
+    if (found) {
+      toast.success(`Produit scanné : ${found.categorie_libelle || found.libelle || found.ref}`);
+      handleAutoCompleteChange(null as any, found);
+    } else {
+      toast.error(`Aucun produit trouvé pour le code : "${trimmed}"`);
+    }
   };
 
   const filteredEnt = useMemo(() => scannedCode
     ? entres.filter((option: any) => {
-      
-      return option.ref === scannedCode
-    }
-    )
+        return (option.barcode_value && String(option.barcode_value).trim().toLowerCase() === String(scannedCode).trim().toLowerCase()) ||
+               (option.ref && String(option.ref).trim().toLowerCase() === String(scannedCode).trim().toLowerCase());
+      })
     : entres, [scannedCode, entres]);
 
   useEffect(() => {

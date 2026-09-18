@@ -99,6 +99,7 @@ export type EntreType = {
     is_prix?: boolean;
     entre_id?: number;
     unite?: string;
+    barcode_value?: string;
 } & SousType
 
 export type DepenseType = {
@@ -268,8 +269,9 @@ export type RecupType = {
     is_remise?: boolean,
     remise_code?: string,
     mode_paiement?: string,
-    image?: File | undefined | null;
-    code_barre?: File | undefined | null;
+    image?: File | string | undefined | null;
+    code_barre?: File | string | undefined | null;
+    barcode_value?: string;
     invoiceNumber?: number,
     all_inventaire?: number,
     post?: TypeEntreprise;

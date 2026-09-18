@@ -3,6 +3,7 @@ import { ChangeEvent, FormEvent, SyntheticEvent, useEffect, useState } from "rea
 import { RecupType, SortieType } from "../../typescript/DataType";
 import { useStoreCart } from "../../usePerso/cart_store";
 import { useCreateSortie, useGetAllEntre, useGetAllSortie } from "../../usePerso/fonction.entre";
+import toast from "react-hot-toast";
 import Fact from "../factureCard/Fact";
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import TableSortie from "./TableSortie";
@@ -302,9 +303,23 @@ export default function Sortie() {
   };
 
   const handleScanResult = (code: string) => {
-    setScannedCode(code);
-    // Optionnel : fermer le dialog après scan
+    const trimmedCode = (code || '').trim();
+    setScannedCode(trimmedCode);
     openchange(false);
+
+    if (!trimmedCode) return;
+
+    const found = ent.find((item: any) =>
+      (item.barcode_value && String(item.barcode_value).trim().toLowerCase() === trimmedCode.toLowerCase()) ||
+      (item.ref && String(item.ref).trim().toLowerCase() === trimmedCode.toLowerCase())
+    );
+
+    if (found) {
+      toast.success(`Produit scanné : ${found.categorie_libelle || found.libelle || found.ref}`);
+      handleChange(found);
+    } else {
+      toast.error(`Aucun produit trouvé pour le code : "${trimmedCode}"`);
+    }
   };
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {

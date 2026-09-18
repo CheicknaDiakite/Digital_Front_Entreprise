@@ -11,11 +11,18 @@ import {
   Card,
   CardContent,
   Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  IconButton,
 } from "@mui/material";
 import MyTextField from "../_components/Input/MyTextField";
 import { useFetchAllSousCate } from "./fonction.categorie";
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import InventoryIcon from '@mui/icons-material/Inventory';
+import QrCode2Icon from '@mui/icons-material/QrCode2';
+import CloseIcon from '@mui/icons-material/Close';
+import BarcodeScanner from "../_components/Input/BarcodeScanner";
 import { useAppSettings } from "../themes/AppSettingsContext";
 import { useAllClients, useFetchUser } from "./fonction.user";
 import { useStoreUuid } from "./store";
@@ -79,6 +86,8 @@ export function AjoutEntreForm({
 
   const fournisseurs = getClients.filter((info: any) => info.role === 2 || info.role === 3);
 
+  const [openScanner, setOpenScanner] = useState(false);
+
   return (
     <form onSubmit={onSubmit}>
       <Stack spacing={2} margin={2}>
@@ -124,6 +133,51 @@ export function AjoutEntreForm({
           name="libelle"
           onChange={onChange}
         />
+
+        <MyTextField
+          label="Code-barres / QR Code (Optionnel)"
+          value={formValues.barcode_value || ''}
+          name="barcode_value"
+          onChange={onChange}
+          placeholder="Laisser vide pour générer un QR automatiquement"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <QrCode2Icon color="action" fontSize="small" />
+              </InputAdornment>
+            ),
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  size="small"
+                  color="primary"
+                  title="Scanner le code"
+                  onClick={() => setOpenScanner(true)}
+                  edge="end"
+                >
+                  <QrCode2Icon fontSize="small" />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+
+        <Dialog open={openScanner} onClose={() => setOpenScanner(false)} fullWidth maxWidth="xs">
+          <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontWeight: 700 }}>Scanner le code du produit</span>
+            <IconButton onClick={() => setOpenScanner(false)} size="small">
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent>
+            <BarcodeScanner
+              onScan={(scanned) => {
+                onChange({ target: { name: 'barcode_value', value: scanned } } as any);
+                setOpenScanner(false);
+              }}
+            />
+          </DialogContent>
+        </Dialog>
 
         <Autocomplete
           id="unite"

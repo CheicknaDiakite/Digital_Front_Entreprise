@@ -31,6 +31,8 @@ interface LoginFormData {
   password: string;
 }
 
+const INVALID_LOGIN_MESSAGE = "Identifiant ou nom d'utilisateur ou mot de passe incorrect.";
+
 const AuthLogin: FC = () => {
   const { login } = useLoginUser();
   const [showPassword, setShowPassword] = useState(false);
@@ -61,22 +63,22 @@ const AuthLogin: FC = () => {
   }, []);
 
   const onSubmit = async (data: LoginFormData) => {
+    
     try {
       const res = await login(data);
       if (res && res.etat === false) {
         setError('root', {
           type: 'manual',
-          message: res.message || "Nom d'utilisateur ou mot de passe incorrect."
+          message: INVALID_LOGIN_MESSAGE
         });
       } else if (res && res.etat === true) {
         reset();
       }
     } catch (error: any) {
       console.error(error);
-      const errorMessage = error?.response?.data?.message || "Nom d'utilisateur ou mot de passe incorrect.";
       setError('root', {
         type: 'manual',
-        message: errorMessage
+        message: INVALID_LOGIN_MESSAGE
       });
     }
   };

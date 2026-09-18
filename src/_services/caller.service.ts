@@ -1,12 +1,7 @@
 ﻿import axios, { AxiosInstance } from "axios";
 
-// https://backend.diakitedigital.com
-// https://back.gest-stocks.com
-// http://127.0.0.1:8000
-
-
 // Set VITE_API_URL in .env.local or .env.production for deployed environments.
-const configuredApiUrl = import.meta.env.VITE_API_URL || 'https://back.gest-stocks.com';
+const configuredApiUrl = import.meta.env.VITE_API_URL;
 const BaseDomaine = {
     URL: configuredApiUrl.replace(/\/$/, '')
 };
@@ -83,3 +78,8 @@ export const BASE = (img: string | File | unknown) => {
     if (/^https?:\/\//i.test(img)) return img;
     return `${BaseDomaine.URL}/${img.replace(/^\//, '')}`;
 };
+
+export const scanBarcode = async (code: string) => {
+    return Axios.get(`/entreprise/entre/scan/${encodeURIComponent(code)}`);
+};
+

@@ -160,7 +160,10 @@ export default function TableSortie({
   };
 
   const filteredEnt = scannedCode
-    ? ent.filter((option: any) => option.ref === scannedCode)
+    ? ent.filter((option: any) =>
+        (option.barcode_value && String(option.barcode_value).trim().toLowerCase() === String(scannedCode).trim().toLowerCase()) ||
+        (option.ref && String(option.ref).trim().toLowerCase() === String(scannedCode).trim().toLowerCase())
+      )
     : ent;
 
   useEffect(() => {

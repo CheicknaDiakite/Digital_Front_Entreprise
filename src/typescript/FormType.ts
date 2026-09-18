@@ -32,6 +32,7 @@ export type EntreFormType = {
   date: string;
   categorie_slug?: string;
   unite?: string;
+  barcode_value?: string;
 } & TypeForn & TypeNumForn;
 
 export type FormValueType = {

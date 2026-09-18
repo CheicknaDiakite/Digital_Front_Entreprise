@@ -128,6 +128,7 @@ export default function Entre() {
     user_id: '',
     date: '',
     unite: 'kilos',
+    barcode_value: '',
   });
 
   const handleAutoCompleteChange = (_: SyntheticEvent<Element, Event>, value: string | RecupType | null) => {
@@ -186,6 +187,7 @@ export default function Entre() {
       pu_achat: 0,
       qte: 0,
       unite: 'kilos',
+      barcode_value: '',
     });
     closeopen();
   };
