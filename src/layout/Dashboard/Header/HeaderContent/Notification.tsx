@@ -1,4 +1,4 @@
-import { useRef, useState, useMemo } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 // material-ui
@@ -13,41 +13,22 @@ import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import ListItemText from '@mui/material/ListItemText';
-import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction';
 import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 // project import
-import MainCard from '../../../../components/MainCard';
 import Transitions from '../../../../components/@extended/Transitions';
-import img from '../../../../../public/icon-192x192.png'
 // assets
 import BellOutlined from '@ant-design/icons/BellOutlined';
 import CheckCircleOutlined from '@ant-design/icons/CheckCircleOutlined';
 
 // functional imports
-import { useGetAllEntre } from '../../../../usePerso/fonction.entre';
 import { useStoreUuid } from '../../../../usePerso/store';
-import { BASE } from '../../../../_services/caller.service';
-
-// sx styles
-const avatarSX = {
-  width: 36,
-  height: 36,
-  fontSize: '1rem'
-};
-
-const actionSX = {
-  mt: '6px',
-  ml: 1,
-  top: 'auto',
-  right: 'auto',
-  alignSelf: 'flex-start',
-  transform: 'none'
-};
+import { notificationService } from '../../../../_services/notification.service';
 
 // ==============================|| HEADER CONTENT - NOTIFICATION ||============================== //
 
@@ -59,21 +40,27 @@ export default function Notification() {
   const [open, setOpen] = useState(false);
 
   const uuid = useStoreUuid((state) => state.selectedId);
-  const { entresEntreprise } = useGetAllEntre(uuid!);
-
-  // Filter and sort notifications based on stock levels
-  const notifications = useMemo(() => {
-    if (!entresEntreprise) return [];
-
-    return entresEntreprise
-      .filter((item) => (item.qte || 0) <= 20) // Threshold for notification
-      .sort((a, b) => (a.qte || 0) - (b.qte || 0)); // Sort by quantity ascending (lowest first)
-  }, [entresEntreprise]);
-
-  const [readCount, setReadCount] = useState<number | null>(null);
-
-  // Update read count based on current notifications if not manually cleared
-  const displayCount = readCount !== null ? readCount : notifications.length;
+  const queryClient = useQueryClient();
+  const { data: notificationData } = useQuery({
+    queryKey: ['notifications', uuid],
+    queryFn: () => notificationService.getNotifications(uuid!).then((response) => response.data),
+    enabled: Boolean(uuid),
+    refetchInterval: 60_000,
+  });
+  const notifications = [...(notificationData?.donnee || [])].sort((first, second) => {
+    const firstIsStock = first.type === 'stock_faible' ? 0 : 1;
+    const secondIsStock = second.type === 'stock_faible' ? 0 : 1;
+    return firstIsStock - secondIsStock;
+  });
+  const displayCount = notificationData?.non_lues || 0;
+  const markAllRead = useMutation({
+    mutationFn: () => notificationService.markAsRead(uuid!),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications', uuid] }),
+  });
+  const markOneRead = useMutation({
+    mutationFn: (notificationUuid: string) => notificationService.markAsRead(uuid!, [notificationUuid]),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications', uuid] }),
+  });
   
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
@@ -91,10 +78,8 @@ export default function Notification() {
   };
 
   const handleMarkAllRead = () => {
-    setReadCount(0);
+    if (uuid) markAllRead.mutate();
   };
-
-  const iconBackColorOpen = 'grey.100';
 
   return (
     <Box sx={{ flexShrink: 0 }}>
@@ -178,7 +163,7 @@ export default function Notification() {
                   >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Typography variant="subtitle1" sx={{ color: 'text.primary', fontWeight: 700 }}>
-                        Notifications des Stocks
+                        Alertes & notifications
                       </Typography>
                       {displayCount > 0 && (
                         <Box
@@ -219,17 +204,22 @@ export default function Notification() {
 
                   <List component="nav" sx={{ p: 1, maxHeight: 380, overflowY: 'auto' }}>
                     {notifications.length > 0 ? (
-                      notifications.slice(0, 6).map((item, index) => {
-                        const qte = item.qte || 0;
-                        const isCritical = qte <= 5;
-                        const url = item.image ? BASE(item.image) : img;
+                      notifications.slice(0, 6).map((item) => {
+                        const isCritical = item.niveau === 'error';
+                        const isStockAlert = item.type === 'stock_faible';
+                        const statusLabel = isStockAlert
+                          ? (isCritical ? 'Rupture' : 'Critique')
+                          : (isCritical ? 'Important' : 'À lire');
 
                         return (
                           <ListItemButton
-                            key={index}
+                            key={item.uuid}
                             component={Link}
-                            to="/entre"
-                            onClick={() => setOpen(false)}
+                            to={item.lien || '/'}
+                            onClick={() => {
+                              markOneRead.mutate(item.uuid);
+                              setOpen(false);
+                            }}
                             sx={{
                               borderRadius: '14px',
                               mb: 0.75,
@@ -245,27 +235,19 @@ export default function Notification() {
                             }}
                           >
                             <ListItemAvatar sx={{ minWidth: 48, mr: 1.5 }}>
-                              <Avatar
-                                alt="img"
-                                src={url}
-                                sx={{
-                                  width: 44,
-                                  height: 44,
-                                  borderRadius: '10px',
-                                  border: `1px solid ${theme.palette.divider}`,
-                                }}
-                              />
+                              <Avatar sx={{ width: 40, height: 40, bgcolor: isCritical ? 'error.main' : 'warning.main' }}>
+                                <BellOutlined />
+                              </Avatar>
                             </ListItemAvatar>
                             <ListItemText
                               primary={
                                 <Typography variant="subtitle2" sx={{ color: 'text.primary', fontWeight: 600, fontSize: '0.875rem' }}>
-                                  Stock faible : {item.categorie_libelle}
+                                  {item.titre}
                                 </Typography>
                               }
                               secondary={
                                 <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.775rem' }}>
-                                  Quantité restante : <strong style={{ color: isCritical ? '#f87171' : '#fbbf24' }}>{qte}</strong>{' '}
-                                  {item.unite === 'kilos' ? '' : item.unite}
+                                  {item.message}
                                 </Typography>
                               }
                             />
@@ -283,7 +265,7 @@ export default function Notification() {
                                 ml: 1,
                               }}
                             >
-                              {isCritical ? 'Critique' : 'Attention'}
+                              {statusLabel}
                             </Box>
                           </ListItemButton>
                         );

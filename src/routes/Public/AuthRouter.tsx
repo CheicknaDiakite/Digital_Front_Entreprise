@@ -4,6 +4,7 @@ import AuthLogin from '../../pages/authentication/login'
 import AuthRegister from '../../pages/authentication/register'
 import Mdp from '../../pages/authentication/Mdp'
 import MdpUpdate from '../../pages/authentication/MdpUpdate'
+import ConditionsUtilisation from '../../pages/authentication/ConditionsUtilisation'
 import { notClick } from '../../usePerso/fonctionPerso'
 
 export default function AuthRouter() {
@@ -15,6 +16,7 @@ export default function AuthRouter() {
         <Route path='mot_de_passe_oublier' element={<Mdp />} />
         <Route path='update-password/:token/:uid' element={<MdpUpdate />} />
         <Route path='register' element={<AuthRegister />} />
+        <Route path='conditions-utilisation' element={<ConditionsUtilisation />} />
       </Route>
     </Routes>
   )

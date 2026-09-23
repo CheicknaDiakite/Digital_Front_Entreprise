@@ -1,160 +1,99 @@
-import { CheckIcon } from '@heroicons/react/20/solid'
+import { CheckIcon } from '@heroicons/react/20/solid';
 
-// Types
-interface PricingTier {
+type PricingTier = {
   name: string;
   id: string;
-  href: string;
-  priceMonthly: string;
-  price?: string;
+  price: string;
+  period: string;
   description: string;
   features: string[];
-  featured: boolean;
-}
+  featured?: boolean;
+  contactLabel: string;
+};
 
 const pricingTiers: PricingTier[] = [
   {
-    name: 'Stocks simple',
+    name: 'Stock Simple',
     id: 'tier-simple',
-    href: '#',
-    priceMonthly: '40 000 f',
-    description: "L'essentiel pour commencer à gérer votre stock efficacement.",
-    features: [
-      'Suivi des stocks',
-      'Ventes effectuées (par mois)',
-      'Produits les plus vendus',
-      'Gestion de facture',
-      'Gestion d\'historique',
-      'Gestion d\'archive',
-    ],
-    featured: false,
+    price: '40 000 F',
+    period: 'par an',
+    description: 'Les outils essentiels pour gérer et suivre votre stock.',
+    features: ['Suivi des stocks et ventes', 'Factures et historique', 'Statistiques de vente', 'Archivage des opérations'],
+    contactLabel: 'Choisir Simple',
   },
   {
-    name: 'Stocks Basic',
-    id: 'tier-basic',
-    href: '#',
-    priceMonthly: '75 000 f',
-    description: "Le plan idéal pour une gestion complète de votre activité commerciale.",
-    features: [
-      'Tout dans Stocks simple',
-      'Suivi des dépenses',
-      'Envoi des factures en PDF',
-      'Rapports détaillés',
-      'Support prioritaire',
-    ],
-    featured: false,
-  },
-  {
-    name: 'Stocks Premium',
-    id: 'tier-premium',
-    href: '#',
-    priceMonthly: 'Illimité',
-    description: "La puissance totale pour les entreprises sans limites de croissance.",
-    features: [
-      'Tout dans Stocks Basic',
-      'Utilisateurs illimités',
-      'Multi-boutiques',
-      'Personnalisation avancée',
-    ],
+    name: 'Stock Pro',
+    id: 'tier-pro',
+    price: '75 000 F',
+    period: 'par an',
+    description: 'Une gestion avancée pour piloter votre activité.',
+    features: ['Tout Stock Simple', 'Suivi des achats et dépenses', 'États des produits et utilisateurs', 'Rapports détaillés et support prioritaire'],
     featured: true,
+    contactLabel: 'Choisir Pro',
+  },
+  {
+    name: 'Stock Premium',
+    id: 'tier-premium',
+    price: 'Sur devis',
+    period: 'selon vos besoins',
+    description: 'Une offre personnalisée pour les organisations sans limites.',
+    features: ['Tout Stock Pro', 'Utilisateurs illimités', 'Multi-boutiques', 'Personnalisation avancée'],
+    contactLabel: 'Demander un devis',
   },
 ];
 
-const PricingCard: React.FC<{ tier: PricingTier }> = ({ tier }) => (
-  <div
-    className={`rounded-3xl p-8 ring-1 ring-gray-900/10 ${tier.featured
-      ? 'relative bg-gray-900 shadow-2xl'
-      : 'bg-white/60'
-      }`}
-  >
-    <h3
-      id={tier.id}
-      className={`${tier.featured ? 'text-indigo-400' : 'text-indigo-600'
-        } text-base/7 font-semibold`}
-    >
+const whatsappUrl = (tier: PricingTier) =>
+  `https://wa.me/22391154834?text=${encodeURIComponent(`Bonjour, je souhaite des informations sur l'abonnement ${tier.name}.`)}`;
+
+const PricingCard = ({ tier }: { tier: PricingTier }) => (
+  <article className={`relative flex h-full flex-col rounded-2xl border p-5 shadow-sm transition-transform duration-200 hover:-translate-y-1 ${
+    tier.featured ? 'border-indigo-500 bg-slate-950 shadow-indigo-200' : 'border-slate-200 bg-white'
+  }`}>
+    {tier.featured && (
+      <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-indigo-600 px-3 py-1 text-xs font-bold text-white shadow-sm">
+        Recommandé
+      </span>
+    )}
+    <h3 id={tier.id} className={`text-lg font-bold ${tier.featured ? 'text-indigo-300' : 'text-indigo-700'}`}>
       {tier.name}
     </h3>
-
-    {tier.price &&
-      <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-700/10 line-through">
-        {tier.price}
-      </span>
-    }
-
-    <p className="mt-4 flex items-baseline gap-x-2">
-      <span
-        className={`${tier.featured ? 'text-white' : 'text-gray-900'
-          } text-5xl font-semibold tracking-tight`}
-      >
-        {tier.priceMonthly}
-      </span>
-      <span className={`${tier.featured ? 'text-gray-400' : 'text-gray-500'} text-base`}>
-        .
-      </span>
-    </p>
-
-    <p className={`${tier.featured ? 'text-gray-300' : 'text-gray-600'} mt-6 text-base/7`}>
-      {tier.description}
-    </p>
-
-    <ul
-      role="list"
-      className={`${tier.featured ? 'text-gray-300' : 'text-gray-600'
-        } mt-8 space-y-3 text-sm/6`}
-    >
+    <div className="mt-4 flex items-baseline gap-2">
+      <span className={`text-3xl font-extrabold tracking-tight ${tier.featured ? 'text-white' : 'text-slate-900'}`}>{tier.price}</span>
+      <span className={`text-sm ${tier.featured ? 'text-slate-400' : 'text-slate-500'}`}>{tier.period}</span>
+    </div>
+    <p className={`mt-4 min-h-12 text-sm leading-6 ${tier.featured ? 'text-slate-300' : 'text-slate-600'}`}>{tier.description}</p>
+    <ul className={`mt-5 space-y-2.5 text-sm ${tier.featured ? 'text-slate-200' : 'text-slate-600'}`}>
       {tier.features.map((feature) => (
-        <li key={feature} className="flex gap-x-3">
-          <CheckIcon
-            className={`${tier.featured ? 'text-indigo-400' : 'text-indigo-600'
-              } h-6 w-5 flex-none`}
-            aria-hidden="true"
-          />
-          {feature}
+        <li key={feature} className="flex gap-2">
+          <CheckIcon className={`h-5 w-5 shrink-0 ${tier.featured ? 'text-indigo-300' : 'text-indigo-600'}`} aria-hidden="true" />
+          <span>{feature}</span>
         </li>
       ))}
     </ul>
-
     <a
-      href="https://wa.me/22391154834"
-      aria-describedby={tier.id}
-      className={`
-        mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold
-        focus-visible:outline-2 focus-visible:outline-offset-2
-        ${tier.featured
-          ? 'bg-indigo-500 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline-indigo-500'
-          : 'text-indigo-600 ring-1 ring-inset ring-indigo-200 hover:ring-indigo-300 focus-visible:outline-indigo-600'
-        }
-      `}
+      href={whatsappUrl(tier)}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`mt-6 block rounded-lg px-3 py-2.5 text-center text-sm font-bold transition-colors ${
+        tier.featured ? 'bg-indigo-500 text-white hover:bg-indigo-400' : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100'
+      }`}
     >
-      Contactez-nous !
+      {tier.contactLabel}
     </a>
-  </div>
+  </article>
 );
 
 export default function PricingSection() {
   return (
-    <div>
-
-      {/* Content */}
-      <div className="mx-auto max-w-4xl text-center">
-        <h2 className="text-base/7 font-semibold text-indigo-200">
-          Gest Stocks
-        </h2>
-        <p className="mt-2 text-4xl font-semibold tracking-tight text-gray-50 sm:text-5xl">
-          Pour l'abonnement de votre entreprise !
-        </p>
+    <section className="px-1 pb-2 pt-1">
+      <header className="mx-auto max-w-3xl text-center">
+        <p className="text-sm font-bold uppercase tracking-widest text-indigo-600">Gest Stocks</p>
+        <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">Choisissez l'offre adaptée à votre entreprise</h2>
+        <p className="mt-3 text-sm leading-6 text-slate-600">Les offres Simple et Pro sont valables un an. Premium est construit selon vos besoins.</p>
+      </header>
+      <div className="mx-auto mt-8 grid max-w-5xl grid-cols-1 gap-4 md:grid-cols-3">
+        {pricingTiers.map((tier) => <PricingCard key={tier.id} tier={tier} />)}
       </div>
-
-      <p className="mx-auto mt-6 max-w-2xl text-center text-lg text-gray-100">
-        Choisissez un plan abordable qui contient les meilleures fonctionnalités pour engager
-        votre entreprise, fidéliser vos clients et stimuler les ventes.
-      </p>
-
-      <div className="mx-auto mt-16 grid max-w-lg grid-cols-1 items-stretch gap-y-6 sm:mt-20 lg:max-w-7xl lg:grid-cols-3 lg:gap-x-8">
-        {pricingTiers.map((tier) => (
-          <PricingCard key={tier.id} tier={tier} />
-        ))}
-      </div>
-    </div>
+    </section>
   );
 }

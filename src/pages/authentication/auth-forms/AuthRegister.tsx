@@ -21,6 +21,8 @@ import {
   useTheme,
   useMediaQuery,
   Paper,
+  Dialog,
+  DialogContent,
 } from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
@@ -36,6 +38,7 @@ import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlin
 
 import { useCreateUser } from '../../../usePerso/fonction.user';
 import countryList from 'react-select-country-list';
+import ConditionsUtilisation from '../ConditionsUtilisation';
 
 interface RegisterFormData {
   username: string;
@@ -55,6 +58,7 @@ const AuthRegister: FC = () => {
   const countryOptions = countryList().getData();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [termsDialogOpen, setTermsDialogOpen] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const isMobileDark = isMobile && theme.palette.mode === 'dark';
@@ -555,8 +559,68 @@ const AuthRegister: FC = () => {
               >
                 {isSubmitting ? <CircularProgress size={22} color="inherit" /> : "Créer mon compte"}
               </Button>
+
+              <Typography
+                variant="caption"
+                align="center"
+                sx={{
+                  color: isMobileDark ? 'rgba(255,255,255,0.45)' : 'text.secondary',
+                  fontSize: '0.78rem',
+                  display: 'block',
+                  mt: 0.5,
+                }}
+              >
+                En créant un compte, vous acceptez nos{' '}
+                <Typography
+                  component="button"
+                  type="button"
+                  variant="caption"
+                  onClick={() => setTermsDialogOpen(true)}
+                  sx={{
+                    color: '#818cf8',
+                    textDecoration: 'underline',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    border: 0,
+                    padding: 0,
+                    background: 'transparent',
+                    font: 'inherit',
+                  }}
+                >
+                  Conditions d'utilisation
+                </Typography>
+                .
+              </Typography>
             </Stack>
           </form>
+
+          <Dialog
+            open={termsDialogOpen}
+            onClose={() => setTermsDialogOpen(false)}
+            scroll="paper"
+            fullWidth
+            maxWidth="lg"
+            PaperProps={{
+              sx: {
+                maxHeight: '90vh',
+                display: 'flex',
+              },
+            }}
+          >
+            <DialogContent
+              sx={{
+                p: 0,
+                minHeight: 0,
+                overflowY: 'auto',
+                overflowX: 'hidden',
+              }}
+            >
+              <ConditionsUtilisation
+                modal
+                onClose={() => setTermsDialogOpen(false)}
+              />
+            </DialogContent>
+          </Dialog>
 
           {/* Séparateur */}
           <Divider

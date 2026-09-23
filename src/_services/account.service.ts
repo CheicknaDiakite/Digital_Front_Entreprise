@@ -28,6 +28,10 @@ const googleLogin = (token: string): Promise<RegisterResponse> =>
 
 const userUnGet = () => Axios.get('/utilisateur/user/profil');
 
+const getConditionsActuelles = () => Axios.get('/utilisateur/conditions/actuelles');
+const acceptConditions = (version: string) => Axios.post('/utilisateur/conditions/accepter', { version });
+const getConditionsHistorique = () => Axios.get('/utilisateur/conditions/historique');
+
 const userUnClient = (id: string) => Axios.get(`/entreprise/client/get_un/${id}`);
 
 const userGet = (post: string) => Axios.post('utilisateur/profile/get', post);
@@ -36,6 +40,9 @@ const avisGet = (post: string) => Axios.post('entreprise/avis/get', post);
 
 const avisReply = (data: { avis_uuid: string; reponse: string }) =>
     Axios.post('entreprise/avis/repondre', data);
+
+const avisUpdateStatus = (data: { avis_uuid: string; statut: string }) =>
+    Axios.post('entreprise/avis/statut', data);
 
 const userAll = (data?: TypeSlug): Promise<ReponseUser> =>
     Axios.post('utilisateur/get', data);
@@ -82,7 +89,8 @@ export const userService = {
     userForgot, userUpdatePassword, avisDelete, avisGet, avisReply, avisCreate, allMesUsers,
     allClients, userClient, userUnClient, clientUpdate, clientDelete,
     userCabinetRegister, unUser, userRestrictionDetail, userRestriction,
-    googleLogin
+    googleLogin, avisUpdateStatus, getConditionsActuelles, acceptConditions,
+    getConditionsHistorique
 };
 
 /* ── Service Gestion de Compte ── */

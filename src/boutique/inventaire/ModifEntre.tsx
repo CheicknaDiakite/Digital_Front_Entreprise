@@ -14,10 +14,16 @@ import {
   Switch,
   InputAdornment,
   Autocomplete,
+  Dialog,
+  DialogContent,
+  DialogTitle,
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import InventoryIcon from '@mui/icons-material/Inventory';
+import QrCode2Icon from '@mui/icons-material/QrCode2';
+import CloseIcon from '@mui/icons-material/Close';
+import BarcodeScanner from '../../_components/Input/BarcodeScanner';
 import { useDeleteEntre, useFetchEntre, useUpdateEntre } from '../../usePerso/fonction.entre'
 import { useFetchUser } from '../../usePerso/fonction.user'
 import { useStoreUuid } from '../../usePerso/store'
@@ -58,6 +64,7 @@ export default function ModifEntre() {
   }, [unEntre]);
 
   const [showConfirm, setShowConfirm] = useState(false);
+  const [openScanner, setOpenScanner] = useState(false);
 
   const handleDelete = () => {
     setShowConfirm(true);
@@ -91,15 +98,27 @@ export default function ModifEntre() {
     });
   };
 
+  const handleScanResult = (code: string) => {
+    setUnEntre({
+      ...unEntre,
+      barcode_value: code.trim(),
+    });
+    setOpenScanner(false);
+  };
+
   unEntre["user_id"] = user_id
   unEntre["entreprise_id"] = entreprise_id!
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    unEntre["is_sortie"] = ajout_terminer
-    unEntre["is_prix"] = is_prix
-
-    updateEntre(unEntre)
+    updateEntre({
+      ...unEntre,
+      barcode_value: (unEntre.barcode_value || '').trim(),
+      is_sortie: ajout_terminer,
+      is_prix: is_prix,
+      user_id,
+      entreprise_id: entreprise_id!,
+    });
 
   };
 
@@ -275,6 +294,30 @@ export default function ModifEntre() {
                   sx={{ width: { xs: '100%', sm: 220 } }}
                 />
 
+                <TextField
+                  label="Code-barres / QR Code"
+                  variant="outlined"
+                  name="barcode_value"
+                  value={unEntre.barcode_value || ''}
+                  onChange={onChange}
+                  fullWidth
+                  helperText="Saisissez le code ou scannez-le avec la caméra."
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          type="button"
+                          onClick={() => setOpenScanner(true)}
+                          title="Scanner le code"
+                          edge="end"
+                        >
+                          <QrCode2Icon />
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+
                 {showAncien && (
                   <TextField
                     fullWidth
@@ -340,6 +383,18 @@ export default function ModifEntre() {
           </Box>
         </Paper>
       </div>
+
+      <Dialog open={openScanner} onClose={() => setOpenScanner(false)} fullWidth maxWidth="xs">
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          Scanner le code du produit
+          <IconButton onClick={() => setOpenScanner(false)} size="small">
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <BarcodeScanner onScan={handleScanResult} />
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

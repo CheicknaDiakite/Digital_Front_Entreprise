@@ -42,6 +42,8 @@ export type UtilisateurType = {
     is_sortie?: boolean;
     is_cabinet?: boolean;
     typeRole?: number;
+    conditions_a_accepter?: boolean;
+    conditions_version?: string | null;
     repassword?: string,
     password?: string,
 };

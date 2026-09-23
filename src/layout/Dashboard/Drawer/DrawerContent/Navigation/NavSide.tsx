@@ -37,6 +37,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import HistoryIcon from '@mui/icons-material/History';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
+import GavelOutlinedIcon from '@mui/icons-material/GavelOutlined';
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAddAvis, useFetchEntreprise, useFetchUser, useGetUserEntreprises, useRestructionUsers } from "../../../../../usePerso/fonction.user";
 import { isAccessAllowed, logout } from "../../../../../usePerso/fonctionPerso";
@@ -44,6 +45,7 @@ import { useStoreUuid } from "../../../../../usePerso/store";
 import MyTextField from "../../../../../_components/Input/MyTextField";
 import { AvisType } from "../../../../../typescript/UserType";
 import Example from "../../../../../boutique/Ct";
+import ConditionsUtilisation from "../../../../../pages/authentication/ConditionsUtilisation";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -324,6 +326,7 @@ const NavSide: React.FC = () => {
   const [expandedSection, setExpandedSection] = useState<number>(0);
   const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
   const [helpDialogOpen, setHelpDialogOpen] = useState(false);
+  const [termsDialogOpen, setTermsDialogOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const { getRestruction } = useRestructionUsers();
@@ -604,6 +607,12 @@ const NavSide: React.FC = () => {
             accentColor="#0ea5e9"
           />
           <NavItem
+            icon={<GavelOutlinedIcon sx={{ color: iconColor('#fbbf24', '#b45309') }} />}
+            label="Conditions d'utilisation"
+            onClick={() => setTermsDialogOpen(true)}
+            accentColor="#f59e0b"
+          />
+          <NavItem
             icon={<HelpOutlineIcon sx={{ color: iconColor('#c084fc', '#7e22ce') }} />}
             label="Donner mon avis"
             to="/user/avis"
@@ -620,6 +629,36 @@ const NavSide: React.FC = () => {
 
         </List>
       </Box>
+
+      <Dialog
+        open={termsDialogOpen}
+        onClose={() => setTermsDialogOpen(false)}
+        scroll="paper"
+        fullWidth
+        maxWidth="lg"
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            maxHeight: '90vh',
+            bgcolor: theme.palette.background.paper,
+            display: 'flex',
+          },
+        }}
+      >
+        <DialogContent
+          sx={{
+            p: 0,
+            minHeight: 0,
+            overflowY: 'auto',
+            overflowX: 'hidden',
+          }}
+        >
+          <ConditionsUtilisation
+            modal
+            onClose={() => setTermsDialogOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
 
       {/* ── Bottom pinned area ── */}
       <Box sx={{ px: 1.5, pb: 1.5, pt: 0.5 }}>
@@ -699,7 +738,7 @@ const NavSide: React.FC = () => {
       <Dialog
         open={helpDialogOpen}
         onClose={() => setHelpDialogOpen(false)}
-        maxWidth="md"
+        maxWidth="lg"
         fullWidth
         PaperProps={{
           sx: {
