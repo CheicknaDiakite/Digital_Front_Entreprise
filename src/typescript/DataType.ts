@@ -156,6 +156,7 @@ export type TypeEntreprise = {
     numero: number;
     user_id?: string;
     pays?: string;
+    created_at?: string;
 }
 
 type StockMonth = {

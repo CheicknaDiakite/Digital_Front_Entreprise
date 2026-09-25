@@ -82,7 +82,10 @@ export default function ConditionsUtilisation({ modal = false, onClose }: Condit
   const acceptedAt = conditionsData?.acceptee_le as string | null | undefined;
   const historique = (historiqueData?.donnee || []) as AcceptationHistoryItem[];
 
-  const returnPath = (location.state as { from?: string } | null)?.from || '/';
+  const rawReturnPath = (location.state as { from?: string } | null)?.from;
+  const returnPath = (!rawReturnPath || rawReturnPath.includes('conditions-utilisation') || rawReturnPath.includes('/auth/'))
+    ? '/'
+    : rawReturnPath;
 
   useEffect(() => {
     setHasReadToEnd(false);
@@ -91,14 +94,37 @@ export default function ConditionsUtilisation({ modal = false, onClose }: Condit
 
   const acceptMutation = useMutation({
     mutationFn: () => userService.acceptConditions(conditions!.version),
-    onSuccess: (response) => {
+    onSuccess: async (response) => {
       if (!response.data.etat) {
         return toast.error(response.data.message || "Erreur lors de l'acceptation.");
       }
       toast.success('Merci, votre acceptation a été enregistrée avec succès.');
-      queryClient.invalidateQueries({ queryKey: ['User'] });
-      queryClient.invalidateQueries({ queryKey: ['conditions-actuelles'] });
-      queryClient.invalidateQueries({ queryKey: ['conditions-historique'] });
+
+      // 1. Mettre à jour immédiatement les caches pour éviter tout rebond par TermsGuard
+      queryClient.setQueryData(['User'], (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          conditions_a_accepter: false,
+        };
+      });
+
+      queryClient.setQueryData(['conditions-actuelles'], (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          acceptee: true,
+          acceptee_le: new Date().toISOString(),
+        };
+      });
+
+      // 2. Synchroniser les requêtes avec le serveur
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ['User'] }),
+        queryClient.invalidateQueries({ queryKey: ['conditions-actuelles'] }),
+        queryClient.invalidateQueries({ queryKey: ['conditions-historique'] }),
+      ]);
+
       if (modal && onClose) {
         onClose();
         return;
@@ -354,6 +380,18 @@ export default function ConditionsUtilisation({ modal = false, onClose }: Condit
                 <Alert
                   severity="success"
                   icon={<CheckCircleOutlineIcon fontSize="inherit" />}
+                  action={
+                    isLogged ? (
+                      <Button
+                        size="small"
+                        color="inherit"
+                        variant="outlined"
+                        onClick={() => navigate('/')}
+                      >
+                        Aller à l'accueil
+                      </Button>
+                    ) : undefined
+                  }
                 >
                   Vous avez accepté cette version des conditions d'utilisation
                   {acceptedLabel ? ` le ${acceptedLabel}` : ''}. Elles régissent votre accès à la plateforme Gest Stocks.
@@ -500,14 +538,32 @@ export default function ConditionsUtilisation({ modal = false, onClose }: Condit
               sx={{ mt: 3, pt: 2, borderTop: '1px solid', borderColor: 'divider', '@media print': { display: 'none' } }}
             >
               {alreadyAccepted ? (
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  startIcon={<ArrowBackOutlinedIcon />}
-                  onClick={handleBack}
-                >
-                  Retour à l'application
-                </Button>
+                isLogged ? (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    size="large"
+                    onClick={() => navigate('/')}
+                    sx={{
+                      ml: 'auto',
+                      px: 4,
+                      py: 1.25,
+                      fontWeight: 700,
+                      boxShadow: '0 4px 14px rgba(79, 70, 229, 0.4)',
+                    }}
+                  >
+                    Aller à la page d'accueil
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outlined"
+                    color="inherit"
+                    startIcon={<ArrowBackOutlinedIcon />}
+                    onClick={() => handleModalOrNavigate('/auth/login')}
+                  >
+                    Retour à la connexion
+                  </Button>
+                )
               ) : isLogged ? (
                 <Button
                   variant="outlined"

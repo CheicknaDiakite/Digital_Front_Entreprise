@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import {
   Alert, Avatar, Box, Button, Card, CardContent, Chip, CircularProgress, Divider,
   FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography,
 } from '@mui/material';
+
 import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
 import ReplyRoundedIcon from '@mui/icons-material/ReplyRounded';
 import BusinessOutlinedIcon from '@mui/icons-material/BusinessOutlined';
@@ -49,15 +50,13 @@ export default function Avis() {
   const selectedEntrepriseId = useStoreUuid((state) => state.selectedId);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [reply, setReply] = useState('');
-  const [entrepriseId, setEntrepriseId] = useState(selectedEntrepriseId || '');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [statusFilter, setStatusFilter] = useState<'tous' | FeedbackStatus>('tous');
   const isSuperuser = Boolean(unUser.is_superuser);
 
-  useEffect(() => {
-    if (!entrepriseId && userEntreprises.length) setEntrepriseId(selectedEntrepriseId || userEntreprises[0].uuid || '');
-  }, [entrepriseId, selectedEntrepriseId, userEntreprises]);
+  // Find the display name of the currently selected enterprise
+  const selectedEntreprise = userEntreprises.find((e) => e.uuid === selectedEntrepriseId);
 
   const { data: avis = [], isLoading, isError } = useQuery({
     queryKey: ['avis'],
@@ -95,7 +94,7 @@ export default function Avis() {
     onError: () => toast.error('Le statut n’a pas pu être mis à jour.'),
   });
   const createMutation = useMutation({
-    mutationFn: () => userService.avisCreate({ libelle: title.trim(), description: description.trim(), entreprise_id: entrepriseId }),
+    mutationFn: () => userService.avisCreate({ libelle: title.trim(), description: description.trim(), entreprise_id: selectedEntrepriseId ?? '' }),
     onSuccess: (response) => {
       if (!response.data.etat) return toast.error(response.data.message);
       toast.success('Merci, votre avis a été envoyé.');
@@ -136,23 +135,37 @@ export default function Avis() {
               <Typography variant="h6" fontWeight={800}>Envoyer un avis</Typography>
             </Stack>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>Décrivez votre besoin, problème ou suggestion. Notre équipe vous répondra directement ici.</Typography>
-            {userEntreprises.length === 0 ? <Alert severity="info">Associez-vous d’abord à une entreprise pour pouvoir envoyer un avis.</Alert> : (
+            {!selectedEntrepriseId ? <Alert severity="info">Sélectionnez d'abord une entreprise pour pouvoir envoyer un avis.</Alert> : (
               <Stack spacing={2}>
-                <FormControl fullWidth size="small">
-                  <InputLabel id="avis-entreprise-label">Entreprise concernée</InputLabel>
-                  <Select labelId="avis-entreprise-label" label="Entreprise concernée" value={entrepriseId} onChange={(event) => setEntrepriseId(event.target.value)}>
-                    {userEntreprises.map((entreprise) => <MenuItem key={entreprise.uuid} value={entreprise.uuid}>{entreprise.nom}</MenuItem>)}
-                  </Select>
-                </FormControl>
+                {selectedEntreprise && (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                      px: 2,
+                      py: 1.25,
+                      borderRadius: 2,
+                      bgcolor: 'rgba(79,70,229,.07)',
+                      border: '1px solid rgba(79,70,229,.2)',
+                    }}
+                  >
+                    <BusinessOutlinedIcon sx={{ fontSize: 18, color: 'primary.main' }} />
+                    <Typography variant="body2" fontWeight={600} color="primary.main">
+                      {selectedEntreprise.nom}
+                    </Typography>
+                  </Box>
+                )}
                 <TextField label="Objet de votre avis" placeholder="Ex. Ajouter une fonctionnalité de rapport" value={title} onChange={(event) => setTitle(event.target.value)} inputProps={{ maxLength: 200 }} />
                 <TextField label="Votre message" placeholder="Expliquez le contexte et ce que vous attendez…" multiline minRows={4} value={description} onChange={(event) => setDescription(event.target.value)} inputProps={{ maxLength: 2000 }} helperText={`${description.length}/2000`} />
                 <Box display="flex" justifyContent="flex-end">
-                  <Button variant="contained" startIcon={<SendRoundedIcon />} disabled={!entrepriseId || !title.trim() || !description.trim() || createMutation.isPending} onClick={() => createMutation.mutate()}>
+                  <Button variant="contained" startIcon={<SendRoundedIcon />} disabled={!selectedEntrepriseId || !title.trim() || !description.trim() || createMutation.isPending} onClick={() => createMutation.mutate()}>
                     Envoyer mon avis
                   </Button>
                 </Box>
               </Stack>
             )}
+
           </CardContent>
         </Card>
       )}

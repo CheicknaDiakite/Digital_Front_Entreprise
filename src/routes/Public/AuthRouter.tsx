@@ -8,7 +8,7 @@ import ConditionsUtilisation from '../../pages/authentication/ConditionsUtilisat
 import { notClick } from '../../usePerso/fonctionPerso'
 
 export default function AuthRouter() {
-  // notClick()
+  notClick()
   return (
     <Routes>
       <Route element={<MinimalLayout />}>

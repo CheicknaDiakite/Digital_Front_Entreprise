@@ -3,12 +3,17 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useFetchUser } from '../usePerso/fonction.user';
 
 export default function TermsGuard({ children }: { children: JSX.Element }) {
-  const { unUser, isLoading } = useFetchUser();
+  const { unUser, us, isLoading } = useFetchUser();
   const location = useLocation();
 
   if (isLoading) return <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center' }}><CircularProgress /></Box>;
-  if (unUser.conditions_a_accepter) {
-    return <Navigate to="/conditions-utilisation" replace state={{ from: location.pathname }} />;
+  
+  const currentUser = us || unUser;
+  if (currentUser?.conditions_a_accepter) {
+    const fromPath = (!location.pathname || location.pathname.includes('conditions-utilisation'))
+      ? '/'
+      : location.pathname;
+    return <Navigate to="/conditions-utilisation" replace state={{ from: fromPath }} />;
   }
   return children;
 }

@@ -47,6 +47,18 @@ import { AvisType } from "../../../../../typescript/UserType";
 import Example from "../../../../../boutique/Ct";
 import ConditionsUtilisation from "../../../../../pages/authentication/ConditionsUtilisation";
 
+// ── Helpers ────────────────────────────────────────────────────────────────────
+
+/** Returns true if the given ISO date string is at least 6 months in the past. */
+const isOlderThan6Months = (dateStr: string | undefined | null): boolean => {
+  if (!dateStr) return false;
+  const created = new Date(dateStr);
+  if (isNaN(created.getTime())) return false;
+  const sixMonthsLater = new Date(created);
+  sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
+  return new Date() >= sixMonthsLater;
+};
+
 // ── Types ──────────────────────────────────────────────────────────────────────
 
 interface NavItemProps {
@@ -618,7 +630,7 @@ const NavSide: React.FC = () => {
             to="/user/avis"
             accentColor="#a855f7"
           />
-          {(unUser.role === 1 || unUser.role === 2) && (
+          {(unUser.role === 1 || unUser.role === 2) && isOlderThan6Months(unEntreprise.created_at) && (
             <NavItem
               icon={<HelpOutlineIcon sx={{ color: iconColor('#c084fc', '#7e22ce') }} />}
               label="Abonnement ?"

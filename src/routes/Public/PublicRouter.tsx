@@ -49,7 +49,7 @@ import { useAppSettings } from '../../themes/AppSettingsContext';
 
 
 export default function PublicRouter() {
-  // notClick()
+  notClick()
   const uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise, isLoading } = useFetchEntreprise(uuid);
   const url = unEntreprise.image ? BASE(unEntreprise.image) : backgroundImage;
