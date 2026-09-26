@@ -376,6 +376,9 @@ export default function Sortie() {
     const result = await refetch();
     const freshSorties: any[] = result.data ?? [];
 
+    // Rafraîchir les stocks (qte) automatiquement après validation
+    await refetchEntres();
+
     // Sélectionner automatiquement les nouveaux IDs (ceux absents avant)
     const newIds = freshSorties
       .map((s: any) => s.id)

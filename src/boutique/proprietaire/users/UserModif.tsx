@@ -24,6 +24,8 @@ import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
 import WorkspacePremiumOutlinedIcon from "@mui/icons-material/WorkspacePremiumOutlined";
 import BusinessCenterOutlinedIcon from "@mui/icons-material/BusinessCenterOutlined";
+import PhoneOutlinedIcon from "@mui/icons-material/PhoneOutlined";
+import InputAdornment from "@mui/material/InputAdornment";
 import { useParams } from "react-router-dom";
 import {
   useDeleteUser,
@@ -34,8 +36,9 @@ import {
 import MyTextField from "../../../_components/Input/MyTextField";
 
 /* ── Helpers ─────────────────────────────────────────────── */
-const roleLabel: Record<number, { label: string; color: "success" | "warning" | "default" }> = {
-  1: { label: "Activé", color: "success" },
+const roleLabel: Record<number, { label: string; color: "success" | "warning" | "error" | "default" }> = {
+  1: { label: "Activé",     color: "success" },
+  0: { label: "Désactivé", color: "error"   },
 };
 
 const subscriptionLabel: Record<number, { label: string; color: "default" | "primary" | "secondary" }> = {
@@ -125,7 +128,6 @@ export const UserModif: FC = () => {
   const gradientTo = theme.palette.secondary?.main ?? theme.palette.primary.light;
 
   const currentSub = subscriptionLabel[unUser.typeRole as number] ?? subscriptionLabel[1];
-  const currentRole = roleLabel[unUser.role as number] ?? { label: "—", color: "default" as const };
 
   return (
     <Box
@@ -182,8 +184,8 @@ export const UserModif: FC = () => {
               </Typography>
               <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
                 <Chip
-                  label={currentRole.label}
-                  color={currentRole.color}
+                  label={roleLabel[unUser.role as number]?.label ?? "—"}
+                  color={roleLabel[unUser.role as number]?.color ?? "default"}
                   size="small"
                   sx={{ fontWeight: 700, fontSize: "0.7rem", borderRadius: "6px" }}
                 />
@@ -272,6 +274,23 @@ export const UserModif: FC = () => {
                         value={unUser.first_name}
                       />
                     </Box>
+                    <MyTextField
+                      fullWidth
+                      disabled
+                      variant="outlined"
+                      label="Numéro de téléphone"
+                      name="numero"
+                      type="tel"
+                      onChange={onChange}
+                      value={unUser.numero ?? ""}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <PhoneOutlinedIcon sx={{ fontSize: 18, color: "text.secondary" }} />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
                   </Stack>
                 </Section>
 
@@ -283,20 +302,87 @@ export const UserModif: FC = () => {
                   icon={<BadgeOutlinedIcon sx={{ fontSize: 18 }} />}
                 >
                   <Stack spacing={2.5}>
-                    <FormControl fullWidth>
-                      <InputLabel id="role-label">Statut du compte</InputLabel>
-                      <Select
-                        labelId="role-label"
-                        id="role-select"
-                        name="role"
-                        value={unUser.role || ""}
-                        onChange={onSelectChange}
-                        label="Statut du compte"
-                        sx={{ borderRadius: 2 }}
+                    {/* ── Toggle Activer / Désactiver ── */}
+                    <Box
+                      sx={{
+                        px: 2,
+                        py: 1.5,
+                        borderRadius: 2,
+                        border: `1px solid ${
+                          unUser.role === 1
+                            ? alpha(theme.palette.success.main, 0.4)
+                            : alpha(theme.palette.error.main, 0.4)
+                        }`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        bgcolor: unUser.role === 1
+                          ? alpha(theme.palette.success.main, isDark ? 0.08 : 0.04)
+                          : alpha(theme.palette.error.main,   isDark ? 0.08 : 0.04),
+                        transition: "all .25s ease",
+                      }}
+                    >
+                      <Box>
+                        <Typography variant="body2" fontWeight={600}>
+                          Statut du compte
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          color={unUser.role === 1 ? "success.main" : "error.main"}
+                          fontWeight={600}
+                        >
+                          {unUser.role === 1
+                            ? "✓ Compte actif — l'utilisateur peut se connecter"
+                            : "✗ Compte désactivé — connexion bloquée"}
+                        </Typography>
+                      </Box>
+                      <Tooltip
+                        title={unUser.role === 1 ? "Désactiver le compte" : "Activer le compte"}
+                        arrow
                       >
-                        <MenuItem value={1}>Activé</MenuItem>
-                      </Select>
-                    </FormControl>
+                        <Checkbox
+                          checked={unUser.role === 1}
+                          onChange={(e) =>
+                            setUnUser({ ...unUser, role: e.target.checked ? 1 : 0 })
+                          }
+                          icon={
+                            <Box
+                              sx={{
+                                width: 44, height: 24, borderRadius: 12,
+                                bgcolor: alpha(theme.palette.error.main, 0.18),
+                                border: `2px solid ${alpha(theme.palette.error.main, 0.4)}`,
+                                display: "flex", alignItems: "center", px: 0.4,
+                                transition: "all .25s",
+                              }}
+                            >
+                              <Box sx={{
+                                width: 16, height: 16, borderRadius: "50%",
+                                bgcolor: theme.palette.error.main,
+                                transition: "transform .25s",
+                              }} />
+                            </Box>
+                          }
+                          checkedIcon={
+                            <Box
+                              sx={{
+                                width: 44, height: 24, borderRadius: 12,
+                                bgcolor: alpha(theme.palette.success.main, 0.18),
+                                border: `2px solid ${alpha(theme.palette.success.main, 0.4)}`,
+                                display: "flex", alignItems: "center", justifyContent: "flex-end", px: 0.4,
+                                transition: "all .25s",
+                              }}
+                            >
+                              <Box sx={{
+                                width: 16, height: 16, borderRadius: "50%",
+                                bgcolor: theme.palette.success.main,
+                                transition: "transform .25s",
+                              }} />
+                            </Box>
+                          }
+                          sx={{ p: 0.5 }}
+                        />
+                      </Tooltip>
+                    </Box>
 
                     <FormControl fullWidth>
                       <InputLabel id="typeRole-label">Type d'abonnement</InputLabel>
