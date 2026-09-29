@@ -6,7 +6,8 @@ import {
   Paper,
   Typography,
   Box,
-  Alert
+  Alert,
+  Skeleton
 } from "@mui/material"
 import { ChangeEvent, FormEvent, useState } from "react";
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
@@ -31,7 +32,7 @@ export default function ModifSousCate() {
   const { unEntreprise } = useFetchEntreprise(entreprise_uuid);
 
   // const {unSousCate, setUnSousCate, updateSousCate, deleteSousCate} = useSousCategorie(slug!)
-  const { unSousCate, setUnSousCate } = useFetchSousCate(uuid!)
+  const { unSousCate, setUnSousCate, isLoading } = useFetchSousCate(uuid!)
   const {unUser} = useFetchUser()
   const {deleteSousCate} = useDeleteSousCate()
 
@@ -82,6 +83,34 @@ export default function ModifSousCate() {
   };
 
   const url = unSousCate.image ? BASE(unSousCate.image) : img;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen py-4 sm:py-6">
+        <div className="max-w-full sm:max-w-4xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
+          <Skeleton variant="text" width="30%" height={40} sx={{ mb: 3 }} />
+          <Paper elevation={0} className="border rounded-lg overflow-hidden">
+            <Box className="p-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Skeleton variant="text" width="50%" height={24} sx={{ mb: 1 }} />
+                  <Skeleton variant="rectangular" height={56} />
+                </div>
+                <div>
+                  <Skeleton variant="text" width="50%" height={24} sx={{ mb: 1 }} />
+                  <Skeleton variant="rectangular" className="w-full aspect-video" height={160} sx={{ borderRadius: 1 }} />
+                  <Skeleton variant="rectangular" height={56} sx={{ mt: 2 }} />
+                </div>
+              </div>
+            </Box>
+            <Box sx={{ px: 3, py: 2, display: 'flex', justifyContent: 'flex-end', bgcolor: 'grey.50' }}>
+              <Skeleton variant="rectangular" width={200} height={40} sx={{ borderRadius: 1 }} />
+            </Box>
+          </Paper>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-4 sm:py-6">

@@ -29,9 +29,9 @@ import LogoutOutlined from '@ant-design/icons/LogoutOutlined';
 import SettingOutlined from '@ant-design/icons/SettingOutlined';
 import FileTextOutlined from '@ant-design/icons/FileTextOutlined';
 import UserOutlined from '@ant-design/icons/UserOutlined';
-import { Alert, Avatar, CircularProgress } from '@mui/material';
+import { Alert, Avatar, Skeleton } from '@mui/material';
 import { useFetchUser } from '../../../../../usePerso/fonction.user';
-import { logout, stringAvatar } from '../../../../../usePerso/fonctionPerso';
+import { logout, stringToColor } from '../../../../../usePerso/fonctionPerso';
 import { useStoreUuid } from '../../../../../usePerso/store';
 
 // tab panel wrapper
@@ -87,8 +87,9 @@ export default function Profile() {
 
   if (isLoading) {
     return (
-      <Box sx={{ width: 300 }}>
-        <CircularProgress />
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 0.5 }}>
+        <Skeleton variant="circular" width={34} height={34} />
+        <Skeleton variant="text" width={90} height={24} sx={{ display: { xs: 'none', sm: 'block' } }} />
       </Box>
     );
   }
@@ -98,59 +99,82 @@ export default function Profile() {
   }
 
   if (unUser) {
+    const fullName = [unUser.last_name, unUser.first_name].filter(Boolean).join(' ').trim() || (unUser as any).email || (unUser as any).username || 'Utilisateur';
+
+    const getInitials = (name: string) => {
+      const parts = name.trim().split(/\s+/).filter(Boolean);
+      if (parts.length === 0) return 'U';
+      if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+      return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+    };
+
+    const initials = getInitials(fullName);
+    const avatarColor = stringToColor(fullName);
+
     return (
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
         {/* Bouton de paramètres d'affichage */}
         {/* <AppSettingsPanel /> */}
 
         {/* Bouton avatar / profil */}
-        <ButtonBase
-          aria-label="open profile"
-          ref={anchorRef}
-          aria-controls={open ? 'profile-grow' : undefined}
-          aria-haspopup="true"
-          onClick={handleToggle}
-          sx={{
-            p: 0.75,
-            px: 1.5,
-            borderRadius: '24px',
-            bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.78)',
-            border: `1px solid ${theme.palette.divider}`,
-            backdropFilter: 'blur(10px)',
-            transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-            boxShadow: open ? '0 0 16px rgba(99, 102, 241, 0.35)' : 'none',
-            '&:hover': {
-              bgcolor: 'rgba(99, 102, 241, 0.2)',
-              borderColor: 'rgba(99, 102, 241, 0.45)',
-              transform: 'translateY(-1px)',
-            },
-          }}
-        >
-          <Stack direction="row" spacing={1.25} alignItems="center">
-            <Avatar
-              {...stringAvatar(`${unUser.last_name} ${unUser.first_name}`)}
-              sx={{
-                width: 34,
-                height: 34,
-                border: '2px solid rgba(129, 140, 248, 0.6)',
-                fontSize: '0.875rem',
-                fontWeight: 700,
-              }}
-            />
-            <Typography
-              variant="subtitle2"
-              sx={{
-                color: 'text.primary',
-                fontWeight: 600,
-                textTransform: 'capitalize',
-                display: { xs: 'none', sm: 'block' },
-                fontSize: '0.9rem',
-              }}
-            >
-              {unUser.last_name} {unUser.first_name}
-            </Typography>
-          </Stack>
-        </ButtonBase>
+        <Tooltip title={fullName} arrow enterDelay={500}>
+          <ButtonBase
+            aria-label="open profile"
+            ref={anchorRef}
+            aria-controls={open ? 'profile-grow' : undefined}
+            aria-haspopup="true"
+            onClick={handleToggle}
+            sx={{
+              p: 0.5,
+              px: { xs: 0.75, sm: 1.25 },
+              borderRadius: '24px',
+              bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.78)',
+              border: `1px solid ${theme.palette.divider}`,
+              backdropFilter: 'blur(10px)',
+              transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+              boxShadow: open ? '0 0 16px rgba(99, 102, 241, 0.35)' : 'none',
+              maxWidth: { xs: 46, sm: 220, md: 260 },
+              '&:hover': {
+                bgcolor: 'rgba(99, 102, 241, 0.2)',
+                borderColor: 'rgba(99, 102, 241, 0.45)',
+                transform: 'translateY(-1px)',
+              },
+            }}
+          >
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ minWidth: 0 }}>
+              <Avatar
+                sx={{
+                  bgcolor: avatarColor,
+                  width: 32,
+                  height: 32,
+                  border: '2px solid rgba(129, 140, 248, 0.6)',
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                  flexShrink: 0,
+                }}
+              >
+                {initials}
+              </Avatar>
+              <Typography
+                variant="subtitle2"
+                noWrap
+                sx={{
+                  color: 'text.primary',
+                  fontWeight: 600,
+                  textTransform: 'capitalize',
+                  display: { xs: 'none', sm: 'block' },
+                  fontSize: '0.875rem',
+                  maxWidth: { sm: 120, md: 160, lg: 190 },
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {fullName}
+              </Typography>
+            </Stack>
+          </ButtonBase>
+        </Tooltip>
 
         <Popper
           placement="bottom-end"
@@ -192,15 +216,37 @@ export default function Profile() {
                     <Box sx={{ p: 2.5, pb: 2, background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.08) 100%)', borderBottom: `1px solid ${theme.palette.divider}` }}>
                       <Grid container justifyContent="space-between" alignItems="center">
                         <Grid item>
-                          <Stack direction="row" spacing={1.5} alignItems="center">
+                          <Stack direction="row" spacing={1.5} alignItems="center" sx={{ minWidth: 0 }}>
                             <Avatar
                               alt="profile user"
-                              {...stringAvatar(`${unUser.last_name} ${unUser.first_name}`)}
-                              sx={{ width: 42, height: 42, border: '2px solid #6366f1', fontSize: '1rem', fontWeight: 700 }}
-                            />
-                            <Stack spacing={0.25}>
-                              <Typography variant="subtitle1" sx={{ color: 'text.primary', fontWeight: 700, lineHeight: 1.2, textTransform: 'capitalize' }}>
-                                {unUser.last_name} {unUser.first_name}
+                              sx={{
+                                bgcolor: avatarColor,
+                                width: 42,
+                                height: 42,
+                                border: '2px solid #6366f1',
+                                fontSize: '0.95rem',
+                                fontWeight: 700,
+                                flexShrink: 0,
+                              }}
+                            >
+                              {initials}
+                            </Avatar>
+                            <Stack spacing={0.25} sx={{ minWidth: 0 }}>
+                              <Typography
+                                variant="subtitle1"
+                                noWrap
+                                title={fullName}
+                                sx={{
+                                  color: 'text.primary',
+                                  fontWeight: 700,
+                                  lineHeight: 1.2,
+                                  textTransform: 'capitalize',
+                                  maxWidth: 190,
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                }}
+                              >
+                                {fullName}
                               </Typography>
                               <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.75rem' }}>
                                 {unUser.role === 1 ? 'Administrateur' : unUser.role === 2 ? 'Gestionnaire' : 'Utilisateur'}

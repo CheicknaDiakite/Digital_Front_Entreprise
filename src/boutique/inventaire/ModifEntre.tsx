@@ -17,6 +17,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  Skeleton,
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
@@ -40,7 +41,7 @@ export default function ModifEntre() {
 
   const entreprise_id = useStoreUuid((state) => state.selectedId)
 
-  const { unEntre, setUnEntre } = useFetchEntre(uuid!)
+  const { unEntre, setUnEntre, isLoading } = useFetchEntre(uuid!)
   const { unUser } = useFetchUser()
 
   const user_id = unUser?.uuid || '';
@@ -121,6 +122,30 @@ export default function ModifEntre() {
     });
 
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen py-6">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Paper elevation={0} className="mt-6 rounded-lg overflow-hidden">
+            <Box className="p-6 space-y-6">
+              <Skeleton variant="text" width="40%" height={40} />
+              <Skeleton variant="text" width="60%" height={24} />
+              <Skeleton variant="rectangular" height={56} />
+              <Skeleton variant="rectangular" height={56} />
+              <Skeleton variant="rectangular" width={220} height={56} />
+              <Skeleton variant="rectangular" width={220} height={56} />
+              <Skeleton variant="rectangular" width={220} height={56} />
+              <Skeleton variant="rectangular" height={56} />
+              <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', pt: 2 }}>
+                <Skeleton variant="rectangular" width={220} height={40} sx={{ borderRadius: 1 }} />
+              </Box>
+            </Box>
+          </Paper>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-6">

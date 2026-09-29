@@ -1,6 +1,6 @@
 import { ChangeEvent, FormEvent, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { Button, Card, CardContent, DialogContent, DialogTitle, Stack, TextField, Typography, Alert, FormControlLabel, Switch } from '@mui/material'
+import { Button, Card, CardContent, DialogContent, DialogTitle, Stack, TextField, Typography, Alert, FormControlLabel, Switch, Skeleton } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { useDeleteSortie, useFetchSortie, useUpdateSortie } from '../../usePerso/fonction.entre'
@@ -12,7 +12,7 @@ export default function ModifSortie() {
   const entreprise_id = useStoreUuid((state) => state.selectedId)
 
   const {unUser} = useFetchUser()
-  const {unSortie, setUnSortie} = useFetchSortie(uuid!)
+  const {unSortie, setUnSortie, isLoading} = useFetchSortie(uuid!)
   const {updateSortie} = useUpdateSortie()
   const {deleteSortie} = useDeleteSortie()
 
@@ -61,6 +61,25 @@ export default function ModifSortie() {
     updateSortie(buildPayload());
   };
   
+  if (isLoading) {
+    return (
+      <Card sx={{ minWidth: 275 }}>
+        <CardContent>
+          <Skeleton variant="text" width={200} height={20} />
+          <div className='flex justify-center items-center flex-col mt-4'>
+            <Skeleton variant="text" width={180} height={36} sx={{ my: 1 }} />
+            <Skeleton variant="rectangular" width={220} height={24} sx={{ mb: 2, borderRadius: 1 }} />
+            <div className="mt-4 mb-2 w-80 max-w-screen-lg sm:w-96 space-y-4">
+              <Skeleton variant="rectangular" height={56} sx={{ borderRadius: 1 }} />
+              <Skeleton variant="rectangular" height={56} sx={{ borderRadius: 1 }} />
+              <Skeleton variant="rectangular" height={56} sx={{ borderRadius: 1 }} />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (<>
     
     {showConfirm && (
