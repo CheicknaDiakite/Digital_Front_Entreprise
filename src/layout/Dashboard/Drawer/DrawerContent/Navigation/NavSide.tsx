@@ -28,15 +28,22 @@ import {
   ExpandLess,
   ExpandMore,
   Discount as DiscountIcon,
+  MonetizationOn as MonetizationOnIcon,
+  PeopleOutlineRounded as PeopleIcon,
+  Badge as BadgeIcon,
+  Receipt as ReceiptIcon,
+  Storefront as StorefrontIcon,
+  Timeline as TimelineIcon,
+  PointOfSale as PointOfSaleIcon,
 } from "@mui/icons-material";
 import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import DescriptionIcon from '@mui/icons-material/Description';
 import AddBusinessIcon from '@mui/icons-material/AddBusiness';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
 import CloseIcon from "@mui/icons-material/Close";
 import HistoryIcon from '@mui/icons-material/History';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
-import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
 import GavelOutlinedIcon from '@mui/icons-material/GavelOutlined';
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAddAvis, useFetchEntreprise, useFetchUser, useGetUserEntreprises, useRestructionUsers } from "../../../../../usePerso/fonction.user";
@@ -257,10 +264,10 @@ const FeedbackDialogContent: React.FC<FeedbackDialogProps> = ({ open, onClose, o
       <Box display="flex" justifyContent="space-between" alignItems="flex-start">
         <Box>
           <Typography variant="h6" sx={{ color: 'text.primary', fontWeight: 700 }}>
-            Donnez votre avis
+            Support & Assistance
           </Typography>
           <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            Votre retour nous aide à améliorer GestStocks
+            Besoin d'aide ou d'une intervention ? Notre équipe technique vous répond.
           </Typography>
         </Box>
         <IconButton
@@ -281,14 +288,14 @@ const FeedbackDialogContent: React.FC<FeedbackDialogProps> = ({ open, onClose, o
       <DialogContent sx={{ pt: 1 }}>
         <Stack spacing={2.5}>
           <MyTextField
-            label="Titre"
+            label="Objet de la demande"
             name="libelle"
             value={values.libelle}
             onChange={onChange}
             required
           />
           <MyTextField
-            label="Description"
+            label="Description du problème ou besoin"
             name="description"
             value={values.description}
             onChange={onChange}
@@ -322,7 +329,7 @@ const FeedbackDialogContent: React.FC<FeedbackDialogProps> = ({ open, onClose, o
             '&:hover': { bgcolor: '#4f46e5', boxShadow: '0 4px 20px rgba(99,102,241,0.55)' },
           }}
         >
-          Envoyer
+          Envoyer la demande
         </Button>
       </DialogActions>
     </form>
@@ -435,159 +442,244 @@ const NavSide: React.FC = () => {
             </List>
           </Collapse>
 
-          {/* ── NAVIGATION ── */}
+          {/* ── NAVIGATION PRINCIPALE ── */}
           {uuid && (
             <>
               <NavDivider />
-              <SectionLabel label="Navigation" />
-
+              <SectionLabel label="Général" />
               <NavItem
                 icon={<DashboardIcon sx={{ color: iconColor('#818cf8', '#4f46e5') }} />}
-                label="Accueil"
-                onClick={() => handleSectionExpand(1)}
+                label="Tableau de bord"
+                to="/entreprise"
                 accentColor="#6366f1"
-                isExpanded={expandedSection === 1}
               />
 
+              {/* ── MODULE VENTES & CAISSE ── */}
               {(unUser.role === 1 || unUser.role === 2 || unUser.role === 3) && (
-                <Collapse in={expandedSection === 1} timeout="auto" unmountOnExit>
-                  <List component="div" disablePadding>
-                    {(unUser.role === 1 || unUser.role === 2) && (
-                      <>
+                <>
+                  <NavDivider />
+                  <SectionLabel label="Ventes & Caisse" />
+                  <NavItem
+                    icon={<PointOfSaleIcon sx={{ color: iconColor('#f87171', '#dc2626') }} />}
+                    label="Ventes"
+                    onClick={() => handleSectionExpand(1)}
+                    accentColor="#ef4444"
+                    isExpanded={expandedSection === 1}
+                  />
+                  <Collapse in={expandedSection === 1} timeout="auto" unmountOnExit>
+                    <List component="div" disablePadding>
+                      {(() => {
+                        if (!getRestruction || isAccessAllowed(getRestruction)) {
+                          return (
+                            <NavItem
+                              icon={<ExitToAppIcon sx={{ color: iconColor('#f87171', '#dc2626') }} />}
+                              label="Caisse / Sortie"
+                              to="/sortie"
+                              accentColor="#ef4444"
+                              isSubItem
+                            />
+                          );
+                        }
+                        return null;
+                      })()}
+                      {unEntreprise.licence_type !== 'Stock Simple' && (
                         <NavItem
-                          icon={<CategoryIcon sx={{ color: iconColor('#a5b4fc', '#4f46e5') }} />}
-                          label="Article"
-                          to="/categorie"
-                          accentColor="#6366f1"
+                          icon={<ReceiptIcon sx={{ color: iconColor('#fb923c', '#ea580c') }} />}
+                          label="Factures de vente"
+                          to="/entreprise/produit/sortie"
+                          accentColor="#f97316"
                           isSubItem
                         />
+                      )}
+                      <NavItem
+                        label="Facture Proforma"
+                        to="/entreprise/PreFacture"
+                        accentColor="#f59e0b"
+                        isSubItem
+                      />
+                      <NavItem
+                        icon={<DiscountIcon sx={{ color: iconColor('#fb923c', '#c2410c') }} />}
+                        label="Remise Facture"
+                        to="/sortie/remise"
+                        accentColor="#f97316"
+                        isSubItem
+                      />
+                    </List>
+                  </Collapse>
+                </>
+              )}
+
+              {/* ── MODULE STOCK & CATALOGUE ── */}
+              {(unUser.role === 1 || unUser.role === 2) && (
+                <>
+                  <NavDivider />
+                  <SectionLabel label="Stock & Produits" />
+                  <NavItem
+                    icon={<CategoryIcon sx={{ color: iconColor('#34d399', '#059669') }} />}
+                    label="Stock & Achats"
+                    onClick={() => handleSectionExpand(2)}
+                    accentColor="#10b981"
+                    isExpanded={expandedSection === 2}
+                  />
+                  <Collapse in={expandedSection === 2} timeout="auto" unmountOnExit>
+                    <List component="div" disablePadding>
+                      <NavItem
+                        icon={<CategoryIcon sx={{ color: iconColor('#a5b4fc', '#4f46e5') }} />}
+                        label="Articles & Catégories"
+                        to="/categorie"
+                        accentColor="#6366f1"
+                        isSubItem
+                      />
+                      <NavItem
+                        icon={<AddCircleIcon sx={{ color: iconColor('#34d399', '#059669') }} />}
+                        label="Entrées (Approvisionnement)"
+                        to="/entre"
+                        accentColor="#10b981"
+                        isSubItem
+                      />
+                      {unEntreprise.licence_type !== 'Stock Simple' && (
                         <NavItem
-                          icon={<AddCircleIcon sx={{ color: iconColor('#34d399', '#059669') }} />}
-                          label="Entrer (Achat)"
-                          to="/entre"
+                          label="Factures d'achat"
+                          to="/entreprise/produit/entre"
                           accentColor="#10b981"
                           isSubItem
                         />
-                      </>
-                    )}
-                    {(() => {
-                      if (!getRestruction) return null;
-                      if (isAccessAllowed(getRestruction)) {
-                        return (
+                      )}
+                      <NavItem
+                        label="Historique sorties inventaire"
+                        to="/entreprise/inventaire/sortie"
+                        accentColor="#10b981"
+                        isSubItem
+                      />
+                      {unEntreprise.licence_type !== 'Stock Simple' && (
+                        <>
                           <NavItem
-                            icon={<ExitToAppIcon sx={{ color: iconColor('#f87171', '#dc2626') }} />}
-                            label="Sortie (Vente)"
-                            to="/sortie"
-                            accentColor="#ef4444"
+                            label="Historique entrées inventaire"
+                            to="/entreprise/inventaire/entrer"
+                            accentColor="#10b981"
                             isSubItem
                           />
-                        );
-                      }
-                    })()}
-                    <NavItem
-                      icon={<DiscountIcon sx={{ color: iconColor('#fb923c', '#c2410c') }} />}
-                      label="Remise Facture"
-                      to="/sortie/remise"
-                      accentColor="#f97316"
-                      isSubItem
-                    />
-                  </List>
-                </Collapse>
+                          <NavItem
+                            label="État des produits"
+                            to="/entreprise/inventaire/EtaDesProduits"
+                            accentColor="#10b981"
+                            isSubItem
+                          />
+                        </>
+                      )}
+                    </List>
+                  </Collapse>
+                </>
               )}
-            </>
-          )}
 
-          {/* ── INVENTAIRE ── */}
-          {((unUser.role === 1 || unUser.role === 2) && uuid) && (
-            <>
-              <NavDivider />
-              <SectionLabel label="Inventaire" />
-              <NavItem
-                icon={<HistoryEduIcon sx={{ color: iconColor('#34d399', '#059669') }} />}
-                label="Inventaire"
-                onClick={() => handleSectionExpand(2)}
-                accentColor="#10b981"
-                isExpanded={expandedSection === 2}
-              />
-              <Collapse in={expandedSection === 2} timeout="auto" unmountOnExit>
-                <List component="div" disablePadding>
+              {/* ── MODULE FINANCES & TIERS ── */}
+              {(unUser.role === 1 || unUser.role === 2 || unUser.role === 3) && (
+                <>
+                  <NavDivider />
+                  <SectionLabel label="Finances & Tiers" />
                   <NavItem
-                    label="Ventes"
-                    to="/entreprise/inventaire/sortie"
-                    accentColor="#10b981"
-                    isSubItem
+                    icon={<MonetizationOnIcon sx={{ color: iconColor('#2dd4bf', '#0d9488') }} />}
+                    label="Finances & Tiers"
+                    onClick={() => handleSectionExpand(6)}
+                    accentColor="#14b8a6"
+                    isExpanded={expandedSection === 6}
                   />
-                  {unEntreprise.licence_type !== 'Stock Simple' && (
-                    <>
+                  <Collapse in={expandedSection === 6} timeout="auto" unmountOnExit>
+                    <List component="div" disablePadding>
+                      {unEntreprise.licence_type !== 'Stock Simple' && (
+                        <NavItem
+                          icon={<MonetizationOnIcon sx={{ color: iconColor('#2dd4bf', '#0d9488') }} />}
+                          label="Dépenses"
+                          to="/entreprise/depense"
+                          accentColor="#14b8a6"
+                          isSubItem
+                        />
+                      )}
                       <NavItem
-                        label="Achats"
-                        to="/entreprise/inventaire/entrer"
-                        accentColor="#10b981"
+                        icon={<PeopleIcon sx={{ color: iconColor('#38bdf8', '#0284c7') }} />}
+                        label="Clients & Fournisseurs"
+                        to="/entreprise/client"
+                        accentColor="#0ea5e9"
+                        isSubItem
+                      />
+                    </List>
+                  </Collapse>
+                </>
+              )}
+
+              {/* ── MODULE RAPPORTS & HISTORIQUES ── */}
+              {(unUser.role === 1 || unUser.role === 2) && (
+                <>
+                  <NavDivider />
+                  <SectionLabel label="Analyses & Historiques" />
+                  <NavItem
+                    icon={<TimelineIcon sx={{ color: iconColor('#fbbf24', '#d97706') }} />}
+                    label="Rapports"
+                    onClick={() => handleSectionExpand(3)}
+                    accentColor="#f59e0b"
+                    isExpanded={expandedSection === 3}
+                  />
+                  <Collapse in={expandedSection === 3} timeout="auto" unmountOnExit>
+                    <List component="div" disablePadding>
+                      <NavItem
+                        icon={<HistoryIcon sx={{ color: iconColor('#fbbf24', '#b45309') }} />}
+                        label="Mouvements de stock"
+                        to="/entreprise/historique"
+                        accentColor="#f59e0b"
                         isSubItem
                       />
                       <NavItem
-                        label="Etat des produits"
-                        to="/entreprise/inventaire/EtaDesProduits"
-                        accentColor="#10b981"
+                        label="Historique des suppressions"
+                        to="/entreprise/historique/suppression"
+                        accentColor="#f59e0b"
                         isSubItem
                       />
-                    </>
-                  )}
-                  {(unUser.role === 1 && uuid) && unEntreprise.licence_type !== 'Stock Simple' && (
+                      <NavItem
+                        label="Évolution des ventes"
+                        to="/entreprise/EtaDeVente"
+                        accentColor="#f59e0b"
+                        isSubItem
+                      />
+                      {unUser.role === 1 && unEntreprise.licence_type !== 'Stock Simple' && (
+                        <NavItem
+                          label="Ventes par utilisateur"
+                          to="/entreprise/inventaire/VenteUsers"
+                          accentColor="#f59e0b"
+                          isSubItem
+                        />
+                      )}
+                    </List>
+                  </Collapse>
+                </>
+              )}
+
+              {/* ── MODULE ADMINISTRATION ── */}
+              {unUser.role === 1 && (
+                <>
+                  <NavDivider />
+                  <SectionLabel label="Administration" />
+                  <NavItem
+                    icon={<StorefrontIcon sx={{ color: iconColor('#818cf8', '#4f46e5') }} />}
+                    label="Mon entreprise"
+                    to="/entreprise/detail"
+                    accentColor="#6366f1"
+                  />
+                  <NavItem
+                    icon={<BadgeIcon sx={{ color: iconColor('#f472b6', '#db2777') }} />}
+                    label="Personnel"
+                    to="/entreprise/personnel"
+                    accentColor="#ec4899"
+                  />
+                  {unUser.is_superuser && (
                     <NavItem
-                      label="Etat des utilisateurs"
-                      to="/entreprise/inventaire/VenteUsers"
-                      accentColor="#10b981"
-                      isSubItem
+                      icon={<UserCircleIcon sx={{ color: iconColor('#60a5fa', '#2563eb') }} />}
+                      label="Les Admins"
+                      to="/user/admin"
+                      accentColor="#3b82f6"
                     />
                   )}
-                </List>
-              </Collapse>
-            </>
-          )}
-
-          {/* ── HISTORIQUE ── */}
-          {(unUser.role === 1 && uuid) && (
-            <>
-              <NavDivider />
-              <SectionLabel label="Historique" />
-              <NavItem
-                icon={<HistoryIcon sx={{ color: iconColor('#fbbf24', '#b45309') }} />}
-                label="Historique"
-                onClick={() => handleSectionExpand(3)}
-                accentColor="#f59e0b"
-                isExpanded={expandedSection === 3}
-              />
-              <Collapse in={expandedSection === 3} timeout="auto" unmountOnExit>
-                <List component="div" disablePadding>
-                  <NavItem
-                    label="Entrées & Sorties"
-                    to="/entreprise/historique"
-                    accentColor="#f59e0b"
-                    isSubItem
-                  />
-                  <NavItem
-                    label="Historique des suppressions"
-                    to="/entreprise/historique/sppression"
-                    accentColor="#f59e0b"
-                    isSubItem
-                  />
-                </List>
-              </Collapse>
-            </>
-          )}
-
-          {/* ── ADMINISTRATION ── */}
-          {(unUser.role === 1 && unUser.is_superuser) && (
-            <>
-              <NavDivider />
-              <SectionLabel label="Administration" />
-              <NavItem
-                icon={<UserCircleIcon sx={{ color: iconColor('#60a5fa', '#2563eb') }} />}
-                label="Les Admin"
-                to="/user/admin"
-                accentColor="#3b82f6"
-              />
+                </>
+              )}
             </>
           )}
 
@@ -625,8 +717,8 @@ const NavSide: React.FC = () => {
             accentColor="#f59e0b"
           />
           <NavItem
-            icon={<HelpOutlineIcon sx={{ color: iconColor('#c084fc', '#7e22ce') }} />}
-            label="Donner mon avis"
+            icon={<SupportAgentRoundedIcon sx={{ color: iconColor('#c084fc', '#7e22ce') }} />}
+            label="Support & Assistance"
             to="/user/avis"
             accentColor="#a855f7"
           />

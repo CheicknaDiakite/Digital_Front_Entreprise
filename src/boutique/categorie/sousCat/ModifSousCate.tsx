@@ -1,44 +1,53 @@
-import { useParams } from "react-router-dom"
-import { RouteParams } from "../../../typescript/DataType"
-import { 
-  Button, 
-  IconButton, 
+import { useParams, useNavigate } from 'react-router-dom';
+import { RouteParams } from '../../../typescript/DataType';
+import {
+  Button,
   Paper,
   Typography,
   Box,
-  Alert,
-  Skeleton
-} from "@mui/material"
-import { ChangeEvent, FormEvent, useState } from "react";
-import DeleteIcon from '@mui/icons-material/DeleteOutline';
-import ImageIcon from '@mui/icons-material/Image';
-import { useFetchEntreprise, useFetchUser } from "../../../usePerso/fonction.user";
-import { useDeleteSousCate, useFetchSousCate, useUpdateSousCate } from "../../../usePerso/fonction.categorie";
-import MyTextField from "../../../_components/Input/MyTextField";
+  TextField,
+  Skeleton,
+  Grid,
+  Stack,
+  Dialog,
+  Chip,
+  InputAdornment,
+} from '@mui/material';
+import { ChangeEvent, FormEvent, useState } from 'react';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import SaveIcon from '@mui/icons-material/Save';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
+import EditNoteIcon from '@mui/icons-material/EditNote';
+import { useFetchEntreprise, useFetchUser } from '../../../usePerso/fonction.user';
+import { useDeleteSousCate, useFetchSousCate, useUpdateSousCate } from '../../../usePerso/fonction.categorie';
 import { BASE } from '../../../_services/caller.service';
-import img from '../../../../public/icon-192x192.png';
-import { useStoreUuid } from "../../../usePerso/store";
-import { useTheme } from "@mui/material/styles";
-import { useAppSettings } from "../../../themes/AppSettingsContext";
+const DEFAULT_IMG = '/icon-192x192.png';
+import { useStoreUuid } from '../../../usePerso/store';
+import { useTheme } from '@mui/material/styles';
+import { useAppSettings } from '../../../themes/AppSettingsContext';
+import { PageHeader } from '../../../_components/common';
 
 export default function ModifSousCate() {
   const theme = useTheme();
-  const { uuid } = useParams<RouteParams>()
-
-  const { showBackground } = useAppSettings();
-  const isDarkText = theme.palette.mode === 'dark' || showBackground;
-  const { updateSousCate } = useUpdateSousCate()
+  const navigate = useNavigate();
+  const { uuid } = useParams<RouteParams>();
   const entreprise_uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise } = useFetchEntreprise(entreprise_uuid);
+  const { unSousCate, setUnSousCate, isLoading } = useFetchSousCate(uuid!);
+  const { unUser } = useFetchUser();
+  const { updateSousCate } = useUpdateSousCate();
+  const { deleteSousCate } = useDeleteSousCate();
 
-  // const {unSousCate, setUnSousCate, updateSousCate, deleteSousCate} = useSousCategorie(slug!)
-  const { unSousCate, setUnSousCate, isLoading } = useFetchSousCate(uuid!)
-  const {unUser} = useFetchUser()
-  const {deleteSousCate} = useDeleteSousCate()
+  const { showBackground } = useAppSettings();
+  const isDark = theme.palette.mode === 'dark' || showBackground;
 
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [showConfirm, setShowConfirm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleDelete = () => {
     setShowConfirm(true);
@@ -48,12 +57,12 @@ export default function ModifSousCate() {
     const payload = {
       id: (unSousCate as any).id || undefined,
       slug: (unSousCate as any).slug || undefined,
-      user_id: unUser?.uuid || ''
+      user_id: unUser?.uuid || '',
     };
     deleteSousCate(payload as any);
     setShowConfirm(false);
   };
-  
+
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setUnSousCate({
@@ -72,6 +81,7 @@ export default function ModifSousCate() {
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsSubmitting(true);
     const user_id = unUser?.uuid || '';
     const form = new FormData();
     form.append('libelle', unSousCate.libelle || '');
@@ -80,150 +90,406 @@ export default function ModifSousCate() {
     form.append('user_id', user_id);
     if (image) form.append('image', image);
     updateSousCate(form as unknown as any);
+    setTimeout(() => setIsSubmitting(false), 1500);
   };
 
-  const url = unSousCate.image ? BASE(unSousCate.image) : img;
+  const url = unSousCate?.image ? BASE(unSousCate.image) : DEFAULT_IMG;
 
-  if (isLoading) {
+  const cardStyle = {
+    p: { xs: 2.5, sm: 3 },
+    borderRadius: '18px',
+    border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(226,232,240,0.8)',
+    background: isDark
+      ? 'linear-gradient(145deg, rgba(30,41,59,0.7) 0%, rgba(15,23,42,0.6) 100%)'
+      : '#ffffff',
+    backdropFilter: 'blur(16px)',
+    boxShadow: isDark ? '0 8px 32px rgba(0,0,0,0.3)' : '0 4px 20px rgba(0,0,0,0.04)',
+  };
+
+  const inputStyle = {
+    '& .MuiOutlinedInput-root': {
+      borderRadius: '12px',
+      backgroundColor: isDark ? 'rgba(15,23,42,0.4)' : '#f8fafc',
+      transition: 'all 0.2s ease',
+      '&:hover .MuiOutlinedInput-notchedOutline': {
+        borderColor: '#6366f1',
+      },
+      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+        borderColor: '#6366f1',
+        boxShadow: '0 0 0 3px rgba(99,102,241,0.2)',
+      },
+    },
+  };
+
+  if (isLoading || !unSousCate) {
     return (
-      <div className="min-h-screen py-4 sm:py-6">
-        <div className="max-w-full sm:max-w-4xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
-          <Skeleton variant="text" width="30%" height={40} sx={{ mb: 3 }} />
-          <Paper elevation={0} className="border rounded-lg overflow-hidden">
-            <Box className="p-6 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Skeleton variant="text" width="50%" height={24} sx={{ mb: 1 }} />
-                  <Skeleton variant="rectangular" height={56} />
-                </div>
-                <div>
-                  <Skeleton variant="text" width="50%" height={24} sx={{ mb: 1 }} />
-                  <Skeleton variant="rectangular" className="w-full aspect-video" height={160} sx={{ borderRadius: 1 }} />
-                  <Skeleton variant="rectangular" height={56} sx={{ mt: 2 }} />
-                </div>
-              </div>
-            </Box>
-            <Box sx={{ px: 3, py: 2, display: 'flex', justifyContent: 'flex-end', bgcolor: 'grey.50' }}>
-              <Skeleton variant="rectangular" width={200} height={40} sx={{ borderRadius: 1 }} />
-            </Box>
-          </Paper>
-        </div>
-      </div>
+      <Box sx={{ minHeight: '100vh', py: 4, px: { xs: 2, sm: 4, md: 6 } }}>
+        <Box sx={{ maxWidth: 1000, mx: 'auto' }}>
+          <Stack spacing={3}>
+            <Skeleton variant="rectangular" height={80} sx={{ borderRadius: '16px' }} />
+            <Skeleton variant="rectangular" height={100} sx={{ borderRadius: '18px' }} />
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <Skeleton variant="rectangular" height={260} sx={{ borderRadius: '18px' }} />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Skeleton variant="rectangular" height={260} sx={{ borderRadius: '18px' }} />
+              </Grid>
+            </Grid>
+          </Stack>
+        </Box>
+      </Box>
     );
   }
 
   return (
-    <div className="min-h-screen py-4 sm:py-6">
-      {/* <Nav /> */}
-      
-      <div className="max-w-full sm:max-w-4xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
-        <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
-          <div className="flex items-center space-x-4">
-            <Typography variant="h5" className="font-semibold" sx={{ color: isDarkText ? '#ffffff' : 'text.primary' }}>
-              Modifier le produit
-            </Typography>
-          </div>
-
-        </div>
-
-        {showConfirm && (
-          <Alert 
-            severity="warning" 
-            className="mt-4"
-            sx={{
-              position: 'fixed',
-              top: 16,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              zIndex: 1400,
-              width: 'calc(100% - 32px)',
-              maxWidth: 600,
-            }}
-            action={
-              <div className="space-x-2">
-                <Button color="inherit" size="small" onClick={() => setShowConfirm(false)}>
-                  Annuler
-                </Button>
-                <Button color="error" size="small" onClick={confirmDelete}>
-                  Confirmer
-                </Button>
-              </div>
-            }
-          >
-            Êtes-vous sûr de vouloir supprimer ce produit ?
-          </Alert>
-        )}
-
-        <Paper elevation={0} className="border rounded-lg overflow-hidden">
-          <form onSubmit={onSubmit}>
-            <div className="p-6 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Typography variant="subtitle2" className="mb-2 text-gray-600">
-                    Informations du produit
-                  </Typography>
-                  <MyTextField
-                    fullWidth
-                    label="Nom du produit"
-                    name="libelle"
-                    value={unSousCate.libelle}
-                    onChange={onChange}
-                    required
-                  />
-                </div>
-                {(unEntreprise.licence_type != "Stock Simple") && 
-                
-                <div>
-                  <Typography variant="subtitle2" className="mb-2 text-gray-600">
-                    Image du produit
-                  </Typography>
-                  <div className="space-y-4">
-                    <Box className="w-full aspect-video rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50">
-                      {(previewUrl || url) && (
-                        <img 
-                          src={previewUrl || url} 
-                          alt={unSousCate.libelle} 
-                          className="max-h-full object-contain"
-                        />
-                      )}
-                    </Box>
-                    <MyTextField
-                      fullWidth
-                      type="file"
-                      onChange={handleImageChange}
-                      InputLabelProps={{ shrink: true }}
-                      InputProps={{
-                        startAdornment: <ImageIcon className="mr-2 text-gray-400" />,
-                      }}
-                    />
-                  </div>
-                </div>
-                }
-              </div>
-            </div>
-
-            <div className="px-3 sm:px-6 py-3 sm:py-4 bg-gray-50 border-t flex flex-col sm:flex-row gap-3 sm:gap-6 justify-end">
+    <Box sx={{ minHeight: '100vh', py: { xs: 2.5, sm: 4 }, px: { xs: 2, sm: 3, md: 5 } }}>
+      <Box sx={{ maxWidth: 1000, mx: 'auto' }}>
+        {/* En-tête de page moderne */}
+        <PageHeader
+          title="Modifier le produit"
+          subtitle={`Produit : ${unSousCate.libelle || 'Article'} (Code : ${(unSousCate as any).slug || 'N/A'})`}
+          breadcrumbs={[
+            { label: 'Accueil', to: '/' },
+            { label: 'Catalogue & Produits', to: '/stock/catalogue' },
+            { label: 'Modification produit' },
+          ]}
+          actions={
+            <Stack direction="row" spacing={1.5}>
               <Button
-                type="submit"
-                variant="contained"
-                className="bg-blue-600 hover:bg-blue-700"
+                variant="outlined"
+                startIcon={<ArrowBackIcon />}
+                onClick={() => navigate(-1)}
+                sx={{
+                  borderRadius: '12px',
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  borderColor: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)',
+                  color: isDark ? '#f1f5f9' : '#334155',
+                  '&:hover': {
+                    borderColor: '#6366f1',
+                    background: 'rgba(99,102,241,0.06)',
+                  },
+                }}
               >
-                Enregistrer les modifications
+                Retour
               </Button>
 
-              {(unUser.role === 1 || unUser.role === 2) && (
-                <IconButton 
+              {(unUser?.role === 1 || unUser?.role === 2) && (
+                <Button
+                  variant="outlined"
+                  color="error"
+                  startIcon={<DeleteOutlineIcon />}
                   onClick={handleDelete}
-                  size="small"
-                  className="text-red-600 hover:bg-red-50"
+                  sx={{
+                    borderRadius: '12px',
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    borderColor: 'rgba(239,68,68,0.3)',
+                    '&:hover': {
+                      borderColor: '#ef4444',
+                      background: 'rgba(239,68,68,0.08)',
+                    },
+                  }}
                 >
-                  <DeleteIcon />
-                </IconButton>
+                  Supprimer
+                </Button>
               )}
-            </div>
-          </form>
+            </Stack>
+          }
+        />
+
+        {/* ── Bandeau Récapitulatif ── */}
+        <Paper
+          elevation={0}
+          sx={{
+            ...cardStyle,
+            mt: 3,
+            mb: 3,
+            p: { xs: 2, sm: 2.5 },
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 2,
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box
+              sx={{
+                width: 52,
+                height: 52,
+                borderRadius: '14px',
+                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#fff',
+                boxShadow: '0 8px 18px rgba(16,185,129,0.35)',
+              }}
+            >
+              <Inventory2Icon sx={{ fontSize: 28 }} />
+            </Box>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1.2 }}>
+                {unSousCate.libelle || 'Produit sans nom'}
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.3 }}>
+                Identifiant / Slug : <strong>{(unSousCate as any).slug || 'Non défini'}</strong>
+              </Typography>
+            </Box>
+          </Box>
+
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <Chip
+              icon={<ImageOutlinedIcon sx={{ fontSize: 16 }} />}
+              label={unSousCate.image || previewUrl ? 'Visuel personnalisé' : 'Image par défaut'}
+              color={unSousCate.image || previewUrl ? 'primary' : 'default'}
+              variant="outlined"
+              sx={{ fontWeight: 600, borderRadius: '8px' }}
+            />
+          </Stack>
         </Paper>
-      </div>
-    </div>
-  )
+
+        {/* ── Formulaire de Modification ── */}
+        <form onSubmit={onSubmit}>
+          <Grid container spacing={3}>
+            {/* ── 1. Informations Textuelles ── */}
+            <Grid item xs={12} md={unEntreprise?.licence_type === 'Stock Simple' ? 12 : 6}>
+              <Paper elevation={0} sx={cardStyle}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2.5 }}>
+                  <Inventory2Icon sx={{ color: '#10b981', fontSize: 22 }} />
+                  <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
+                    Informations du produit
+                  </Typography>
+                </Box>
+
+                <Stack spacing={2.5}>
+                  <TextField
+                    fullWidth
+                    label="Nom / Libellé du produit"
+                    name="libelle"
+                    value={unSousCate.libelle || ''}
+                    onChange={onChange}
+                    required
+                    variant="outlined"
+                    sx={inputStyle}
+                    placeholder="Ex: Savon liquide 500ml, Huile d'olive 1L..."
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <EditNoteIcon sx={{ color: '#10b981', fontSize: 20 }} />
+                        </InputAdornment>
+                      ),
+                    }}
+                    helperText="Le libellé précis apparaîtra sur les tickets et factures."
+                  />
+
+                  {(unSousCate as any).slug && (
+                    <TextField
+                      fullWidth
+                      label="Identifiant unique (Slug)"
+                      value={(unSousCate as any).slug}
+                      disabled
+                      variant="outlined"
+                      sx={inputStyle}
+                      helperText="Généré automatiquement pour les références et URL."
+                    />
+                  )}
+                </Stack>
+              </Paper>
+            </Grid>
+
+            {/* ── 2. Illustration / Visuel ── */}
+            {unEntreprise?.licence_type !== 'Stock Simple' && (
+              <Grid item xs={12} md={6}>
+                <Paper elevation={0} sx={cardStyle}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2.5 }}>
+                    <ImageOutlinedIcon sx={{ color: '#6366f1', fontSize: 22 }} />
+                    <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
+                      Visuel du produit
+                    </Typography>
+                  </Box>
+
+                  <Stack spacing={2}>
+                    <Box
+                      sx={{
+                        width: '100%',
+                        height: 180,
+                        borderRadius: '14px',
+                        border: '2px dashed',
+                        borderColor: isDark ? 'rgba(255,255,255,0.15)' : '#cbd5e1',
+                        bgcolor: isDark ? 'rgba(15,23,42,0.4)' : '#f8fafc',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        overflow: 'hidden',
+                        p: 1.5,
+                      }}
+                    >
+                      <img
+                        src={previewUrl || url}
+                        alt={unSousCate.libelle || 'Illustration'}
+                        style={{
+                          maxHeight: '100%',
+                          maxWidth: '100%',
+                          objectFit: 'contain',
+                        }}
+                      />
+                    </Box>
+
+                    <Box
+                      component="label"
+                      sx={{
+                        p: 2,
+                        borderRadius: '12px',
+                        border: '1px solid',
+                        borderColor: isDark ? 'rgba(255,255,255,0.1)' : '#e2e8f0',
+                        textAlign: 'center',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        background: isDark ? 'rgba(15,23,42,0.3)' : '#f8fafc',
+                        '&:hover': {
+                          borderColor: '#6366f1',
+                          background: 'rgba(99,102,241,0.05)',
+                        },
+                      }}
+                    >
+                      <input
+                        type="file"
+                        hidden
+                        accept="image/*"
+                        onChange={handleImageChange}
+                      />
+                      <Stack direction="row" spacing={1} justifyContent="center" alignItems="center">
+                        <CloudUploadIcon sx={{ color: '#6366f1', fontSize: 20 }} />
+                        <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                          {image ? image.name : 'Choisir une nouvelle image'}
+                        </Typography>
+                      </Stack>
+                    </Box>
+                  </Stack>
+                </Paper>
+              </Grid>
+            )}
+          </Grid>
+
+          {/* ── Barre d'actions inférieure ── */}
+          <Paper
+            elevation={0}
+            sx={{
+              ...cardStyle,
+              mt: 3,
+              p: { xs: 2, sm: 2.5 },
+              display: 'flex',
+              flexDirection: { xs: 'column-reverse', sm: 'row' },
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: 2,
+            }}
+          >
+            <Button
+              variant="outlined"
+              onClick={() => navigate(-1)}
+              sx={{
+                width: { xs: '100%', sm: 'auto' },
+                borderRadius: '12px',
+                textTransform: 'none',
+                fontWeight: 600,
+                px: 3,
+                py: 1.2,
+                borderColor: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)',
+              }}
+            >
+              Annuler
+            </Button>
+
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={isSubmitting}
+              startIcon={<SaveIcon />}
+              sx={{
+                width: { xs: '100%', sm: 'auto' },
+                borderRadius: '12px',
+                textTransform: 'none',
+                fontWeight: 800,
+                px: 4,
+                py: 1.2,
+                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                boxShadow: '0 6px 20px rgba(16,185,129,0.35)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                },
+              }}
+            >
+              {isSubmitting ? 'Enregistrement...' : 'Enregistrer les modifications'}
+            </Button>
+          </Paper>
+        </form>
+      </Box>
+
+      {/* ── Dialog Suppression ── */}
+      <Dialog
+        open={showConfirm}
+        onClose={() => setShowConfirm(false)}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: '20px',
+            background: isDark ? '#1e293b' : '#ffffff',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
+            overflow: 'hidden',
+          },
+        }}
+      >
+        <Box sx={{ p: 3, textAlign: 'center' }}>
+          <Box
+            sx={{
+              width: 56,
+              height: 56,
+              borderRadius: '50%',
+              bgcolor: 'rgba(239,68,68,0.1)',
+              color: '#ef4444',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              mx: 'auto',
+              mb: 2,
+            }}
+          >
+            <DeleteOutlineIcon sx={{ fontSize: 32 }} />
+          </Box>
+          <Typography variant="h6" sx={{ fontWeight: 800, mb: 1 }}>
+            Supprimer ce produit ?
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
+            Êtes-vous sûr de vouloir supprimer définitivement le produit{' '}
+            <strong>"{unSousCate.libelle || 'ce produit'}"</strong> ?
+          </Typography>
+
+          <Stack direction="row" spacing={1.5} justifyContent="center">
+            <Button
+              variant="outlined"
+              onClick={() => setShowConfirm(false)}
+              fullWidth
+              sx={{ borderRadius: '10px', textTransform: 'none', fontWeight: 600 }}
+            >
+              Annuler
+            </Button>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={confirmDelete}
+              fullWidth
+              sx={{ borderRadius: '10px', textTransform: 'none', fontWeight: 700 }}
+            >
+              Supprimer
+            </Button>
+          </Stack>
+        </Box>
+      </Dialog>
+    </Box>
+  );
 }

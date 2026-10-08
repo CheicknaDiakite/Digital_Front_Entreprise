@@ -21,6 +21,11 @@ import {
   Stack,
   InputAdornment,
   Divider,
+  useTheme,
+  Chip,
+  Card,
+  CardContent,
+  Tooltip,
 } from '@mui/material';
 import { useState, useMemo } from 'react';
 import CardTableSortie from './CardTableSortie';
@@ -34,32 +39,34 @@ import SearchIcon from '@mui/icons-material/Search';
 import HistoryIcon from '@mui/icons-material/History';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
 
 // Components
 const LoadingState = () => (
-  <Box sx={{ p: 4 }}>
-    <Skeleton variant="rectangular" height={60} sx={{ mb: 3, borderRadius: 2 }} />
-    <Skeleton variant="rectangular" height={400} sx={{ borderRadius: 2 }} />
+  <Box sx={{ p: 3 }}>
+    <Skeleton variant="rectangular" height={100} sx={{ mb: 3, borderRadius: '16px' }} />
+    <Skeleton variant="rectangular" height={400} sx={{ borderRadius: '16px' }} />
   </Box>
 );
 
 const ErrorState = () => (
-  <Box sx={{ p: 4, textAlign: 'center' }}>
-    <Typography variant="h6" color="error" gutterBottom>
-      Oups ! Une erreur est survenue lors du chargement.
+  <Box sx={{ p: 6, textAlign: 'center' }}>
+    <Typography variant="h6" color="error" fontWeight="700" gutterBottom>
+      Oups ! Une erreur est survenue lors du chargement des remises.
     </Typography>
-    <Button variant="outlined" color="primary" onClick={() => window.location.reload()}>
+    <Button variant="outlined" color="primary" onClick={() => window.location.reload()} sx={{ borderRadius: '12px', mt: 1 }}>
       Réessayer
     </Button>
   </Box>
 );
 
 export default function RemiseFacture() {
+  const theme = useTheme();
   const entreprise_uuid = useStoreUuid((state) => state.selectedId);
   const { selectedIds, sorties, setSorties, reset } = useStoreCart();
   const { updateRemiseSortie } = useUpdateRemiseSortie();
 
-  const itemsPerPage = 25;
+  const itemsPerPage = 20;
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [selectedStartDate, setSelectedStartDate] = useState<string>('');
@@ -68,16 +75,16 @@ export default function RemiseFacture() {
 
   const { sortiesEntreprise, isLoading, isError } = useGetAllSortie(entreprise_uuid!);
 
-  // Memoized filtered and sorted list
+  // Liste filtrée et triée
   const filteredSorties = useMemo(() => {
     if (!sortiesEntreprise) return [];
 
     return sortiesEntreprise
       .filter((item) => {
-        // Filter by Remise state
+        // Filtrer par état remise
         if (!item.is_remise) return false;
 
-        // Filter by Date
+        // Filtrer par Date
         if (selectedStartDate || selectedEndDate) {
           if (!item.date) return false;
           const itemDate = new Date(item.date).getTime();
@@ -87,9 +94,13 @@ export default function RemiseFacture() {
           if (end && itemDate > end) return false;
         }
 
-        // Filter by Search term
-        if (searchTerm && !item.ref?.toLowerCase().includes(searchTerm.toLowerCase())) {
-          return false;
+        // Filtrer par recherche (référence ou client)
+        if (searchTerm) {
+          const lowSearch = searchTerm.toLowerCase();
+          const matchRef = item.ref?.toLowerCase().includes(lowSearch);
+          const matchClient = item.client?.toLowerCase().includes(lowSearch);
+          const matchCat = item.categorie_libelle?.toLowerCase().includes(lowSearch);
+          if (!matchRef && !matchClient && !matchCat) return false;
         }
 
         return true;
@@ -100,6 +111,14 @@ export default function RemiseFacture() {
         return idB - idA;
       });
   }, [sortiesEntreprise, selectedStartDate, selectedEndDate, searchTerm]);
+
+  // Statistiques financières sur les remises
+  const stats = useMemo(() => {
+    const totalArticles = filteredSorties.length;
+    const totalMontantVente = filteredSorties.reduce((acc, curr) => acc + (Number(curr.prix_total) || 0), 0);
+    const totalQte = filteredSorties.reduce((acc, curr) => acc + (Number(curr.qte) || 0), 0);
+    return { totalArticles, totalMontantVente, totalQte };
+  }, [filteredSorties]);
 
   const totalPages = Math.ceil(filteredSorties.length / itemsPerPage);
   const paginatedSorties = filteredSorties.slice(
@@ -112,65 +131,170 @@ export default function RemiseFacture() {
   }, [sorties, selectedIds]);
 
   const handleConfirmCancelRemise = () => {
-    const idsToUpdate = selectSorties.map(sor => sor.id as number);
+    const idsToUpdate = selectSorties.map((sor) => sor.id as number);
     updateRemiseSortie(idsToUpdate);
     reset();
     setIsModalOpen(false);
+  };
+
+  const handleResetFilters = () => {
+    setSearchTerm('');
+    setSelectedStartDate('');
+    setSelectedEndDate('');
+    setCurrentPage(1);
   };
 
   if (isLoading) return <LoadingState />;
   if (isError) return <ErrorState />;
 
   return (
-    <Box sx={{ mt: 3, pb: 4 }}>
-      {/* Action Bar & Stats */}
-      <Paper elevation={0} sx={{ p: 4, mb: 4, borderRadius: 4, border: '1px solid', borderColor: 'divider' }}>
-        <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ xs: 'stretch', md: 'center' }} spacing={3}>
-          <Box>
-            <Typography variant="h4" fontWeight="900" sx={{ display: 'flex', alignItems: 'center', gap: 2, color: 'primary.dark' }}>
-              <HistoryIcon sx={{ fontSize: 40 }} /> Gestion des Remises
-            </Typography>
-            <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 0.5, bgcolor: 'primary.50', borderRadius: 2, border: '1px solid', borderColor: 'primary.100' }}>
-                <LocalOfferIcon sx={{ fontSize: 16, color: 'primary.main' }} />
-                <Typography variant="caption" fontWeight="bold" color="primary.main">
-                  {filteredSorties.length} Remises appliquées
+    <Box sx={{ py: 2 }}>
+      {/* KPI Cards Récapitulatives */}
+      <Box sx={{ mb: 3 }}>
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="h5" fontWeight="800" sx={{ color: 'text.primary' }}>
+            Articles avec Remise
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Consultez les articles vendus avec remise et gérez leur annulation ou réintégration.
+          </Typography>
+        </Box>
+
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={4}>
+            <Card
+              sx={{
+                borderRadius: '16px',
+                border: `1px solid ${theme.palette.divider}`,
+                bgcolor: theme.palette.mode === 'dark' ? 'rgba(15, 23, 42, 0.7)' : 'rgba(255, 255, 255, 0.85)',
+                backdropFilter: 'blur(12px)',
+              }}
+            >
+              <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                  <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 700, textTransform: 'uppercase' }}>
+                    Articles Remisés
+                  </Typography>
+                  <LocalOfferIcon sx={{ color: 'primary.main', fontSize: 20 }} />
+                </Box>
+                <Typography variant="h6" fontWeight="800" sx={{ color: 'primary.main' }}>
+                  {stats.totalArticles}
                 </Typography>
-              </Box>
-            </Stack>
+                <Typography variant="caption" color="text.secondary">
+                  Lignes de vente avec remise
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid item xs={12} sm={4}>
+            <Card
+              sx={{
+                borderRadius: '16px',
+                border: `1px solid ${theme.palette.divider}`,
+                bgcolor: theme.palette.mode === 'dark' ? 'rgba(15, 23, 42, 0.7)' : 'rgba(255, 255, 255, 0.85)',
+                backdropFilter: 'blur(12px)',
+              }}
+            >
+              <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                  <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 700, textTransform: 'uppercase' }}>
+                    Quantité Totale
+                  </Typography>
+                  <ReceiptLongIcon sx={{ color: '#10b981', fontSize: 20 }} />
+                </Box>
+                <Typography variant="h6" fontWeight="800" sx={{ color: '#10b981' }}>
+                  {stats.totalQte} <Typography component="span" variant="caption">unités</Typography>
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Volume total remisé
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid item xs={12} sm={4}>
+            <Card
+              sx={{
+                borderRadius: '16px',
+                border: `1px solid ${theme.palette.divider}`,
+                bgcolor: theme.palette.mode === 'dark' ? 'rgba(15, 23, 42, 0.7)' : 'rgba(255, 255, 255, 0.85)',
+                backdropFilter: 'blur(12px)',
+              }}
+            >
+              <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                  <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 700, textTransform: 'uppercase' }}>
+                    Chiffre d’Affaires Remisé
+                  </Typography>
+                  <HistoryIcon sx={{ color: '#f59e0b', fontSize: 20 }} />
+                </Box>
+                <Typography variant="h6" fontWeight="800" sx={{ color: '#f59e0b' }}>
+                  {formatNumberWithSpaces(stats.totalMontantVente)} <Typography component="span" variant="caption">FCFA</Typography>
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Montant facturé total
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+      </Box>
+
+      {/* Barre d'Actions & Filtres */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2.5,
+          mb: 3,
+          borderRadius: '16px',
+          bgcolor: theme.palette.mode === 'dark' ? 'rgba(15, 23, 42, 0.7)' : 'rgba(255, 255, 255, 0.85)',
+          backdropFilter: 'blur(14px)',
+          border: `1px solid ${theme.palette.divider}`,
+        }}
+      >
+        <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ xs: 'stretch', md: 'center' }} spacing={2} sx={{ mb: 2.5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Chip
+              label={`${filteredSorties.length} article(s) trouvé(s)`}
+              color="primary"
+              size="small"
+              sx={{ fontWeight: 700, borderRadius: '8px' }}
+            />
+            {selectedIds.size > 0 && (
+              <Chip
+                label={`${selectedIds.size} sélectionné(s)`}
+                color="secondary"
+                size="small"
+                sx={{ fontWeight: 700, borderRadius: '8px' }}
+              />
+            )}
           </Box>
 
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ width: { xs: '100%', md: 'auto' } }}>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
             <Button
               variant="outlined"
-              size="large"
-              fullWidth
+              size="small"
               startIcon={<CheckCircleOutlineIcon />}
               onClick={() => setSorties(sortiesEntreprise || [])}
-              sx={{ borderRadius: 3, textTransform: 'none', fontWeight: 600, py: 1.5 }}
+              sx={{ borderRadius: '12px', textTransform: 'none', fontWeight: 700, px: 2 }}
             >
               Tout Sélectionner
             </Button>
 
             <Button
               variant="contained"
-              size="large"
-              fullWidth
-              startIcon={<ReceiptLongIcon />}
+              size="small"
+              color="error"
+              startIcon={<CloseIcon />}
               onClick={() => setIsModalOpen(true)}
               disabled={selectedIds.size === 0}
               sx={{
-                borderRadius: 3,
+                borderRadius: '12px',
                 textTransform: 'none',
                 fontWeight: 700,
-                px: 4,
-                boxShadow: '0 8px 24px -6px rgba(25, 118, 210, 0.5)',
-                '&:hover': {
-                  boxShadow: '0 12px 28px -6px rgba(25, 118, 210, 0.6)',
-                  transform: 'translateY(-1px)'
-                },
-                transition: 'all 0.2s',
-                whiteSpace: 'nowrap'
+                px: 2.5,
+                boxShadow: '0 4px 14px rgba(239, 68, 68, 0.3)',
               }}
             >
               Annuler Remises ({selectedIds.size})
@@ -178,64 +302,114 @@ export default function RemiseFacture() {
           </Stack>
         </Stack>
 
-        <Divider sx={{ my: 4 }} />
+        <Divider sx={{ mb: 2.5 }} />
 
-        {/* Advanced Search Area */}
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
+        {/* Champs de recherche et dates */}
+        <Grid container spacing={2} alignItems="center">
+          <Grid item xs={12} md={5}>
             <TextField
               fullWidth
-              placeholder="Rechercher par référence produit..."
+              size="small"
+              placeholder="Rechercher par référence, client ou article..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon color="primary" />
+                    <SearchIcon sx={{ color: 'text.secondary', fontSize: 20 }} />
                   </InputAdornment>
                 ),
-                sx: { borderRadius: 3, bgcolor: 'common.white' }
+                sx: {
+                  borderRadius: '12px',
+                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : '#ffffff',
+                },
               }}
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+
+          <Grid item xs={6} md={3}>
             <TextField
               fullWidth
+              size="small"
               type="date"
-              label="Date de début"
+              label="Date début"
               value={selectedStartDate}
-              onChange={(e) => { setSelectedStartDate(e.target.value); setCurrentPage(1); }}
+              onChange={(e) => {
+                setSelectedStartDate(e.target.value);
+                setCurrentPage(1);
+              }}
               InputLabelProps={{ shrink: true }}
-              InputProps={{ sx: { borderRadius: 3, bgcolor: 'common.white' } }}
+              InputProps={{
+                sx: {
+                  borderRadius: '12px',
+                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : '#ffffff',
+                },
+              }}
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+
+          <Grid item xs={6} md={3}>
             <TextField
               fullWidth
+              size="small"
               type="date"
-              label="Date de fin"
+              label="Date fin"
               value={selectedEndDate}
-              onChange={(e) => { setSelectedEndDate(e.target.value); setCurrentPage(1); }}
+              onChange={(e) => {
+                setSelectedEndDate(e.target.value);
+                setCurrentPage(1);
+              }}
               InputLabelProps={{ shrink: true }}
-              InputProps={{ sx: { borderRadius: 3, bgcolor: 'common.white' } }}
+              InputProps={{
+                sx: {
+                  borderRadius: '12px',
+                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : '#ffffff',
+                },
+              }}
             />
+          </Grid>
+
+          <Grid item xs={12} md={1}>
+            <Tooltip title="Réinitialiser les filtres">
+              <IconButton
+                onClick={handleResetFilters}
+                sx={{
+                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
+                  borderRadius: '12px',
+                  p: 1,
+                }}
+              >
+                <RestartAltIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
           </Grid>
         </Grid>
       </Paper>
 
-      {/* Content Table */}
-      <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+      {/* Tableau des Sorties Remisées */}
+      <TableContainer
+        component={Paper}
+        elevation={0}
+        sx={{
+          borderRadius: '20px',
+          border: `1px solid ${theme.palette.divider}`,
+          bgcolor: theme.palette.mode === 'dark' ? 'rgba(15, 23, 42, 0.75)' : 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(16px)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.06)',
+          overflow: 'hidden',
+        }}
+      >
         <Table stickyHeader>
           <TableHead>
-            <TableRow>
-              <TableCell sx={{ fontWeight: 800, bgcolor: 'primary.50', py: 2 }}>Aperçu</TableCell>
-              <TableCell sx={{ fontWeight: 800, bgcolor: 'primary.50', py: 2 }}>Date de Sortie</TableCell>
-              <TableCell sx={{ fontWeight: 800, bgcolor: 'primary.50', py: 2 }}>Référence</TableCell>
-              <TableCell sx={{ fontWeight: 800, bgcolor: 'primary.50', py: 2 }}>Client</TableCell>
-              <TableCell sx={{ fontWeight: 800, bgcolor: 'primary.50', py: 2 }}>Désignation</TableCell>
-              <TableCell align="right" sx={{ fontWeight: 800, bgcolor: 'primary.50', py: 2 }}>Quantité</TableCell>
-              <TableCell align="right" sx={{ fontWeight: 800, bgcolor: 'primary.50', py: 2 }}>Prix U.</TableCell>
-              <TableCell align="right" sx={{ fontWeight: 800, bgcolor: 'primary.50', py: 2 }}>Total</TableCell>
+            <TableRow sx={{ bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)' }}>
+              <TableCell align="center" sx={{ fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', py: 2 }}>Aperçu</TableCell>
+              <TableCell sx={{ fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', py: 2 }}>Date & Sélection</TableCell>
+              <TableCell sx={{ fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', py: 2 }}>Référence</TableCell>
+              <TableCell sx={{ fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', py: 2 }}>Client</TableCell>
+              <TableCell sx={{ fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', py: 2 }}>Désignation</TableCell>
+              <TableCell align="right" sx={{ fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', py: 2 }}>Quantité</TableCell>
+              <TableCell align="right" sx={{ fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', py: 2 }}>Prix Unitaire</TableCell>
+              <TableCell align="right" sx={{ fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', py: 2 }}>Total</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -245,11 +419,13 @@ export default function RemiseFacture() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={8} align="center" sx={{ py: 12 }}>
-                  <Box sx={{ opacity: 0.5 }}>
-                    <ReceiptLongIcon sx={{ fontSize: 60, mb: 2 }} />
-                    <Typography variant="h6">Aucune remise à afficher</Typography>
-                    <Typography variant="body2">Essayez de modifier vos filtres ou effectuez une nouvelle recherche</Typography>
+                <TableCell colSpan={8} align="center" sx={{ py: 10 }}>
+                  <Box sx={{ opacity: 0.6 }}>
+                    <ReceiptLongIcon sx={{ fontSize: 56, mb: 1.5, color: 'text.secondary' }} />
+                    <Typography variant="h6" fontWeight="700">Aucune remise trouvée</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Essayez de réinitialiser vos dates ou modifiez votre mot-clé de recherche.
+                    </Typography>
                   </Box>
                 </TableCell>
               </TableRow>
@@ -258,55 +434,63 @@ export default function RemiseFacture() {
         </Table>
       </TableContainer>
 
-      {/* Pagination Controls */}
+      {/* Pagination */}
       {totalPages > 1 && (
-        <Stack direction="row" justifyContent="center" sx={{ mt: 5 }}>
+        <Stack direction="row" justifyContent="center" sx={{ mt: 4 }}>
           <Pagination
             count={totalPages}
             page={currentPage}
             onChange={(_, page) => setCurrentPage(page)}
             color="primary"
-            size="large"
+            size="medium"
             sx={{
               '& .MuiPaginationItem-root': {
-                borderRadius: 2,
-                fontWeight: 700
-              }
+                borderRadius: '10px',
+                fontWeight: 700,
+              },
             }}
           />
         </Stack>
       )}
 
-      {/* Confirmation Dialog */}
+      {/* Modal de Confirmation pour Annulation Remise */}
       <Dialog
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         maxWidth="md"
         fullWidth
         PaperProps={{
-          sx: { borderRadius: 5, p: 2 }
+          sx: {
+            borderRadius: '24px',
+            p: 1.5,
+            bgcolor: theme.palette.mode === 'dark' ? 'rgba(15, 23, 42, 0.98)' : '#ffffff',
+            backdropFilter: 'blur(20px)',
+            border: `1px solid ${theme.palette.divider}`,
+          },
         }}
       >
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
-          <Typography variant="h5" fontWeight="900">Confirmer la Modification</Typography>
-          <IconButton onClick={() => setIsModalOpen(false)} sx={{ bgcolor: 'grey.100' }}>
+          <Typography variant="h6" fontWeight="800">
+            Confirmer l’Annulation des Remises
+          </Typography>
+          <IconButton onClick={() => setIsModalOpen(false)} size="small">
             <CloseIcon />
           </IconButton>
         </DialogTitle>
 
-        <DialogContent>
-          <Typography variant="body1" sx={{ mb: 3, color: 'text.secondary' }}>
-            Souhaitez-vous vraiment annuler la remise sur ces <strong>{selectSorties.length}</strong> article(s) ?
+        <DialogContent sx={{ pt: 1 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
+            Voulez-vous vraiment annuler la remise sur ces <strong>{selectSorties.length}</strong> article(s) ?
           </Typography>
 
-          <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3, mb: 2 }}>
+          <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: '14px', mb: 2 }}>
             <Table size="small">
-              <TableHead sx={{ bgcolor: 'grey.50' }}>
+              <TableHead sx={{ bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)' }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Référence / Catégorie</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 'bold' }}>Quantité</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 'bold' }}>P.U</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 'bold' }}>Total</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>Référence / Catégorie</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700 }}>Quantité</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700 }}>P.U</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700 }}>Total</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -316,10 +500,10 @@ export default function RemiseFacture() {
                       <Typography variant="body2" fontWeight="700">{post.ref}</Typography>
                       <Typography variant="caption" color="text.secondary">{post.categorie_libelle}</Typography>
                     </TableCell>
-                    <TableCell align="right">{post.qte} {post.unite}</TableCell>
-                    <TableCell align="right">{formatNumberWithSpaces(post.pu)}</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: '900', color: 'primary.main' }}>
-                      {formatNumberWithSpaces(post.prix_total)}
+                    <TableCell align="right">{post.qte} {post.unite === 'kilos' ? 'kg' : post.unite}</TableCell>
+                    <TableCell align="right">{formatNumberWithSpaces(post.pu)} FCFA</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 800, color: 'primary.main' }}>
+                      {formatNumberWithSpaces(post.prix_total)} FCFA
                     </TableCell>
                   </TableRow>
                 ))}
@@ -327,36 +511,44 @@ export default function RemiseFacture() {
             </Table>
           </TableContainer>
 
-          <Box sx={{ mt: 2, p: 2.5, bgcolor: '#fff4e5', borderRadius: 3, display: 'flex', gap: 2, border: '1px solid #ffd180' }}>
-            <Box sx={{ color: '#f57c00', pt: 0.5 }}>⚠️</Box>
-            <Typography variant="body2" color="#663c00">
-              <strong>Information :</strong> L'annulation de la remise retirera ces articles de toute facturation groupée associée et les rendra à nouveau disponibles pour une vente standard.
+          <Box
+            sx={{
+              p: 2,
+              borderRadius: '12px',
+              bgcolor: 'rgba(245, 158, 11, 0.08)',
+              border: '1px solid rgba(245, 158, 11, 0.25)',
+              display: 'flex',
+              gap: 1.5,
+              alignItems: 'center',
+            }}
+          >
+            <Typography variant="body2" sx={{ color: '#f59e0b', fontSize: '0.8rem', lineHeight: 1.4 }}>
+              <strong>Important :</strong> L’annulation retirera ces articles de toute facturation différée associée et les rendra à nouveau disponibles pour une vente ordinaire.
             </Typography>
           </Box>
         </DialogContent>
 
-        <DialogActions sx={{ p: 3, pt: 1 }}>
+        <DialogActions sx={{ p: 2.5, pt: 1 }}>
           <Button
             onClick={() => setIsModalOpen(false)}
-            color="inherit"
-            sx={{ borderRadius: 3, textTransform: 'none', px: 3, fontWeight: 600 }}
+            variant="outlined"
+            sx={{ borderRadius: '12px', textTransform: 'none', px: 3, fontWeight: 600 }}
           >
-            Revenir en arrière
+            Retour
           </Button>
           <Button
             onClick={handleConfirmCancelRemise}
             variant="contained"
-            color="primary"
+            color="error"
             sx={{
-              borderRadius: 3,
+              borderRadius: '12px',
               textTransform: 'none',
-              px: 5,
-              py: 1.2,
-              fontWeight: 800,
-              boxShadow: '0 10px 20px -10px rgba(25, 118, 210, 0.5)'
+              px: 3.5,
+              fontWeight: 700,
+              boxShadow: '0 4px 14px rgba(239, 68, 68, 0.3)',
             }}
           >
-            Confirmer l'annulation
+            Confirmer l’Annulation
           </Button>
         </DialogActions>
       </Dialog>

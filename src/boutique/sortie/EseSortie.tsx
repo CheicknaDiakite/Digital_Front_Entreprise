@@ -1,12 +1,11 @@
 import { Box, Typography } from '@mui/material';
 import { useGetUserEntreprises } from '../../usePerso/fonction.user';
-import { connect } from '../../_services/account.service';
 import { BASE } from '../../_services/caller.service';
 import { Link } from 'react-router-dom';
 import Nav from '../../_components/Button/Nav';
 
 export default function EseSortie() {
-    const {userEntreprises, isLoading, isError} = useGetUserEntreprises(connect)
+    const {userEntreprises, isLoading, isError} = useGetUserEntreprises()
 
     if (isLoading) {
     return <div>Loading...</div>

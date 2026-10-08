@@ -77,7 +77,7 @@ export function useGetAllFacEntre(slug: string, uuid: string) {
 
   const [facEntresUtilisateur, setEntre] = useState<RecupType[]>([]);
 
-  const { data: us, isLoading, isError, error } = useQuery({
+  const { data: us, isLoading, isError, error, refetch } = useQuery({
       queryKey: ["facEntre", slug],
       queryFn: () =>
       facEntrerService.getAllFacEntre(slug, uuid).then((res) => {
@@ -98,7 +98,7 @@ export function useGetAllFacEntre(slug: string, uuid: string) {
     if (us) setEntre(us);
   }, [us]);
 
-  return { facEntresUtilisateur, setEntre, isLoading, isError };
+  return { facEntresUtilisateur, setEntre, isLoading, isError, refetch };
 }
 
 export function useCreateFacEntre() {
@@ -252,7 +252,7 @@ export function useGetAllFacSortie(slug: string, uuid: string) {
 
   const [facSortiesUtilisateur, setEntre] = useState<RecupType[]>([]);
 
-  const { data: us, isLoading, isError, error } = useQuery({
+  const { data: us, isLoading, isError, error, refetch } = useQuery({
       queryKey: ["facSortie", slug],
       queryFn: () =>
           facSortieService.getAllFacSortie(slug, uuid).then((res) => {
@@ -273,7 +273,7 @@ export function useGetAllFacSortie(slug: string, uuid: string) {
     if (us) setEntre(us);
   }, [us]);
 
-  return { facSortiesUtilisateur, setEntre, isLoading, isError };
+  return { facSortiesUtilisateur, setEntre, isLoading, isError, refetch };
 }
 
 export function useCreateFacSortie() {

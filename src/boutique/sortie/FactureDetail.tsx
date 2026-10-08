@@ -1,69 +1,101 @@
-import { Box, Paper, Tab, Tabs } from '@mui/material';
-import React, { useEffect, useState } from 'react'
+import { Box, Paper, Tab, Tabs, useMediaQuery } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import React, { useState } from 'react';
 import { CustomTabPanel } from '../../usePerso/useEntreprise';
 import RemiseFacture from './RemiseFacture';
 import { a11yProps } from '../../usePerso/fonctionPerso';
 import FactureListe from './FactureListe';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 
 export default function FactureDetail() {
-  const [value, setValue] = React.useState(0);
-  const [isMobile, setIsMobile] = useState(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [value, setValue] = useState(0);
 
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
   const handleChange = (_: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 
   return (
-    <Paper
-      elevation={0}
-      // className={`border rounded-lg overflow-hidden ${isMobile ? 'mobile-modif-paper' : ''}`}
-      sx={{
-        background: 'transparent',
-        bgcolor: 'transparent',
-        backdropFilter: 'none',
-
-      }}
-    >
-      <Box className={`border-b backdrop-blur-sm ${isMobile ? 'mobile-admin-tabs' : ''}`}>
+    <Box sx={{ width: '100%', py: { xs: 1, sm: 2 } }}>
+      {/* Navigation Onglets Moderne */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: 0.75,
+          mb: 3,
+          borderRadius: '16px',
+          bgcolor: theme.palette.mode === 'dark' ? 'rgba(15, 23, 42, 0.7)' : 'rgba(255, 255, 255, 0.85)',
+          backdropFilter: 'blur(16px)',
+          border: `1px solid ${theme.palette.divider}`,
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)',
+          width: 'fit-content',
+          maxWidth: '100%',
+        }}
+      >
         <Tabs
           value={value}
           onChange={handleChange}
-          variant="scrollable"
-          scrollButtons="auto"
-          allowScrollButtonsMobile
-          aria-label="enterprise tabs"
-          className={`min-h-[48px] ${isMobile ? 'mobile-admin-tabs' : ''}`}
+          variant={isMobile ? 'fullWidth' : 'standard'}
+          aria-label="Facturation et remises navigation"
+          sx={{
+            minHeight: 44,
+            '& .MuiTabs-indicator': {
+              display: 'none', // Style type "Pill" moderne
+            },
+            '& .MuiTabs-flexContainer': {
+              gap: 1,
+            },
+          }}
         >
           <Tab
-            label="Tous les Remises"
-            // icon={<InfoIcon />} 
+            label="Remises accordées"
+            icon={<LocalOfferIcon sx={{ fontSize: '1.15rem' }} />}
             iconPosition="start"
             {...a11yProps(0)}
-            className={`min-h-[48px] ${isMobile ? 'mobile-admin-tab' : ''}`}
+            sx={{
+              minHeight: 42,
+              borderRadius: '12px',
+              textTransform: 'none',
+              fontWeight: 700,
+              fontSize: '0.875rem',
+              px: { xs: 2, sm: 3 },
+              color: 'text.secondary',
+              transition: 'all 0.2s ease',
+              '&.Mui-selected': {
+                color: '#ffffff',
+                bgcolor: 'primary.main',
+                boxShadow: '0 4px 12px rgba(99, 102, 241, 0.35)',
+              },
+            }}
           />
           <Tab
-            label="Remises par facture"
-            // icon={<GroupIcon />} 
+            label="Factures & Créances"
+            icon={<ReceiptLongIcon sx={{ fontSize: '1.15rem' }} />}
             iconPosition="start"
             {...a11yProps(1)}
-            className={`min-h-[48px] ${isMobile ? 'mobile-admin-tab' : ''}`}
+            sx={{
+              minHeight: 42,
+              borderRadius: '12px',
+              textTransform: 'none',
+              fontWeight: 700,
+              fontSize: '0.875rem',
+              px: { xs: 2, sm: 3 },
+              color: 'text.secondary',
+              transition: 'all 0.2s ease',
+              '&.Mui-selected': {
+                color: '#ffffff',
+                bgcolor: 'primary.main',
+                boxShadow: '0 4px 12px rgba(99, 102, 241, 0.35)',
+              },
+            }}
           />
-
         </Tabs>
-      </Box>
+      </Paper>
 
-      <Box
-      >
+      {/* Contenu des Onglets */}
+      <Box>
         <CustomTabPanel value={value} index={0}>
           <RemiseFacture />
         </CustomTabPanel>
@@ -71,8 +103,7 @@ export default function FactureDetail() {
         <CustomTabPanel value={value} index={1}>
           <FactureListe />
         </CustomTabPanel>
-
       </Box>
-    </Paper>
+    </Box>
   );
 }

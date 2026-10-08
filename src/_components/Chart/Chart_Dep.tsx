@@ -8,7 +8,7 @@ import {
   Stack
 } from '@mui/material';
 import { ChartSection } from '../../pages/dashboard/components/ChartSection';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface DepenseSumType {
   mois: string;
@@ -36,12 +36,19 @@ export default function Chart_Dep() {
   }
 
   if (depensesSum && Array.isArray(depensesSum)) {
-    const chartData = (depensesSum as DepenseSumType[]).slice(0, 12).map((item) => ({
-      name: item.mois
-        ? new Date(item.mois).toLocaleString('default', { month: 'short' })
-        : 'Inconnu',
-      value: item.total || 0,
-    }));
+    const chartData = (depensesSum as DepenseSumType[])
+      .slice()
+      .sort((a, b) => new Date(a.mois).getTime() - new Date(b.mois).getTime())
+      .slice(-12)
+      .map((item) => {
+        const d = new Date(item.mois);
+        return {
+          name: !isNaN(d.getTime())
+            ? d.toLocaleDateString('fr-FR', { month: 'short', year: '2-digit' })
+            : (item.mois || 'Inconnu'),
+          value: item.total || 0,
+        };
+      });
 
     return (
       <ChartSection title="Dépenses mensuelles" className="h-full">

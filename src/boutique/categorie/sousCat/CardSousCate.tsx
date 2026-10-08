@@ -5,10 +5,9 @@ import { Link } from 'react-router-dom'
 import { FC } from 'react';
 import { CardSousCateProps } from './SousCat';
 import { useFetchUser } from '../../../usePerso/fonction.user';
-import { connect } from '../../../_services/account.service';
 
 export const CardSousCate: FC<CardSousCateProps> = ({ post }) => {
-  const {unUser} = useFetchUser(connect)
+  const {unUser} = useFetchUser()
   return (
     <Grid item xs={12} sm={6} md={4} lg={3}>
       {/* <Link to={`/categorie/info/${post.uuid}`}>

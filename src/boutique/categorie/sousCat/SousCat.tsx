@@ -1,23 +1,36 @@
 import PropTypes from 'prop-types';
-// material-ui
 import Grid from '@mui/material/Grid';
-import CloseIcon from "@mui/icons-material/Close"
-
+import CloseIcon from "@mui/icons-material/Close";
 import Typography from '@mui/material/Typography';
-
-// project import
-
-import { Alert, Box, Button, Dialog, DialogContent, DialogTitle, IconButton, Skeleton, TextField, Paper, alpha, useTheme, useMediaQuery } from '@mui/material';
+import { 
+  Alert, 
+  Box, 
+  Button, 
+  Chip, 
+  Dialog, 
+  DialogContent, 
+  DialogTitle, 
+  IconButton, 
+  Skeleton, 
+  TextField, 
+  Paper, 
+  Tooltip, 
+  useTheme, 
+  useMediaQuery, 
+  Stack 
+} from '@mui/material';
 import { ChangeEvent, useState } from 'react';
 import { RecupType, RouteParams } from '../../../typescript/DataType';
 import { useAppSettings } from '../../../themes/AppSettingsContext';
-import { connect } from '../../../_services/account.service';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import EditIcon from '@mui/icons-material/BorderColor';
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import ImageIcon from '@mui/icons-material/Image';
-import img from '../../../../public/icon-192x192.png'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import CategoryIcon from '@mui/icons-material/Category';
+import img from '../../../../public/icon-192x192.png';
 import { useAllGetSousCate, useCreateSousCate, useFetchCategorie } from '../../../usePerso/fonction.categorie';
 import MyTextField from '../../../_components/Input/MyTextField';
 import { SousCategorieFormType } from '../../../typescript/FormType';
@@ -29,7 +42,6 @@ import M_Abonnement from '../../../_components/Card/M_Abonnement';
 import { useForm } from 'react-hook-form';
 import './mobile-souscat.css';
 
-// ==============================|| DASHBOARD - DEFAULT ||============================== //
 export interface SousCategorie {
   libelle: string;
   all_inventaire: number;
@@ -41,7 +53,7 @@ export interface CardSousCateProps {
 }
 
 interface ShadowBoxProps {
-  shadow: RecupType,
+  shadow: RecupType;
 }
 
 function ShadowBox({ shadow }: ShadowBoxProps) {
@@ -50,94 +62,180 @@ function ShadowBox({ shadow }: ShadowBoxProps) {
   const { unEntreprise } = useFetchEntreprise(entreprise_uuid);
   const { unUser } = useFetchUser();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { showBackground } = useAppSettings();
+  const isDark = theme.palette.mode === 'dark' || showBackground;
+
+  const canViewInfo = (unUser.role === 1 || unUser.role === 2) || (unEntreprise.licence_type !== "Stock Simple");
 
   return (
     <Paper
-      elevation={isMobile ? 2 : 0}
-      className={`relative p-4 rounded-lg transition-all duration-200 hover:shadow-md border-x-2 animate-border-rotate mobile-product-card mobile-hover-effect ${isMobile ? 'mobile-glass' : 'mobile-glass'}`}
+      elevation={0}
       sx={{
-        borderRadius: isMobile ? '20px' : '8px',
-        minHeight: { xs: '140px', sm: '160px' }
+        position: 'relative',
+        p: { xs: 2, sm: 2.5 },
+        borderRadius: '18px',
+        background: isDark ? 'rgba(30, 41, 59, 0.7)' : '#ffffff',
+        border: '1px solid',
+        borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
+        backdropFilter: 'blur(16px)',
+        transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        textAlign: 'center',
+        height: '100%',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+          boxShadow: isDark ? '0 12px 28px rgba(0,0,0,0.45)' : '0 12px 28px rgba(99,102,241,0.12)',
+          borderColor: '#6366f1',
+        },
       }}
     >
-      {((unUser.role === 1 || unUser.role === 2) || (unEntreprise.licence_type !== "Stock Simple")) ? (
-        <Link to={`/categorie/info/${shadow.uuid}`} className="block">
-          <div className="flex flex-col items-center space-y-3 p-2">
-            <div className={`w-20 h-20 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center mobile-product-image`}>
-              <img
-                src={url}
-                alt={shadow.libelle}
-                className="w-16 h-16 object-contain"
-                style={{
-                  width: isMobile ? '48px' : '64px',
-                  height: isMobile ? '48px' : '64px'
+      {/* Top Edit Button */}
+      {(unUser.role === 1 || unUser.role === 2) && (
+        <Box sx={{ position: 'absolute', top: 10, right: 10, zIndex: 2 }}>
+          <Tooltip title="Modifier cette sous-catégorie">
+            <Link to={`/categorie/sous/modif/${shadow.uuid}`}>
+              <IconButton
+                size="small"
+                sx={{
+                  bgcolor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
+                  color: isDark ? 'rgba(255,255,255,0.8)' : '#475569',
+                  '&:hover': { bgcolor: 'primary.main', color: '#fff' },
                 }}
-              />
-            </div>
-            <Typography
-              variant="subtitle1"
-              sx={{
-                fontSize: { xs: '0.9rem', sm: '1rem' },
-                fontWeight: 600,
-                color: (theme.palette.mode === 'dark' || showBackground) ? '#ffffff' : 'text.primary'
-              }}
-            >
-              {shadow.libelle}
-            </Typography>
-          </div>
-        </Link>
-      ) : (
-        <div className="flex flex-col items-center space-y-3 p-2">
+              >
+                <EditIcon sx={{ fontSize: 13 }} />
+              </IconButton>
+            </Link>
+          </Tooltip>
+        </Box>
+      )}
+
+      {/* Main Card Content */}
+      {canViewInfo ? (
+        <Link
+          to={`/categorie/info/${shadow.uuid}`}
+          style={{ textDecoration: 'none', color: 'inherit', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', flexGrow: 1 }}
+        >
           <Box
-            className="mobile-product-image"
             sx={{
-              width: { xs: 60, sm: 80 },
-              height: { xs: 60, sm: 80 },
-              borderRadius: '50%',
+              width: { xs: 64, sm: 84 },
+              height: { xs: 64, sm: 84 },
+              borderRadius: '16px',
               overflow: 'hidden',
-              boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.2)}`,
-              border: `2px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+              bgcolor: isDark ? 'rgba(15, 23, 42, 0.6)' : '#f8fafc',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              p: 1.2,
+              mb: 1.8,
+              border: '1px solid',
+              borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+              transition: 'transform 0.25s ease',
+              '&:hover': {
+                transform: 'scale(1.04)',
+              },
             }}
           >
             <img
               src={url}
               alt={shadow.libelle}
-              className="w-full h-full object-cover"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'contain',
+              }}
+            />
+          </Box>
+
+          <Typography
+            variant="subtitle1"
+            sx={{
+              fontWeight: 700,
+              fontSize: { xs: '0.9rem', sm: '1rem' },
+              color: isDark ? '#ffffff' : 'text.primary',
+              mb: 1.5,
+              maxWidth: '100%',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              px: 0.5,
+            }}
+          >
+            {shadow.libelle}
+          </Typography>
+
+          <Box sx={{ mt: 'auto', pt: 1 }}>
+            <Chip
+              size="small"
+              icon={<BarChartIcon sx={{ fontSize: '13px !important' }} />}
+              label="Infos & Statistiques"
+              color="primary"
+              variant="outlined"
+              clickable
+              sx={{
+                height: 24,
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                borderColor: 'rgba(99,102,241,0.3)',
+                background: isDark ? 'rgba(99,102,241,0.1)' : 'rgba(99,102,241,0.05)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                  color: '#fff',
+                  borderColor: 'transparent',
+                },
+              }}
+            />
+          </Box>
+        </Link>
+      ) : (
+        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', flexGrow: 1 }}>
+          <Box
+            sx={{
+              width: { xs: 64, sm: 84 },
+              height: { xs: 64, sm: 84 },
+              borderRadius: '16px',
+              overflow: 'hidden',
+              bgcolor: isDark ? 'rgba(15, 23, 42, 0.6)' : '#f8fafc',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              p: 1.2,
+              mb: 1.8,
+            }}
+          >
+            <img
+              src={url}
+              alt={shadow.libelle}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'contain',
+              }}
             />
           </Box>
           <Typography
             variant="subtitle1"
             sx={{
-              fontSize: { xs: '0.9rem', sm: '1rem' },
-              fontWeight: 600,
-              color: (theme.palette.mode === 'dark' || showBackground) ? '#ffffff' : 'text.primary'
+              fontWeight: 700,
+              color: isDark ? '#ffffff' : 'text.primary',
             }}
           >
             {shadow.libelle}
           </Typography>
-        </div>
+        </Box>
       )}
-
-      <div className="absolute top-2 right-2">
-        <Link to={`/categorie/sous/modif/${shadow.uuid}`}>
-          <IconButton
-            size="small"
-            className={`bg-white hover:bg-gray-50 shadow-sm mobile-edit-button ${isMobile ? 'mobile-glass' : ''}`}
-            sx={{ borderRadius: isMobile ? '12px' : '4px' }}
-          >
-            <EditIcon fontSize="small" className="text-blue-600" />
-          </IconButton>
-        </Link>
-      </div>
     </Paper>
   );
 }
+
 export default function SousCat() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { showBackground } = useAppSettings();
+  const isDark = theme.palette.mode === 'dark' || showBackground;
+  const navigate = useNavigate();
   
   const { uuid } = useParams<RouteParams>();
   const entreprise_uuid = useStoreUuid((state) => state.selectedId);
@@ -157,8 +255,7 @@ export default function SousCat() {
     }
   };
 
-  const { unCategorie } = useFetchCategorie(uuid!)
-  
+  const { unCategorie } = useFetchCategorie(uuid!);
   const { getSousCates, isLoading, isError } = useAllGetSousCate(uuid!);
   const { ajoutSousCate } = useCreateSousCate();
 
@@ -189,15 +286,15 @@ export default function SousCat() {
 
   if (isLoading) {
     return (
-      <Box sx={{ width: '100%', padding: { xs: 2, sm: 3 } }} className="mobile-loading">
+      <Box sx={{ width: '100%', maxWidth: 1280, mx: 'auto', p: { xs: 2, sm: 3 } }}>
+        <Skeleton variant="rectangular" height={50} sx={{ borderRadius: '12px', mb: 3 }} />
         <Grid container spacing={isMobile ? 2 : 3}>
           {[1, 2, 3, 4, 5, 6].map((item) => (
-            <Grid item xs={6} sm={4} md={3} lg={2} key={item}>
+            <Grid item xs={6} sm={4} md={3} lg={2.4} key={item}>
               <Skeleton 
                 variant="rectangular" 
-                height={isMobile ? 140 : 160} 
-                className="rounded-lg"
-                sx={{ borderRadius: isMobile ? '20px' : '8px' }}
+                height={isMobile ? 160 : 200} 
+                sx={{ borderRadius: '18px' }}
               />
             </Grid>
           ))}
@@ -208,234 +305,316 @@ export default function SousCat() {
 
   if (isError) {
     return (
-      <Alert 
-        severity="error" 
-        className={`m-4 ${isMobile ? 'mobile-alert' : ''}`}
-        sx={{ borderRadius: isMobile ? '16px' : '4px' }}
-        action={
-          <Button 
-            color="inherit" 
-            size="small" 
-            onClick={() => window.location.reload()}
-            className={isMobile ? 'mobile-button' : ''}
-          >
-            Réessayer
-          </Button>
-        }
-      >
-        Problème de connexion ! Veuillez réessayer.
-      </Alert>
+      <Box sx={{ maxWidth: 1280, mx: 'auto', p: 3 }}>
+        <Alert 
+          severity="error" 
+          sx={{ borderRadius: '14px' }}
+          action={
+            <Button color="inherit" size="small" onClick={() => window.location.reload()}>
+              Réessayer
+            </Button>
+          }
+        >
+          Problème de connexion ! Impossible de charger les sous-catégories.
+        </Alert>
+      </Box>
     );
   }
 
-  if (getSousCates) {
-    const filteredCategories = getSousCates.filter((post) =>
-      post.libelle?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+  const safeSousCates = getSousCates || [];
+  const filteredCategories = safeSousCates.filter((post) =>
+    post.libelle?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-    return (
-      <div className={`min-h-screen`}>
-        {/* <Nav /> */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          
-            <div className={`mb-6`}>
-              <Typography 
-                variant="h4" 
-                className="font-semibold"
-                sx={{ 
-                  fontSize: { xs: '1.75rem', sm: '2rem' },
-                  textAlign: isMobile ? 'center' : 'left',
-                  color: (theme.palette.mode === 'dark' || showBackground) ? '#ffffff' : 'text.primary'
-                }}
-              >
-                {unCategorie?.libelle}
-              </Typography>
-            </div>
-          
-
-          <div className={`mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4`}>
-            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-              <TextField
-                placeholder="Rechercher un produit..."
-                variant="outlined"
-                fullWidth
-                value={searchTerm}
-                onChange={handleSearchChange}
-                // className={`bg-white ${isMobile ? 'mobile-search-container' : ''}`}
-                InputProps={{
-                  startAdornment: <SearchIcon className="mr-2 text-gray-400" />,
-                }}
-                size="small"
-                sx={{
-                  borderRadius: isMobile ? '16px' : '4px',
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: isMobile ? '16px' : '4px',
-                  }
-                }}
-              />
-              
-              <Button
-                variant="contained"
-                onClick={functionopen}
-                startIcon={<AddIcon />}
-                className={`bg-blue-600 hover:bg-blue-700 whitespace-nowrap ${isMobile ? 'mobile-button' : ''}`}
-                sx={{
-                  borderRadius: isMobile ? '12px' : '4px',
-                  fontWeight: isMobile ? 600 : 400
-                }}
-              >
-                Nouveau Produit
-              </Button>
-            </div>
-          </div>
-
-          <Grid 
-            container 
-            spacing={isMobile ? 2 : 3} 
-            className={'mt-3'}
+  return (
+    <Box sx={{ minHeight: '100vh', pb: 6 }}>
+      <Box sx={{ maxWidth: 1280, mx: 'auto', px: { xs: 2, sm: 3, md: 4 }, py: 3 }}>
+        
+        {/* Navigation Breadcrumb / Header */}
+        <Box sx={{ mb: 4 }}>
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<ArrowBackIcon />}
+            onClick={() => navigate('/categorie')}
             sx={{
-              '& .MuiGrid-item': {
-                padding: { xs: '6px', sm: '12px' }
-              }
+              borderRadius: '10px',
+              textTransform: 'none',
+              fontWeight: 600,
+              fontSize: '0.82rem',
+              borderColor: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)',
+              color: isDark ? '#ffffff' : 'text.primary',
+              mb: 2,
+              '&:hover': {
+                borderColor: 'primary.main',
+                bgcolor: 'rgba(99,102,241,0.08)',
+              },
             }}
           >
-            {filteredCategories && filteredCategories.length > 0 ? (
-              filteredCategories.map((post, index) => (
-                <Grid 
-                  key={index} 
-                  item 
-                  xs={6} 
-                  sm={4} 
-                  md={3} 
-                  lg={2}
-                  className={`mobile-stagger-${(index % 6) + 1}`}
-                  sx={{
-                    animationDelay: `${index * 0.1}s`
-                  }}
-                >
-                  <ShadowBox shadow={post} />
-                </Grid>
-              ))
-            ) : (
-              <Grid item xs={12}>
-                <Paper 
-                  elevation={0} 
-                  className={`p-8 text-center border rounded-lg ${isMobile ? 'mobile-empty-card' : ''}`}
-                  sx={{ 
-                    borderRadius: isMobile ? '16px' : '8px',
-                    padding: { xs: '24px', sm: '32px' }
-                  }}
-                >
-                  <Typography 
-                    variant="body1" 
-                    className="text-gray-500"
-                    sx={{ 
-                      fontSize: { xs: '0.9rem', sm: '1rem' }
+            Retour au Catalogue Général
+          </Button>
+
+          <Paper
+            elevation={0}
+            sx={{
+              p: { xs: 2, sm: 3 },
+              borderRadius: '20px',
+              background: isDark
+                ? 'linear-gradient(135deg, rgba(30,41,59,0.9) 0%, rgba(15,23,42,0.9) 100%)'
+                : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+              border: '1px solid',
+              borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
+              backdropFilter: 'blur(20px)',
+              boxShadow: isDark ? '0 10px 30px rgba(0,0,0,0.3)' : '0 10px 30px rgba(99,102,241,0.06)',
+            }}
+          >
+            <Stack
+              direction={{ xs: 'column', sm: 'row' }}
+              justifyContent="space-between"
+              alignItems={{ xs: 'flex-start', sm: 'center' }}
+              spacing={2}
+            >
+              <Box>
+                <Stack direction="row" spacing={1.5} alignItems="center">
+                  <Box
+                    sx={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: '12px',
+                      background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#fff',
+                      boxShadow: '0 4px 12px rgba(99,102,241,0.3)',
                     }}
                   >
-                    Aucun produit trouvé
-                  </Typography>
-                </Paper>
+                    <CategoryIcon sx={{ fontSize: 24 }} />
+                  </Box>
+                  <Box>
+                    <Typography
+                      variant="h4"
+                      sx={{
+                        fontWeight: 800,
+                        fontSize: { xs: '1.4rem', sm: '1.8rem' },
+                        letterSpacing: '-0.02em',
+                        color: isDark ? '#ffffff' : 'text.primary',
+                        lineHeight: 1.2,
+                      }}
+                    >
+                      {unCategorie?.libelle ? `Sous-catégories de : ${unCategorie.libelle}` : 'Gestion des sous-catégories'}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.3 }}>
+                      Cliquez sur une sous-catégorie pour consulter ses <strong>statistiques de ventes, stocks et mouvements</strong>.
+                    </Typography>
+                  </Box>
+                </Stack>
+              </Box>
+
+              <Chip
+                label={`${filteredCategories.length} sous-catégorie(s)`}
+                color="primary"
+                sx={{
+                  fontWeight: 800,
+                  fontSize: '0.8rem',
+                  height: 28,
+                  borderRadius: '10px',
+                }}
+              />
+            </Stack>
+          </Paper>
+        </Box>
+
+        {/* Toolbar: Search + Add */}
+        <Box sx={{ mb: 3.5 }}>
+          <Grid container spacing={2} alignItems="center" justifyContent="space-between">
+            <Grid item xs={12} sm={6} md={5}>
+              <TextField
+                placeholder="Rechercher une sous-catégorie..."
+                variant="outlined"
+                fullWidth
+                size="small"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                InputProps={{
+                  startAdornment: <SearchIcon sx={{ color: 'primary.main', mr: 1, fontSize: 20 }} />,
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '14px',
+                    bgcolor: isDark ? 'rgba(30,41,59,0.7)' : '#ffffff',
+                  },
+                }}
+              />
+            </Grid>
+
+            {(unUser.role === 1 || unUser.role === 2) && (
+              <Grid item xs={12} sm={6} md="auto">
+                <Button
+                  variant="contained"
+                  onClick={functionopen}
+                  startIcon={<AddIcon />}
+                  sx={{
+                    borderRadius: '12px',
+                    fontWeight: 700,
+                    textTransform: 'none',
+                    fontSize: '0.85rem',
+                    background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                    boxShadow: '0 4px 14px rgba(99,102,241,0.3)',
+                    px: 2.5,
+                    py: 1,
+                  }}
+                >
+                  Nouvelle Sous-Catégorie
+                </Button>
               </Grid>
             )}
           </Grid>
+        </Box>
 
-          <Dialog 
-            open={open} 
-            onClose={closeopen} 
-            fullWidth 
-            maxWidth="sm"
-            PaperProps={{
-              elevation: 0,
-              className: "rounded-10",
-              sx: isMobile ? {
-                borderRadius: '20px',
-                backdropFilter: 'blur(10px)'
-              } : {}
-            }}
-          >
-            <DialogTitle 
-              className={`flex justify-between items-center border-b pb-3 bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700 text-white`}
-              sx={{
-                borderRadius: isMobile ? '20px 20px 0 0' : '8px 8px 0 0'
-              }}
-            >
-              <Typography 
-                variant="h6"
+        {/* Subcategories Grid */}
+        <Grid container spacing={2.5}>
+          {filteredCategories && filteredCategories.length > 0 ? (
+            filteredCategories.map((post, index) => (
+              <Grid 
+                key={post.uuid || index} 
+                item 
+                xs={6} 
+                sm={4} 
+                md={3} 
+                lg={2.4}
+              >
+                <ShadowBox shadow={post} />
+              </Grid>
+            ))
+          ) : (
+            <Grid item xs={12}>
+              <Paper 
+                elevation={0} 
                 sx={{ 
-                  fontSize: { xs: '1.1rem', sm: '1.25rem' },
-                  fontWeight: 600
+                  p: 6, 
+                  textAlign: 'center', 
+                  borderRadius: '18px',
+                  background: isDark ? 'rgba(30,41,59,0.4)' : '#ffffff',
+                  border: '1px dashed',
+                  borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
                 }}
               >
-                Nouveau Produit
-              </Typography>
-              <IconButton 
-                onClick={closeopen} 
-                size="small"
-              >
-                <CloseIcon />
-              </IconButton>
-            </DialogTitle>
+                <CategoryIcon sx={{ fontSize: 48, opacity: 0.3, mb: 1, color: 'text.secondary' }} />
+                <Typography 
+                  variant="body1" 
+                  sx={{ fontWeight: 700, color: isDark ? '#ffffff' : 'text.primary' }}
+                >
+                  Aucune sous-catégorie trouvée
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }}>
+                  {searchTerm ? 'Essayez de modifier votre recherche.' : 'Créez votre première sous-catégorie en cliquant sur le bouton ci-dessus.'}
+                </Typography>
+              </Paper>
+            </Grid>
+          )}
+        </Grid>
 
-            {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
-              <M_Abonnement />
-            ) : (
-              <DialogContent className="mt-4">
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-3">
+        {/* Create Subcategory Dialog */}
+        <Dialog 
+          open={open} 
+          onClose={closeopen} 
+          fullWidth 
+          maxWidth="sm"
+          PaperProps={{
+            elevation: 0,
+            sx: {
+              borderRadius: '20px',
+              bgcolor: isDark ? '#1e293b' : '#ffffff',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+            }
+          }}
+        >
+          <DialogTitle 
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              p: 2.5,
+              borderBottom: '1px solid',
+              borderColor: 'divider',
+              background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+              color: '#ffffff',
+            }}
+          >
+            <Typography variant="h6" sx={{ fontWeight: 700 }}>
+              Nouvelle Sous-Catégorie
+            </Typography>
+            <IconButton onClick={closeopen} size="small" sx={{ color: '#fff' }}>
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+
+          {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
+            <M_Abonnement />
+          ) : (
+            <DialogContent sx={{ p: 3 }}>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-2">
+                <MyTextField
+                  fullWidth
+                  label="Nom de la sous-catégorie"
+                  {...register("libelle", { required: "Ce champ est obligatoire" })}
+                  error={!!errors.libelle}
+                  helperText={errors.libelle?.message}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '12px',
+                    }
+                  }}
+                />
+                
+                {unEntreprise.licence_type !== "Stock Simple" && (
                   <MyTextField
                     fullWidth
-                    label="Nom du produit"
-                    {...register("libelle", { required: "Ce champ est obligatoire" })}
-                    error={!!errors.libelle}
-                    helperText={errors.libelle?.message}
-                    className={isMobile ? 'mobile-form-field' : ''}
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: isMobile ? '12px' : '4px',
-                      }
-                    }}
-                  />
-                  {(unEntreprise.licence_type != "Stock Simple") && 
-                  
-                  <MyTextField
-                    fullWidth
-                    label="Image"
+                    label="Image illustrative"
                     type="file"
                     onChange={handleImageChange}
                     InputLabelProps={{ shrink: true }}
                     InputProps={{
-                      startAdornment: <ImageIcon className="mr-2 text-gray-400" />,
+                      startAdornment: <ImageIcon sx={{ mr: 1, color: 'text.secondary' }} />,
                     }}
-                    className={isMobile ? 'mobile-form-field' : ''}
                     sx={{
                       '& .MuiOutlinedInput-root': {
-                        borderRadius: isMobile ? '12px' : '4px',
+                        borderRadius: '12px',
                       }
                     }}
                   />
-                  }
+                )}
 
-                  <div className="pt-4 border-t flex justify-end">
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      className={`bg-blue-600 hover:bg-blue-700 ${isMobile ? 'mobile-button' : ''}`}
-                      sx={{
-                        borderRadius: isMobile ? '12px' : '4px',
-                        fontWeight: isMobile ? 600 : 400
-                      }}
-                    >
-                      Enregistrer
-                    </Button>
-                  </div>
-                </form>
-              </DialogContent>
-            )}
-          </Dialog>
-        </div>
-      </div>
-    );
-  }
+                <Box sx={{ pt: 3, borderTop: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'flex-end', gap: 1.5 }}>
+                  <Button
+                    onClick={closeopen}
+                    variant="outlined"
+                    sx={{ borderRadius: '10px', textTransform: 'none' }}
+                  >
+                    Annuler
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    sx={{
+                      borderRadius: '10px',
+                      fontWeight: 700,
+                      textTransform: 'none',
+                      background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                      px: 3,
+                    }}
+                  >
+                    Enregistrer
+                  </Button>
+                </Box>
+              </form>
+            </DialogContent>
+          )}
+        </Dialog>
+      </Box>
+    </Box>
+  );
 }
 
-ShadowBox.propTypes = { shadow: PropTypes.string };
+ShadowBox.propTypes = { shadow: PropTypes.object };

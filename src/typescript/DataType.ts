@@ -86,6 +86,9 @@ export type FactureType = {
 }
 
 export type EntreType = {
+    id?: number;
+    uuid?: string;
+    categorie_libelle?: string;
     qte: number;
     qte_critique?: number;
     pu: number;
@@ -265,6 +268,8 @@ export type RecupType = {
     username?: string,
     last_name?: string,
     first_name?: string,
+    email?: string,
+    role?: string | number,
     notes?: string,
     is_prix?: boolean,
     is_remise?: boolean,

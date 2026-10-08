@@ -70,7 +70,7 @@ export const souscategorieService = {
 const allEntre = (slug: TypeSlug) => Axios.post('entreprise/entre/get', slug);
 const getEntre = (slug: string) => Axios.get(`entreprise/entre/get/${slug}`);
 const getAllEntre = (uuid: string) => Axios.get(`entreprise/entre/get_entrers_entreprise/${uuid}`);
-const addEntre = (data: EntreFormType) => Axios.post('entreprise/entre/add', data);
+const addEntre = (data: EntreFormType | EntreFormType[]) => Axios.post('entreprise/entre/add', data);
 const updateEntre = (nom: EntreType) => Axios.post('entreprise/entre/set', nom);
 const deleteEntre = (categorie: DataType) => Axios.post('entreprise/entre/del', categorie);
 
@@ -116,5 +116,5 @@ const payerFacture = (uuid: string, montant: number) => Axios.post(`entreprise/f
 const deleteFacture = (uuid: string) => Axios.post(`entreprise/facture/delete/${uuid}`, {});
 
 export const factureService = {
-    getFactures, getFacture, payerFacture, deleteFacture
+    getFactures, getFacture, payerFacture, encaisserFacture: payerFacture, deleteFacture
 };

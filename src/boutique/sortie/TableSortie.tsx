@@ -1,12 +1,12 @@
 import { ToastContainer } from 'react-toastify'
-import { Dialog, DialogContent, DialogTitle, IconButton, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography, InputAdornment, Button } from '@mui/material'
+import { Dialog, DialogContent, DialogTitle, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, InputAdornment, Button } from '@mui/material'
 import CardTableSortie from './CardTableSortie';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import QuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
 import { Money } from '../../_components/icons/Money';
 import MyTextField from '../../_components/Input/MyTextField';
 import { ABType } from '../../typescript/Account';
-import { useAllClients, useFetchEntreprise } from '../../usePerso/fonction.user';
+import { useAllClients, useFetchEntreprise, useFetchUser } from '../../usePerso/fonction.user';
 import { useStoreUuid } from '../../usePerso/store';
 import { formatNumberWithSpaces, isLicenceExpired } from '../../usePerso/fonctionPerso';
 import Select from 'react-select';
@@ -90,6 +90,7 @@ export default function TableSortie({
 }: any) {
   const entreprise_uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise } = useFetchEntreprise(entreprise_uuid);
+  const { unUser } = useFetchUser();
   const { getClients } = useAllClients(entreprise_uuid!);
   const clients = getClients.filter((info) => info.role === 1 || info.role === 3);
 
@@ -347,7 +348,7 @@ export default function TableSortie({
             <div>
               {sectionLabel('Prix Unitaire')}
               <MyTextField
-                disabled={formValues.is_prix}
+                disabled={Boolean(formValues.is_prix) && unUser?.role !== 1}
                 variant="outlined"
                 type="number"
                 inputProps={{ step: '0.01', min: '0', max: '9999999999.99' }}

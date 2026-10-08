@@ -1,609 +1,640 @@
-// material-ui
-import Typography from '@mui/material/Typography';
-import CategoryIcon from '@mui/icons-material/Category';
-import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import ReceiptIcon from '@mui/icons-material/Receipt';
-import PeopleOutlineRoundedIcon from '@mui/icons-material/PeopleOutlineRounded';
-import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
-import FileCopyIcon from '@mui/icons-material/FileCopy';
-import FileOpenIcon from '@mui/icons-material/FileOpen';
-import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
-import AddBusinessIcon from '@mui/icons-material/AddBusiness';
-import { Link } from 'react-router-dom';
-import { FC, useState } from 'react';
-import { useFetchEntreprise, useFetchUser, useStockSemaine, useAllClients, useStockEntreprise, useRestructionUsers } from '../../usePerso/fonction.user';
-import { useGetSumDepense } from '../../usePerso/fonction.entre';
-import { formatNumberWithSpaces, isAccessAllowed } from '../../usePerso/fonctionPerso';
-import { useStoreUuid } from '../../usePerso/store';
-import { format } from 'date-fns';
-import SimpleCharts from '../../_components/Chart/Chart_1';
-import { Alert, Box, CircularProgress, Stack, Paper, Container, Button, useMediaQuery, useTheme } from '@mui/material';
-import MonthlyBarChart from './MonthlyBarChart';
-import './mobile-dashboard.css';
-import { ChartSection } from './components/ChartSection';
-import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
-import PaymentsIcon from '@mui/icons-material/Payments';
-import { StatCard } from '../../usePerso/useEntreprise';
+import { useState, useMemo } from 'react';
+import {
+  Box,
+  Container,
+  Typography,
+  CircularProgress,
+  Grid,
+  Alert,
+  useTheme,
+  Button,
+} from '@mui/material';
+import {
+  format,
+  subDays,
+  startOfMonth,
+  endOfMonth,
+  subMonths,
+  differenceInCalendarDays,
+  getDay,
+} from 'date-fns';
 import { useAppSettings } from '../../themes/AppSettingsContext';
+import { useStoreUuid } from '../../usePerso/store';
+import {
+  useFetchEntreprise,
+  useFetchUser,
+  useRestructionUsers,
+  useSortieUserEntreprise,
+} from '../../usePerso/fonction.user';
+import {
+  useGetAllEntre,
+  useGetAllSortie,
+  useGetAllDepense,
+} from '../../usePerso/fonction.entre';
+import {
+  isAccessAllowed,
+  isInDateRange,
+} from '../../usePerso/fonctionPerso';
 
-// ==============================|| DASHBOARD - DEFAULT ||============================== //
-
-// Types
-interface NavigationCardType {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  to: string;
-  color?: string;
-  disabled?: boolean;
-}
-
-const NavigationCard: FC<NavigationCardType> = ({ icon, title, description, to, color = '#6366f1', disabled }) => {
-  const theme = useTheme();
-  const { showBackground } = useAppSettings();
-  const isDarkText = theme.palette.mode === 'dark' || showBackground;
-
-  const CardContent = (
-    <Paper
-      elevation={0}
-      className="mobile-nav-card mobile-hover-effect mobile-glass"
-      sx={{
-        height: '100%',
-        minHeight: { xs: '145px', sm: '160px' },
-        bgcolor: disabled
-          ? isDarkText ? 'rgba(255,255,255,0.02)' : 'rgba(241,245,249,0.5)'
-          : isDarkText ? 'rgba(15, 23, 42, 0.55)' : 'rgba(255, 255, 255, 0.85)',
-        backdropFilter: 'blur(16px)',
-        border: '1px solid',
-        borderColor: disabled
-          ? 'rgba(255,255,255,0.05)'
-          : isDarkText ? `${color}35` : 'rgba(226, 232, 240, 0.8)',
-        borderRadius: '20px',
-        p: { xs: 2, sm: 2.5 },
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        textAlign: 'center',
-        opacity: disabled ? 0.45 : 1,
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        position: 'relative',
-        overflow: 'hidden',
-        boxShadow: disabled
-          ? 'none'
-          : isDarkText
-          ? `0 8px 24px -4px ${color}20`
-          : '0 4px 20px rgba(0, 0, 0, 0.05)',
-        '&::before': !disabled ? {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '3px',
-          background: `linear-gradient(90deg, ${color}, transparent)`,
-          opacity: 0.85,
-        } : {},
-        '&:hover': !disabled ? {
-          bgcolor: isDarkText ? `${color}22` : `${color}10`,
-          borderColor: `${color}60`,
-          transform: 'translateY(-6px)',
-          boxShadow: `0 16px 32px -4px ${color}35`,
-          '& .icon-box': {
-            transform: 'scale(1.12) rotate(-3deg)',
-            bgcolor: `${color}25`,
-          },
-        } : {},
-        '&:active': !disabled ? {
-          bgcolor: isDarkText ? `${color}22` : `${color}10`,
-          borderColor: `${color}60`,
-          transform: 'translateY(-3px)',
-          boxShadow: `0 16px 32px -4px ${color}35`,
-          '& .icon-box': {
-            transform: 'scale(1.12) rotate(-3deg)',
-            bgcolor: `${color}25`,
-          },
-        } : {},
-      }}
-    >
-      <Box
-        className="icon-box"
-        sx={{
-          width: 52,
-          height: 52,
-          borderRadius: '16px',
-          bgcolor: `${color}18`,
-          border: `1px solid ${color}35`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: color,
-          fontSize: '1.65rem',
-          mb: 1.5,
-          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          boxShadow: `0 4px 14px ${color}20`,
-        }}
-      >
-        {icon}
-      </Box>
-      <Typography
-        variant="h6"
-        sx={{
-          fontSize: { xs: '0.95rem', sm: '1.05rem' },
-          fontWeight: 700,
-          color: isDarkText ? '#ffffff' : '#0f172a',
-          mb: 0.6,
-          lineHeight: 1.25,
-        }}
-      >
-        {title}
-      </Typography>
-      <Typography
-        variant="body2"
-        sx={{
-          fontSize: { xs: '0.78rem', sm: '0.84rem' },
-          color: isDarkText ? 'rgba(255, 255, 255, 0.75)' : '#64748b',
-          lineHeight: 1.4,
-          fontWeight: 500,
-        }}
-      >
-        {description}
-      </Typography>
-    </Paper>
-  );
-
-  if (disabled) {
-    return CardContent;
-  }
-
-  return (
-    <Link to={to} style={{ textDecoration: 'none', display: 'block', height: '100%' }}>
-      {CardContent}
-    </Link>
-  );
-};
+// Sub-components
+import { DashboardQuickActions } from './components/DashboardQuickActions';
+import { DashboardPeriodSelector } from './components/DashboardPeriodSelector';
+import { DashboardKpis, SalesKpiData, ProfitabilityKpiData, StockKpiData } from './components/DashboardKpis';
+import { DashboardTrendChart, MonthlyTrendPoint } from './components/DashboardTrendChart';
+import { DashboardTopProducts, TopProductItem } from './components/DashboardTopProducts';
+import { DashboardSalesDistribution, DistributionSlice } from './components/DashboardSalesDistribution';
+import { DashboardDayOfWeekChart, DayOfWeekData } from './components/DashboardDayOfWeekChart';
+import { DashboardStockAlertsTable } from './components/DashboardStockAlertsTable';
+import { DashboardRecentSalesTable } from './components/DashboardRecentSalesTable';
+import { DashboardExpensesCategory, ExpenseCategorySlice } from './components/DashboardExpensesCategory';
+import { DashboardSellerPerformance, SellerPerformanceItem } from './components/DashboardSellerPerformance';
 
 export default function DashboardDefault() {
-  
-  const { showBackground } = useAppSettings();
   const theme = useTheme();
+  const { showBackground } = useAppSettings();
   const isDark = theme.palette.mode === 'dark' || showBackground;
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  // Utilisation de try-catch pour les hooks qui peuvent échouer
-  const [hasError, setHasError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  // ── Global Period State (Default: Ce mois-ci) ──
+  const now = useMemo(() => new Date(), []);
+  const defaultStart = useMemo(() => format(startOfMonth(now), 'yyyy-MM-dd'), [now]);
+  const defaultEnd = useMemo(() => format(endOfMonth(now), 'yyyy-MM-dd'), [now]);
 
-  // Utilisation de try-catch pour les hooks qui peuvent échouer
-  let unUser, uuid, unEntreprise, stockSemaine, stockEntreprise, getClients, stockData, depensesSum;
+  const [startDate, setStartDate] = useState<string>(defaultStart);
+  const [endDate, setEndDate] = useState<string>(defaultEnd);
 
-  try {
-    const userData = useFetchUser();
-    unUser = userData.unUser;
-    uuid = useStoreUuid((state) => state.selectedId);
+  // ── Queries ──
+  const { unUser, isLoading: isUserLoading } = useFetchUser();
+  const entreprise_uuid = useStoreUuid((state) => state.selectedId);
+  const { unEntreprise, isLoading: isEntrepriseLoading } = useFetchEntreprise(entreprise_uuid || '');
 
-    const entrepriseData = useFetchEntreprise(uuid);
-    unEntreprise = entrepriseData.unEntreprise;
+  const {
+    sortiesEntreprise = [],
+    isLoading: isSortiesLoading,
+    refetch: refetchSorties,
+  } = useGetAllSortie(entreprise_uuid || '');
 
-    stockData = useStockSemaine(uuid || '');
-    stockSemaine = stockData.stockSemaine;
+  const {
+    entresEntreprise = [],
+    isLoading: isStockLoading,
+    refetch: refetchStock,
+  } = useGetAllEntre(entreprise_uuid || '');
 
-    const stockEntrepriseData = useStockEntreprise(uuid || '');
-    const depensesData = useGetSumDepense(uuid!);
-    depensesSum = depensesData.depensesSum;
-    stockEntreprise = stockEntrepriseData.stockEntreprise;
-    const clientsData = useAllClients(uuid || '');
-    getClients = clientsData.getClients;
+  const {
+    depensesEntreprise = [],
+    isLoading: isDepensesLoading,
+    refetch: refetchDepenses,
+  } = useGetAllDepense(entreprise_uuid || '');
 
-  } catch (error) {
-    console.error('Erreur lors du chargement du dashboard:', error);
-    setHasError(true);
-    setErrorMessage('Erreur lors du chargement des données');
-  }
-
+  const { sortiesUser } = useSortieUserEntreprise(entreprise_uuid || '');
   const { getRestruction } = useRestructionUsers();
 
-  // Protection contre les données manquantes
-  if (!unUser || !unEntreprise) {
-    return (
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyCenter: 'center', minHeight: '80vh' }}>
-        <CircularProgress size={50} sx={{ color: '#6366f1', mx: 'auto' }} />
-      </Box>
-    );
-  }
+  const userRole = unUser?.role ?? 3;
+  const isOwner = userRole === 1;
+  const isManager = userRole === 2;
+  const canViewFinancials = isOwner || isManager;
 
-  if (hasError) {
+  // ── Période Précédente (pour le calcul des variations %) ──
+  const prevPeriod = useMemo(() => {
+    if (!startDate || !endDate) return null;
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffDays = Math.max(1, differenceInCalendarDays(end, start) + 1);
+
+    const prevEnd = subDays(start, 1);
+    const prevStart = subDays(prevEnd, diffDays - 1);
+    return {
+      startStr: format(prevStart, 'yyyy-MM-dd'),
+      endStr: format(prevEnd, 'yyyy-MM-dd'),
+    };
+  }, [startDate, endDate]);
+
+  // ── 1. Filtrage des Sorties et Ventes sur la période ──
+  const filteredSorties = useMemo(() => {
+    return sortiesEntreprise.filter((s) => {
+      const d = s.date || (s as any).created_at;
+      if (!startDate && !endDate) return true;
+      return isInDateRange(d, startDate, endDate);
+    });
+  }, [sortiesEntreprise, startDate, endDate]);
+
+  // Sorties sur la période précédente (pour comparaison)
+  const prevSorties = useMemo(() => {
+    if (!prevPeriod) return [];
+    return sortiesEntreprise.filter((s) => {
+      const d = s.date || (s as any).created_at;
+      return isInDateRange(d, prevPeriod.startStr, prevPeriod.endStr);
+    });
+  }, [sortiesEntreprise, prevPeriod]);
+
+  // ── 2. Filtrage des Dépenses sur la période ──
+  const filteredDepenses = useMemo(() => {
+    return depensesEntreprise.filter((dep) => {
+      if (!startDate && !endDate) return true;
+      return isInDateRange(dep.date, startDate, endDate);
+    });
+  }, [depensesEntreprise, startDate, endDate]);
+
+  const prevDepenses = useMemo(() => {
+    if (!prevPeriod) return [];
+    return depensesEntreprise.filter((dep) => {
+      return isInDateRange(dep.date, prevPeriod.startStr, prevPeriod.endStr);
+    });
+  }, [depensesEntreprise, prevPeriod]);
+
+  // ── 3. Métriques Ventes (Sales KPIs) ──
+  const salesMetrics: SalesKpiData = useMemo(() => {
+    const currentRevenue = filteredSorties.reduce((sum, s) => {
+      const total = s.prix_total ?? ((s.qte || 1) * (s.pu || 0));
+      return sum + Number(total || 0);
+    }, 0);
+
+    const prevRevenue = prevSorties.reduce((sum, s) => {
+      const total = s.prix_total ?? ((s.qte || 1) * (s.pu || 0));
+      return sum + Number(total || 0);
+    }, 0);
+
+    const salesCount = filteredSorties.length;
+    const prevSalesCount = prevSorties.length;
+
+    const calcVar = (curr: number, prev: number) => {
+      if (prev <= 0) return curr > 0 ? 100 : 0;
+      return Number((((curr - prev) / prev) * 100).toFixed(1));
+    };
+
+    return {
+      revenue: currentRevenue,
+      revenueVariation: prevPeriod ? calcVar(currentRevenue, prevRevenue) : undefined,
+      salesCount,
+      salesCountVariation: prevPeriod ? calcVar(salesCount, prevSalesCount) : undefined,
+      averageBasket: salesCount > 0 ? Math.round(currentRevenue / salesCount) : 0,
+    };
+  }, [filteredSorties, prevSorties, prevPeriod]);
+
+  // ── 4. Métriques Rentabilité (Profitability KPIs) ──
+  const profitabilityMetrics: ProfitabilityKpiData | undefined = useMemo(() => {
+    if (!canViewFinancials) return undefined;
+
+    // Coût d'achat total des marchandises vendues
+    const costOfGoodsSold = filteredSorties.reduce((sum, s) => {
+      const puAchat = s.pu_achat ?? 0;
+      const qte = s.qte ?? 1;
+      return sum + (Number(puAchat) * Number(qte));
+    }, 0);
+
+    const grossMargin = Math.max(0, salesMetrics.revenue - costOfGoodsSold);
+    const marginRate = salesMetrics.revenue > 0 ? (grossMargin / salesMetrics.revenue) * 100 : 0;
+
+    const currentExpenses = filteredDepenses.reduce((sum, d) => sum + Number(d.somme || 0), 0);
+    const prevExpensesTotal = prevDepenses.reduce((sum, d) => sum + Number(d.somme || 0), 0);
+
+    const calcVar = (curr: number, prev: number) => {
+      if (prev <= 0) return curr > 0 ? 100 : 0;
+      return Number((((curr - prev) / prev) * 100).toFixed(1));
+    };
+
+    const netProfit = grossMargin - currentExpenses;
+
+    return {
+      grossMargin,
+      marginRate,
+      totalExpenses: currentExpenses,
+      expensesVariation: prevPeriod ? calcVar(currentExpenses, prevExpensesTotal) : undefined,
+      netProfit,
+    };
+  }, [canViewFinancials, filteredSorties, salesMetrics.revenue, filteredDepenses, prevDepenses, prevPeriod]);
+
+  // ── 5. Métriques Stock (Stock KPIs) ──
+  const stockMetrics: StockKpiData = useMemo(() => {
+    let stockValueVente = 0;
+    let stockValueAchat = 0;
+    let outOfStockCount = 0;
+    let criticalStockCount = 0;
+
+    entresEntreprise.forEach((e) => {
+      const qte = e.qte || 0;
+      const puVente = e.pu || 0;
+      const puAchat = e.pu_achat || 0;
+      const seuil = e.qte_critique ?? 5;
+
+      stockValueVente += qte * puVente;
+      stockValueAchat += qte * puAchat;
+
+      if (qte <= 0) {
+        outOfStockCount++;
+      } else if (qte <= seuil) {
+        criticalStockCount++;
+      }
+    });
+
+    return {
+      stockValueVente,
+      stockValueAchat,
+      outOfStockCount,
+      criticalStockCount,
+      totalRefs: entresEntreprise.length,
+    };
+  }, [entresEntreprise]);
+
+  // ── 6. Tendance 12 mois chronologique (DashboardTrendChart) ──
+  const monthlyTrendData: MonthlyTrendPoint[] = useMemo(() => {
+    const months: MonthlyTrendPoint[] = [];
+    const currentDate = new Date();
+
+    for (let i = 11; i >= 0; i--) {
+      const d = subMonths(currentDate, i);
+      const mKey = format(d, 'yyyy-MM');
+      const label = format(d, 'MMM yy');
+
+      // Ventes de ce mois
+      const monthRevenue = sortiesEntreprise
+        .filter((s) => {
+          const dateStr = s.date || (s as any).created_at || '';
+          return dateStr.startsWith(mKey);
+        })
+        .reduce((sum, s) => {
+          const total = s.prix_total ?? ((s.qte || 1) * (s.pu || 0));
+          return sum + Number(total || 0);
+        }, 0);
+
+      // Dépenses de ce mois
+      const monthExpenses = depensesEntreprise
+        .filter((dep) => dep.date && dep.date.startsWith(mKey))
+        .reduce((sum, dep) => sum + Number(dep.somme || 0), 0);
+
+      months.push({
+        monthKey: mKey,
+        label,
+        revenue: monthRevenue,
+        expenses: monthExpenses,
+        netProfit: monthRevenue - monthExpenses,
+      });
+    }
+
+    return months;
+  }, [sortiesEntreprise, depensesEntreprise]);
+
+  // ── 7. Top 10 Produits (DashboardTopProducts) ──
+  const topProducts: TopProductItem[] = useMemo(() => {
+    const productMap = new Map<string, TopProductItem>();
+
+    filteredSorties.forEach((s) => {
+      const name = s.libelle || 'Article';
+      const qte = Number(s.qte || 1);
+      const total = Number(s.prix_total ?? (qte * (s.pu || 0)));
+      const categorie = s.categorie_libelle;
+
+      if (productMap.has(name)) {
+        const item = productMap.get(name)!;
+        item.totalQte += qte;
+        item.totalRevenue += total;
+      } else {
+        productMap.set(name, {
+          libelle: name,
+          categorie,
+          totalQte: qte,
+          totalRevenue: total,
+        });
+      }
+    });
+
+    return Array.from(productMap.values());
+  }, [filteredSorties]);
+
+  // ── 8. Répartition des Ventes (Paiements & Catégories) ──
+  const { paymentDistribution, categoryDistribution } = useMemo(() => {
+    const payMap = new Map<string, { value: number; count: number }>();
+    const catMap = new Map<string, { value: number; count: number }>();
+
+    filteredSorties.forEach((s) => {
+      const total = Number(s.prix_total ?? ((s.qte || 1) * (s.pu || 0)));
+      const mode = s.mode_paiement || 'Caisse';
+      const cat = s.categorie_libelle || 'Divers';
+
+      // Modes de paiement
+      if (payMap.has(mode)) {
+        const cur = payMap.get(mode)!;
+        cur.value += total;
+        cur.count += 1;
+      } else {
+        payMap.set(mode, { value: total, count: 1 });
+      }
+
+      // Catégories
+      if (catMap.has(cat)) {
+        const cur = catMap.get(cat)!;
+        cur.value += total;
+        cur.count += 1;
+      } else {
+        catMap.set(cat, { value: total, count: 1 });
+      }
+    });
+
+    const paymentData: DistributionSlice[] = Array.from(payMap.entries()).map(([name, data]) => ({
+      name,
+      value: data.value,
+      count: data.count,
+    }));
+
+    const categoryData: DistributionSlice[] = Array.from(catMap.entries()).map(([name, data]) => ({
+      name,
+      value: data.value,
+      count: data.count,
+    }));
+
+    return { paymentDistribution: paymentData, categoryDistribution: categoryData };
+  }, [filteredSorties]);
+
+  // ── 9. Activité par Jour de Semaine (DashboardDayOfWeekChart) ──
+  const dayOfWeekData: DayOfWeekData[] = useMemo(() => {
+    const dayNames = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+    // Ordre français classique : Lundi (1) -> Dimanche (0)
+    const orderedIndices = [1, 2, 3, 4, 5, 6, 0];
+
+    const acc = [0, 1, 2, 3, 4, 5, 6].map((dayIdx) => ({
+      dayName: dayNames[dayIdx],
+      revenue: 0,
+      count: 0,
+    }));
+
+    filteredSorties.forEach((s) => {
+      const dateStr = s.date || (s as any).created_at;
+      if (!dateStr) return;
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return;
+      const dayIdx = getDay(d);
+      const total = Number(s.prix_total ?? ((s.qte || 1) * (s.pu || 0)));
+
+      acc[dayIdx].revenue += total;
+      acc[dayIdx].count += 1;
+    });
+
+    return orderedIndices.map((idx) => acc[idx]);
+  }, [filteredSorties]);
+
+  // ── 10. Répartition des Dépenses par Famille ──
+  const expensesCategoryData: ExpenseCategorySlice[] = useMemo(() => {
+    const catMap = new Map<string, { value: number; count: number }>();
+
+    filteredDepenses.forEach((dep) => {
+      const somme = Number(dep.somme || 0);
+      let catName = 'Autre';
+      const match = (dep.libelle || '').match(/^\[(.*?)\]/);
+      if (match && match[1]) {
+        catName = match[1];
+      }
+
+      if (catMap.has(catName)) {
+        const cur = catMap.get(catName)!;
+        cur.value += somme;
+        cur.count += 1;
+      } else {
+        catMap.set(catName, { value: somme, count: 1 });
+      }
+    });
+
+    return Array.from(catMap.entries()).map(([name, d]) => ({
+      name,
+      value: d.value,
+      count: d.count,
+    }));
+  }, [filteredDepenses]);
+
+  // ── 11. Performance par Vendeur ──
+  const sellerPerformance: SellerPerformanceItem[] = useMemo(() => {
+    if (!isOwner) return [];
+    if (sortiesUser?.total_par_utilisateur && sortiesUser.total_par_utilisateur.length > 0) {
+      return sortiesUser.total_par_utilisateur.map((u) => {
+        const matchingSales = sortiesUser.total_nombre_vente?.find((v) => v.user_id === u.user_id);
+        return {
+          userId: u.user_id,
+          username: u.username || 'Collaborateur',
+          totalSales: matchingSales?.total || 0,
+          totalRevenue: u.total_montant || 0,
+        };
+      });
+    }
+
+    // Fallback à partir des sorties filtrées
+    const userMap = new Map<string, { sales: number; rev: number }>();
+    filteredSorties.forEach((s) => {
+      const username = s.username || (s as any).created_by || 'Vendeur';
+      const total = Number(s.prix_total ?? ((s.qte || 1) * (s.pu || 0)));
+      if (userMap.has(username)) {
+        const cur = userMap.get(username)!;
+        cur.sales += 1;
+        cur.rev += total;
+      } else {
+        userMap.set(username, { sales: 1, rev: total });
+      }
+    });
+
+    return Array.from(userMap.entries()).map(([username, d]) => ({
+      username,
+      totalSales: d.sales,
+      totalRevenue: d.rev,
+    }));
+  }, [isOwner, sortiesUser, filteredSorties]);
+
+  // ── Vérification restriction horaire ──
+  if (getRestruction && !isAccessAllowed(getRestruction)) {
     return (
-      <Container maxWidth="sm" sx={{ py: 8 }}>
+      <Container maxWidth="md" sx={{ py: 8 }}>
         <Alert
-          severity="error"
+          severity="warning"
           sx={{
-            bgcolor: 'rgba(239,68,68,0.1)',
-            color: '#fca5a5',
-            border: '1px solid rgba(239,68,68,0.3)',
-            borderRadius: '16px',
+            p: 3,
+            bgcolor: 'rgba(234,179,8,0.1)',
+            color: '#fde68a',
+            border: '1px solid rgba(234,179,8,0.3)',
+            borderRadius: '20px',
           }}
-          action={
-            <Button
-              color="inherit"
-              size="small"
-              onClick={() => {
-                setHasError(false);
-                window.location.reload();
-              }}
-            >
-              Réessayer
-            </Button>
-          }
         >
-          {errorMessage || 'Erreur inattendue ! Veuillez réessayer.'}
+          <Typography variant="h6" sx={{ fontWeight: 800, mb: 1 }}>
+            Accès restreint en dehors des heures de service
+          </Typography>
+          <Typography variant="body1">
+            Votre profil est soumis à une plage horaire autorisée : de {getRestruction.hour_start} à {getRestruction.hour_end}.
+          </Typography>
         </Alert>
       </Container>
     );
   }
 
-  // Protection contre les données manquantes pour les cartes
-  const safeStockSemaine = stockSemaine || { sorties_par_mois: [] };
-  const safeUnUser = unUser || { role: 0 };
+  // ── Chargement initial ──
+  const isLoading = isUserLoading || isEntrepriseLoading || isSortiesLoading || isStockLoading || isDepensesLoading;
 
-  const navigationCards: NavigationCardType[] = (
-    [
-      safeUnUser.role === 1 ? {
-        icon: <AddBusinessIcon fontSize="inherit" />,
-        title: "Entreprise",
-        description: "Les informations de votre entreprise",
-        color: "#6366f1",
-        to: "/entreprise/detail"
-      } : null,
-      (safeUnUser.role === 1 || safeUnUser.role === 2) ? {
-        icon: <CategoryIcon fontSize="inherit" />,
-        title: "Article || Catégorie",
-        description: "Les différents articles de l'entreprise",
-        color: "#8b5cf6",
-        to: "/categorie"
-      } : null,
-      (safeUnUser.role === 1 || safeUnUser.role === 2) ? {
-        icon: <AddCircleIcon fontSize="inherit" />,
-        title: "Entrer || Achat",
-        description: "Entrée des produits de l'entreprise",
-        color: "#10b981",
-        to: "/entre"
-      } : null,
-      (safeUnUser.role === 1 || safeUnUser.role === 3 || safeUnUser.role === 2) ? {
-        icon: <ExitToAppIcon fontSize="inherit" />,
-        title: "Sortie || Vente",
-        description: "Pour la sortie des produits dans l'entreprise",
-        color: "#ef4444",
-        to: "/sortie"
-      } : null,
-      (safeUnUser.role === 1 || safeUnUser.role === 2 || safeUnUser.role === 3) ? {
-        icon: <PeopleOutlineRoundedIcon fontSize="inherit" />,
-        title: "Clients || Fournisseurs",
-        description: "Pour ajouter des clients ou fournisseurs",
-        color: "#06b6d4",
-        to: "/entreprise/client"
-      } : null,
-      safeUnUser.role === 1 ? {
-        icon: <PersonAddAltIcon fontSize="inherit" />,
-        title: "Personnels",
-        description: "Pour ajouter des personnes qui ont accès à la plateforme",
-        color: "#ec4899",
-        to: "/entreprise/personnel"
-      } : null,
-      {
-        icon: <ReceiptIcon fontSize="inherit" />,
-        title: "Facture Proforma",
-        description: "Cette facture ne sera pas enregistrée",
-        color: "#f59e0b",
-        to: "/entreprise/PreFacture"
-      },
-      (safeUnUser.role === 1 || safeUnUser.role === 2 || safeUnUser.role === 3) ? {
-        icon: <FileCopyIcon fontSize="inherit" />,
-        title: "Factures sorties (ventes)",
-        description: "Factures des produits de l'entreprise",
-        color: "#f97316",
-        to: "/entreprise/produit/sortie",
-        disabled: (unEntreprise.licence_type === "Stock Simple")
-      } : null,
-      (safeUnUser.role === 1 || safeUnUser.role === 2) ? {
-        icon: <FileOpenIcon fontSize="inherit" />,
-        title: "Factures entrées (achat)",
-        description: "Factures des produits de l'entreprise",
-        color: "#64748b",
-        to: "/entreprise/produit/entre",
-        disabled: (unEntreprise.licence_type === "Stock Simple")
-      } : null,
-      (safeUnUser.role === 1 || safeUnUser.role === 3 || safeUnUser.role === 2) ? {
-        icon: <MonetizationOnIcon fontSize="inherit" />,
-        title: "Dépense(s)",
-        description: "Ajout des dépenses de l'entreprise",
-        color: "#14b8a6",
-        to: "/entreprise/depense",
-        disabled: (unEntreprise.licence_type === "Stock Simple")
-      } : null
-    ] as (NavigationCardType | null)[]
-  ).filter((card): card is NavigationCardType => card !== null);
+  if (isLoading && !unEntreprise) {
+    return (
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh' }}>
+        <CircularProgress size={50} sx={{ color: '#6366f1' }} />
+      </Box>
+    );
+  }
 
   return (
-    <Box sx={{ minHeight: '100vh', pb: 4 }}>
-      <Container maxWidth="xl" sx={{ px: { xs: 1, sm: 2, md: 3 }, color: showBackground ? '#ffffff' : 'inherit' }}>
-        <Stack spacing={isMobile ? 3 : 4}>
-          
-          {/* Header Banner */}
-          <Box
-            className="relative p-4 rounded-lg transition-all duration-300 animate-border-rotate mobile-hover-effect"
-            sx={{
-              bgcolor: isDark ? 'rgba(15, 23, 42, 0.75)' : 'rgba(255, 255, 255, 0.95)',
-              backdropFilter: 'blur(16px)',
-              border: '1px solid',
-              borderColor: isDark ? 'rgba(99, 102, 241, 0.25)' : 'rgba(99, 102, 241, 0.18)',
-              boxShadow: isDark
-                ? '0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(99, 102, 241, 0.15)'
-                : '0 10px 30px rgba(99, 102, 241, 0.12), 0 4px 12px rgba(0, 0, 0, 0.05)',
-              borderRadius: '20px',
-              p: { xs: 2.5, sm: 3.5 },
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              '&:hover': {
-                boxShadow: isDark
-                  ? '0 14px 40px rgba(0, 0, 0, 0.5), 0 0 25px rgba(99, 102, 241, 0.25)'
-                  : '0 14px 36px rgba(99, 102, 241, 0.2), 0 6px 16px rgba(0, 0, 0, 0.08)',
-                transform: 'translateY(-2px)',
-              },
-            }}
-          >
-            <Box sx={{ textAlign: 'center' }}>
-              <Box
-                sx={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 1,
-                  mb: 1,
-                  bgcolor: isDark ? 'rgba(99,102,241,0.15)' : 'rgba(99,102,241,0.1)',
-                  px: 1.5,
-                  py: 0.4,
-                  borderRadius: '20px',
-                  border: '1px solid',
-                  borderColor: isDark ? 'rgba(99,102,241,0.3)' : 'rgba(99,102,241,0.25)',
-                }}
-              >
-                <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#22c55e', boxShadow: '0 0 8px #22c55e' }} />
-                <Typography variant="caption" sx={{ color: isDark ? '#ffffff' : 'primary.main', fontWeight: 600, letterSpacing: 0.5 }}>
-                  {unEntreprise?.nom || 'Entreprise'}
-                </Typography>
-              </Box>
+    <Box sx={{ minHeight: '100vh', pb: 6, pt: 1 }}>
+      <Container maxWidth="xl" sx={{ px: { xs: 1, sm: 2, md: 3 } }}>
+        {/* ── En-tête Principal & Bienvenue ── */}
+        <Box
+          sx={{
+            p: { xs: 2.2, sm: 3 },
+            mb: 3,
+            borderRadius: '22px',
+            bgcolor: isDark ? 'rgba(15, 23, 42, 0.75)' : 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(16px)',
+            border: '1px solid',
+            borderColor: isDark ? 'rgba(99, 102, 241, 0.25)' : 'rgba(99, 102, 241, 0.18)',
+            boxShadow: isDark
+              ? '0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(99, 102, 241, 0.15)'
+              : '0 8px 28px rgba(99, 102, 241, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04)',
+            display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
+            alignItems: { xs: 'flex-start', sm: 'center' },
+            justifyContent: 'space-between',
+            gap: 2,
+          }}
+        >
+          <Box>
+            <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, mb: 0.8 }}>
+              <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#22c55e', boxShadow: '0 0 8px #22c55e' }} />
               <Typography
-                variant="h4"
+                variant="caption"
                 sx={{
-                  fontSize: { xs: '1.5rem', sm: '1.85rem', md: '2.1rem' },
-                  fontWeight: 800,
-                  color: isDark ? '#ffffff' : 'text.primary',
-                  letterSpacing: '-0.02em',
-                }}
-              >
-                Tableau de bord
-              </Typography>
-              <Typography 
-                variant="body1" 
-                sx={{ fontSize: { xs: '0.85rem', sm: '0.95rem' }, mt: 0.5, color: isDark ? 'rgba(255,255,255,0.85)' : 'text.secondary' }}
-              >
-                Bienvenue dans votre espace de gestion d'entreprise
-              </Typography>
-            </Box>
-          </Box>
-
-          {/* Stat Cards Grid */}
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
-              gap: isMobile ? 2 : 2.5,
-            }}
-          >
-            <StatCard
-              title="Chiffre d'Affaires du mois"
-              description="montant brut (hors remises)"
-              value={(() => {
-                if (stockEntreprise && stockEntreprise.details_sortie_par_mois) {
-                  const months = Object.keys(stockEntreprise.details_sortie_par_mois);
-                  const lastMonth = months[months.length - 1];
-                  const details = stockEntreprise.details_sortie_par_mois[lastMonth];
-                  if (details) {
-                    return formatNumberWithSpaces((details as any).somme_prix_total || 0);
-                  }
-                }
-                return '--';
-              })()}
-              icon={<PaymentsIcon sx={{ color: '#22c55e' }} />}
-            />
-
-            <StatCard
-              title="Ventes Totales du mois"
-              value={(() => {
-                if (stockEntreprise && stockEntreprise.details_sortie_par_mois) {
-                  const months = Object.keys(stockEntreprise.details_sortie_par_mois);
-                  const lastMonth = months[months.length - 1];
-                  const details = stockEntreprise.details_sortie_par_mois[lastMonth];
-                  if (details) {
-                    return (details as any).somme_qte || 0;
-                  }
-                }
-                return '--';
-              })()}
-              icon={<ShoppingBagIcon sx={{ color: '#6366f1' }} />}
-            />
-
-            <StatCard
-              title="Clients"
-              value={getClients ? getClients.filter(client => client.role === 1 || client.role === 3).length : '--'}
-              icon={<PeopleOutlineRoundedIcon sx={{ color: '#06b6d4' }} />}
-            />
-
-            <StatCard
-              title="Dépenses du mois"
-              value={(() => {
-                if (depensesSum && depensesSum.length > 0) {
-                  const sortedDepenses = [...depensesSum].sort((a, b) => {
-                    const dateA = new Date(a.mois + '-01');
-                    const dateB = new Date(b.mois + '-01');
-                    return dateB.getTime() - dateA.getTime();
-                  });
-                  const lastMonthTotal = sortedDepenses[0].total || 0;
-                  return formatNumberWithSpaces(lastMonthTotal);
-                }
-                return '--';
-              })()}
-              icon={<PaymentsIcon sx={{ color: '#ef4444' }} />}
-            />
-          </Box>
-
-          {/* Charts Section */}
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: { xs: '1fr', md: 'repeat(12, 1fr)' },
-              gap: 3,
-            }}
-          >
-            {/* Monthly Sales */}
-            <Box sx={{ gridColumn: { xs: 'span 1', md: 'span 8' } }}>
-              {safeStockSemaine.sorties_par_mois && safeStockSemaine.sorties_par_mois.length > 0 ? (
-                <Box sx={{ height: '100%' }}>
-                  <ChartSection
-                    title={`Produits les plus vendus - ${(() => {
-                      try {
-                        return format(new Date(safeStockSemaine.sorties_par_mois[safeStockSemaine.sorties_par_mois.length - 1].month), 'MMMM yyyy');
-                      } catch (error) {
-                        return 'Ce mois';
-                      }
-                    })()}`}
-                    className="h-full"
-                  >
-                    {(() => {
-                      try {
-                        return <MonthlyBarChart details={safeStockSemaine.sorties_par_mois[safeStockSemaine.sorties_par_mois.length - 1].details} />;
-                      } catch (error) {
-                        console.error('Erreur MonthlyBarChart:', error);
-                        return (
-                          <Alert severity="warning" sx={{ borderRadius: 2 }}>
-                            Impossible de charger le graphique des ventes
-                          </Alert>
-                        );
-                      }
-                    })()}
-                  </ChartSection>
-                </Box>
-              ) : (
-                <Alert
-                  severity="info"
-                  sx={{
-                    bgcolor: 'rgba(99,102,241,0.08)',
-                    color: '#c4b5fd',
-                    border: '1px solid rgba(99,102,241,0.2)',
-                    borderRadius: '16px',
-                  }}
-                >
-                  Aucune vente n'a été enregistrée ce mois-ci
-                </Alert>
-              )}
-            </Box>
-
-            {/* Sales Statistics */}
-            <Box sx={{ gridColumn: { xs: 'span 1', md: 'span 4' } }}>
-              {(() => {
-                try {
-                  return (
-                    <Box sx={{ height: '100%' }}>
-                      <ChartSection title="Statistiques des ventes">
-                        <SimpleCharts />
-                      </ChartSection>
-                    </Box>
-                  );
-                } catch (error) {
-                  console.error('Erreur SimpleCharts:', error);
-                  return (
-                    <Alert severity="warning" sx={{ borderRadius: 2 }}>
-                      Impossible de charger les statistiques
-                    </Alert>
-                  );
-                }
-              })()}
-            </Box>
-          </Box>
-
-          {/* Quick Navigation Section */}
-          <Box sx={{ pt: 1 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-              <Typography
-                variant="h6"
-                sx={{
+                  bgcolor: isDark ? 'rgba(99,102,241,0.18)' : 'rgba(99,102,241,0.1)',
+                  color: isDark ? '#c4b5fd' : '#4f46e5',
+                  px: 1.2,
+                  py: 0.3,
+                  borderRadius: '12px',
                   fontWeight: 700,
-                  color: showBackground ? '#ffffff' : 'text.primary',
-                  fontSize: { xs: '1.1rem', sm: '1.25rem' },
+                  fontSize: '0.75rem',
+                  border: '1px solid rgba(99,102,241,0.25)',
                 }}
               >
-                Navigation rapide
-              </Typography>
-              <Typography variant="caption" sx={{ fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: showBackground ? 'rgba(255,255,255,0.75)' : 'text.secondary' }}>
-                Accès direct aux modules
+                {unEntreprise?.nom || 'Entreprise'} · {isOwner ? 'Propriétaire' : isManager ? 'Gérant' : 'Point de Vente (Vendeur)'}
               </Typography>
             </Box>
 
-            <Box
+            <Typography
+              variant="h4"
               sx={{
-                display: 'grid',
-                gridTemplateColumns: {
-                  xs: 'repeat(2, 1fr)',
-                  sm: 'repeat(2, 1fr)',
-                  md: 'repeat(3, 1fr)',
-                  lg: 'repeat(4, 1fr)',
-                },
-                gap: isMobile ? 2 : 2.5,
+                fontWeight: 900,
+                fontSize: { xs: '1.45rem', sm: '1.85rem', md: '2.1rem' },
+                color: isDark ? '#ffffff' : '#0f172a',
+                letterSpacing: '-0.02em',
+                lineHeight: 1.2,
               }}
             >
-              {(() => {
-                if (!getRestruction) return null;
+              Tableau de Bord
+            </Typography>
 
-                if (isAccessAllowed(getRestruction)) {
-                  return navigationCards.map((card, index) => (
-                    <Box key={index} className={isMobile ? `mobile-stagger-${(index % 6) + 1}` : ''}>
-                      <NavigationCard {...card} />
-                    </Box>
-                  ));
-                } else {
-                  return (
-                    <Box sx={{ gridColumn: '1 / -1' }}>
-                      <Alert
-                        severity="warning"
-                        sx={{
-                          bgcolor: 'rgba(234,179,8,0.1)',
-                          color: '#fde68a',
-                          border: '1px solid rgba(234,179,8,0.3)',
-                          borderRadius: '16px',
-                        }}
-                      >
-                        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-                          Accès restreint
-                        </Typography>
-                        <Typography variant="body2">
-                          Vous n'êtes pas autorisé à accéder à ces fonctionnalités en dehors de vos heures de travail.
-                          <br />
-                          Horaires : {getRestruction.hour_start} - {getRestruction.hour_end}
-                        </Typography>
-                      </Alert>
-                    </Box>
-                  );
-                }
-              })()}
-            </Box>
+            <Typography
+              variant="body2"
+              sx={{ color: isDark ? 'rgba(255,255,255,0.7)' : '#64748b', mt: 0.4, fontSize: { xs: '0.82rem', sm: '0.9rem' } }}
+            >
+              Vue globale des ventes, des niveaux de stock et de la rentabilité de votre établissement
+            </Typography>
           </Box>
 
-        </Stack>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => {
+                refetchSorties();
+                refetchStock();
+                refetchDepenses();
+              }}
+              sx={{
+                borderRadius: '12px',
+                textTransform: 'none',
+                fontWeight: 700,
+                fontSize: '0.78rem',
+                borderColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.15)',
+                color: isDark ? '#ffffff' : '#334155',
+                '&:hover': {
+                  borderColor: '#6366f1',
+                  bgcolor: 'rgba(99,102,241,0.1)',
+                },
+              }}
+            >
+              Actualiser
+            </Button>
+          </Box>
+        </Box>
+
+        {/* ── 1. Sélecteur de Période Global ── */}
+        <DashboardPeriodSelector
+          startDate={startDate}
+          endDate={endDate}
+          onChangeRange={(s, e) => {
+            setStartDate(s);
+            setEndDate(e);
+          }}
+        />
+
+        {/* ── 2. Accès Rapides (4 Boutons Majeurs) ── */}
+        <DashboardQuickActions
+          userRole={userRole}
+          isLicenceSimple={unEntreprise?.licence_type === 'Stock Simple'}
+        />
+
+        {/* ── 3. Bandes d'Indicateurs Clés (KPIs Ventes, Marge, Stock) ── */}
+        <DashboardKpis
+          sales={salesMetrics}
+          profitability={profitabilityMetrics}
+          stock={stockMetrics}
+          userRole={userRole}
+        />
+
+        {/* ── 4. Graphiques Majeurs : Tendance 12 mois + Top 10 Produits ── */}
+        <Grid container spacing={3} sx={{ mb: 3 }}>
+          <Grid item xs={12} lg={8}>
+            <DashboardTrendChart
+              data={monthlyTrendData}
+              canViewFinancials={canViewFinancials}
+            />
+          </Grid>
+          <Grid item xs={12} lg={4}>
+            <DashboardTopProducts products={topProducts} />
+          </Grid>
+        </Grid>
+
+        {/* ── 5. Deuxième rangée : Répartition des Ventes + Jour de Semaine ── */}
+        <Grid container spacing={3} sx={{ mb: 3 }}>
+          <Grid item xs={12} md={6}>
+            <DashboardSalesDistribution
+              paymentData={paymentDistribution}
+              categoryData={categoryDistribution}
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <DashboardDayOfWeekChart data={dayOfWeekData} />
+          </Grid>
+        </Grid>
+
+        {/* ── 6. Troisième rangée (Dépenses par famille + Vendeurs si rôle autorisé) ── */}
+        {canViewFinancials && (
+          <Grid container spacing={3} sx={{ mb: 3 }}>
+            <Grid item xs={12} md={isOwner ? 6 : 12}>
+              <DashboardExpensesCategory data={expensesCategoryData} />
+            </Grid>
+            {isOwner && (
+              <Grid item xs={12} md={6}>
+                <DashboardSellerPerformance sellers={sellerPerformance} />
+              </Grid>
+            )}
+          </Grid>
+        )}
+
+        {/* ── 7. Tableaux d'Action Directe (Alertes de Stock & Dernières Ventes) ── */}
+        <Grid container spacing={3}>
+          <Grid item xs={12} lg={6}>
+            <DashboardStockAlertsTable stockItems={entresEntreprise} />
+          </Grid>
+          <Grid item xs={12} lg={6}>
+            <DashboardRecentSalesTable sales={sortiesEntreprise} />
+          </Grid>
+        </Grid>
       </Container>
     </Box>
   );

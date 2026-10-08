@@ -1,43 +1,41 @@
+import React, { useMemo } from 'react';
 import {
   Alert,
   Box,
-  CircularProgress,
-  Container,
-  Grid,
-  Paper,
-  Typography,
   Button,
   TextField,
   Chip,
-  Card,
-  CardContent,
-  Divider,
+  Paper,
+  Typography,
+  Grid,
+  InputAdornment,
+  useTheme,
+  alpha,
   Fade,
   Zoom,
-  InputAdornment
+  Stack,
+  Skeleton
 } from '@mui/material';
+import { Link } from 'react-router-dom';
+
+import TrendingUpRoundedIcon from '@mui/icons-material/TrendingUpRounded';
+import TrendingDownRoundedIcon from '@mui/icons-material/TrendingDownRounded';
+import Inventory2RoundedIcon from '@mui/icons-material/Inventory2Rounded';
+import ShoppingCartRoundedIcon from '@mui/icons-material/ShoppingCartRounded';
+import CalendarTodayRoundedIcon from '@mui/icons-material/CalendarTodayRounded';
+import ClearRoundedIcon from '@mui/icons-material/ClearRounded';
+import AssessmentRoundedIcon from '@mui/icons-material/AssessmentRounded';
+import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
+import AccountBalanceWalletRoundedIcon from '@mui/icons-material/AccountBalanceWalletRounded';
+import ShoppingBagRoundedIcon from '@mui/icons-material/ShoppingBagRounded';
+import MonetizationOnRoundedIcon from '@mui/icons-material/MonetizationOnRounded';
+import MoveToInboxRoundedIcon from '@mui/icons-material/MoveToInboxRounded';
 
 import { useFetchEntreprise, useStockEntreprise } from '../../../../../usePerso/fonction.user';
 import { useGetAllEntre, useGetAllSortie } from '../../../../../usePerso/fonction.entre';
 import { useStoreUuid } from '../../../../../usePerso/store';
-import { Link } from 'react-router-dom';
-
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import InventoryIcon from '@mui/icons-material/Inventory';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import TrendingDownIcon from '@mui/icons-material/TrendingDown';
-import LocalAtmIcon from '@mui/icons-material/LocalAtm';
-import ClearIcon from '@mui/icons-material/Clear';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import AssessmentIcon from '@mui/icons-material/Assessment';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-
-import React, { useEffect, useState, useMemo } from 'react';
 import { RecupType } from '../../../../../typescript/DataType';
 import { formatNumberWithSpaces } from '../../../../../usePerso/fonctionPerso';
-
-import '../../mobile-admin.css';
-import { StatCard } from '../../../../../usePerso/useEntreprise';
 
 // ───────────────────────────────
 // Utils
@@ -56,7 +54,7 @@ const useCompanyStats = (uuid: string | null) => {
   const { entresEntreprise = [] } = useGetAllEntre(uuid!);
   const { unEntreprise } = useFetchEntreprise(uuid);
 
-  const [dateRange, setDateRange] = useState({ start: '', end: '' });
+  const [dateRange, setDateRange] = React.useState({ start: '', end: '' });
 
   const filteredSorties = useMemo(() => {
     return sortiesEntreprise.filter((item: RecupType) => {
@@ -90,6 +88,7 @@ const useCompanyStats = (uuid: string | null) => {
 
   const estimatedProfit = totalCA - totalExpenses;
   const isLoss = estimatedProfit < 0;
+  const marginPercent = totalCA > 0 ? ((estimatedProfit / totalCA) * 100).toFixed(1) : '0';
   const licenceExpired = unEntreprise ? isLicenceExpired(unEntreprise.licence_date_expiration) : false;
 
   return {
@@ -97,12 +96,12 @@ const useCompanyStats = (uuid: string | null) => {
     error: stockError,
     stockEntreprise,
     unEntreprise,
-    metrics: { totalCA, totalExpenses, estimatedProfit, isLoss },
+    metrics: { totalCA, totalExpenses, estimatedProfit, isLoss, marginPercent },
     filters: {
       start: dateRange.start,
       end: dateRange.end,
-      setStart: (date: string) => setDateRange(prev => ({ ...prev, start: date })),
-      setEnd: (date: string) => setDateRange(prev => ({ ...prev, end: date })),
+      setStart: (date: string) => setDateRange((prev) => ({ ...prev, start: date })),
+      setEnd: (date: string) => setDateRange((prev) => ({ ...prev, end: date })),
       clear: () => setDateRange({ start: '', end: '' }),
       isActive: !!(dateRange.start || dateRange.end)
     },
@@ -110,31 +109,77 @@ const useCompanyStats = (uuid: string | null) => {
   };
 };
 
-// ───────────────────────────────
-// Component
-// ───────────────────────────────
 export default function EtatProduit() {
+  const theme = useTheme();
   const uuid = useStoreUuid((state) => state.selectedId);
   const { loading, error, stockEntreprise, metrics, filters, licenceExpired } = useCompanyStats(uuid);
 
+  const handlePreset = (preset: 'today' | 'month' | 'year' | 'all') => {
+    const now = new Date();
+    if (preset === 'all') {
+      filters.clear();
+      return;
+    }
+    const end = now.toISOString().split('T')[0];
+    let start = '';
+    if (preset === 'today') {
+      start = end;
+    } else if (preset === 'month') {
+      const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+      start = firstDay.toISOString().split('T')[0];
+    } else if (preset === 'year') {
+      const firstDay = new Date(now.getFullYear(), 0, 1);
+      start = firstDay.toISOString().split('T')[0];
+    }
+    filters.setStart(start);
+    filters.setEnd(end);
+  };
+
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh', gap: 2 }}>
-        <CircularProgress size={48} thickness={4} sx={{ color: '#3b82f6' }} />
-        <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>Chargement des statistiques...</Typography>
+      <Box sx={{ py: 2 }}>
+        <Grid container spacing={2.5} sx={{ mb: 3 }}>
+          <Grid item xs={12} sm={4}>
+            <Skeleton variant="rounded" height={130} sx={{ borderRadius: '18px' }} />
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Skeleton variant="rounded" height={130} sx={{ borderRadius: '18px' }} />
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Skeleton variant="rounded" height={130} sx={{ borderRadius: '18px' }} />
+          </Grid>
+        </Grid>
+        <Grid container spacing={2}>
+          <Grid item xs={6} md={3}>
+            <Skeleton variant="rounded" height={120} sx={{ borderRadius: '16px' }} />
+          </Grid>
+          <Grid item xs={6} md={3}>
+            <Skeleton variant="rounded" height={120} sx={{ borderRadius: '16px' }} />
+          </Grid>
+          <Grid item xs={6} md={3}>
+            <Skeleton variant="rounded" height={120} sx={{ borderRadius: '16px' }} />
+          </Grid>
+          <Grid item xs={6} md={3}>
+            <Skeleton variant="rounded" height={120} sx={{ borderRadius: '16px' }} />
+          </Grid>
+        </Grid>
       </Box>
     );
   }
 
   if (error || !stockEntreprise) {
     return (
-      <Box sx={{ p: 3 }}>
-        <Alert 
-          severity="error" 
-          sx={{ borderRadius: '12px' }}
-          action={<Button color="inherit" size="small" onClick={() => window.location.reload()}>Réessayer</Button>}
+      <Box sx={{ py: 3 }}>
+        <Alert
+          severity="error"
+          sx={{ borderRadius: '16px' }}
+          action={
+            <Button color="inherit" size="small" onClick={() => window.location.reload()} sx={{ fontWeight: 600 }}>
+              Réessayer
+            </Button>
+          }
         >
-          Problème de connexion. Veuillez rafraîchir la page.
+          Problème de connexion lors de la récupération des statistiques de stock.
         </Alert>
       </Box>
     );
@@ -143,103 +188,144 @@ export default function EtatProduit() {
   const statsCards = [
     {
       title: 'Quantités sorties',
+      subtitle: 'Volume total débité',
       value: stockEntreprise.somme_sortie_qte,
-      icon: <TrendingDownIcon />,
-      color: '#ef4444',
-      bg: 'linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)',
-      border: 'rgba(239, 68, 68, 0.2)',
-      iconBg: 'rgba(239, 68, 68, 0.1)',
+      icon: <TrendingDownRoundedIcon />,
+      color: theme.palette.error.main,
+      bg: alpha(theme.palette.error.main, 0.08),
+      border: alpha(theme.palette.error.main, 0.22),
     },
     {
       title: 'Quantités en stock',
+      subtitle: 'Volume total réceptionné',
       value: stockEntreprise.somme_entrer_qte,
-      icon: <InventoryIcon />,
-      color: '#10b981',
-      bg: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
-      border: 'rgba(16, 185, 129, 0.2)',
-      iconBg: 'rgba(16, 185, 129, 0.1)',
+      icon: <Inventory2RoundedIcon />,
+      color: theme.palette.success.main,
+      bg: alpha(theme.palette.success.main, 0.08),
+      border: alpha(theme.palette.success.main, 0.22),
     },
     {
       title: 'Sorties effectuées',
+      subtitle: 'Transactions de vente',
       value: stockEntreprise.nombre_sortie,
-      icon: <ShoppingCartIcon />,
-      color: '#3b82f6',
-      bg: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
-      border: 'rgba(59, 130, 246, 0.2)',
-      iconBg: 'rgba(59, 130, 246, 0.1)',
+      icon: <ShoppingCartRoundedIcon />,
+      color: theme.palette.primary.main,
+      bg: alpha(theme.palette.primary.main, 0.08),
+      border: alpha(theme.palette.primary.main, 0.22),
       link: '/sortie'
     },
     {
       title: 'Entrées effectuées',
+      subtitle: 'Opérations de réappro.',
       value: stockEntreprise.nombre_entrer,
-      icon: <TrendingUpIcon />,
+      icon: <MoveToInboxRoundedIcon />,
       color: '#06b6d4',
-      bg: 'linear-gradient(135deg, #ecfeff 0%, #cffafe 100%)',
-      border: 'rgba(6, 182, 212, 0.2)',
-      iconBg: 'rgba(6, 182, 212, 0.1)',
+      bg: alpha('#06b6d4', 0.08),
+      border: alpha('#06b6d4', 0.22),
       link: '/entre'
     }
   ];
 
   return (
-    <Container maxWidth="lg" sx={{ py: 3 }}>
-      
-      {/* Header */}
-      <Fade in timeout={400}>
-        <Box sx={{ mb: 4, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: 2 }}>
+    <Box sx={{ width: '100%' }}>
+      {/* Header section */}
+      <Fade in timeout={300}>
+        <Box sx={{ mb: 3, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Box sx={{ bgcolor: 'rgba(59, 130, 246, 0.1)', p: 1.25, borderRadius: '12px', color: '#3b82f6' }}>
-              <AssessmentIcon />
+            <Box
+              sx={{
+                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                p: 1.25,
+                borderRadius: '14px',
+                color: theme.palette.primary.main,
+                display: 'flex'
+              }}
+            >
+              <AssessmentRoundedIcon fontSize="medium" />
             </Box>
             <Box>
-              <Typography 
-              variant="h5" 
-              sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}
-              >
-                Statistiques
+              <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: '-0.02em', color: 'text.primary' }}>
+                Performance & Flux de Stock
               </Typography>
-              <Typography variant="caption" className="text-gray-300">
-                Vue d'ensemble et indicateurs de performance
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                Indicateurs financiers et suivi des flux d'entrées et de sorties
               </Typography>
             </Box>
           </Box>
         </Box>
       </Fade>
 
-      {/* Date Filters */}
-      <Fade in timeout={500}>
+      {/* Date Filter Bar & Presets */}
+      <Fade in timeout={400}>
         <Paper
           elevation={0}
           sx={{
             p: 2.5,
-            mb: 4,
-            borderRadius: '16px',
-            border: '1px solid #e2e8f0',
-            boxShadow: '0 4px 16px rgba(0,0,0,0.04)'
+            mb: 3.5,
+            borderRadius: '20px',
+            border: `1px solid ${theme.palette.divider}`,
+            backdropFilter: 'blur(8px)',
+            background: theme.palette.mode === 'dark'
+              ? alpha(theme.palette.background.paper, 0.6)
+              : alpha(theme.palette.background.paper, 0.9),
+            boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-            <CalendarTodayIcon sx={{ color: '#3b82f6', fontSize: 20 }} />
-            <Typography 
-            variant="subtitle2" 
-            sx={{ fontWeight: 700 }}
-            >
-              Période d'analyse
-            </Typography>
-            {filters.isActive && (
-              <Chip 
-                label="Filtre actif" 
-                size="small" 
-                sx={{ 
-                  ml: 0.5, 
-                  bgcolor: 'rgba(59, 130, 246, 0.1)', 
-                  color: '#2563eb', 
-                  fontWeight: 700,
-                  fontSize: '0.7rem',
-                  height: 22
-                }} 
+          {/* Top row: presets and active status */}
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1.5, mb: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <CalendarTodayRoundedIcon sx={{ color: theme.palette.primary.main, fontSize: 18 }} />
+              <Typography variant="subtitle2" sx={{ fontWeight: 700, color: 'text.primary' }}>
+                Période d'analyse :
+              </Typography>
+              {filters.isActive && (
+                <Chip
+                  label="Filtre personnalisé actif"
+                  size="small"
+                  sx={{
+                    bgcolor: alpha(theme.palette.primary.main, 0.1),
+                    color: theme.palette.primary.main,
+                    fontWeight: 700,
+                    fontSize: '0.7rem',
+                    height: 22,
+                    border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`
+                  }}
+                />
+              )}
+            </Box>
+
+            {/* Quick Presets */}
+            <Stack direction="row" spacing={1} flexWrap="wrap">
+              <Chip
+                label="Tout"
+                size="small"
+                onClick={() => handlePreset('all')}
+                variant={!filters.isActive ? 'filled' : 'outlined'}
+                color={!filters.isActive ? 'primary' : 'default'}
+                sx={{ fontWeight: 600, cursor: 'pointer', borderRadius: '8px' }}
               />
-            )}
+              <Chip
+                label="Aujourd'hui"
+                size="small"
+                onClick={() => handlePreset('today')}
+                variant="outlined"
+                sx={{ fontWeight: 600, cursor: 'pointer', borderRadius: '8px' }}
+              />
+              <Chip
+                label="Ce mois"
+                size="small"
+                onClick={() => handlePreset('month')}
+                variant="outlined"
+                sx={{ fontWeight: 600, cursor: 'pointer', borderRadius: '8px' }}
+              />
+              <Chip
+                label="Cette année"
+                size="small"
+                onClick={() => handlePreset('year')}
+                variant="outlined"
+                sx={{ fontWeight: 600, cursor: 'pointer', borderRadius: '8px' }}
+              />
+            </Stack>
           </Box>
 
           <Grid container spacing={2} alignItems="center">
@@ -255,17 +341,13 @@ export default function EtatProduit() {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <CalendarTodayIcon sx={{ fontSize: 18, color: '#94a3b8' }} />
+                      <CalendarTodayRoundedIcon sx={{ fontSize: 17, color: 'text.secondary' }} />
                     </InputAdornment>
                   )
                 }}
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    borderRadius: '10px',
-                    // bgcolor: '#f8fafc',
-                    '& fieldset': { borderColor: '#cbd5e1' },
-                    '&:hover fieldset': { borderColor: '#94a3b8' },
-                    '&.Mui-focused fieldset': { borderColor: '#3b82f6' }
+                    borderRadius: '12px'
                   }
                 }}
               />
@@ -282,17 +364,13 @@ export default function EtatProduit() {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <CalendarTodayIcon sx={{ fontSize: 18, color: '#94a3b8' }} />
+                      <CalendarTodayRoundedIcon sx={{ fontSize: 17, color: 'text.secondary' }} />
                     </InputAdornment>
                   )
                 }}
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    borderRadius: '10px',
-                    // bgcolor: '#f8fafc',
-                    '& fieldset': { borderColor: '#cbd5e1' },
-                    '&:hover fieldset': { borderColor: '#94a3b8' },
-                    '&.Mui-focused fieldset': { borderColor: '#3b82f6' }
+                    borderRadius: '12px'
                   }
                 }}
               />
@@ -301,17 +379,20 @@ export default function EtatProduit() {
               <Button
                 fullWidth
                 variant="outlined"
-                startIcon={<ClearIcon />}
+                startIcon={<ClearRoundedIcon />}
                 onClick={filters.clear}
                 disabled={!filters.isActive}
                 sx={{
-                  borderRadius: '10px',
+                  borderRadius: '12px',
                   textTransform: 'none',
                   fontWeight: 600,
-                  color: '#ef4444',
-                  borderColor: '#fca5a5',
-                  '&:hover': { borderColor: '#ef4444', bgcolor: 'rgba(239, 68, 68, 0.04)' },
-                  '&.Mui-disabled': { borderColor: '#e2e8f0' }
+                  height: 40,
+                  color: theme.palette.error.main,
+                  borderColor: alpha(theme.palette.error.main, 0.4),
+                  '&:hover': {
+                    borderColor: theme.palette.error.main,
+                    bgcolor: alpha(theme.palette.error.main, 0.06)
+                  }
                 }}
               >
                 Effacer
@@ -321,109 +402,172 @@ export default function EtatProduit() {
         </Paper>
       </Fade>
 
-      {/* Financial Metrics */}
-      <Fade in timeout={600}>
-        <Grid container spacing={2.5} sx={{ mb: 4 }}>
+      {/* Financial Metrics Ribbon (3 High-Impact Cards) */}
+      <Fade in timeout={500}>
+        <Grid container spacing={2.5} sx={{ mb: 3.5 }}>
           {/* Chiffre d'Affaires */}
           <Grid item xs={12} sm={4}>
             <Paper
               elevation={0}
               sx={{
-                p: 2.5,
-                borderRadius: '16px',
-                background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
-                border: '1px solid rgba(59, 130, 246, 0.2)',
-                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                '&:hover': { transform: 'translateY(-3px)', boxShadow: '0 12px 24px -10px rgba(59, 130, 246, 0.3)' }
-              }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-                <Box>
-                  <Typography variant="caption" sx={{ color: '#1d4ed8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                    Chiffre d'Affaires
-                  </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: 800, color: '#1e3a8a', mt: 0.5, fontFamily: 'monospace' }}>
-                    {formatNumberWithSpaces(metrics.totalCA)} F
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: '#3b82f6', mt: 0.5, display: 'block' }}>
-                    Total des ventes (hors remises)
-                  </Typography>
-                </Box>
-                <Box sx={{ bgcolor: '#ffffff', p: 1.25, borderRadius: '12px', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.15)', color: '#2563eb' }}>
-                  <LocalAtmIcon />
-                </Box>
-              </Box>
-            </Paper>
-          </Grid>
-
-          {/* Prix d'Achats */}
-          <Grid item xs={12} sm={4}>
-            <Paper
-              elevation={0}
-              sx={{
-                p: 2.5,
-                borderRadius: '16px',
-                background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
-                border: '1px solid rgba(245, 158, 11, 0.3)',
-                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                '&:hover': { transform: 'translateY(-3px)', boxShadow: '0 12px 24px -10px rgba(245, 158, 11, 0.3)' }
-              }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-                <Box>
-                  <Typography variant="caption" sx={{ color: '#92400e', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                    Prix d'achats
-                  </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: 800, color: '#78350f', mt: 0.5, fontFamily: 'monospace' }}>
-                    {formatNumberWithSpaces(metrics.totalExpenses)} F
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: '#b45309', mt: 0.5, display: 'block' }}>
-                    Total des sommes des prix d'achats
-                  </Typography>
-                </Box>
-                <Box sx={{ bgcolor: '#ffffff', p: 1.25, borderRadius: '12px', boxShadow: '0 4px 12px rgba(245, 158, 11, 0.2)', color: '#d97706' }}>
-                  <LocalAtmIcon />
-                </Box>
-              </Box>
-            </Paper>
-          </Grid>
-
-          {/* Bénéfice / Perte */}
-          <Grid item xs={12} sm={4}>
-            <Paper
-              elevation={0}
-              sx={{
-                p: 2.5,
-                borderRadius: '16px',
-                background: metrics.isLoss
-                  ? 'linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)'
-                  : 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
-                border: metrics.isLoss
-                  ? '1px solid rgba(239, 68, 68, 0.2)'
-                  : '1px solid rgba(16, 185, 129, 0.2)',
-                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                '&:hover': { 
-                  transform: 'translateY(-3px)', 
-                  boxShadow: metrics.isLoss 
-                    ? '0 12px 24px -10px rgba(239, 68, 68, 0.3)'
-                    : '0 12px 24px -10px rgba(16, 185, 129, 0.3)' 
+                p: 2.8,
+                borderRadius: '20px',
+                background: theme.palette.mode === 'dark'
+                  ? `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.15)} 0%, ${alpha(theme.palette.background.paper, 0.7)} 100%)`
+                  : `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.08)} 0%, #ffffff 100%)`,
+                border: `1px solid ${alpha(theme.palette.primary.main, 0.25)}`,
+                borderLeft: `5px solid ${theme.palette.primary.main}`,
+                transition: 'all 0.25s ease',
+                '&:hover': {
+                  transform: 'translateY(-3px)',
+                  boxShadow: `0 12px 28px -10px ${alpha(theme.palette.primary.main, 0.3)}`
                 }
               }}
             >
               <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                 <Box>
-                  <Typography variant="caption" sx={{ color: metrics.isLoss ? '#991b1b' : '#065f46', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                    {metrics.isLoss ? 'Perte estimée' : 'Bénéfice estimé'}
+                  <Typography variant="caption" sx={{ color: theme.palette.primary.main, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.6 }}>
+                    Chiffre d'Affaires Brut
                   </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: 800, color: metrics.isLoss ? '#7f1d1d' : '#14532d', mt: 0.5, fontFamily: 'monospace' }}>
-                    {formatNumberWithSpaces(Math.abs(metrics.estimatedProfit))} F
+                  <Typography variant="h5" sx={{ fontWeight: 800, color: 'text.primary', mt: 0.8, fontFamily: 'monospace' }}>
+                    {formatNumberWithSpaces(metrics.totalCA)} <Box component="span" sx={{ fontSize: '0.85rem', fontWeight: 600 }}>F</Box>
                   </Typography>
-                  <Typography variant="caption" sx={{ color: metrics.isLoss ? '#dc2626' : '#15803d', mt: 0.5, display: 'block' }}>
-                    {metrics.isLoss ? 'La société est en perte' : 'La société est en profit'}
+                  <Typography variant="caption" sx={{ color: 'text.secondary', mt: 0.6, display: 'block' }}>
+                    Ventes enregistrées (hors remises)
                   </Typography>
                 </Box>
-                <Box sx={{ bgcolor: '#ffffff', p: 1.25, borderRadius: '12px', boxShadow: metrics.isLoss ? '0 4px 12px rgba(239, 68, 68, 0.15)' : '0 4px 12px rgba(16, 185, 129, 0.15)', color: metrics.isLoss ? '#ef4444' : '#10b981' }}>
-                  {metrics.isLoss ? <TrendingDownIcon /> : <TrendingUpIcon />}
+                <Box
+                  sx={{
+                    bgcolor: alpha(theme.palette.primary.main, 0.12),
+                    p: 1.25,
+                    borderRadius: '14px',
+                    color: theme.palette.primary.main,
+                    display: 'flex'
+                  }}
+                >
+                  <AccountBalanceWalletRoundedIcon />
+                </Box>
+              </Box>
+            </Paper>
+          </Grid>
+
+          {/* Coût d'Achats */}
+          <Grid item xs={12} sm={4}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: 2.8,
+                borderRadius: '20px',
+                background: theme.palette.mode === 'dark'
+                  ? `linear-gradient(135deg, ${alpha('#f59e0b', 0.15)} 0%, ${alpha(theme.palette.background.paper, 0.7)} 100%)`
+                  : `linear-gradient(135deg, ${alpha('#f59e0b', 0.08)} 0%, #ffffff 100%)`,
+                border: `1px solid ${alpha('#f59e0b', 0.25)}`,
+                borderLeft: '5px solid #f59e0b',
+                transition: 'all 0.25s ease',
+                '&:hover': {
+                  transform: 'translateY(-3px)',
+                  boxShadow: `0 12px 28px -10px ${alpha('#f59e0b', 0.3)}`
+                }
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                <Box>
+                  <Typography variant="caption" sx={{ color: '#d97706', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.6 }}>
+                    Coût des Marchandises (Achats)
+                  </Typography>
+                  <Typography variant="h5" sx={{ fontWeight: 800, color: 'text.primary', mt: 0.8, fontFamily: 'monospace' }}>
+                    {formatNumberWithSpaces(metrics.totalExpenses)} <Box component="span" sx={{ fontSize: '0.85rem', fontWeight: 600 }}>F</Box>
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: 'text.secondary', mt: 0.6, display: 'block' }}>
+                    Cumul des approvisionnements
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    bgcolor: alpha('#f59e0b', 0.12),
+                    p: 1.25,
+                    borderRadius: '14px',
+                    color: '#d97706',
+                    display: 'flex'
+                  }}
+                >
+                  <ShoppingBagRoundedIcon />
+                </Box>
+              </Box>
+            </Paper>
+          </Grid>
+
+          {/* Bénéfice Estimé & Marge */}
+          <Grid item xs={12} sm={4}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: 2.8,
+                borderRadius: '20px',
+                background: metrics.isLoss
+                  ? theme.palette.mode === 'dark'
+                    ? `linear-gradient(135deg, ${alpha(theme.palette.error.main, 0.16)} 0%, ${alpha(theme.palette.background.paper, 0.7)} 100%)`
+                    : `linear-gradient(135deg, ${alpha(theme.palette.error.main, 0.08)} 0%, #ffffff 100%)`
+                  : theme.palette.mode === 'dark'
+                    ? `linear-gradient(135deg, ${alpha(theme.palette.success.main, 0.16)} 0%, ${alpha(theme.palette.background.paper, 0.7)} 100%)`
+                    : `linear-gradient(135deg, ${alpha(theme.palette.success.main, 0.08)} 0%, #ffffff 100%)`,
+                border: `1px solid ${metrics.isLoss ? alpha(theme.palette.error.main, 0.25) : alpha(theme.palette.success.main, 0.25)}`,
+                borderLeft: `5px solid ${metrics.isLoss ? theme.palette.error.main : theme.palette.success.main}`,
+                transition: 'all 0.25s ease',
+                '&:hover': {
+                  transform: 'translateY(-3px)',
+                  boxShadow: metrics.isLoss
+                    ? `0 12px 28px -10px ${alpha(theme.palette.error.main, 0.3)}`
+                    : `0 12px 28px -10px ${alpha(theme.palette.success.main, 0.3)}`
+                }
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                <Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: metrics.isLoss ? theme.palette.error.main : theme.palette.success.main,
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        letterSpacing: 0.6
+                      }}
+                    >
+                      {metrics.isLoss ? 'Perte estimée' : 'Bénéfice estimé'}
+                    </Typography>
+                    {metrics.totalCA > 0 && (
+                      <Chip
+                        label={`${metrics.isLoss ? '' : '+'}${metrics.marginPercent}%`}
+                        size="small"
+                        sx={{
+                          height: 18,
+                          fontSize: '0.65rem',
+                          fontWeight: 700,
+                          bgcolor: metrics.isLoss ? alpha(theme.palette.error.main, 0.15) : alpha(theme.palette.success.main, 0.15),
+                          color: metrics.isLoss ? theme.palette.error.main : theme.palette.success.main,
+                          borderRadius: '6px'
+                        }}
+                      />
+                    )}
+                  </Box>
+                  <Typography variant="h5" sx={{ fontWeight: 800, color: 'text.primary', mt: 0.8, fontFamily: 'monospace' }}>
+                    {formatNumberWithSpaces(Math.abs(metrics.estimatedProfit))} <Box component="span" sx={{ fontSize: '0.85rem', fontWeight: 600 }}>F</Box>
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: 'text.secondary', mt: 0.6, display: 'block' }}>
+                    {metrics.isLoss ? 'Solde négatif sur la période' : 'Marge commerciale brute estimée'}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    bgcolor: metrics.isLoss ? alpha(theme.palette.error.main, 0.12) : alpha(theme.palette.success.main, 0.12),
+                    p: 1.25,
+                    borderRadius: '14px',
+                    color: metrics.isLoss ? theme.palette.error.main : theme.palette.success.main,
+                    display: 'flex'
+                  }}
+                >
+                  {metrics.isLoss ? <TrendingDownRoundedIcon /> : <MonetizationOnRoundedIcon />}
                 </Box>
               </Box>
             </Paper>
@@ -431,40 +575,64 @@ export default function EtatProduit() {
         </Grid>
       </Fade>
 
-      {/* Activity Stats Grid */}
-      <Grid container spacing={2}>
+      {/* Stock Flow Telemetry (4 Interactive KPI Cards) */}
+      <Grid container spacing={2.5}>
         {statsCards.map((stat, index) => (
-          <Grid item xs={6} sm={6} md={3} key={index}>
-            <Zoom in timeout={600 + index * 100}>
+          <Grid item xs={12} sm={6} md={3} key={index}>
+            <Zoom in timeout={400 + index * 100}>
               <Paper
                 elevation={0}
-                component={stat.link && !licenceExpired ? Link as any : 'div'}
+                component={stat.link && !licenceExpired ? (Link as any) : 'div'}
                 to={stat.link || ''}
                 sx={{
                   p: 2.5,
-                  borderRadius: '16px',
+                  borderRadius: '20px',
                   background: stat.bg,
                   border: `1px solid ${stat.border}`,
                   textDecoration: 'none',
-                  display: 'block',
-                  transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 1.5,
+                  transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
                   cursor: stat.link && !licenceExpired ? 'pointer' : 'default',
-                  opacity: licenceExpired ? 0.6 : 1,
+                  opacity: licenceExpired ? 0.65 : 1,
                   '&:hover': stat.link && !licenceExpired ? {
                     transform: 'translateY(-4px)',
-                    boxShadow: `0 12px 24px -8px ${stat.color}40`,
+                    boxShadow: `0 12px 24px -8px ${stat.color}50`,
+                    borderColor: stat.color
                   } : {}
                 }}
               >
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'center', sm: 'flex-start' }, gap: 1 }}>
-                  <Box sx={{ bgcolor: stat.iconBg, p: 1, borderRadius: '10px', color: stat.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    {React.cloneElement(stat.icon as React.ReactElement, { sx: { fontSize: { xs: 22, sm: 26 } } })}
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Box
+                    sx={{
+                      bgcolor: alpha(stat.color, 0.15),
+                      p: 1.1,
+                      borderRadius: '12px',
+                      color: stat.color,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    {React.cloneElement(stat.icon as React.ReactElement, { sx: { fontSize: 24 } })}
                   </Box>
-                  <Typography variant="caption" sx={{ color: stat.color, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, textAlign: { xs: 'center', sm: 'left' }, fontSize: '0.7rem' }}>
+                  {stat.link && !licenceExpired && (
+                    <Typography variant="caption" sx={{ color: stat.color, fontWeight: 700, fontSize: '0.72rem' }}>
+                      Voir liste →
+                    </Typography>
+                  )}
+                </Box>
+
+                <Box>
+                  <Typography variant="caption" sx={{ color: stat.color, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, fontSize: '0.7rem' }}>
                     {stat.title}
                   </Typography>
-                  <Typography variant="h4" sx={{ fontWeight: 800, color: '#0f172a', textAlign: { xs: 'center', sm: 'left' }, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
-                    {stat.value?.toLocaleString() ?? 0}
+                  <Typography variant="h4" sx={{ fontWeight: 800, color: 'text.primary', mt: 0.3, letterSpacing: '-0.02em' }}>
+                    {formatNumberWithSpaces(stat.value ?? 0)}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 0.3 }}>
+                    {stat.subtitle}
                   </Typography>
                 </Box>
               </Paper>
@@ -473,34 +641,35 @@ export default function EtatProduit() {
         ))}
       </Grid>
 
-      {/* Licence Expirée */}
+      {/* Licence Expirée Alert */}
       {licenceExpired && (
-        <Fade in timeout={800}>
+        <Fade in timeout={700}>
           <Paper
             elevation={0}
             sx={{
               mt: 4,
               p: 3,
-              borderRadius: '16px',
-              bgcolor: 'rgba(251, 191, 36, 0.08)',
-              border: '1px solid rgba(251, 191, 36, 0.3)',
+              borderRadius: '20px',
+              bgcolor: alpha(theme.palette.warning.main, 0.08),
+              border: `1px solid ${alpha(theme.palette.warning.main, 0.3)}`,
               display: 'flex',
               alignItems: 'flex-start',
               gap: 2
             }}
           >
-            <WarningAmberIcon sx={{ color: '#f59e0b', mt: 0.25 }} />
+            <WarningAmberRoundedIcon sx={{ color: theme.palette.warning.main, mt: 0.25, fontSize: 28 }} />
             <Box>
-              <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#92400e', mb: 0.5 }}>
-                Licence expirée
+              <Typography variant="subtitle1" sx={{ fontWeight: 800, color: theme.palette.warning.main, mb: 0.5 }}>
+                Licence de gestion expirée
               </Typography>
-              <Typography variant="body2" sx={{ color: '#78350f' }}>
-                Certaines fonctionnalités sont désactivées. Veuillez renouveler votre licence pour continuer à utiliser toutes les fonctionnalités.
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                Certaines opérations et accès directs aux formulaires de saisie sont restreints. Veuillez renouveler votre abonnement dans l'onglet <strong>Paramètres</strong> pour débloquer l'ensemble des modules.
               </Typography>
             </Box>
           </Paper>
         </Fade>
       )}
-    </Container>
+    </Box>
   );
 }
+

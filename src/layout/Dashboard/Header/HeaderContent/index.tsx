@@ -1,7 +1,6 @@
 import Box from '@mui/material/Box';
 
 // project import
-import Search from './Search';
 import Notification from './Notification';
 import Profile from './Profile';
 import { useStoreUuid } from '../../../../usePerso/store';
@@ -17,14 +16,11 @@ export default function HeaderContent() {
         display: 'flex', 
         alignItems: 'center', 
         width: '100%', 
-        justifyContent: 'space-between', 
+        justifyContent: 'flex-end', 
         ml: { xs: 0.5, sm: 2 },
         minWidth: 0
       }}
     >
-      <Box sx={{ flex: 1, minWidth: 0, mr: { xs: 1, sm: 2 } }}>
-        <Search />
-      </Box>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 }, ml: 'auto', flexShrink: 0 }}>
         {uuid && <Notification />}
         <Profile />
@@ -32,3 +28,4 @@ export default function HeaderContent() {
     </Box>
   );
 }
+

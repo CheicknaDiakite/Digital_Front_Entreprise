@@ -4,7 +4,6 @@ import {
   Box,
   Card,
   CardContent,
-  CardHeader,
   useTheme,
   CircularProgress,
   Alert,
@@ -38,22 +37,18 @@ export default function SimpleCharts() {
 
   if (stockEntreprise?.details_sortie_par_mois) {
     const monthlyData = stockEntreprise.details_sortie_par_mois as unknown as Record<string, { somme_qte: number; somme_prix_total: string; }>;
-    const chartData = Object.entries(monthlyData).map(([month, data]) => ({
-      month: new Date(month).toLocaleString('default', { month: 'short', year: '2-digit' }),
-      value: data.somme_qte || 0,
-    }));
-
-    // Trier les données par date réelle
-    chartData.sort((a, b) => {
-      // On retransforme en date complète pour trier
-      const monthNames = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
-      const parseMonth = (m: string) => {
-        const [mois, annee] = m.split(' ');
-        const monthIndex = monthNames.indexOf(mois);
-        return new Date(2000 + parseInt(annee, 10), monthIndex);
-      };
-      return parseMonth(a.month).getTime() - parseMonth(b.month).getTime();
-    });
+    const chartData = Object.entries(monthlyData)
+      .map(([month, data]) => {
+        const d = new Date(month);
+        return {
+          rawDate: isNaN(d.getTime()) ? 0 : d.getTime(),
+          month: isNaN(d.getTime())
+            ? month
+            : d.toLocaleDateString('fr-FR', { month: 'short', year: '2-digit' }),
+          value: data.somme_qte || 0,
+        };
+      })
+      .sort((a, b) => a.rawDate - b.rawDate);
 
     // Prendre les 12 derniers mois (ou 6 sur mobile)
     const last12Months = chartData.slice(isMobile ? -6 : -12);

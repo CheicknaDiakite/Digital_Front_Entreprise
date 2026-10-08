@@ -18,7 +18,7 @@ import { BASE } from '../../_services/caller.service';
 // import { connect } from '../../_services/account.service';
 import { useFetchUser } from '../../usePerso/fonction.user';
 import { RecupType } from '../../typescript/DataType';
-import { Paper, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Stack, IconButton, Box, Modal, Typography, TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Checkbox, FormControlLabel } from '@mui/material';
+import { Paper, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Stack, IconButton, Box, Modal, Typography, TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Checkbox, FormControlLabel, useTheme } from '@mui/material';
 import { useCreateFacSortie } from '../../usePerso/fonction.facture';
 import CloseIcon from '@mui/icons-material/Close';
 import html2pdf from 'html2pdf.js';
@@ -27,19 +27,23 @@ import { useUpdateSortie } from '../../usePerso/fonction.entre';
 import { formatNumberWithSpaces } from '../../usePerso/fonctionPerso';
 import { useStoreUuid } from '../../usePerso/store';
 import { useFetchEntreprise } from '../../usePerso/fonction.user';
+import { useAppSettings } from '../../themes/AppSettingsContext';
 
-const style = {
-  position: 'absolute',
+const getModalBoxStyle = (isDark: boolean, maxWidth: string = '540px') => ({
+  position: 'absolute' as const,
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: '90%',
-  maxWidth: '600px',
-  bgcolor: 'background.paper',
-  borderRadius: '8px',
-  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
-  p: 4,
-};
+  width: '92%',
+  maxWidth,
+  backgroundColor: isDark ? 'rgba(15, 23, 42, 0.95)' : '#ffffff',
+  backdropFilter: 'blur(20px)',
+  border: isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.08)',
+  borderRadius: '20px',
+  boxShadow: isDark ? '0 16px 40px rgba(0, 0, 0, 0.6)' : '0 12px 36px rgba(0, 0, 0, 0.15)',
+  p: { xs: 2.5, sm: 3.5 },
+  color: isDark ? '#f8fafc' : '#0f172a',
+});
 
 export type TypeText = {
   clientName: string,
@@ -65,6 +69,10 @@ interface ChildModalProps {
 }
 
 function ChildModal({ discountAmount, clientName, clientId, numeroFac, total, amountPaid, isRemise }: ChildModalProps) {
+  const theme = useTheme();
+  const { showBackground } = useAppSettings();
+  const isDark = theme.palette.mode === 'dark' || showBackground;
+
   const reset = useStoreCart(state => state.reset)
   const { updateSortie } = useUpdateSortie()
   const entreprise_uuid = useStoreUuid((state) => state.selectedId);
@@ -130,16 +138,16 @@ function ChildModal({ discountAmount, clientName, clientId, numeroFac, total, am
         aria-labelledby="child-modal-title"
         aria-describedby="child-modal-description"
       >
-        <Box sx={{ ...style, width: 300, borderRadius: '16px' }}>
-          <Typography id="child-modal-title" variant="h6" component="h2" gutterBottom>
+        <Box sx={getModalBoxStyle(isDark, '360px')}>
+          <Typography id="child-modal-title" variant="h6" component="h2" sx={{ fontWeight: 700, mb: 1, color: isDark ? '#f8fafc' : '#0f172a' }}>
             Confirmer la remise
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          <Typography variant="body2" sx={{ color: isDark ? '#94a3b8' : '#64748b', mb: 3 }}>
             Voulez-vous vraiment confirmer cette remise et générer la facture ?
           </Typography>
           <div className="flex justify-end space-x-2">
-            <Button onClick={handleClose} color="inherit">Non</Button>
-            <Button onClick={handleConfirm} variant="contained" color="primary">Oui</Button>
+            <Button onClick={handleClose} sx={{ borderRadius: '10px', textTransform: 'none', color: isDark ? '#cbd5e1' : '#64748b' }}>Annuler</Button>
+            <Button onClick={handleConfirm} variant="contained" color="primary" sx={{ borderRadius: '10px', textTransform: 'none', fontWeight: 600 }}>Oui, valider</Button>
           </div>
         </Box>
       </Modal>
@@ -148,6 +156,10 @@ function ChildModal({ discountAmount, clientName, clientId, numeroFac, total, am
 }
 
 export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate, numeroFac, post, discountedTotal, payerTotal, modePaiement }: RecupType | any) {
+  const theme = useTheme();
+  const { showBackground } = useAppSettings();
+  const isDark = theme.palette.mode === 'dark' || showBackground;
+
   // let url = BASE(post.image);
 
   const url = post.image ? BASE(post.image) : post.image;
@@ -419,10 +431,20 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
   }, [amount, price, quantity, setAmount]);
 
   return (
-    <div className="min-h-screen py-4 sm:py-8">
-      <div className="max-w-full sm:max-w-[1200px] mx-auto px-2 sm:px-4">
-        <Paper elevation={0} className="rounded-lg overflow-hidden">
-          <div className="p-2 sm:p-6">
+    <Box sx={{ width: '100%', py: { xs: 1.5, sm: 3 } }}>
+      <Box sx={{ maxWidth: '1200px', mx: 'auto', px: { xs: 1, sm: 2 } }}>
+        <Paper
+          elevation={0}
+          sx={{
+            borderRadius: '20px',
+            overflow: 'hidden',
+            backgroundColor: isDark ? 'rgba(15, 23, 42, 0.65)' : 'rgba(255, 255, 255, 0.9)',
+            backdropFilter: 'blur(16px)',
+            border: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(226, 232, 240, 0.8)',
+            p: { xs: 1.5, sm: 3 },
+          }}
+        >
+          <div>
 
             {/* ── Barre d'actions glassmorphique ── */}
             <div style={{
@@ -601,10 +623,10 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
               gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
               gap: 16,
               padding: '20px',
-              borderRadius: '14px',
-              background: 'rgba(99,102,241,0.04)',
-              border: '1px solid rgba(99,102,241,0.12)',
-              marginBottom: '16px',
+              borderRadius: '16px',
+              background: isDark ? 'rgba(99,102,241,0.08)' : 'rgba(99,102,241,0.04)',
+              border: isDark ? '1px solid rgba(99,102,241,0.25)' : '1px solid rgba(99,102,241,0.12)',
+              marginBottom: '20px',
               borderLeft: '4px solid #6366f1',
             }}>
               <TextField
@@ -735,16 +757,30 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
             </div>
 
             {/* Modal d'ajout de facture de sortie */}
-            <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="sm" fullWidth>
-              <DialogTitle className="flex justify-between items-center">
-                <span>Ajouter une facture de sortie</span>
-                <IconButton onClick={() => setOpenModal(false)} size="small">
+            <Dialog
+              open={openModal}
+              onClose={() => setOpenModal(false)}
+              maxWidth="sm"
+              fullWidth
+              PaperProps={{
+                sx: {
+                  borderRadius: '20px',
+                  backgroundColor: isDark ? 'rgba(15, 23, 42, 0.95)' : '#ffffff',
+                  backdropFilter: 'blur(16px)',
+                  border: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.08)',
+                  p: 1,
+                },
+              }}
+            >
+              <DialogTitle className="flex justify-between items-center" sx={{ color: isDark ? '#f8fafc' : '#0f172a' }}>
+                <span className="font-bold">Ajouter une facture de sortie</span>
+                <IconButton onClick={() => setOpenModal(false)} size="small" sx={{ color: isDark ? '#94a3b8' : '#64748b' }}>
                   <CloseIcon />
                 </IconButton>
               </DialogTitle>
               <DialogContent>
                 <form onSubmit={handleSubmit} className="space-y-4 mt-2">
-                  <Stack spacing={2}>
+                  <Stack spacing={2.5}>
                     <TextField
                       label="Libellé"
                       name="libelle"
@@ -772,12 +808,12 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                       required
                     />
                   </Stack>
-                  <DialogActions className="mt-4">
-                    <Button onClick={() => setOpenModal(false)} disabled={loadingPdf}>
+                  <DialogActions className="mt-4" sx={{ px: 0 }}>
+                    <Button onClick={() => setOpenModal(false)} disabled={loadingPdf} sx={{ borderRadius: '10px', textTransform: 'none' }}>
                       Annuler
                     </Button>
 
-                    <Button type="submit" variant="contained" disabled={loadingPdf}>
+                    <Button type="submit" variant="contained" disabled={loadingPdf} sx={{ borderRadius: '10px', textTransform: 'none', fontWeight: 600 }}>
                       {loadingPdf ? 'Génération...' : 'Ajouter'}
                     </Button>
                   </DialogActions>
@@ -787,44 +823,32 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
 
             {/* Modal Appliquer Remise */}
             <Modal open={isModalOpen} onClose={toggleModal}>
-              <Box
-                sx={isMobile ? {
-                  ...style,
-                  borderRadius: '20px',
-                  // background: 'rgba(255, 255, 255, 0.95)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  animation: 'bounceIn 0.6s ease-out'
-                } : style}
-                // className={isMobile ? 'mobile-modal' : ''}
-              >
-                <Typography variant="h6" className="mb-4">
+              <Box sx={getModalBoxStyle(isDark, '460px')}>
+                <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, color: isDark ? '#f8fafc' : '#0f172a' }}>
                   Appliquer une remise
                 </Typography>
                 <div className="space-y-4">
                   <TextField
                     fullWidth
-                    label="Montant fixe"
+                    label="Montant fixe (FCFA)"
                     variant="outlined"
                     value={fixedDiscount}
                     onChange={(e) => setFixedDiscount(normalizeInput(e.target.value))}
-                    helperText="Ex: 1500 ou 85.45"
-                    
+                    helperText="Ex: 1500 ou 5000"
                   />
                   <TextField
                     fullWidth
-                    label="Pourcentage"
+                    label="Pourcentage (%)"
                     variant="outlined"
                     value={percentageDiscount}
                     onChange={(e) => setPercentageDiscount(normalizeInput(e.target.value))}
-                    helperText="Ex: 2% ou 5%"
-                    
+                    helperText="Ex: 5% ou 10%"
                   />
-                  <div className={`${isMobile ? 'mobile-action-buttons' : 'flex justify-end space-x-3 pt-4'}`}>
+                  <div className="flex justify-end space-x-3 pt-3">
                     <Button
                       variant="outlined"
                       onClick={toggleModal}
-                      
+                      sx={{ borderRadius: '10px', textTransform: 'none' }}
                     >
                       Annuler
                     </Button>
@@ -832,7 +856,7 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                       variant="contained"
                       color="primary"
                       onClick={handleApplyDiscount}
-                      
+                      sx={{ borderRadius: '10px', textTransform: 'none', fontWeight: 600 }}
                     >
                       Appliquer
                     </Button>
@@ -843,35 +867,24 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
 
             {/* Modal Paiement */}
             <Modal open={isModalOpenPay} onClose={toggleModalPay}>
-              <Box
-                sx={isMobile ? {
-                  ...style,
-                  borderRadius: '20px',
-                  // background: 'rgba(255, 255, 255, 0.95)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  animation: 'bounceIn 0.6s ease-out'
-                } : style}
-                // className={isMobile ? 'mobile-modal' : ''}
-              >
-                <Typography variant="h6" className="mb-4">
-                  Enregistrer le paiement
+              <Box sx={getModalBoxStyle(isDark, '440px')}>
+                <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, color: isDark ? '#f8fafc' : '#0f172a' }}>
+                  Enregistrer un paiement / avance
                 </Typography>
                 <TextField
                   fullWidth
-                  label="Montant payé"
+                  label="Montant payé (FCFA)"
                   variant="outlined"
                   value={payDiscount}
                   onChange={(e) => setPayDiscount(normalizeInput(e.target.value))}
-                  helperText="Ex: 1500 ou 85.45"
-                  className={`mb-4`}
-                  
+                  helperText="Ex: 1500 ou montant total"
+                  sx={{ mb: 3 }}
                 />
-                <div className={`flex justify-end space-x-3`}>
+                <div className="flex justify-end space-x-3">
                   <Button
                     variant="outlined"
                     onClick={toggleModalPay}
-                    
+                    sx={{ borderRadius: '10px', textTransform: 'none' }}
                   >
                     Annuler
                   </Button>
@@ -879,7 +892,7 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
                     variant="contained"
                     color="primary"
                     onClick={handleApplyPayer}
-                    
+                    sx={{ borderRadius: '10px', textTransform: 'none', fontWeight: 600 }}
                   >
                     Confirmer
                   </Button>
@@ -895,21 +908,10 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
               aria-describedby="confirmation-modal-description"
             >
               <Box sx={{
-                ...style,
-                width: '90%',
-                maxWidth: '800px',
+                ...getModalBoxStyle(isDark, '800px'),
                 maxHeight: '90vh',
                 overflow: 'auto',
-                ...(isMobile && {
-                  borderRadius: '20px',
-                  // background: 'rgba(255, 255, 255, 0.95)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  animation: 'bounceIn 0.6s ease-out'
-                })
-              }}
-                // className={isMobile ? 'mobile-confirmation-section' : ''}
-              >
+              }}>
                 <div className="space-y-6">
                   {/* Header */}
                   <div className={`border-b pb-4`}>
@@ -1090,7 +1092,7 @@ export default function Fact({ clientName, invoiceNumber, clientId, invoiceDate,
             </Modal>
           </div>
         </Paper>
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }

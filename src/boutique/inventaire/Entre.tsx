@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, SyntheticEvent, useState, useEffect } from 'react';
+import { FormEvent, SyntheticEvent, useState, useEffect } from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -17,10 +17,9 @@ import {
   IconButton,
   Pagination,
   Skeleton,
-  TextField,
   Typography,
-  InputAdornment,
-  Grid
+  Grid,
+  Stack,
 } from '@mui/material';
 import { connect } from '../../_services/account.service';
 import { RecupType } from '../../typescript/DataType';
@@ -28,14 +27,18 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useCreateEntre, useGetAllEntre } from '../../usePerso/fonction.entre';
 import { EntreFormType } from '../../typescript/FormType';
 import { AjoutEntreForm, useFormValues } from '../../usePerso/useEntreprise';
-import { formatNumberWithSpaces, isLicenceExpired } from '../../usePerso/fonctionPerso';
+import { formatNumberWithSpaces, isInDateRange, isLicenceExpired } from '../../usePerso/fonctionPerso';
 import { useStoreUuid } from '../../usePerso/store';
 import { useFetchEntreprise, useFetchUser } from '../../usePerso/fonction.user';
 import M_Abonnement from '../../_components/Card/M_Abonnement';
 import AddIcon from '@mui/icons-material/Add';
-import SearchIcon from '@mui/icons-material/Search';
-import DateRangeIcon from '@mui/icons-material/DateRange';
+import PostAddIcon from '@mui/icons-material/PostAdd';
 import InventoryIcon from '@mui/icons-material/Inventory';
+import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
+import PageHeader from '../../_components/common/PageHeader';
+import KpiCard from '../../_components/common/KpiCard';
+import FilterBar from '../../_components/common/FilterBar';
+import ApprovisionnementModal from './ApprovisionnementModal';
 import './mobile-entre.css';
 import { useTheme } from "@mui/material/styles";
 import { useAppSettings } from "../../themes/AppSettingsContext";
@@ -52,6 +55,7 @@ export default function Entre() {
   const [is_sortie, setSortie] = useState(true);
   const [is_prix, setPrix] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [openMulti, setOpenMulti] = useState(false);
 
   // Détection mobile
   useEffect(() => {
@@ -74,13 +78,17 @@ export default function Entre() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedStartDate, setSelectedStartDate] = useState<string>('');
   const [selectedEndDate, setSelectedEndDate] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
+  // Filtre date (fin incluse) + recherche, appliqués AVANT la pagination
   const filteredBoutiques = entresEntreprise?.filter((item) => {
-    if (!item.date) return false;
-    const itemDate = new Date(item.date).getTime();
-    const startDate = selectedStartDate ? new Date(selectedStartDate).getTime() : null;
-    const endDate = selectedEndDate ? new Date(selectedEndDate).getTime() : null;
-    return (startDate === null || itemDate >= startDate) && (endDate === null || itemDate <= endDate);
+    if (!isInDateRange(item.date, selectedStartDate, selectedEndDate)) return false;
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return true;
+    return (
+      item.categorie_libelle?.toLowerCase().includes(q) ||
+      item.libelle?.toLowerCase().includes(q)
+    );
   });
 
   const reversedBoutiques = filteredBoutiques?.slice().sort((a: RecupType, b: RecupType) => {
@@ -106,16 +114,6 @@ export default function Entre() {
 
   const handlePageChange = (_: React.ChangeEvent<unknown>, page: number) => {
     setCurrentPage(page);
-  };
-
-  const handleStartDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedStartDate(event.target.value);
-    setCurrentPage(1);
-  };
-
-  const handleEndDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedEndDate(event.target.value);
-    setCurrentPage(1);
   };
 
   const [open, setOpen] = useState(false);
@@ -159,11 +157,6 @@ export default function Entre() {
     }
   };
 
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-  };
-
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     formValues["cumuler_quantite"] = ajout_terminer;
@@ -171,25 +164,27 @@ export default function Entre() {
     formValues["is_prix"] = is_prix;
     formValues["user_id"] = connect;
 
-    ajoutEntre(formValues);
-
-    setTerminer(false);
-    setSortie(true);
-    setPrix(true);
-    setFormValues({
-      libelle: '',
-      cumuler_quantite: false,
-      is_sortie: true,
-      is_prix: true,
-      user_id: '',
-      date: '',
-      pu: 0,
-      pu_achat: 0,
-      qte: 0,
-      unite: 'kilos',
-      barcode_value: '',
+    ajoutEntre(formValues, {
+      onSuccess: () => {
+        setTerminer(false);
+        setSortie(true);
+        setPrix(true);
+        setFormValues({
+          libelle: '',
+          cumuler_quantite: false,
+          is_sortie: true,
+          is_prix: true,
+          user_id: '',
+          date: '',
+          pu: 0,
+          pu_achat: 0,
+          qte: 0,
+          unite: 'pièce',
+          barcode_value: '',
+        });
+        closeopen();
+      },
     });
-    closeopen();
   };
 
   if (isLoading) {
@@ -213,9 +208,7 @@ export default function Entre() {
   }
 
   if (entresEntreprise) {
-    const filteredBoutiques = displayedBoutiques.filter((post) =>
-      post?.categorie_libelle?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredBoutiques = displayedBoutiques;
 
     const tableColumns: Array<{ label: string; align: 'left' | 'right' }> = [
       { label: 'Image', align: 'left' },
@@ -232,256 +225,204 @@ export default function Entre() {
     ];
 
     return (
-      <div>
-
-        <Paper
-          elevation={0}
-          // className={`${isMobile ? 'mobile-header-container' : 'mt-6 rounded-lg overflow-hidden'}`}
-          sx={{
-            // background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7))',
-            // backdropFilter: 'blur(5px)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: '20px',
-            marginTop: '24px',
-            bgcolor: 'rgba(255,255,255,0.06)',
-          }}
-        >
-          <Box className={`${isMobile ? 'mobile-p-4' : 'p-6'}`}>
-            {/* Header */}
-            <div className={`${isMobile ? 'flex flex-col space-y-4' : 'flex justify-between items-center'} border-b pb-6 mb-6`}>
-              <div>
-                <Typography
-                  variant={isMobile ? "h5" : "h4"}
-                  className={'font-semibold text-gray-50'}
-                >
-                  Gestion des Entrées
-                </Typography>
-                <Typography variant="body2" className={`${isMobile ? 'text-gray-200 mt-2' : 'text-gray-200 mt-1'}`}>
-                  Gérez votre inventaire et vos approvisionnements
-                </Typography>
-              </div>
+      <Box sx={{ pb: 6 }}>
+        {/* En-tête standardisé */}
+        <PageHeader
+          title="Approvisionnement & Stock"
+          subtitle="Gestion des entrées de marchandises, achats fournisseurs et lots de stock"
+          icon={<InventoryIcon />}
+          breadcrumbs={[
+            { label: 'Accueil', to: '/entreprise' },
+            { label: 'Approvisionnement' },
+          ]}
+          actions={
+            <Stack direction="row" spacing={1.5} flexWrap="wrap">
               <Button
                 onClick={functionopen}
-                variant="contained"
+                variant="outlined"
+                color="primary"
                 startIcon={<AddIcon />}
-                className={`${isMobile ? 'mobile-button' : 'bg-blue-600 hover:bg-blue-700'}`}
-                sx={isMobile ? {
+                sx={{
                   borderRadius: '12px',
                   fontWeight: 600,
                   textTransform: 'none',
-                  transition: 'all 0.3s ease',
-                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                  background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                  '&:hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
-                    background: 'linear-gradient(135deg, #1d4ed8, #1e40af)'
-                  }
-                } : {
-                  background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
-                  color: 'white',
-                  boxShadow: '0 3px 5px 2px rgba(33, 203, 243, .3)',
                 }}
               >
-                Nouvelle Entrée
+                Entrée rapide
               </Button>
-            </div>
+              <Button
+                onClick={() => setOpenMulti(true)}
+                variant="contained"
+                startIcon={<PostAddIcon />}
+                sx={{
+                  borderRadius: '12px',
+                  fontWeight: 700,
+                  textTransform: 'none',
+                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #059669, #047857)',
+                  },
+                }}
+              >
+                + Approvisionnement Multi-Lignes
+              </Button>
+            </Stack>
+          }
+        />
 
-            {/* Search and Filters */}
-            <Grid
-              container
-              spacing={isMobile ? 2 : 3}
-              
-              sx={{
-                '& .MuiGrid-item': {
-                  padding: isMobile ? '8px' : '12px'
-                }
-              }}
-            >
-              <Grid item xs={12} md={6} lg={3}>
-                <TextField
-                  fullWidth
-                  placeholder="Rechercher par désignations"
-                  variant="outlined"
-                  value={searchTerm}
-                  onChange={handleSearchChange}
-                  // className={`${isMobile ? 'mobile-search-container' : 'bg-white'}`}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon  />
-                      </InputAdornment>
-                    ),
-                  }}
-                  
-                />
-              </Grid>
+        {/* Indicateurs clés (KPI) */}
+        <Grid container spacing={2} sx={{ mb: 3 }}>
+          <Grid item xs={12} sm={4}>
+            <KpiCard
+              title="Lots réceptionnés"
+              value={reversedBoutiques?.length ?? 0}
+              subtitle="Total des entrées sur la période"
+              accentColor="#6366f1"
+              icon={<InventoryIcon />}
+            />
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <KpiCard
+              title="Quantité totale reçue"
+              value={`${formatNumberWithSpaces(totalQte || 0)}`}
+              subtitle="Unités de marchandises réceptionnées"
+              accentColor="#10b981"
+              icon={<ShoppingBagIcon />}
+            />
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <KpiCard
+              title="Coût d'achat total"
+              value={`${formatNumberWithSpaces(totalPrice || 0)} F`}
+              subtitle="Montant d'achat investi"
+              accentColor="#f59e0b"
+              icon={<LocalAtmIcon />}
+            />
+          </Grid>
+        </Grid>
 
-              <Grid item xs={6} md={6} lg={3}>
-                <TextField
-                  fullWidth
-                  label="Date de début"
-                  type="date"
-                  value={selectedStartDate}
-                  onChange={handleStartDateChange}
-                  InputLabelProps={{ shrink: true }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <DateRangeIcon />
-                      </InputAdornment>
-                    ),
-                  }}
-                  
-                />
-              </Grid>
+        {/* Barre de recherche et filtres de dates avec préréglages */}
+        <FilterBar
+          searchTerm={searchTerm}
+          onSearchChange={(val) => {
+            setSearchTerm(val);
+            setCurrentPage(1);
+          }}
+          searchPlaceholder="Rechercher par produit ou catégorie..."
+          startDate={selectedStartDate}
+          endDate={selectedEndDate}
+          onDateRangeChange={(start, end) => {
+            setSelectedStartDate(start);
+            setSelectedEndDate(end);
+            setCurrentPage(1);
+          }}
+        />
 
-              <Grid item xs={6} md={6} lg={3}>
-                <TextField
-                  fullWidth
-                  label="Date de fin"
-                  type="date"
-                  value={selectedEndDate}
-                  onChange={handleEndDateChange}
-                  InputLabelProps={{ shrink: true }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <DateRangeIcon />
-                      </InputAdornment>
-                    ),
-                  }}
-                  
-                />
-              </Grid>
+        {/* Modal d'approvisionnement multi-lignes */}
+        <ApprovisionnementModal
+          open={openMulti}
+          onClose={() => setOpenMulti(false)}
+        />
 
-              <Grid item xs={6} md={6} lg={3}>
-                <Paper
-                  elevation={0}
-                  className={`p-4 flex items-center justify-between`}
-                  
-                >
-                  <div>
-                    <Typography variant="subtitle2" >
-                      Total Entrées
-                    </Typography>
-                    <Typography variant="h6">
-                      {filteredBoutiques.length}
-                    </Typography>
-                  </div>
-                  <InventoryIcon />
-                </Paper>
-              </Grid>
+        <Paper
+          elevation={0}
+          sx={{
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '20px',
+            bgcolor: isDarkText ? 'rgba(15, 23, 42, 0.6)' : 'rgba(255, 255, 255, 0.9)',
+            backdropFilter: 'blur(14px)',
+            p: { xs: 2, sm: 3 },
+          }}
+        >
 
-              {/* Table */}
-              <Grid item xs={12} md={12} lg={12}>
-                <Paper
-                  elevation={0}
-                  className={`rounded-lg`}
-                  
-                >
-                  <TableContainer 
-                    component={Paper}
+          <TableContainer 
+            component={Paper}
+            sx={{
+              maxHeight: 560,
+              borderRadius: '14px',
+              border: '1px solid rgba(255,255,255,0.08)',
+              background: 'rgba(15,23,42,0.7)',
+              backdropFilter: 'blur(10px)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+              overflowY: 'auto',
+              overflowX: 'auto',
+            }}
+          >
+            <Table aria-label="sticky table" stickyHeader>
+              <TableHead>
+                <TableRow>
+                  {tableColumns.map((col) => (
+                    <TableCell
+                      key={col.label}
+                      align={col.align as 'left' | 'right'}
+                      sx={{
+                        fontWeight: 700,
+                        fontSize: '0.68rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.08em',
+                        borderBottom: '1px solid rgba(255,255,255,0.08)',
+                        py: 1.5,
+                      }}
+                    >
+                      {col.label}
+                    </TableCell>
+                  ))}
+                  <TableCell
                     sx={{
-                      maxHeight: 560,
-                      borderRadius: '14px',
-                      border: '1px solid rgba(255,255,255,0.08)',
-                      background: 'rgba(15,23,42,0.7)',
-                      backdropFilter: 'blur(10px)',
-                      boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-                      overflowY: 'auto',
-                      overflowX: 'auto',
+                      borderBottom: '1px solid rgba(255,255,255,0.08)',
                     }}
-                  >
-                    <Table aria-label="sticky table" stickyHeader>
-                      <TableHead>
-                        <TableRow>
-                          {tableColumns.map((col) => (
-                            <TableCell
-                              key={col.label}
-                              align={col.align as 'left' | 'right'}
-                              sx={{
-                                // background: 'linear-gradient(135deg, #1e293b, #0f172a)',
-                                // color: '#64748b',
-                                fontWeight: 700,
-                                fontSize: '0.68rem',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.08em',
-                                borderBottom: '1px solid rgba(255,255,255,0.08)',
-                                py: 1.5,
-                              }}
-                            >
-                              {col.label}
-                            </TableCell>
-                          ))}
-                          <TableCell
-                            sx={{
-                              // background: 'linear-gradient(135deg, #1e293b, #0f172a)',
-                              borderBottom: '1px solid rgba(255,255,255,0.08)',
-                            }}
-                          />
-                          <TableCell
-                            sx={{
-                              // background: 'linear-gradient(135deg, #1e293b, #0f172a)',
-                              borderBottom: '1px solid rgba(255,255,255,0.08)',
-                            }}
-                          />
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {filteredBoutiques?.length > 0 ? (
-                          filteredBoutiques?.map((row, index) => (
-                            <CardInvent key={index} row={row} />
-                          ))
-                        ) : (
-                          <TableRow>
-                            <TableCell colSpan={11} align="center" className={`${isMobile ? 'mobile-empty-card py-8' : 'py-8'}`}>
-                              <Typography variant="body1" className="text-gray-500">
-                                Aucune entrée enregistrée
-                              </Typography>
-                            </TableCell>
-                          </TableRow>
-                        )}
-
-                        {unUser.role === 1 && filteredBoutiques?.length > 0 && (
-                          <>
-                            <TableRow className={isMobile ? 'mobile-total-row' : ''}>
-                              <TableCell colSpan={5} />
-                              <TableCell align="right" className="font-medium text-gray-100">Total Quantité:</TableCell>
-                              <TableCell align="right" className="font-medium text-gray-100">{totalQte}</TableCell>
-                              <TableCell />
-                              <TableCell align="right" className="font-medium text-gray-100">
-                                {formatNumberWithSpaces(totalPrice)} <LocalAtmIcon color="primary" fontSize="small" />
-                              </TableCell>
-                              <TableCell />
-                              <TableCell />
-                            </TableRow>
-                          </>
-                        )}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </Paper>
-              </Grid>
-
-              <Grid item xs={12}>
-                {/* Pagination */}
-                <Box className={`flex justify-center mt-6`}>
-                  <Pagination
-                    count={totalPages}
-                    page={currentPage}
-                    onChange={handlePageChange}
-                    color="primary"
-                    size={isMobile ? "medium" : "large"}
-                    
                   />
-                </Box>
-              </Grid>
-            </Grid>
+                  <TableCell
+                    sx={{
+                      borderBottom: '1px solid rgba(255,255,255,0.08)',
+                    }}
+                  />
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {filteredBoutiques?.length > 0 ? (
+                  filteredBoutiques?.map((row, index) => (
+                    <CardInvent key={index} row={row} />
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={11} align="center" className={`${isMobile ? 'mobile-empty-card py-8' : 'py-8'}`}>
+                      <Typography variant="body1" className="text-gray-500">
+                        Aucune entrée enregistrée
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                )}
 
+                {unUser.role === 1 && filteredBoutiques?.length > 0 && (
+                  <>
+                    <TableRow className={isMobile ? 'mobile-total-row' : ''}>
+                      <TableCell colSpan={5} />
+                      <TableCell align="right" className="font-medium text-gray-100">Total Quantité:</TableCell>
+                      <TableCell align="right" className="font-medium text-gray-100">{totalQte}</TableCell>
+                      <TableCell />
+                      <TableCell align="right" className="font-medium text-gray-100">
+                        {formatNumberWithSpaces(totalPrice)} <LocalAtmIcon color="primary" fontSize="small" />
+                      </TableCell>
+                      <TableCell />
+                      <TableCell />
+                    </TableRow>
+                  </>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
 
-
-
+          {/* Pagination */}
+          <Box className={`flex justify-center mt-6`}>
+            <Pagination
+              count={totalPages}
+              page={currentPage}
+              onChange={handlePageChange}
+              color="primary"
+              size={isMobile ? "medium" : "large"}
+            />
           </Box>
         </Paper>
 
@@ -529,7 +470,7 @@ export default function Entre() {
           )}
         </Dialog>
 
-      </div>
+      </Box>
     );
   }
 

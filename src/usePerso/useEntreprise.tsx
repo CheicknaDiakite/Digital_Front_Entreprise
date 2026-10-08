@@ -26,6 +26,7 @@ import BarcodeScanner from "../_components/Input/BarcodeScanner";
 import { useAppSettings } from "../themes/AppSettingsContext";
 import { useAllClients, useFetchUser } from "./fonction.user";
 import { useStoreUuid } from "./store";
+import { formatNumberWithSpaces } from "./fonctionPerso";
 
 /* ── Types ─────────────────────────────────────────────────── */
 interface TabPanelProps {
@@ -181,15 +182,16 @@ export function AjoutEntreForm({
 
         <Autocomplete
           id="unite"
-          options={['litre', 'kilos', 'mètres']}
-          value={formValues.unite || 'kilos'}
+          options={['pièce', 'carton', 'paquet', 'sac', 'boîte', 'bouteille', 'kilos', 'litre', 'mètres', 'lot']}
+          value={formValues.unite || 'pièce'}
           onChange={(_event, value) => {
-            onChange({ target: { name: 'unite', value: value || 'kilos' } } as any);
+            onChange({ target: { name: 'unite', value: value || 'pièce' } } as any);
           }}
           renderInput={(params) => (
             <TextField
               {...params}
-              label="Unité"
+              label="Unité de mesure"
+              placeholder="ex: pièce, carton..."
               sx={{
                 "& .MuiFormLabel-asterisk": { color: "error.main" },
               }}
@@ -201,7 +203,7 @@ export function AjoutEntreForm({
           required
           variant="outlined"
           type="number"
-          label="Quantité"
+          label="Quantité reçue"
           name="qte"
           inputProps={{
             step: "0.01",
@@ -225,7 +227,7 @@ export function AjoutEntreForm({
           required
           variant="outlined"
           type="number"
-          label="Prix Unitaire (prix de vente)"
+          label="Prix Unitaire (prix de vente au client)"
           inputProps={{
             step: "0.01",
             min: "0",
@@ -255,17 +257,92 @@ export function AjoutEntreForm({
               min: "0",
               max: "9999999999.99",
             }}
-            label="Prix Unitaire (prix d'achat)"
+            label="Prix Unitaire (prix d'achat fournisseur)"
             name="pu_achat"
             onChange={onChange}
             value={formValues.pu_achat || ''}
           />
         )}
 
+        {/* ── APERÇU RENTABILITÉ & TOTAUX EN TEMPS RÉEL ── */}
+        {(() => {
+          const pv = Number(formValues.pu) || 0;
+          const pa = Number(formValues.pu_achat) || 0;
+          const qte = Number(formValues.qte) || 0;
+          const hasPV = pv > 0;
+          const hasPA = unUser?.role === 1 && pa > 0;
+
+          if (!hasPV && !hasPA && qte === 0) return null;
+
+          const margeUnit = pv - pa;
+          const margePct = pv > 0 ? ((margeUnit / pv) * 100).toFixed(1) : '0';
+          const totalVente = qte * pv;
+          const totalAchat = qte * pa;
+
+          return (
+            <Box
+              sx={{
+                p: 2,
+                borderRadius: '14px',
+                bgcolor: 'rgba(99, 102, 241, 0.06)',
+                border: '1px solid rgba(99, 102, 241, 0.2)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 1,
+              }}
+            >
+              <Typography variant="caption" sx={{ fontWeight: 700, color: '#6366f1', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                Aperçu financier de ce lot
+              </Typography>
+
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center', justifyContent: 'space-between' }}>
+                {qte > 0 && hasPV && (
+                  <Box>
+                    <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
+                      Valeur de vente totale
+                    </Typography>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#10b981' }}>
+                      {formatNumberWithSpaces(totalVente)} F
+                    </Typography>
+                  </Box>
+                )}
+
+                {qte > 0 && hasPA && (
+                  <Box>
+                    <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
+                      Coût d'achat total
+                    </Typography>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#64748b' }}>
+                      {formatNumberWithSpaces(totalAchat)} F
+                    </Typography>
+                  </Box>
+                )}
+
+                {hasPV && hasPA && (
+                  <Box>
+                    <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
+                      Marge bénéficiaire unitaire
+                    </Typography>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 800,
+                        color: margeUnit >= 0 ? '#10b981' : '#ef4444',
+                      }}
+                    >
+                      {margeUnit >= 0 ? `+${formatNumberWithSpaces(margeUnit)} F` : `${formatNumberWithSpaces(margeUnit)} F`} ({margePct}%)
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
+            </Box>
+          );
+        })()}
+
         <MyTextField
           variant="outlined"
           type="number"
-          label="Quantité critique"
+          label="Quantité critique (seuil d'alerte)"
           name="qte_critique"
           value={formValues.qte_critique || ''}
           onChange={onChange}
@@ -281,7 +358,7 @@ export function AjoutEntreForm({
         {Is_Prix && (
           <FormControlLabel
             control={<Checkbox onChange={Is_Prix} />}
-            label="Prix de vente (Manuel)"
+            label="Prix de vente modifiable librement en caisse"
             labelPlacement="end"
           />
         )}
@@ -289,7 +366,7 @@ export function AjoutEntreForm({
         {Ajout_Terminer && (
           <FormControlLabel
             control={<Checkbox onChange={Ajout_Terminer} />}
-            label="Ajouter aux derniers stocks ?"
+            label="Cumuler cette quantité avec le stock existant (au lieu d'un nouveau lot)"
             labelPlacement="end"
           />
         )}
@@ -297,13 +374,29 @@ export function AjoutEntreForm({
         {Is_Sortie && (
           <FormControlLabel
             control={<Checkbox onChange={Is_Sortie} />}
-            label="Ne pas effectuer de sortie pour ce produit ?"
+            label="Masquer ce produit de la vente directe en caisse"
             labelPlacement="end"
           />
         )}
 
-        <Button type="submit" color="success" variant="outlined" sx={{ mt: 1 }}>
-          Envoyer
+        <Button
+          type="submit"
+          variant="contained"
+          sx={{
+            mt: 1.5,
+            py: 1.2,
+            borderRadius: '12px',
+            fontWeight: 700,
+            textTransform: 'none',
+            fontSize: '0.95rem',
+            background: 'linear-gradient(135deg, #10b981, #059669)',
+            boxShadow: '0 4px 14px rgba(16,185,129,0.35)',
+            '&:hover': {
+              background: 'linear-gradient(135deg, #059669, #047857)',
+            },
+          }}
+        >
+          Enregistrer l'Entrée
         </Button>
       </Stack>
     </form>

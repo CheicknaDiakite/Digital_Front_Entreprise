@@ -15,8 +15,6 @@ import {
   TableRow, 
   TextField, 
   Typography,
-  Tooltip,
-  Fade,
   useTheme,
   useMediaQuery,
   IconButton,
@@ -36,7 +34,7 @@ import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import ClearIcon from '@mui/icons-material/Clear';
 import { useFetchSousCate, useInfoSousCate } from "../../../../usePerso/fonction.categorie";
-import { formatNumberWithSpaces } from "../../../../usePerso/fonctionPerso";
+import { formatNumberWithSpaces, isInDateRange } from "../../../../usePerso/fonctionPerso";
 import { useFetchUser } from "../../../../usePerso/fonction.user";
 import { motion } from "framer-motion";
 import '../mobile-souscat.css';
@@ -70,12 +68,8 @@ export default function Info() {
       if (!matchClient && !matchProduct) return false;
     }
 
-    // Filtre date
-    if (!item.date) return false;
-    const itemDate = new Date(item.date).getTime();
-    const startDate = selectedStartDate ? new Date(selectedStartDate).getTime() : null;
-    const endDate = selectedEndDate ? new Date(selectedEndDate).getTime() : null;
-    return (startDate === null || itemDate >= startDate) && (endDate === null || itemDate <= endDate);
+    // Filtre date (bornes incluses)
+    return isInDateRange(item.date, selectedStartDate, selectedEndDate);
   });
 
   const reversedInfos = filteredInfos?.slice().sort((a, b) => {
@@ -156,19 +150,33 @@ export default function Info() {
           <Box sx={{ mb: 4, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
 
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { sm: 'center' }, justifyContent: 'space-between', gap: 2 }}>
-              <div>
-                <Typography 
-                  variant="h4" 
-                  sx={{ 
-                    fontWeight: 800, 
-                    color: (theme.palette.mode === 'dark' || showBackground) ? '#ffffff' : 'text.primary',
-                    fontSize: { xs: '1.5rem', sm: '2rem' },
-                    letterSpacing: '-0.02em',
-                    lineHeight: 1.2
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <IconButton
+                  onClick={() => navigate(-1)}
+                  sx={{
+                    bgcolor: (theme.palette.mode === 'dark' || showBackground) ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
+                    color: (theme.palette.mode === 'dark' || showBackground) ? '#ffffff' : '#334155',
+                    '&:hover': {
+                      bgcolor: '#6366f1',
+                      color: '#ffffff',
+                    },
                   }}
                 >
-                  {unSousCate?.libelle || 'Nom du catégorie indisponible'}
-                </Typography>
+                  <ArrowBackIcon />
+                </IconButton>
+                <div>
+                  <Typography 
+                    variant="h4" 
+                    sx={{ 
+                      fontWeight: 800, 
+                      color: (theme.palette.mode === 'dark' || showBackground) ? '#ffffff' : 'text.primary',
+                      fontSize: { xs: '1.5rem', sm: '2rem' },
+                      letterSpacing: '-0.02em',
+                      lineHeight: 1.2
+                    }}
+                  >
+                    {unSousCate?.libelle || 'Nom du catégorie indisponible'}
+                  </Typography>
                 <Typography 
                   variant="body2" 
                   sx={{ 
@@ -180,6 +188,7 @@ export default function Info() {
                   Aperçu détaillé du stock disponible et des historiques de vente
                 </Typography>
               </div>
+            </Box>
 
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }} >
                 <Chip 

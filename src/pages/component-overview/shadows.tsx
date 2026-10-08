@@ -199,12 +199,12 @@ export default function ComponentShadow() {
               color: isDarkText ? '#ffffff' : 'text.primary'
             }}
           >
-            Articles
+            Catégories
           </Typography>
 
           <div className="flex flex-col sm:flex-row gap-4">
             <TextField
-              placeholder="Rechercher un article..."
+              placeholder="Rechercher une catégorie..."
               variant="outlined"
               fullWidth
               value={searchTerm}
@@ -231,7 +231,7 @@ export default function ComponentShadow() {
                 fontWeight: isMobile ? 600 : 400
               }}
             >
-              Nouvel Article
+              Nouvelle Catégorie
             </Button>
           </div>
         </div>
@@ -280,7 +280,7 @@ export default function ComponentShadow() {
                     fontSize: { xs: '0.9rem', sm: '1rem' }
                   }}
                 >
-                  Aucun article trouvé
+                  Aucune catégorie trouvée
                 </Typography>
               </Paper>
             </Grid>

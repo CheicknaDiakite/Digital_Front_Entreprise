@@ -1,34 +1,34 @@
-import { 
-  Box, 
-  Button, 
-  Dialog, 
-  DialogContent, 
-  DialogTitle, 
-  Grid, 
-  IconButton, 
-  Pagination, 
-  Paper, 
-  Skeleton, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
-  TableRow, 
-  TextField, 
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  IconButton,
+  Pagination,
+  Paper,
+  Skeleton,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   Typography,
-  Tooltip,
-  Fade,
   Stack,
-  useTheme
-} from '@mui/material'
-import CloseIcon from "@mui/icons-material/Close"
+  useTheme,
+  Alert,
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import AddIcon from '@mui/icons-material/Add';
-import ReceiptIcon from '@mui/icons-material/Receipt';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 import DescriptionIcon from '@mui/icons-material/Description';
-import { ChangeEvent, FormEvent, useState, useEffect } from 'react';
-import { connect } from '../../../../_services/account.service';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { ChangeEvent, FormEvent, useState, useMemo } from 'react';
 import { useCreateFacSortie, useGetAllFacSortie } from '../../../../usePerso/fonction.facture';
 import CardFacSortie from './CardFacSortie';
 import MyTextField from '../../../../_components/Input/MyTextField';
@@ -38,60 +38,133 @@ import { RecupType } from '../../../../typescript/DataType';
 import M_Abonnement from '../../../../_components/Card/M_Abonnement';
 import { isLicenceExpired } from '../../../../usePerso/fonctionPerso';
 import { useFetchEntreprise, useFetchUser } from '../../../../usePerso/fonction.user';
-import '../mobile-produit.css';
 import { useAppSettings } from '../../../../themes/AppSettingsContext';
+import { PageHeader, KpiCard, FilterBar } from '../../../../_components/common';
 
 export default function FacSortie() {
   const theme = useTheme();
   const { showBackground } = useAppSettings();
   const isDark = theme.palette.mode === 'dark' || showBackground;
-  const uuid = useStoreUuid((state) => state.selectedId)
-  const {unEntreprise} = useFetchEntreprise(uuid)
-  const [isMobile, setIsMobile] = useState(false);
+
+  const uuid = useStoreUuid((state) => state.selectedId);
+  const { unEntreprise } = useFetchEntreprise(uuid);
 
   const { unUser } = useFetchUser();
   const user_id = unUser?.uuid || '';
 
-  const {ajoutFacSortie} = useCreateFacSortie()
-  const {facSortiesUtilisateur, isLoading, isError} = useGetAllFacSortie(user_id, uuid!)
+  const { ajoutFacSortie } = useCreateFacSortie();
+  const { facSortiesUtilisateur, isLoading, isError, refetch } = useGetAllFacSortie(user_id, uuid!);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = isMobile ? 10 : 25;
+  const itemsPerPage = 15;
 
-  // Détection mobile
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
+  // Dialog State
+  const [open, setOpen] = useState(false);
+  const [image, setImage] = useState<File | null>(null);
+
+  const [formValues, setFormValues] = useState<FacSorType>({
+    user_id: '',
+    libelle: '',
+    date: new Date().toISOString().split('T')[0],
+    ref: '',
+  });
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setImage(e.target.files[0]);
+    }
+  };
+
+  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormValues((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const payload: FacSorType = {
+      ...formValues,
+      user_id,
+      facture: image,
+      entreprise_id: uuid!,
     };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
-  const [selectedStartDate, setSelectedStartDate] = useState<string>('');
-  const [selectedEndDate, setSelectedEndDate] = useState<string>('');
+    ajoutFacSortie(payload);
 
-  const filteredBoutiques = facSortiesUtilisateur?.filter((item) => {
-    if (!item.date) return false;
-    const itemDate = new Date(item.date).getTime();
-    const startDate = selectedStartDate ? new Date(selectedStartDate).getTime() : null;
-    const endDate = selectedEndDate ? new Date(selectedEndDate).getTime() : null;
-    return (
-      (startDate === null || itemDate >= startDate) &&
-      (endDate === null || itemDate <= endDate)
-    );
-  });
+    setFormValues({
+      user_id: '',
+      libelle: '',
+      date: new Date().toISOString().split('T')[0],
+      ref: '',
+    });
+    setImage(null);
+    setOpen(false);
+  };
 
-  const reversedFacSortie = filteredBoutiques?.slice().sort((a: RecupType, b: RecupType) => {
-    if (a.id === undefined) return 1;
-    if (b.id === undefined) return -1;
-    return Number(b.id) - Number(a.id);
-  });
- 
-  const totalPages = Math.ceil(reversedFacSortie?.length / itemsPerPage);
-  const facSortieEntreprise = reversedFacSortie.slice(
+  // KPIs calculés
+  const kpis = useMemo(() => {
+    const list = facSortiesUtilisateur || [];
+    const total = list.length;
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    const thisMonth = list.filter((item) => {
+      if (!item.date) return false;
+      const d = new Date(item.date);
+      return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    }).length;
+
+    const withAttachment = list.filter((item) => Boolean((item as any).facture)).length;
+
+    return { total, thisMonth, withAttachment };
+  }, [facSortiesUtilisateur]);
+
+  // Filtrage
+  const filteredInvoices = useMemo(() => {
+    if (!facSortiesUtilisateur) return [];
+
+    return facSortiesUtilisateur.filter((item) => {
+      // Filtre date
+      if (startDate || endDate) {
+        if (!item.date) return false;
+        const itemTime = new Date(item.date).getTime();
+        const startTime = startDate ? new Date(startDate).getTime() : null;
+        const endTime = endDate ? new Date(endDate).getTime() : null;
+        if (startTime !== null && itemTime < startTime) return false;
+        if (endTime !== null && itemTime > endTime) return false;
+      }
+
+      // Filtre recherche
+      if (searchTerm.trim()) {
+        const query = searchTerm.toLowerCase();
+        const matchLib = item.libelle?.toLowerCase().includes(query);
+        const matchRef = item.ref?.toLowerCase().includes(query);
+        if (!matchLib && !matchRef) return false;
+      }
+
+      return true;
+    });
+  }, [facSortiesUtilisateur, startDate, endDate, searchTerm]);
+
+  // Tri décroissant par date ou ID
+  const sortedInvoices = useMemo(() => {
+    return filteredInvoices.slice().sort((a: RecupType, b: RecupType) => {
+      if (a.id === undefined) return 1;
+      if (b.id === undefined) return -1;
+      return Number(b.id) - Number(a.id);
+    });
+  }, [filteredInvoices]);
+
+  const totalPages = Math.ceil(sortedInvoices.length / itemsPerPage);
+  const paginatedInvoices = sortedInvoices.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -100,403 +173,363 @@ export default function FacSortie() {
     setCurrentPage(page);
   };
 
-  const handleStartDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedStartDate(event.target.value);
+  const handleResetFilters = () => {
+    setSearchTerm('');
+    setStartDate('');
+    setEndDate('');
     setCurrentPage(1);
-  };
-
-  const handleEndDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedEndDate(event.target.value);
-    setCurrentPage(1);
-  };
-  
-  const [open, openchange]= useState(false);
-  const functionopen = () => openchange(true);
-  const closeopen = () => openchange(false);
-
-  const [image, setImage] = useState<File | null>(null);
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setImage(e.target.files[0]);
-    }
-  };
-
-  const [formValues, setFormValues] = useState<FacSorType>({
-    user_id: '',
-    libelle: '',
-    date: '',
-    ref: '',
-  });
-
-  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormValues({
-      ...formValues,
-      [name]: value,
-    });
-  };
-
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    formValues["user_id"] = user_id;
-    formValues["facture"] = image;
-    formValues["entreprise_id"] = uuid!;
-    
-    ajoutFacSortie(formValues);
-
-    setFormValues({
-      user_id: '',
-      libelle: '',
-      date: '',
-      ref: '',
-    });
-    closeopen();
   };
 
   if (isLoading) {
     return (
-      <Box sx={{ width: '100%', padding: isMobile ? 2 : 3 }}>
-        <Skeleton height={60} className={isMobile ? 'mobile-loading' : ''} />
-        <Skeleton height={40} className={isMobile ? 'mobile-loading' : ''} />
-        <Skeleton height={400} className={isMobile ? 'mobile-loading' : ''} />
+      <Box sx={{ width: '100%', p: { xs: 2, sm: 3 }, spaceY: 3 }}>
+        <Skeleton variant="rounded" height={80} sx={{ borderRadius: '16px', mb: 3 }} />
+        <Grid container spacing={2} sx={{ mb: 3 }}>
+          {[1, 2, 3, 4].map((i) => (
+            <Grid item xs={12} sm={6} md={3} key={i}>
+              <Skeleton variant="rounded" height={100} sx={{ borderRadius: '16px' }} />
+            </Grid>
+          ))}
+        </Grid>
+        <Skeleton variant="rounded" height={400} sx={{ borderRadius: '16px' }} />
       </Box>
     );
   }
 
   if (isError) {
-    window.location.reload();
-    return <div>Erreur lors du chargement...</div>;
-  }
-
-  if (facSortiesUtilisateur) {
     return (
-      <div >
-        {/* <Nav /> */}
-        
-          <div className={`mb-8 flex justify-between items-center`}>
-            <Typography 
-              variant={isMobile ? "h5" : "h4"} 
-              className={`font-semibold text-gray-50`}
-              
-            >
-              Factures de Sortie
-            </Typography>
-            <Tooltip title="Ajouter une facture" arrow TransitionComponent={Fade}>
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={functionopen}
-                className={`${isMobile ? 'mobile-button mobile-button-primary' : 'bg-blue-600 hover:bg-blue-700'}`}
-                
-              >
-                Nouvelle Facture
-              </Button>
-            </Tooltip>
-          </div>
-
-          <Paper 
-            elevation={0} 
-            // className={`${isMobile ? 'mobile-filters-section' : 'mb-6 p-4 border rounded-lg'}`}
-            sx={isMobile ? {
-              // background: 'rgba(255, 255, 255, 0.9)',
-              backdropFilter: 'blur(10px)',
-              borderRadius: '16px',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              padding: '16px',
-              marginBottom: '16px',
-              animation: 'slideInUp 0.6s ease-out'
-            } : {}}
-          >
-            <Grid 
-              container 
-              spacing={isMobile ? 2 : 3} 
-              alignItems="center"
-              className={isMobile ? 'mobile-grid' : ''}
-              sx={{
-                '& .MuiGrid-item': {
-                  padding: isMobile ? '8px' : '12px'
-                }
-              }}
-            >
-              <Grid item xs={12} md={6} className='m-3'>
-                <Typography variant="subtitle2" className={`mb-5 text-gray-50`}>
-                  Filtrer par période
-                </Typography>
-                <Grid container spacing={isMobile ? 1 : 2}>
-                  <Grid item xs={6}>
-                    <TextField
-                      fullWidth
-                      label="Date de début"
-                      type="date"
-                      value={selectedStartDate}
-                      onChange={handleStartDateChange}
-                      InputLabelProps={{ shrink: true }}
-                      className={`${isMobile ? 'mobile-date-field' : 'bg-white'}`}
-                      sx={isMobile ? {
-                        '& .MuiOutlinedInput-root': {
-                          borderRadius: '12px',
-                          background: 'rgba(255, 255, 255, 0.8)',
-                          backdropFilter: 'blur(10px)',
-                          transition: 'all 0.3s ease',
-                          '&:focus-within': {
-                            transform: 'translateY(-2px)',
-                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                          }
-                        }
-                      } : {}}
-                    />
-                  </Grid>
-                  <Grid item xs={6}>
-                    <TextField
-                      fullWidth
-                      label="Date de fin"
-                      type="date"
-                      value={selectedEndDate}
-                      onChange={handleEndDateChange}
-                      InputLabelProps={{ shrink: true }}
-                      className={`${isMobile ? 'mobile-date-field' : 'bg-white'}`}
-                      sx={isMobile ? {
-                        '& .MuiOutlinedInput-root': {
-                          borderRadius: '12px',
-                          background: 'rgba(255, 255, 255, 0.8)',
-                          backdropFilter: 'blur(10px)',
-                          transition: 'all 0.3s ease',
-                          '&:focus-within': {
-                            transform: 'translateY(-2px)',
-                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                          }
-                        }
-                      } : {}}
-                    />
-                  </Grid>
-                </Grid>
-              </Grid>
-              <Grid item xs={12} md={6} className="flex justify-end">
-                <Pagination
-                  count={totalPages}
-                  page={currentPage}
-                  onChange={handlePageChange}
-                  color="primary"
-                  size={isMobile ? "medium" : "large"}
-                  className={`${isMobile ? 'mobile-pagination' : 'mt-4 md:mt-0'}`}
-                  sx={isMobile ? {
-                    '& .MuiPaginationItem-root': {
-                      borderRadius: '8px',
-                      margin: '0 2px'
-                    }
-                  } : {}}
-                />
-              </Grid>
-            </Grid>
-          </Paper>
-
-          <Dialog 
-            open={open} 
-            onClose={closeopen} 
-            fullWidth 
-            maxWidth="xs"
-            PaperProps={{
-              elevation: 0,
-              className: "rounded-10",
-              sx: isMobile ? {
-                borderRadius: '20px',
-                backdropFilter: 'blur(10px)'
-              } : {}
-            }}
-          >
-            <DialogTitle className={`flex justify-between items-center bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700 text-white border-b pb-3`}>
-              <Typography variant="h6">Ajouter une facture de sortie</Typography>
-              <IconButton onClick={closeopen} size="small">
-                <CloseIcon />
-              </IconButton>
-            </DialogTitle>
-            
-            {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
-              <M_Abonnement />  
-            ) : (        
-              <DialogContent className={`mt-4`}>              
-                <form onSubmit={onSubmit} className="space-y-4 p-2">
-                  <Stack spacing={2} margin={2}>
-
-                    <MyTextField
-                      required
-                      fullWidth
-                      label="Libellé"
-                      name="libelle"
-                      onChange={onChange}
-                      InputProps={{
-                        startAdornment: <DescriptionIcon className="mr-2 text-gray-400" />,
-                      }}
-                      sx={isMobile ? {
-                        '& .MuiOutlinedInput-root': {
-                          borderRadius: '12px',
-                          backdropFilter: 'blur(10px)',
-                          transition: 'all 0.3s ease',
-                          '&:focus-within': {
-                            transform: 'translateY(-2px)',
-                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                          }
-                        }
-                      } : {}}
-                    />
-                    
-                    <MyTextField
-                      required
-                      fullWidth
-                      label="Référence"
-                      name="ref"
-                      onChange={onChange}
-                      InputProps={{
-                        startAdornment: <ReceiptIcon className="mr-2 text-gray-400" />,
-                      }}
-                      sx={isMobile ? {
-                        '& .MuiOutlinedInput-root': {
-                          borderRadius: '12px',
-                          backdropFilter: 'blur(10px)',
-                          transition: 'all 0.3s ease',
-                          '&:focus-within': {
-                            transform: 'translateY(-2px)',
-                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                          }
-                        }
-                      } : {}}
-                    />
-                    
-                    <MyTextField
-                      required
-                      fullWidth
-                      label="Date"
-                      name="date"
-                      type="date"
-                      onChange={onChange}
-                      InputLabelProps={{ shrink: true }}
-                      InputProps={{
-                        startAdornment: <DateRangeIcon className="mr-2 text-gray-400" />,
-                      }}
-                      sx={isMobile ? {
-                        '& .MuiOutlinedInput-root': {
-                          borderRadius: '12px',
-                          backdropFilter: 'blur(10px)',
-                          transition: 'all 0.3s ease',
-                          '&:focus-within': {
-                            transform: 'translateY(-2px)',
-                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                          }
-                        }
-                      } : {}}
-                    />
-                    
-                    <MyTextField 
-                      fullWidth
-                      label="Facture"
-                      name="facture"
-                      type="file"
-                      onChange={handleImageChange}
-                      InputLabelProps={{ shrink: true }}
-                      InputProps={{
-                        startAdornment: <ReceiptIcon className="mr-2 text-gray-400" />,
-                      }}
-                      sx={isMobile ? {
-                        '& .MuiOutlinedInput-root': {
-                          borderRadius: '12px',
-                          backdropFilter: 'blur(10px)',
-                          transition: 'all 0.3s ease',
-                          border: '2px dashed rgba(59, 130, 246, 0.3)',
-                          '&:focus-within': {
-                            transform: 'translateY(-2px)',
-                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-                            borderColor: 'rgba(59, 130, 246, 0.6)'
-                          }
-                        }
-                      } : {}}
-                    />
-                    
-                    <div className={`pt-4 border-t flex justify-end`}>
-                      <Button
-                        type="submit"
-                        variant="contained"
-                        className={`${isMobile ? 'mobile-button mobile-button-primary' : 'bg-blue-600 hover:bg-blue-700'}`}
-                        sx={isMobile ? {
-                          borderRadius: '12px',
-                          fontWeight: 600,
-                          textTransform: 'none',
-                          transition: 'all 0.3s ease',
-                          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                          background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                          '&:hover': {
-                            transform: 'translateY(-2px)',
-                            boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
-                            background: 'linear-gradient(135deg, #1d4ed8, #1e40af)'
-                          }
-                        } : {}}
-                      >
-                        Enregistrer
-                      </Button>
-                    </div>
-                  </Stack>
-                </form>
-              </DialogContent>
-            )}
-          </Dialog>
-      
-          <TableContainer
-            component={Paper}
-            sx={{
-              maxHeight: 600,
-              backgroundColor: isDark ? 'rgba(15, 23, 42, 0.65)' : 'rgba(255, 255, 255, 0.85)',
-              backdropFilter: 'blur(10px)',
-              WebkitBackdropFilter: 'blur(10px)',
-              borderRadius: '12px',
-              border: isDark ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(226, 232, 240, 0.8)',
-              boxShadow: isDark ? '0 8px 32px rgba(0, 0, 0, 0.35)' : '0 8px 32px rgba(31, 38, 135, 0.07)',
-            }}
-          >
-            <Table stickyHeader aria-label="sticky table">
-              <TableHead>
-                <TableRow>
-                  {['Date', 'Libellé', 'Référence', 'Actions'].map((header) => (
-                    <TableCell
-                      key={header}
-                      sx={{
-                        backgroundColor: isDark ? 'rgba(30, 41, 59, 0.85)' : 'rgba(241, 245, 249, 0.95)',
-                        backdropFilter: 'blur(10px)',
-                        WebkitBackdropFilter: 'blur(10px)',
-                        color: isDark ? '#f1f5f9' : '#1e293b',
-                        fontWeight: 700,
-                        fontSize: '0.85rem',
-                        letterSpacing: '0.05em',
-                        textTransform: 'uppercase',
-                        borderBottom: isDark ? '1px solid rgba(255,255,255,0.15)' : '1px solid rgba(226, 232, 240, 0.8)',
-                      }}
-                    >
-                      {header}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {facSortieEntreprise?.length > 0 ? (
-                  facSortieEntreprise?.map((row, index) => (
-                    <CardFacSortie key={index} row={row} />
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={4}
-                      align="center"
-                      sx={{ color: isDark ? '#94a3b8' : '#475569', fontWeight: 500, py: 4 }}
-                      className={isMobile ? 'mobile-empty-card' : ''}
-                    >
-                      Aucune facture de sortie disponible
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        
-      </div>
+      <Box sx={{ p: 4, maxWidth: 600, mx: 'auto', textAlign: 'center' }}>
+        <Alert severity="error" sx={{ borderRadius: '14px', mb: 2 }}>
+          Impossible de charger le registre des factures de vente.
+        </Alert>
+        <Button
+          variant="contained"
+          startIcon={<RefreshIcon />}
+          onClick={() => refetch()}
+          sx={{ borderRadius: '10px', textTransform: 'none' }}
+        >
+          Réessayer
+        </Button>
+      </Box>
     );
   }
+
+  return (
+    <Box sx={{ maxWidth: '1400px', mx: 'auto', p: { xs: 1.5, sm: 3 }, spaceY: 3 }}>
+      {/* En-tête PageHeader */}
+      <PageHeader
+        title="Factures de Ventes"
+        subtitle="Registre et pièces justificatives des factures et sorties clients"
+        actions={
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setOpen(true)}
+            sx={{
+              borderRadius: '12px',
+              fontWeight: 700,
+              textTransform: 'none',
+              background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+              boxShadow: '0 4px 14px rgba(59, 130, 246, 0.4)',
+            }}
+          >
+            Nouvelle Facture
+          </Button>
+        }
+      />
+
+      {/* Cartes KPIs */}
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid item xs={12} sm={6} md={3}>
+          <KpiCard
+            title="Total Factures"
+            value={kpis.total}
+            subtitle="Toutes factures confondues"
+            accentColor="#6366f1"
+            icon={<ReceiptLongIcon />}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <KpiCard
+            title="Ce Mois-ci"
+            value={kpis.thisMonth}
+            subtitle="Émises sur le mois en cours"
+            accentColor="#3b82f6"
+            icon={<DateRangeIcon />}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <KpiCard
+            title="Avec Justificatif"
+            value={kpis.withAttachment}
+            subtitle="Fichiers PDF / images rattachés"
+            accentColor="#10b981"
+            icon={<AttachFileIcon />}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <KpiCard
+            title="Résultats Filtrés"
+            value={filteredInvoices.length}
+            subtitle="Selon les critères actifs"
+            accentColor="#f59e0b"
+            icon={<DescriptionIcon />}
+          />
+        </Grid>
+      </Grid>
+
+      {/* Barre de recherche et filtres temporels */}
+      <Box sx={{ mb: 3 }}>
+        <FilterBar
+          searchTerm={searchTerm}
+          onSearchChange={(val) => {
+            setSearchTerm(val);
+            setCurrentPage(1);
+          }}
+          searchPlaceholder="Rechercher par libellé ou référence..."
+          startDate={startDate}
+          endDate={endDate}
+          onDateRangeChange={(start, end) => {
+            setStartDate(start);
+            setEndDate(end);
+            setCurrentPage(1);
+          }}
+          onReset={handleResetFilters}
+          showPresets
+        />
+      </Box>
+
+      {/* Table Glassmorphique des Factures */}
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: '18px',
+          overflow: 'hidden',
+          backgroundColor: isDark ? 'rgba(15, 23, 42, 0.65)' : 'rgba(255, 255, 255, 0.85)',
+          backdropFilter: 'blur(16px)',
+          border: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(226, 232, 240, 0.8)',
+          boxShadow: isDark ? '0 12px 32px rgba(0, 0, 0, 0.35)' : '0 8px 30px rgba(0, 0, 0, 0.04)',
+        }}
+      >
+        <TableContainer sx={{ maxHeight: 650 }}>
+          <Table stickyHeader aria-label="table des factures de vente">
+            <TableHead>
+              <TableRow>
+                {['Date', 'Libellé', 'Référence', 'Justificatif', 'Actions'].map((header, idx) => (
+                  <TableCell
+                    key={header}
+                    align={idx === 4 ? 'right' : 'left'}
+                    sx={{
+                      backgroundColor: isDark ? 'rgba(30, 41, 59, 0.9)' : 'rgba(241, 245, 249, 0.95)',
+                      backdropFilter: 'blur(10px)',
+                      color: isDark ? '#f1f5f9' : '#1e293b',
+                      fontWeight: 700,
+                      fontSize: '0.82rem',
+                      letterSpacing: '0.04em',
+                      textTransform: 'uppercase',
+                      borderBottom: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(226, 232, 240, 0.8)',
+                      py: 1.8,
+                    }}
+                  >
+                    {header}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {paginatedInvoices.length > 0 ? (
+                paginatedInvoices.map((row) => (
+                  <CardFacSortie key={row.uuid || row.id} row={row} />
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={5}
+                    align="center"
+                    sx={{
+                      color: isDark ? '#94a3b8' : '#64748b',
+                      fontWeight: 500,
+                      py: 6,
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                      <ReceiptLongIcon sx={{ fontSize: 48, color: isDark ? '#475569' : '#cbd5e1' }} />
+                      <Typography sx={{ fontWeight: 600, color: isDark ? '#cbd5e1' : '#475569' }}>
+                        Aucune facture de sortie trouvée
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: isDark ? '#64748b' : '#94a3b8' }}>
+                        Modifiez vos critères de recherche ou enregistrez une nouvelle facture.
+                      </Typography>
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              p: 2.5,
+              borderTop: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(226, 232, 240, 0.8)',
+            }}
+          >
+            <Pagination
+              count={totalPages}
+              page={currentPage}
+              onChange={handlePageChange}
+              color="primary"
+              shape="rounded"
+            />
+          </Box>
+        )}
+      </Paper>
+
+      {/* Modal Ajout Facture */}
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        fullWidth
+        maxWidth="sm"
+        PaperProps={{
+          sx: {
+            borderRadius: '20px',
+            backgroundColor: isDark ? 'rgba(15, 23, 42, 0.95)' : '#ffffff',
+            backdropFilter: 'blur(16px)',
+            border: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.08)',
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+            color: '#ffffff',
+            px: 3,
+            py: 2,
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <ReceiptLongIcon />
+            <Typography variant="h6" sx={{ fontWeight: 700 }}>
+              Ajouter une facture de sortie
+            </Typography>
+          </Box>
+          <IconButton onClick={() => setOpen(false)} size="small" sx={{ color: '#ffffff' }}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+
+        {isLicenceExpired(unEntreprise?.licence_date_expiration) ? (
+          <DialogContent sx={{ p: 3 }}>
+            <M_Abonnement />
+          </DialogContent>
+        ) : (
+          <DialogContent sx={{ p: { xs: 2.5, sm: 3.5 } }}>
+            <form onSubmit={onSubmit}>
+              <Stack spacing={2.5}>
+                <MyTextField
+                  required
+                  fullWidth
+                  label="Libellé de la facture"
+                  name="libelle"
+                  value={formValues.libelle}
+                  onChange={onChange}
+                  placeholder="Ex: Facture vente de matériel"
+                  InputProps={{
+                    startAdornment: <DescriptionIcon sx={{ mr: 1, color: '#94a3b8' }} />,
+                  }}
+                />
+
+                <MyTextField
+                  required
+                  fullWidth
+                  label="Numéro de Référence"
+                  name="ref"
+                  value={formValues.ref}
+                  onChange={onChange}
+                  placeholder="Ex: FAC-2026-0042"
+                  InputProps={{
+                    startAdornment: <ReceiptLongIcon sx={{ mr: 1, color: '#94a3b8' }} />,
+                  }}
+                />
+
+                <MyTextField
+                  required
+                  fullWidth
+                  label="Date d'émission"
+                  name="date"
+                  type="date"
+                  value={formValues.date}
+                  onChange={onChange}
+                  InputLabelProps={{ shrink: true }}
+                  InputProps={{
+                    startAdornment: <DateRangeIcon sx={{ mr: 1, color: '#94a3b8' }} />,
+                  }}
+                />
+
+                <Box
+                  sx={{
+                    border: '2px dashed',
+                    borderColor: isDark ? 'rgba(59, 130, 246, 0.4)' : '#bfdbfe',
+                    borderRadius: '14px',
+                    p: 2.5,
+                    textAlign: 'center',
+                    backgroundColor: isDark ? 'rgba(59, 130, 246, 0.05)' : '#f8fafc',
+                  }}
+                >
+                  <CloudUploadIcon sx={{ fontSize: 36, color: '#3b82f6', mb: 1 }} />
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600, color: isDark ? '#e2e8f0' : '#334155' }}>
+                    {image ? image.name : 'Pièce jointe (PDF ou image)'}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#94a3b8', display: 'block', mb: 1.5 }}>
+                    Optionnel — Justificatif scanné ou reçu
+                  </Typography>
+                  <Button
+                    variant="outlined"
+                    component="label"
+                    size="small"
+                    startIcon={<AttachFileIcon />}
+                    sx={{ textTransform: 'none', borderRadius: '10px' }}
+                  >
+                    Parcourir le fichier
+                    <input type="file" hidden onChange={handleImageChange} accept=".pdf,image/*" />
+                  </Button>
+                </Box>
+
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1.5, pt: 1 }}>
+                  <Button
+                    variant="outlined"
+                    onClick={() => setOpen(false)}
+                    sx={{ textTransform: 'none', borderRadius: '12px' }}
+                  >
+                    Annuler
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    sx={{
+                      textTransform: 'none',
+                      borderRadius: '12px',
+                      fontWeight: 700,
+                      background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                      boxShadow: '0 4px 14px rgba(59, 130, 246, 0.4)',
+                    }}
+                  >
+                    Enregistrer la facture
+                  </Button>
+                </Box>
+              </Stack>
+            </form>
+          </DialogContent>
+        )}
+      </Dialog>
+    </Box>
+  );
 }

@@ -96,6 +96,47 @@ export function formatNumberWithSpaces(number: string | number | null | undefine
   return formattedNumber.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 }
 
+/**
+ * Vérifie qu'une date se trouve dans l'intervalle [start, end] (bornes incluses).
+ * `start` / `end` sont au format 'yyyy-MM-dd' (valeur d'un <input type="date">).
+ * La date de fin inclut toute la journée (jusqu'à 23:59:59.999, heure locale).
+ */
+export function isInDateRange(
+  date: string | Date | null | undefined,
+  start?: string,
+  end?: string,
+): boolean {
+  if (!date) return false;
+  const time = new Date(date).getTime();
+  if (isNaN(time)) return false;
+  if (start) {
+    const startTime = new Date(`${start}T00:00:00`).getTime();
+    if (time < startTime) return false;
+  }
+  if (end) {
+    const endTime = new Date(`${end}T23:59:59.999`).getTime();
+    if (time > endTime) return false;
+  }
+  return true;
+}
+
+/** Clé 'yyyy-MM' d'une date (mois courant par défaut). */
+export function monthKey(date: Date = new Date()): string {
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  return `${date.getFullYear()}-${m}`;
+}
+
+/**
+ * Retourne la valeur associée au mois courant dans un objet indexé par mois
+ * (clés de type 'yyyy-MM', 'yyyy-MM-dd' ou ISO). `undefined` si absent.
+ */
+export function getCurrentMonthValue<T>(byMonth: Record<string, T> | null | undefined): T | undefined {
+  if (!byMonth) return undefined;
+  const current = monthKey();
+  const key = Object.keys(byMonth).find((k) => String(k).slice(0, 7) === current);
+  return key !== undefined ? byMonth[key] : undefined;
+}
+
 export function foncError(error: any) {
   const message = error?.response?.data?.message || error?.message || "Une erreur est survenue";
   return toast.error(message);

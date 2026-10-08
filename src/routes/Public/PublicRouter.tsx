@@ -1,9 +1,10 @@
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, Navigate } from 'react-router-dom'
 import Dashboard from '../../layout/Dashboard'
 import DashboardDefault from '../../pages/dashboard'
 import Sortie from '../../boutique/sortie/Sortie'
 import Entre from '../../boutique/inventaire/Entre'
 import ComponentShadow from '../../pages/component-overview/shadows'
+import CatalogueUnifie from '../../boutique/categorie/CatalogueUnifie'
 import ModifCate from '../../boutique/categorie/ModifCate'
 import ModifSousCate from '../../boutique/categorie/sousCat/ModifSousCate'
 import ModifEntre from '../../boutique/inventaire/ModifEntre'
@@ -44,12 +45,11 @@ import { BASE } from '../../_services/caller.service'
 import FactureDetail from '../../boutique/sortie/FactureDetail'
 import Historique from '../../boutique/proprietaire/historique/Historique'
 import NotFound from '../../pages/extra-pages/not-found'
-import { notClick } from '../../usePerso/fonctionPerso';
 import { useAppSettings } from '../../themes/AppSettingsContext';
 
 
 export default function PublicRouter() {
-  notClick()
+  // notClick()
   const uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise, isLoading } = useFetchEntreprise(uuid);
   const url = unEntreprise.image ? BASE(unEntreprise.image) : backgroundImage;
@@ -100,7 +100,7 @@ export default function PublicRouter() {
 
           <Route path='entreprise'>
             <Route index element={<DashboardDefault />} />
-            <Route path='Avis' element={<Facture />} />
+            <Route path='Avis' element={<Avis />} />
             <Route path='PreFacture' element={<Facture />} />
             <Route path='EtaDeVente' element={<EtaVente />} />
             <Route path='inventaire/EtaDesProduits' element={<EtaProduits />} />
@@ -111,7 +111,7 @@ export default function PublicRouter() {
               <Route path='historique' element={<Historique />} />
               <Route path='inventaire/sortie' element={<SortieInventaire />} />
               <Route path='inventaire/entrer' element={<EntrerInventaire />} />
-              <Route path='historique/sppression' element={<HistoriqueSupp />} />
+              <Route path='historique/suppression' element={<HistoriqueSupp />} />
             </Route>
 
             <Route path='depense'>
@@ -120,18 +120,14 @@ export default function PublicRouter() {
             </Route>
 
             <Route path='personnel' >
-
               <Route element={<ProtectedRoute requiredRole={1} redirectPath="/" />}>
                 <Route index element={<Personnel />} />
                 <Route path='modif/:uuid' element={<PersonnelModif />} />
                 <Route path='info/:uuid' element={<PersonnelInfo />} />
               </Route>
-
             </Route>
 
             <Route path='produit'>
-              {/* <Route index element={<Produit />} /> */}
-
               <Route element={<ProtectedRoute requiredRole={[1, 2]} redirectPath="/" />}>
                 <Route path='entre'>
                   <Route index element={<FacEntre />} />
@@ -150,9 +146,7 @@ export default function PublicRouter() {
             </Route>
 
             <Route path='client' >
-              {/* <Route element={<ProtectedRoute requiredRole={1} redirectPath="/" />}> */}
               <Route index element={<Client />} />
-              {/* </Route> */}
               <Route path='info/:uuid' element={<ClientInfo />} />
             </Route>
 
@@ -161,15 +155,14 @@ export default function PublicRouter() {
                 <Route path="admin" element={<Users />} />
                 <Route path='admin/modif/:uuid' element={<UserModif />} />
               </Route>
-
               <Route path='modif/:uuid' element={<Admin />} />
             </Route>
           </Route>
 
           <Route element={<ProtectedRoute requiredRole={[1, 2]} redirectPath="/" />}>
             <Route path='categorie' >
-              <Route index element={<ComponentShadow />} />
-              <Route path=':slug' element={<Sortie />} />
+              <Route index element={<CatalogueUnifie />} />
+              <Route path='cartes' element={<ComponentShadow />} />
               <Route path='modif/:uuid' element={<ModifCate />} />
 
               <Route path='sous'>
@@ -178,8 +171,34 @@ export default function PublicRouter() {
               </Route>
 
               <Route path='info/:uuid' element={<Info />} />
-
             </Route>
+          </Route>
+
+          {/* ── Routes cibles unifiées (alias vers l'architecture §2) ── */}
+          <Route path='ventes'>
+            <Route path='caisse' element={<Navigate to="/sortie" replace />} />
+            <Route path='factures' element={<Navigate to="/entreprise/produit/sortie" replace />} />
+            <Route path='proforma' element={<Navigate to="/entreprise/PreFacture" replace />} />
+            <Route path='clients' element={<Navigate to="/entreprise/client" replace />} />
+          </Route>
+
+          <Route path='stock'>
+            <Route path='catalogue' element={<Navigate to="/categorie" replace />} />
+            <Route path='appro' element={<Navigate to="/entre" replace />} />
+            <Route path='factures' element={<Navigate to="/entreprise/produit/entre" replace />} />
+            <Route path='mouvements' element={<Navigate to="/entreprise/historique" replace />} />
+          </Route>
+
+          <Route path='finances'>
+            <Route path='depenses' element={<Navigate to="/entreprise/depense" replace />} />
+            <Route path='rapports' element={<Navigate to="/entreprise/EtaDeVente" replace />} />
+          </Route>
+
+          <Route path='admin'>
+            <Route path='entreprise' element={<Navigate to="/entreprise/detail" replace />} />
+            <Route path='personnel' element={<Navigate to="/entreprise/personnel" replace />} />
+            <Route path='utilisateurs' element={<Navigate to="/user/admin" replace />} />
+            <Route path='journal' element={<Navigate to="/entreprise/historique" replace />} />
           </Route>
 
           <Route path='entre'>

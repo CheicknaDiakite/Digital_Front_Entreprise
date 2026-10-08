@@ -1,9 +1,9 @@
-import { Box, Button, Pagination, Paper, Skeleton, TextField, Typography, Dialog, DialogContent, IconButton, Divider } from "@mui/material";
+import { Box, Button, Pagination, Paper, Skeleton, Typography, Dialog, DialogContent, IconButton, Divider, Grid, Stack } from "@mui/material";
 import { ChangeEvent, FormEvent, SyntheticEvent, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { RecupType, SortieType } from "../../typescript/DataType";
 import { useStoreCart } from "../../usePerso/cart_store";
 import { useCreateSortie, useGetAllEntre, useGetAllSortie } from "../../usePerso/fonction.entre";
-import toast from "react-hot-toast";
 import Fact from "../factureCard/Fact";
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import TableSortie from "./TableSortie";
@@ -14,11 +14,15 @@ import CloseIcon from '@mui/icons-material/Close';
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import PersonIcon from '@mui/icons-material/Person';
 import PaymentIcon from '@mui/icons-material/Payment';
-import { useFetchEntreprise, useFetchUser } from "../../usePerso/fonction.user";
+import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
+import HistoryIcon from '@mui/icons-material/History';
+import { useFetchEntreprise, useFetchUser, useAllClients } from "../../usePerso/fonction.user";
 import { useStoreUuid } from "../../usePerso/store";
-import { formatNumberWithSpaces } from "../../usePerso/fonctionPerso";
+import { formatNumberWithSpaces, isInDateRange } from "../../usePerso/fonctionPerso";
 import { SingleValue } from 'react-select';
 import { format } from "date-fns";
+import CaissePOS from "./CaissePOS";
+import { PageHeader, KpiCard, FilterBar } from "../../_components/common";
 import './mobile-sortie.css';
 
 
@@ -85,6 +89,11 @@ export default function Sortie() {
   const setSorties = useStoreCart(state => state.setSorties)
   const selectAllIds = useStoreCart(state => state.selectAllIds)
 
+  const { getClients } = useAllClients(entreprise_uuid!);
+  const clientsList = (getClients || []).filter((info: any) => info.role === 1 || info.role === 3);
+  const [activeTab, setActiveTab] = useState<'pos' | 'journal'>('pos');
+  const [journalSearchTerm, setJournalSearchTerm] = useState('');
+
   const [basket, setBasket] = useState<SortieType[]>([]);
   const [modePaiement, setModePaiement] = useState<string>('Caisse');
 
@@ -97,20 +106,16 @@ export default function Sortie() {
   const [selectedStartDate, setSelectedStartDate] = useState<string>('');
   const [selectedEndDate, setSelectedEndDate] = useState<string>('');
 
-  // Filtrage entre les deux dates sélectionnées
-  const filteredBoutiques = sortiesEntreprise?.filter((item) => {
-    if (!item.date) {
-      return false; // Ignore les éléments sans date valide
-    }
-
-    const itemDate = new Date(item.date).getTime();
-    const startDate = selectedStartDate ? new Date(selectedStartDate).getTime() : null;
-    const endDate = selectedEndDate ? new Date(selectedEndDate).getTime() : null;
-
-    return (
-      (startDate === null || itemDate >= startDate) &&
-      (endDate === null || itemDate <= endDate)
-    );
+  // Filtrage entre les deux dates sélectionnées (bornes incluses) et recherche
+  const filteredBoutiques = (sortiesEntreprise || []).filter((item) => {
+    const inDate = isInDateRange(item.date, selectedStartDate, selectedEndDate);
+    if (!inDate) return false;
+    if (!journalSearchTerm) return true;
+    const q = journalSearchTerm.toLowerCase();
+    const refMatch = (item.ref || '').toLowerCase().includes(q);
+    const catMatch = (item.categorie_libelle || '').toLowerCase().includes(q);
+    const libMatch = (item.libelle || '').toLowerCase().includes(q);
+    return refMatch || catMatch || libMatch;
   });
 
   const reversedSorties = filteredBoutiques?.slice().sort((a: RecupType, b: RecupType) => {
@@ -148,17 +153,6 @@ export default function Sortie() {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-
-  // Gestion du changement des dates
-  const handleStartDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedStartDate(event.target.value);
-    setCurrentPage(1);
-  };
-
-  const handleEndDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedEndDate(event.target.value);
-    setCurrentPage(1);
-  };
 
   // Gestion du changement de page
   const handlePageChange = (_: ChangeEvent<unknown>, page: number) => {
@@ -213,7 +207,7 @@ export default function Sortie() {
     }
   };
 
-  const itemDate = format(new Date(), 'yyyy-dd-MM');
+  const itemDate = format(new Date(), 'dd/MM/yyyy');
 
   const handleAutoClientChange = (_: SyntheticEvent<Element, Event>,
     value: string | RecupType | null,
@@ -250,7 +244,7 @@ export default function Sortie() {
         ...prev,
         entre_id: selected.uuid || "",
         pu: selected.pu || 0,
-        is_prix: selected.is_prix || false,
+        is_prix: selected.is_prix !== undefined ? selected.is_prix : true,
         unite: selected.unite || 'kilos',
         categorie_libelle: selected.categorie_libelle || "", // pour l'affichage dans le panier
         libelle: selected.libelle || "", // pour l'affichage dans le panier
@@ -479,238 +473,231 @@ export default function Sortie() {
   }
 
   if (isError) {
-    window.location.reload();
     return (
-      <div className={`${isMobile ? 'mobile-p-4' : ''}`}>
-        <Typography variant="h6" color="error" className="mobile-alert">
-          Error ...
+      <Box className={`${isMobile ? 'mobile-p-4' : 'p-6'}`}>
+        <Typography variant="h6" color="error" className="mobile-alert" sx={{ mb: 2 }}>
+          Une erreur est survenue lors du chargement des sorties.
         </Typography>
-      </div>
+        <Button variant="outlined" color="primary" onClick={() => refetch()}>
+          Réessayer
+        </Button>
+      </Box>
     );
   }
 
   if (sortiesEntreprise) {
     return (
       <div>
-        {/* ── Page principale ── */}
-        <Paper
-          elevation={0}
-          sx={{
-            backdropFilter: 'blur(12px)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: '20px',
-            marginTop: '24px',
-            bgcolor: 'rgba(255,255,255,0.04)',
-            overflow: 'hidden',
-          }}
-        >
-          <div style={{ padding: isMobile ? '16px' : '24px', display: 'flex', flexDirection: 'column', gap: 24 }}>
+        {/* Navigation Tabs Pill Bar */}
+        <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center', mb: 2, flexWrap: 'wrap' }}>
+          <Button
+            variant={activeTab === 'pos' ? 'contained' : 'outlined'}
+            onClick={() => setActiveTab('pos')}
+            startIcon={<PointOfSaleIcon />}
+            sx={{
+              borderRadius: '12px',
+              fontWeight: 800,
+              textTransform: 'none',
+              px: 2.5,
+              py: 1,
+              background: activeTab === 'pos' ? 'linear-gradient(135deg, #6366f1, #4f46e5)' : undefined,
+              boxShadow: activeTab === 'pos' ? '0 4px 14px rgba(99,102,241,0.35)' : undefined,
+            }}
+          >
+            Caisse Enregistreuse (POS)
+          </Button>
 
-            {/* ── Header ── */}
-            <div style={{
-              display: 'flex',
-              flexDirection: isMobile ? 'column' : 'row',
-              justifyContent: 'space-between',
-              alignItems: isMobile ? 'flex-start' : 'center',
-              gap: 16,
-              paddingBottom: 20,
-              borderBottom: '1px solid rgba(255,255,255,0.08)',
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: '10px',
-                  background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 4px 12px rgba(99,102,241,0.4)',
-                }}>
-                  <LocalAtmIcon style={{ fontSize: 20, color: '#fff' }} />
-                </div>
-                <div>
-                  <div style={{ fontWeight: 800, fontSize: isMobile ? '1.2rem' : '1.5rem', color: '#f1f5f9', letterSpacing: '-0.02em' }}>
-                    Gestion des Sorties
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 500 }}>
-                    {reversedSorties.length} enregistrement{reversedSorties.length > 1 ? 's' : ''}
-                  </div>
-                </div>
-              </div>
+          <Button
+            variant={activeTab === 'journal' ? 'contained' : 'outlined'}
+            onClick={() => setActiveTab('journal')}
+            startIcon={<HistoryIcon />}
+            sx={{
+              borderRadius: '12px',
+              fontWeight: 800,
+              textTransform: 'none',
+              px: 2.5,
+              py: 1,
+              background: activeTab === 'journal' ? 'linear-gradient(135deg, #6366f1, #4f46e5)' : undefined,
+              boxShadow: activeTab === 'journal' ? '0 4px 14px rgba(99,102,241,0.35)' : undefined,
+            }}
+          >
+            Journal des Sorties ({reversedSorties.length})
+          </Button>
 
-              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                <Button
-                  variant="contained"
-                  onClick={() => { handleSaveSorties(); handleOnClick(); }}
-                  sx={{
-                    borderRadius: '10px',
-                    fontWeight: 700,
-                    textTransform: 'none',
-                    fontSize: '0.88rem',
-                    px: 3,
-                    py: 1.2,
-                    background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
-                    boxShadow: '0 4px 14px rgba(99,102,241,0.35)',
-                    '&:hover': {
-                      background: 'linear-gradient(135deg, #4f46e5, #4338ca)',
-                      boxShadow: '0 6px 20px rgba(99,102,241,0.5)',
-                      transform: 'translateY(-2px)',
-                    },
-                    transition: 'all 0.2s ease',
-                  }}
-                >
-                  Créer Facture
-                </Button>
-                <Button
-                  variant="outlined"
-                  onClick={handleOpenClick}
-                  sx={{
-                    borderRadius: '10px',
-                    fontWeight: 700,
-                    textTransform: 'none',
-                    fontSize: '0.88rem',
-                    px: 3,
-                    py: 1.2,
-                    borderColor: 'rgba(239,68,68,0.4)',
-                    color: '#f87171',
-                    '&:hover': {
-                      background: 'rgba(239,68,68,0.08)',
-                      borderColor: '#ef4444',
-                      transform: 'translateY(-2px)',
-                    },
-                    transition: 'all 0.2s ease',
-                  }}
-                >
-                  Annuler
-                </Button>
-              </div>
-            </div>
-
-            {/* ── Filtres de dates ── */}
-            {(unUser.role === 1 || unUser.role === 2) && (
-              <div style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: 12,
-                padding: '16px 20px',
+          <Box sx={{ ml: 'auto', display: 'flex', gap: 1 }}>
+            <Button
+              variant="outlined"
+              onClick={() => { handleSaveSorties(); handleOnClick(); }}
+              startIcon={<ReceiptIcon />}
+              sx={{
                 borderRadius: '12px',
-                background: 'rgba(99,102,241,0.05)',
-                border: '1px solid rgba(99,102,241,0.15)',
-              }}>
-                <TextField
-                  label="Date de début"
-                  type="date"
-                  value={selectedStartDate}
-                  onChange={handleStartDateChange}
-                  InputLabelProps={{ shrink: true }}
-                  size="small"
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: '9px',
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#6366f1',
-                        boxShadow: '0 0 0 3px rgba(99,102,241,0.12)',
-                      },
-                    },
-                  }}
-                />
-                <TextField
-                  label="Date de fin"
-                  type="date"
-                  value={selectedEndDate}
-                  onChange={handleEndDateChange}
-                  InputLabelProps={{ shrink: true }}
-                  size="small"
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: '9px',
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#6366f1',
-                        boxShadow: '0 0 0 3px rgba(99,102,241,0.12)',
-                      },
-                    },
-                  }}
-                />
-              </div>
+                fontWeight: 700,
+                textTransform: 'none',
+                borderColor: 'rgba(99,102,241,0.4)',
+              }}
+            >
+              Créer Facture A4
+            </Button>
+            {showInvoice && (
+              <Button
+                variant="outlined"
+                color="error"
+                onClick={handleOpenClick}
+                sx={{ borderRadius: '12px', fontWeight: 700, textTransform: 'none' }}
+              >
+                Fermer Facture
+              </Button>
             )}
+          </Box>
+        </Box>
 
-            {/* ── Cartes KPI ── */}
-            {unUser.role === 1 && (
-              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16 }}>
-                {/* CA */}
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 16,
-                  padding: '20px 24px',
-                  borderRadius: '14px',
-                  background: 'linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(79,70,229,0.08) 100%)',
-                  border: '1px solid rgba(99,102,241,0.25)',
-                  transition: 'all 0.2s ease',
-                }}>
-                  <div style={{
-                    width: 52,
-                    height: 52,
-                    borderRadius: '14px',
-                    background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    boxShadow: '0 6px 16px rgba(99,102,241,0.4)',
-                    flexShrink: 0,
-                  }}>
-                    <LocalAtmIcon style={{ fontSize: 26, color: '#fff' }} />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>
-                      Chiffre d'affaires
-                    </div>
-                    <div style={{ fontSize: isMobile ? '1.3rem' : '1.6rem', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
-                      {formatNumberWithSpaces(totalPrice)}
-                      <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 500, marginLeft: 4 }}>F</span>
-                    </div>
-                  </div>
-                </div>
+        {activeTab === 'pos' ? (
+          <CaissePOS
+            products={ent}
+            clients={clientsList}
+            currentUser={unUser}
+            entreprise={entreprise}
+            onSaleCompleted={(details) => {
+              setLastSaleDetails({
+                clientName: details.clientName,
+                clientNumero: details.clientPhone,
+                clientId: '',
+                totalAmount: details.netTotal,
+                totalQte: details.items.reduce((a: number, b: any) => a + b.qte, 0),
+                itemCount: details.items.length,
+                modePaiement: details.paymentMode,
+                newIds: [],
+                invoiceCode: details.invoiceCode,
+                date: details.date,
+              });
+              setInvoicePaymentMode(details.paymentMode);
+              setGeneratedInvoiceNum(details.invoiceCode);
+            }}
+            onSubmitSale={async (salesData) => {
+              await ajoutSortie(salesData as any);
+              await refetch();
+              await refetchEntres();
+            }}
+            onSwitchToHistory={() => setActiveTab('journal')}
+            onNavigateToInvoice={(details) => {
+              if (details) {
+                setClientInfo({
+                  clientName: details.clientName,
+                  clientAddress: '',
+                  clientCoordonne: '',
+                  clientId: '',
+                  clientNumero: Number(details.clientPhone) || 0,
+                });
+                setInvoicePaymentMode(details.paymentMode);
+                setGeneratedInvoiceNum(details.invoiceCode);
+              }
+              setShowInvoice(true);
+              setTimeout(() => {
+                document.getElementById('section-facture-preview')?.scrollIntoView({ behavior: 'smooth' });
+              }, 150);
+            }}
+          />
+        ) : (
+          /* ── Journal des Sorties View ── */
+          <Paper
+            elevation={0}
+            sx={{
+              backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '20px',
+              mt: 1,
+              bgcolor: 'rgba(255,255,255,0.04)',
+              overflow: 'hidden',
+              p: isMobile ? 2 : 3,
+            }}
+          >
+            <Stack spacing={3}>
+              {/* Header */}
+              <PageHeader
+                title="Journal des Sorties"
+                subtitle="Consultez l'historique complet des encaissements et sorties de stock"
+                breadcrumbs={[
+                  { label: 'Accueil', to: '/' },
+                  { label: 'Ventes', to: '/ventes/caisse' },
+                  { label: 'Journal' },
+                ]}
+                actions={
+                  <Button
+                    variant="contained"
+                    startIcon={<PointOfSaleIcon />}
+                    onClick={() => setActiveTab('pos')}
+                    sx={{
+                      borderRadius: '12px',
+                      textTransform: 'none',
+                      fontWeight: 700,
+                      background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                    }}
+                  >
+                    Nouvelle Vente (POS)
+                  </Button>
+                }
+              />
 
-                {/* Quantité */}
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 16,
-                  padding: '20px 24px',
-                  borderRadius: '14px',
-                  background: 'linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(5,150,105,0.06) 100%)',
-                  border: '1px solid rgba(16,185,129,0.2)',
-                  transition: 'all 0.2s ease',
-                }}>
-                  <div style={{
-                    width: 52,
-                    height: 52,
-                    borderRadius: '14px',
-                    background: 'linear-gradient(135deg, #10b981, #059669)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    boxShadow: '0 6px 16px rgba(16,185,129,0.4)',
-                    flexShrink: 0,
-                  }}>
-                    <QuantityLimitsIcon style={{ fontSize: 26, color: '#fff' }} />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>
-                      Quantité totale
-                    </div>
-                    <div style={{ fontSize: isMobile ? '1.3rem' : '1.6rem', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
-                      {formatNumberWithSpaces(totalQte)}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
+              {/* KPI Cards */}
+              {(unUser.role === 1 || unUser.role === 2) && (
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <KpiCard
+                      title="Chiffre d'affaires"
+                      value={`${formatNumberWithSpaces(totalPrice)} F`}
+                      subtitle="Total période"
+                      icon={<LocalAtmIcon />}
+                      accentColor="#6366f1"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <KpiCard
+                      title="Quantité vendue"
+                      value={formatNumberWithSpaces(totalQte)}
+                      subtitle="Unités sorties"
+                      icon={<QuantityLimitsIcon />}
+                      accentColor="#10b981"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <KpiCard
+                      title="Panier moyen"
+                      value={`${formatNumberWithSpaces(reversedSorties.length > 0 ? Math.round(totalPrice / reversedSorties.length) : 0)} F`}
+                      subtitle="Par ligne de vente"
+                      icon={<ShoppingBagIcon />}
+                      accentColor="#f59e0b"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <KpiCard
+                      title="Lignes enregistrées"
+                      value={reversedSorties.length}
+                      subtitle="Transactions"
+                      icon={<ReceiptIcon />}
+                      accentColor="#8b5cf6"
+                    />
+                  </Grid>
+                </Grid>
+              )}
 
-            {/* ── Table Section ── */}
-            <div>
+              {/* Filter Bar with Date presets + search */}
+              <FilterBar
+                searchTerm={journalSearchTerm}
+                onSearchChange={(val) => {
+                  setJournalSearchTerm(val);
+                  setCurrentPage(1);
+                }}
+                searchPlaceholder="Filtrer par référence, libellé ou catégorie..."
+                startDate={selectedStartDate}
+                endDate={selectedEndDate}
+                onDateRangeChange={(start, end) => {
+                  setSelectedStartDate(start);
+                  setSelectedEndDate(end);
+                  setCurrentPage(1);
+                }}
+              />
+
+              {/* Table Section */}
               <TableSortie
                 onSubmit={onSubmit}
                 onChange={onChange}
@@ -738,34 +725,32 @@ export default function Sortie() {
                 modePaiement={modePaiement}
                 setModePaiement={setModePaiement}
               />
-            </div>
 
-            {/* ── Pagination ── */}
-            <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 8 }}>
-              <Pagination
-                count={totalPages}
-                page={currentPage}
-                onChange={handlePageChange}
-                color="primary"
-                size={isMobile ? 'medium' : 'large'}
-                sx={{
-                  '& .MuiPaginationItem-root': {
-                    borderRadius: '8px',
-                    fontWeight: 600,
-                    transition: 'all 0.2s ease',
-                    '&:hover': { transform: 'translateY(-1px)' },
-                  },
-                  '& .Mui-selected': {
-                    background: 'linear-gradient(135deg, #6366f1, #4f46e5) !important',
-                    color: '#fff',
-                    boxShadow: '0 4px 12px rgba(99,102,241,0.4)',
-                  },
-                }}
-              />
-            </div>
-
-          </div>
-        </Paper>
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', pt: 1 }}>
+                  <Pagination
+                    count={totalPages}
+                    page={currentPage}
+                    onChange={handlePageChange}
+                    color="primary"
+                    size={isMobile ? 'medium' : 'large'}
+                    sx={{
+                      '& .MuiPaginationItem-root': {
+                        borderRadius: '8px',
+                        fontWeight: 600,
+                      },
+                      '& .Mui-selected': {
+                        background: 'linear-gradient(135deg, #6366f1, #4f46e5) !important',
+                        color: '#fff',
+                      },
+                    }}
+                  />
+                </Box>
+              )}
+            </Stack>
+          </Paper>
+        )}
 
         {/* ── Modal Post-Enregistrement Vente / Proposition Facture ── */}
         <Dialog
@@ -970,18 +955,67 @@ export default function Sortie() {
 
         {/* ── Aperçu Facture ── */}
         {showInvoice && entreprise && (
-          <div id="section-facture-preview" style={{ marginTop: 16 }}>
-            <Fact
-              invoiceDate={itemDate}
-              post={entreprise}
-              discountedTotal={discountedTotal}
-              payerTotal={payerTotal}
-              clientName={clientInfo.clientName}
-              invoiceNumber={clientInfo.clientNumero}
-              clientId={clientInfo.clientId}
-              modePaiement={invoicePaymentMode || lastSaleDetails?.modePaiement || modePaiement}
-              numeroFac={generatedInvoiceNum || lastSaleDetails?.invoiceCode}
-            />
+          <div id="section-facture-preview" style={{ marginTop: 28 }}>
+            <Paper
+              elevation={0}
+              sx={{
+                borderRadius: '20px',
+                overflow: 'hidden',
+                border: '1px solid rgba(99, 102, 241, 0.3)',
+                boxShadow: '0 12px 36px rgba(99, 102, 241, 0.18)',
+                backgroundColor: 'rgba(15, 23, 42, 0.45)',
+                backdropFilter: 'blur(16px)',
+                mb: 4,
+              }}
+            >
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  px: { xs: 2, sm: 3 },
+                  py: 1.8,
+                  background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(79, 70, 229, 0.18) 100%)',
+                  borderBottom: '1px solid rgba(99, 102, 241, 0.25)',
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                  <ReceiptIcon sx={{ color: '#818cf8', fontSize: 24 }} />
+                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#e0e7ff', letterSpacing: '-0.01em' }}>
+                    Aperçu & Impression de la Facture
+                  </Typography>
+                </Box>
+                <Button
+                  size="small"
+                  startIcon={<CloseIcon />}
+                  onClick={() => setShowInvoice(false)}
+                  sx={{
+                    textTransform: 'none',
+                    borderRadius: '10px',
+                    color: '#f87171',
+                    fontWeight: 600,
+                    fontSize: '0.82rem',
+                    '&:hover': { backgroundColor: 'rgba(239, 68, 68, 0.12)' },
+                  }}
+                >
+                  Fermer l'aperçu
+                </Button>
+              </Box>
+
+              <Box sx={{ p: { xs: 1, sm: 2 } }}>
+                <Fact
+                  invoiceDate={itemDate}
+                  post={entreprise}
+                  discountedTotal={discountedTotal}
+                  payerTotal={payerTotal}
+                  clientName={clientInfo.clientName}
+                  invoiceNumber={clientInfo.clientNumero}
+                  clientId={clientInfo.clientId}
+                  modePaiement={invoicePaymentMode || lastSaleDetails?.modePaiement || modePaiement}
+                  numeroFac={generatedInvoiceNum || lastSaleDetails?.invoiceCode}
+                />
+              </Box>
+            </Paper>
           </div>
         )}
       </div>

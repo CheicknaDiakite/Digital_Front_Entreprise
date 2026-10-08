@@ -6,7 +6,7 @@ import { FormType, FormValueType } from "../typescript/FormType";
 import { useNavigate } from "react-router-dom";
 
 import { DataType, RecupType, SortieUserType, StockType, TypeEntreprise, TypeSlug } from "../typescript/DataType";
-import { foncError, handleAuthError } from "./fonctionPerso";
+import { foncError } from "./fonctionPerso";
 import { AvisType, ClienType, UnUserType, UserType, UtilisateurType } from "../typescript/UserType";
 import { entrepriseService } from "../_services/entreprise.service";
 import { EntrepriseType, HistoriqueType } from "../typescript/Account";
@@ -29,7 +29,7 @@ export function useAddAvis() {
           } else {
             useQ.invalidateQueries({ queryKey: ["AvisGet"] });
             useQ.invalidateQueries({ queryKey: ["avis"] });
-            toast.success("Votre avis a ete envoyer.");
+            toast.success("Votre demande a été transmise au support avec succès.");
           }
         })
     },
@@ -654,7 +654,7 @@ export function useDeleteClient() {
 export function useAllClients(slug: string) {
   const [getClients, setClients] = useState<ClienType[]>([]);
 
-  const { data: us, isLoading, isError } = useQuery({
+  const { data: us, isLoading, isError, refetch } = useQuery({
     queryKey: ["ClientGet", slug],
     queryFn: () =>
       userService.allClients(slug).then((res) => {
@@ -672,7 +672,7 @@ export function useAllClients(slug: string) {
     }
   }, [us]);
 
-  return { getClients, setClients, isLoading, isError };
+  return { getClients, setClients, isLoading, isError, refetch };
 }
 
 // Fonction Pour la entreprise

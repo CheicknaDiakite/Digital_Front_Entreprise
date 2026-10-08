@@ -77,7 +77,7 @@ export function useGetAllDepense(slug: string) {
 
   const [depensesEntreprise, setDepense] = useState<DepenseType[]>([]);
 
-  const { data: us, isLoading, isError, error } = useQuery({
+  const { data: us, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["depenses", slug],
     queryFn: () =>
       depenseService.getAllDepense(slug).then((res) => {
@@ -98,7 +98,7 @@ export function useGetAllDepense(slug: string) {
     if (us) setDepense(us);
   }, [us]);
 
-  return { depensesEntreprise, setDepense, isLoading, isError };
+  return { depensesEntreprise, setDepense, isLoading, isError, refetch };
 }
 
 export function useGetSumDepense(slug: string) {
@@ -312,15 +312,16 @@ export function useCreateEntre() {
   const useQ = useQueryClient();
 
   const ajout = useMutation({
-    mutationFn: (data: EntreFormType) => {
+    mutationFn: (data: EntreFormType | EntreFormType[]) => {
       return entrerService.addEntre(data).then((res) => {
         if (res.data?.etat === false) {
           if (res.data?.message !== "requette invalide") {
             toast.error(res.data?.message);
           }
+          throw new Error(res.data?.message || "Erreur lors de l'enregistrement");
         } else {
           useQ.invalidateQueries({ queryKey: ["entre"] });
-          toast.success("Ajouté avec succès");
+          toast.success(res.data?.message || "Ajouté avec succès");
         }
       });
     },
@@ -331,7 +332,11 @@ export function useCreateEntre() {
     },
   });
 
-  return { ajoutEntre: (post: EntreFormType) => ajout.mutate(post) };
+  return {
+    ajoutEntre: (post: EntreFormType | EntreFormType[], options?: any) => ajout.mutate(post, options),
+    ajoutEntreAsync: (post: EntreFormType | EntreFormType[]) => ajout.mutateAsync(post),
+    isLoading: ajout.isPending,
+  };
 }
 
 export function useUpdateEntre() {
