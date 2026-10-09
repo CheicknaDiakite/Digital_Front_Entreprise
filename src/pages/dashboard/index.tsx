@@ -88,7 +88,8 @@ export default function DashboardDefault() {
   const { sortiesUser } = useSortieUserEntreprise(entreprise_uuid || '');
   const { getRestruction } = useRestructionUsers();
 
-  const userRole = unUser?.role ?? 3;
+  const isDecouverteOwner = !unUser?.role || unUser?.role === 0 || unEntreprise?.proprietaire_id === unUser?.id;
+  const userRole = (unUser?.role && unUser.role !== 0) ? unUser.role : (isDecouverteOwner ? 1 : 3);
   const isOwner = userRole === 1;
   const isManager = userRole === 2;
   const canViewFinancials = isOwner || isManager;
@@ -576,6 +577,7 @@ export default function DashboardDefault() {
         <DashboardQuickActions
           userRole={userRole}
           isLicenceSimple={unEntreprise?.licence_type === 'Stock Simple'}
+          canManageExpenses={Boolean(unEntreprise?.capabilities?.depenses)}
         />
 
         {/* ── 3. Bandes d'Indicateurs Clés (KPIs Ventes, Marge, Stock) ── */}

@@ -160,6 +160,8 @@ export type TypeEntreprise = {
     user_id?: string;
     pays?: string;
     created_at?: string;
+    capabilities?: any;
+    proprietaire_id?: number | string;
 }
 
 type StockMonth = {

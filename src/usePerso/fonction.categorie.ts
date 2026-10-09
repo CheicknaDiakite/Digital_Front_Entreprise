@@ -78,12 +78,10 @@ export function useCreateCategorie() {
       mutationFn: (data: CategorieFormType) => {
         return categorieService.addCategorie(data).then((res) => {
           if (res.data?.etat === false) {
-            if (res.data?.message !== "requette invalide") {
-              toast.error(res.data?.message);
-            }
+            throw new Error(res.data?.message || "Erreur lors de la création de la catégorie");
           } else {
             useQ.invalidateQueries({ queryKey: ["enRecup"] });
-            // toast.success("Ajouté avec succès");
+            return res.data;
           }
         });
       },
@@ -94,7 +92,11 @@ export function useCreateCategorie() {
       },
     });
 
-    return { ajoutCategorie: (post: CategorieFormType) => ajout.mutate(post) };
+    return {
+      ajoutCategorie: (post: CategorieFormType) => ajout.mutate(post),
+      ajoutCategorieAsync: (post: CategorieFormType) => ajout.mutateAsync(post),
+      isPending: ajout.isPending,
+    };
 }
 
 export function useUpdateCategorie() {
@@ -304,12 +306,11 @@ export function useCreateSousCate() {
     mutationFn: (data: SousCategorieFormType) => {
       return souscategorieService.addSousCategorie(data).then((res) => {
         if (res.data?.etat === false) {
-          if (res.data?.message !== "requette invalide") {
-            // toast.error(res.data?.message);
-          }
+          throw new Error(res.data?.message || "Erreur lors de la création du produit");
         } else {
           useQ.invalidateQueries({ queryKey: ["SouCategorie"] });
-          // toast.success("Ajouté avec succès");
+          useQ.invalidateQueries({ queryKey: ["enRecup"] });
+          return res.data;
         }
       });
     },
@@ -320,7 +321,11 @@ export function useCreateSousCate() {
     },
   });
 
-  return { ajoutSousCate: (post: SousCategorieFormType) => ajout.mutate(post) };
+  return {
+    ajoutSousCate: (post: SousCategorieFormType) => ajout.mutate(post),
+    ajoutSousCateAsync: (post: SousCategorieFormType) => ajout.mutateAsync(post),
+    isPending: ajout.isPending,
+  };
 }
 
 export function useUpdateSousCate() {

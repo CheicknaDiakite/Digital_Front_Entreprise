@@ -46,10 +46,10 @@ import FactureDetail from '../../boutique/sortie/FactureDetail'
 import Historique from '../../boutique/proprietaire/historique/Historique'
 import NotFound from '../../pages/extra-pages/not-found'
 import { useAppSettings } from '../../themes/AppSettingsContext';
-
+import { notClick } from '../../usePerso/fonctionPerso'
 
 export default function PublicRouter() {
-  // notClick()
+  notClick()
   const uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise, isLoading } = useFetchEntreprise(uuid);
   const url = unEntreprise.image ? BASE(unEntreprise.image) : backgroundImage;

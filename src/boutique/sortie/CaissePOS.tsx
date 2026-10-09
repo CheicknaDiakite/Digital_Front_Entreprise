@@ -1234,9 +1234,12 @@ export default function CaissePOS({
         fullWidth
         PaperProps={{
           sx: {
-            borderRadius: '20px',
-            bgcolor: isDark ? '#0f172a' : '#ffffff',
+            borderRadius: '24px',
+            bgcolor: isDark ? '#152238' : '#ffffff',
             backgroundImage: 'none',
+            border: isDark ? '1px solid rgba(255, 255, 255, 0.14)' : '1px solid rgba(0, 0, 0, 0.08)',
+            boxShadow: isDark ? '0 25px 60px rgba(0, 0, 0, 0.75), 0 0 35px rgba(99, 102, 241, 0.1)' : '0 20px 45px rgba(0, 0, 0, 0.15)',
+            colorScheme: isDark ? 'dark' : 'light',
           },
         }}
       >

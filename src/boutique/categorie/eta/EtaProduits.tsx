@@ -14,11 +14,13 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { ChartSection } from '../../../pages/dashboard/components/ChartSection';
 import MonthlyBarChart from '../../../pages/dashboard/MonthlyBarChart';
-import { useStockSemaine } from '../../../usePerso/fonction.user';
+import { useFetchEntreprise, useStockSemaine } from '../../../usePerso/fonction.user';
 import { useStoreUuid } from '../../../usePerso/store';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
 import BarChartOutlinedIcon from '@mui/icons-material/BarChartOutlined';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
+import { usePlanAccess } from '../../../hooks/usePlanAccess';
+import FeatureGate from '../../../components/FeatureGate';
 
 interface ProductSaleDetails {
   details: any;
@@ -38,6 +40,8 @@ const MonthlyProductChart = ({ saleData }: { saleData: ProductSaleDetails }) => 
 export default function EtaProduits() {
   const theme = useTheme();
   const uuid = useStoreUuid((state) => state.selectedId);
+  const { unEntreprise } = useFetchEntreprise(uuid);
+  const planAccess = usePlanAccess(unEntreprise?.capabilities);
   const currentYear = new Date().getFullYear();
   const [annee, setAnnee] = useState<number>(currentYear);
   const [selectedMonthFilter, setSelectedMonthFilter] = useState<string>('all');
@@ -57,6 +61,21 @@ export default function EtaProduits() {
     if (selectedMonthFilter === 'all') return rawMonths;
     return rawMonths.filter((m) => m.month === selectedMonthFilter);
   }, [rawMonths, selectedMonthFilter]);
+
+  if (planAccess.isDecouverte) {
+    return (
+      <Box sx={{ maxWidth: '1400px', mx: 'auto', p: { xs: 1.5, sm: 3 } }}>
+        <FeatureGate
+          hasAccess={false}
+          requiredPlan="Stock Simple"
+          featureTitle="État et Analyse des Produits"
+          description="Visualisez l'état mensuel des ventes par produit, les histogrammes de performance et la répartition détaillée de vos stocks."
+        >
+          <div />
+        </FeatureGate>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ py: 2 }}>

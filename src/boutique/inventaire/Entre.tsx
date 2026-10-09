@@ -50,6 +50,8 @@ export default function Entre() {
   const uuid = useStoreUuid((state) => state.selectedId);
   const { unUser } = useFetchUser();
   const { unEntreprise } = useFetchEntreprise(uuid);
+  const isDecouverteOwner = !unUser.role || unUser.role === 0 || unEntreprise?.proprietaire_id === unUser.id;
+  const isOwner = unUser.role === 1 || isDecouverteOwner;
   const { ajoutEntre } = useCreateEntre();
   const [ajout_terminer, setTerminer] = useState(false);
   const [is_sortie, setSortie] = useState(true);
@@ -218,7 +220,7 @@ export default function Entre() {
       { label: 'Désignations', align: 'left' },
       { label: 'Quantité', align: 'right' },
       { label: 'Prix Unitaire (vente)', align: 'right' },
-      ...(unUser.role === 1 ? [
+      ...(isOwner ? [
         { label: 'Prix Unitaire (achat)', align: 'right' as const },
         { label: 'Total', align: 'right' as const },
       ] : []),
@@ -395,7 +397,7 @@ export default function Entre() {
                   </TableRow>
                 )}
 
-                {unUser.role === 1 && filteredBoutiques?.length > 0 && (
+                {isOwner && filteredBoutiques?.length > 0 && (
                   <>
                     <TableRow className={isMobile ? 'mobile-total-row' : ''}>
                       <TableCell colSpan={5} />
@@ -433,22 +435,35 @@ export default function Entre() {
           fullWidth
           maxWidth="sm"
           PaperProps={{
-            elevation: 0,
-            className: "rounded-10",
-            sx: isMobile ? {
-              borderRadius: '20px',
-              backdropFilter: 'blur(10px)'
-            } : {}
+            sx: {
+              borderRadius: '24px',
+              bgcolor: isDarkText ? '#152238' : '#ffffff',
+              backgroundImage: 'none',
+              border: isDarkText ? '1px solid rgba(255, 255, 255, 0.14)' : '1px solid rgba(0, 0, 0, 0.08)',
+              boxShadow: isDarkText
+                ? '0 25px 60px rgba(0, 0, 0, 0.75), 0 0 35px rgba(59, 130, 246, 0.1)'
+                : '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              overflow: 'hidden',
+              colorScheme: isDarkText ? 'dark' : 'light',
+            },
           }}
         >
           <DialogTitle 
-          className={`flex justify-between items-center bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700 text-white border-b pb-3`}
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              background: 'linear-gradient(135deg, #3b82f6 0%, #10b981 100%)',
+              color: '#ffffff',
+              px: { xs: 2.5, sm: 3 },
+              py: 2,
+            }}
           >
-            <Typography variant="h6" className="font-semibold">
-              Nouvelle Entrée
+            <Typography variant="h6" sx={{ fontWeight: 800, color: '#ffffff' }}>
+              Nouvelle Entrée en Stock
             </Typography>
-            <IconButton onClick={closeopen} size="small">
-              <CloseIcon />
+            <IconButton onClick={closeopen} size="small" sx={{ color: '#ffffff', '&:hover': { bgcolor: 'rgba(255,255,255,0.15)' } }}>
+              <CloseIcon fontSize="small" />
             </IconButton>
           </DialogTitle>
 

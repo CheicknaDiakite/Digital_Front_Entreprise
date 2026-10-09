@@ -1,5 +1,4 @@
 import {
-  Avatar,
   Box,
   Card,
   CardContent,
@@ -7,14 +6,15 @@ import {
   Grid,
   Paper,
   Skeleton,
-  Stack,
   Typography,
   useTheme,
 } from '@mui/material';
 import { useMemo, useState } from 'react';
 import { ChartSection } from '../../../pages/dashboard/components/ChartSection';
-import { useSortieUserEntreprise } from '../../../usePerso/fonction.user';
+import { useSortieUserEntreprise, useFetchEntreprise } from '../../../usePerso/fonction.user';
 import { useStoreUuid } from '../../../usePerso/store';
+import { usePlanAccess } from '../../../hooks/usePlanAccess';
+import FeatureGate from '../../../components/FeatureGate';
 import {
   BarChart,
   Bar,
@@ -73,6 +73,8 @@ const LoadingSkeleton = () => (
 export default function VenteUsers() {
   const theme = useTheme();
   const uuid = useStoreUuid((state) => state.selectedId);
+  const { unEntreprise } = useFetchEntreprise(uuid);
+  const planAccess = usePlanAccess(unEntreprise?.capabilities);
   const { sortiesUser, isLoading } = useSortieUserEntreprise(uuid!);
 
   const monthlyData: MonthlyData[] = (sortiesUser?.mensuel_par_utilisateur as MonthlyData[]) || [];
@@ -116,6 +118,21 @@ export default function VenteUsers() {
   }, [sortedUsers]);
 
   const paletteColors = ['#6366f1', '#10b981', '#f59e0b', '#0ea5e9', '#ec4899', '#8b5cf6'];
+
+  if (!planAccess.canAddCollaborators) {
+    return (
+      <Box sx={{ py: 4 }}>
+        <FeatureGate
+          hasAccess={false}
+          requiredPlan="Stock Pro"
+          featureTitle="Ventes par utilisateur"
+          description="Analysez les performances individuelles de vos vendeurs et collaborateurs, commissions et volumes d'articles vendus."
+        >
+          <div />
+        </FeatureGate>
+      </Box>
+    );
+  }
 
   if (isLoading) return <LoadingSkeleton />;
 

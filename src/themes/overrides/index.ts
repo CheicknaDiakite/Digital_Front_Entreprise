@@ -7,6 +7,7 @@ import Button from './Button';
 import CardContent from './CardContent';
 import Checkbox from './Checkbox';
 import Chip from './Chip';
+import Dialog from './Dialog';
 import IconButton from './IconButton';
 import InputLabel from './InputLabel';
 import LinearProgress from './LinearProgress';
@@ -28,6 +29,7 @@ export default function ComponentsOverrides(theme: Theme) {
     CardContent(),
     Checkbox(theme),
     Chip(theme),
+    Dialog(theme),
     IconButton(theme),
     InputLabel(theme),
     LinearProgress(),

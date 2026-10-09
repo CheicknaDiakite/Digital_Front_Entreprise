@@ -15,25 +15,27 @@ import { useAppSettings } from '../../../themes/AppSettingsContext';
 interface DashboardQuickActionsProps {
   userRole?: number; // 1 = Propriétaire, 2 = Gérant, 3 = Vendeur
   isLicenceSimple?: boolean;
+  canManageExpenses?: boolean;
 }
 
 export const DashboardQuickActions: React.FC<DashboardQuickActionsProps> = ({
-  userRole = 3,
+  userRole,
   isLicenceSimple = false,
+  canManageExpenses = false,
 }) => {
   const theme = useTheme();
   const { showBackground } = useAppSettings();
   const isDark = theme.palette.mode === 'dark' || showBackground;
   const navigate = useNavigate();
 
-  const isOwner = userRole === 1;
+  // Si userRole n'est pas 2 (Gérant) ni 3 (Vendeur), c'est le Propriétaire (1, ou nouveau compte en Découverte)
+  const isOwner = userRole === 1 || !userRole || userRole === 0;
   const isManager = userRole === 2;
-  const canManageExpenses = !isLicenceSimple && (isOwner || isManager);
   const canManageStock = isOwner || isManager;
 
   const primaryActions = [
     {
-      title: 'Nouvelle Vente (POS)',
+      title: 'Nouvelle Vente',
       description: 'Caisse enregistreuse, encaissement & reçu',
       icon: <PointOfSaleIcon sx={{ fontSize: { xs: 28, sm: 32 } }} />,
       to: '/sortie',
@@ -61,8 +63,8 @@ export const DashboardQuickActions: React.FC<DashboardQuickActionsProps> = ({
       color: '#f43f5e',
       bgGradient: 'linear-gradient(135deg, #f43f5e 0%, #e11d48 100%)',
       shadowColor: 'rgba(244, 63, 94, 0.4)',
-      badge: 'Charges',
-      hidden: !canManageExpenses,
+      badge: !canManageExpenses ? 'Pro' : 'Charges',
+      hidden: !canManageStock,
     },
     {
       title: 'Catalogue & Produits',

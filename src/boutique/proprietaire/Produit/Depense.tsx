@@ -45,6 +45,8 @@ import { useFetchEntreprise, useFetchUser } from '../../../usePerso/fonction.use
 import Chart_Dep from '../../../_components/Chart/Chart_Dep';
 import { PageHeader, KpiCard, FilterBar } from '../../../_components/common';
 import { useAppSettings } from '../../../themes/AppSettingsContext';
+import { usePlanAccess } from '../../../hooks/usePlanAccess';
+import FeatureGate from '../../../components/FeatureGate';
 import './mobile-produit.css';
 
 const EXPENSE_CATEGORIES = [
@@ -61,6 +63,7 @@ const EXPENSE_CATEGORIES = [
 export default function Depense() {
   const uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise } = useFetchEntreprise(uuid);
+  const planAccess = usePlanAccess(unEntreprise?.capabilities);
   const { unUser } = useFetchUser();
   const user_id = unUser?.uuid || '';
 
@@ -223,6 +226,21 @@ export default function Depense() {
     document.body.removeChild(link);
     toast.success('Dépenses exportées en CSV');
   };
+
+  if (!planAccess.canManageExpenses) {
+    return (
+      <Box sx={{ width: '100%', py: 4 }}>
+        <FeatureGate
+          hasAccess={false}
+          requiredPlan="Stock Pro"
+          featureTitle="Gestion des Dépenses"
+          description="Enregistrez et analysez les charges d'exploitation de votre entreprise (loyer, salaires, factures, fournitures) avec bilans et justificatifs."
+        >
+          <div />
+        </FeatureGate>
+      </Box>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -460,32 +478,73 @@ export default function Depense() {
         fullWidth
         PaperProps={{
           sx: {
-            borderRadius: '20px',
-            bgcolor: isDark ? '#1e293b' : '#ffffff',
+            borderRadius: '24px',
+            bgcolor: isDark ? '#152238' : '#ffffff',
+            backgroundImage: 'none',
+            border: isDark ? '1px solid rgba(255, 255, 255, 0.14)' : '1px solid rgba(0, 0, 0, 0.08)',
+            boxShadow: isDark
+              ? '0 25px 60px rgba(0,0,0,0.75), 0 0 35px rgba(239,68,68,0.1)'
+              : '0 20px 45px rgba(0,0,0,0.15)',
+            colorScheme: isDark ? 'dark' : 'light',
           },
         }}
       >
-        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Stack direction="row" spacing={1} alignItems="center">
-            <TrendingDownIcon sx={{ color: '#ef4444' }} />
-            <Typography variant="h6" sx={{ fontWeight: 800 }}>
-              Enregistrer une Dépense
-            </Typography>
+        <DialogTitle
+          sx={{
+            p: { xs: 2.5, sm: 3 },
+            pb: 2,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            borderBottom: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.06)',
+          }}
+        >
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <Box
+              sx={{
+                width: 44,
+                height: 44,
+                borderRadius: '13px',
+                background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 6px 14px rgba(239,68,68,0.35)',
+                flexShrink: 0,
+              }}
+            >
+              <TrendingDownIcon sx={{ color: '#ffffff', fontSize: 24 }} />
+            </Box>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 800, color: 'text.primary', lineHeight: 1.2 }}>
+                Enregistrer une Dépense
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                Saisie d'une charge d'exploitation ou sortie de caisse
+              </Typography>
+            </Box>
           </Stack>
-          <IconButton size="small" onClick={() => setOpen(false)}>
-            <CloseIcon />
+          <IconButton
+            size="small"
+            onClick={() => setOpen(false)}
+            sx={{
+              color: 'text.secondary',
+              '&:hover': { bgcolor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' },
+            }}
+          >
+            <CloseIcon fontSize="small" />
           </IconButton>
         </DialogTitle>
 
         {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
-          <DialogContent>
+          <DialogContent sx={{ p: 3 }}>
             <M_Abonnement />
           </DialogContent>
         ) : (
-          <DialogContent sx={{ pt: 1 }}>
-            <Box component="form" onSubmit={onSubmit} sx={{ mt: 1 }}>
+          <DialogContent sx={{ p: { xs: 2.5, sm: 3 }, pt: '20px !important' }}>
+            <Box component="form" onSubmit={onSubmit}>
               {/* Category selector chips */}
-              <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', display: 'block', mb: 1 }}>
+              <Typography variant="caption" sx={{ fontWeight: 700, color: isDark ? '#94a3b8' : 'text.secondary', display: 'block', mb: 1 }}>
                 Catégorie de la dépense :
               </Typography>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.8, mb: 2.5 }}>
@@ -496,12 +555,29 @@ export default function Depense() {
                       key={cat}
                       label={cat}
                       onClick={() => setFormCategory(cat)}
-                      color={isSelected ? 'error' : 'default'}
                       variant={isSelected ? 'filled' : 'outlined'}
                       sx={{
                         fontWeight: 700,
                         cursor: 'pointer',
                         borderRadius: '8px',
+                        bgcolor: isSelected
+                          ? '#ef4444'
+                          : isDark
+                          ? 'rgba(255,255,255,0.05)'
+                          : 'rgba(0,0,0,0.03)',
+                        color: isSelected
+                          ? '#ffffff'
+                          : isDark
+                          ? '#cbd5e1'
+                          : '#475569',
+                        borderColor: isSelected
+                          ? '#ef4444'
+                          : isDark
+                          ? 'rgba(255,255,255,0.2)'
+                          : 'rgba(0,0,0,0.14)',
+                        '&:hover': {
+                          bgcolor: isSelected ? '#dc2626' : isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)',
+                        },
                       }}
                     />
                   );
@@ -520,10 +596,14 @@ export default function Depense() {
                     value={formValues.somme}
                     onChange={(e) => setFormValues({ ...formValues, somme: e.target.value })}
                     InputProps={{
-                      endAdornment: <InputAdornment position="end">F CFA</InputAdornment>,
+                      endAdornment: (
+                        <InputAdornment position="end" sx={{ '& p': { color: isDark ? '#fca5a5' : '#ef4444', fontWeight: 700 } }}>
+                          F CFA
+                        </InputAdornment>
+                      ),
                     }}
                     sx={{
-                      '& .MuiOutlinedInput-input': { fontWeight: 800, color: '#ef4444', fontSize: '1rem' },
+                      '& .MuiOutlinedInput-input': { fontWeight: 800, color: isDark ? '#f87171' : '#ef4444', fontSize: '1rem' },
                     }}
                   />
                 </Grid>
@@ -539,6 +619,7 @@ export default function Depense() {
                     value={formValues.date}
                     onChange={(e) => setFormValues({ ...formValues, date: e.target.value })}
                     InputLabelProps={{ shrink: true }}
+                    inputProps={{ style: { colorScheme: isDark ? 'dark' : 'light' } }}
                   />
                 </Grid>
 
@@ -560,12 +641,20 @@ export default function Depense() {
                     component="label"
                     variant="outlined"
                     fullWidth
-                    startIcon={<CloudUploadIcon />}
+                    startIcon={<CloudUploadIcon sx={{ color: isDark ? '#f87171' : '#ef4444' }} />}
                     sx={{
-                      py: 1.2,
+                      py: 1.3,
                       borderRadius: '12px',
                       textTransform: 'none',
                       borderStyle: 'dashed',
+                      borderColor: isDark ? 'rgba(239, 68, 68, 0.45)' : '#fca5a5',
+                      bgcolor: isDark ? 'rgba(239, 68, 68, 0.05)' : '#fff5f5',
+                      color: isDark ? '#fca5a5' : '#b91c1c',
+                      fontWeight: 600,
+                      '&:hover': {
+                        borderColor: '#ef4444',
+                        bgcolor: isDark ? 'rgba(239, 68, 68, 0.1)' : '#fee2e2',
+                      },
                     }}
                   >
                     {image ? image.name : 'Joindre un justificatif / reçu / facture (optionnel)'}
@@ -579,7 +668,17 @@ export default function Depense() {
                 <Button
                   variant="outlined"
                   onClick={() => setOpen(false)}
-                  sx={{ borderRadius: '10px', textTransform: 'none', fontWeight: 600 }}
+                  sx={{
+                    borderRadius: '10px',
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    borderColor: isDark ? 'rgba(255,255,255,0.2)' : undefined,
+                    color: isDark ? '#cbd5e1' : undefined,
+                    '&:hover': {
+                      borderColor: isDark ? 'rgba(255,255,255,0.4)' : undefined,
+                      bgcolor: isDark ? 'rgba(255,255,255,0.05)' : undefined,
+                    },
+                  }}
                 >
                   Annuler
                 </Button>

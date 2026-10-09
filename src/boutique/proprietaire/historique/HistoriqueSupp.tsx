@@ -27,7 +27,7 @@ import {
 } from '@mui/material';
 import { useMemo, useState } from 'react';
 import { format } from 'date-fns';
-import { useHistorySuppEntreprise } from '../../../usePerso/fonction.user';
+import { useFetchEntreprise, useHistorySuppEntreprise } from '../../../usePerso/fonction.user';
 import { useStoreUuid } from '../../../usePerso/store';
 import { formatNumberWithSpaces } from '../../../usePerso/fonctionPerso';
 import { HistoriqueType } from '../../../typescript/Account';
@@ -37,6 +37,8 @@ import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
+import { usePlanAccess } from '../../../hooks/usePlanAccess';
+import FeatureGate from '../../../components/FeatureGate';
 
 // Skeletons de chargement
 const LoadingSkeleton = () => (
@@ -56,6 +58,8 @@ const LoadingSkeleton = () => (
 export default function HistoriqueSupp() {
   const theme = useTheme();
   const uuid = useStoreUuid((state) => state.selectedId);
+  const { unEntreprise } = useFetchEntreprise(uuid);
+  const planAccess = usePlanAccess(unEntreprise?.capabilities);
   const { suppH, isLoading, isError } = useHistorySuppEntreprise(uuid!);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -113,6 +117,21 @@ export default function HistoriqueSupp() {
     setSelectedDate('');
     setCurrentPage(1);
   };
+
+  if (planAccess.isDecouverte) {
+    return (
+      <Box sx={{ maxWidth: '1400px', mx: 'auto', p: { xs: 1.5, sm: 3 } }}>
+        <FeatureGate
+          hasAccess={false}
+          requiredPlan="Stock Simple"
+          featureTitle="Registre des Suppressions & Audit"
+          description="Consultez l'historique complet d'audit des suppressions de produits, mouvements et données critiques pour sécuriser votre activité."
+        >
+          <div />
+        </FeatureGate>
+      </Box>
+    );
+  }
 
   if (isLoading) return <LoadingSkeleton />;
 

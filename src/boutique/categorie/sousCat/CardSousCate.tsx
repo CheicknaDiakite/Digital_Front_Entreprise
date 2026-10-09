@@ -13,7 +13,7 @@ export const CardSousCate: FC<CardSousCateProps> = ({ post }) => {
       {/* <Link to={`/categorie/info/${post.uuid}`}>
         <AnalyticEcommerce title={post.libelle} pied={"categorie"} />
       </Link> */}
-      {unUser.role === 1 ?      
+      {(unUser.role === 1 || !unUser.role || unUser.role === 0) ?      
       <Link to={`/categorie/info/${post.uuid}`}>
         <AnalyticEcommerce title={post.libelle} pied={"categorie"} />
       </Link>

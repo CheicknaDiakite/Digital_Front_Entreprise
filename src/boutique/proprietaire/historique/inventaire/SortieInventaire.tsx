@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { useMemo, useState } from 'react';
 import { useStoreUuid } from '../../../../usePerso/store';
-import { useFetchUser, useStockEntreprise } from '../../../../usePerso/fonction.user';
+import { useFetchEntreprise, useFetchUser, useStockEntreprise } from '../../../../usePerso/fonction.user';
 import { formatNumberWithSpaces } from '../../../../usePerso/fonctionPerso';
 import AnalyticEcommerce from '../../../../components/cards/statistics/AnalyticEcommerce';
 import { format } from 'date-fns';
@@ -24,6 +24,8 @@ import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
 import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
 import SignalCellularAltOutlinedIcon from '@mui/icons-material/SignalCellularAltOutlined';
+import { usePlanAccess } from '../../../../hooks/usePlanAccess';
+import FeatureGate from '../../../../components/FeatureGate';
 
 interface MonthlyDetail {
   somme_qte: number;
@@ -54,6 +56,8 @@ const LoadingSkeleton = () => (
 export default function SortieInventaire() {
   const theme = useTheme();
   const uuid = useStoreUuid((state) => state.selectedId);
+  const { unEntreprise } = useFetchEntreprise(uuid);
+  const planAccess = usePlanAccess(unEntreprise?.capabilities);
   const { unUser } = useFetchUser();
   const { stockEntreprise, isLoading, isError } = useStockEntreprise(uuid || '');
 
@@ -117,6 +121,21 @@ export default function SortieInventaire() {
     const avgCA = Math.round(totalCA / filteredMonths.length);
     return { totalCA, totalQte, avgCA, bestMonth: best };
   }, [filteredMonths]);
+
+  if (planAccess.isDecouverte) {
+    return (
+      <Box sx={{ maxWidth: '1400px', mx: 'auto', p: { xs: 1.5, sm: 3 } }}>
+        <FeatureGate
+          hasAccess={false}
+          requiredPlan="Stock Simple"
+          featureTitle="Historique des Sorties d'Inventaire"
+          description="Analysez les volumes de sorties mensuelles, le chiffre d'affaires généré et l'historique complet de vos déstockages."
+        >
+          <div />
+        </FeatureGate>
+      </Box>
+    );
+  }
 
   if (isLoading) return <LoadingSkeleton />;
 

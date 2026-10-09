@@ -41,6 +41,8 @@ import { useFetchEntreprise, useFetchUser } from '../../../../usePerso/fonction.
 import { isLicenceExpired } from '../../../../usePerso/fonctionPerso';
 import { useAppSettings } from '../../../../themes/AppSettingsContext';
 import { PageHeader, KpiCard, FilterBar } from '../../../../_components/common';
+import { usePlanAccess } from '../../../../hooks/usePlanAccess';
+import FeatureGate from '../../../../components/FeatureGate';
 
 export default function FacEntre() {
   const theme = useTheme();
@@ -49,6 +51,7 @@ export default function FacEntre() {
 
   const uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise } = useFetchEntreprise(uuid);
+  const planAccess = usePlanAccess(unEntreprise?.capabilities);
 
   const { unUser } = useFetchUser();
   const user_id = unUser?.uuid || '';
@@ -180,6 +183,21 @@ export default function FacEntre() {
     setEndDate('');
     setCurrentPage(1);
   };
+
+  if (planAccess.isDecouverte) {
+    return (
+      <Box sx={{ maxWidth: '1400px', mx: 'auto', p: { xs: 1.5, sm: 3 } }}>
+        <FeatureGate
+          hasAccess={false}
+          requiredPlan="Stock Simple"
+          featureTitle="Registre des Factures d'Achat"
+          description="Gérez, consultez et archivez l'ensemble des factures d'achat et approvisionnements de vos fournisseurs."
+        >
+          <div />
+        </FeatureGate>
+      </Box>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -398,10 +416,13 @@ export default function FacEntre() {
         maxWidth="sm"
         PaperProps={{
           sx: {
-            borderRadius: '20px',
-            backgroundColor: isDark ? 'rgba(15, 23, 42, 0.95)' : '#ffffff',
-            backdropFilter: 'blur(16px)',
-            border: isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.08)',
+            borderRadius: '24px',
+            backgroundColor: isDark ? '#152238' : '#ffffff',
+            backgroundImage: 'none',
+            border: isDark ? '1px solid rgba(255, 255, 255, 0.14)' : '1px solid rgba(0, 0, 0, 0.08)',
+            boxShadow: isDark ? '0 25px 60px rgba(0, 0, 0, 0.75), 0 0 35px rgba(168, 85, 247, 0.1)' : '0 20px 45px rgba(0, 0, 0, 0.15)',
+            overflow: 'hidden',
+            colorScheme: isDark ? 'dark' : 'light',
           },
         }}
       >
@@ -412,18 +433,18 @@ export default function FacEntre() {
             alignItems: 'center',
             background: 'linear-gradient(135deg, #a855f7 0%, #7e22ce 100%)',
             color: '#ffffff',
-            px: 3,
+            px: { xs: 2.5, sm: 3 },
             py: 2,
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <ReceiptIcon />
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, color: '#ffffff' }}>
               Ajouter une facture d'achat / approvisionnement
             </Typography>
           </Box>
-          <IconButton onClick={() => setOpen(false)} size="small" sx={{ color: '#ffffff' }}>
-            <CloseIcon />
+          <IconButton onClick={() => setOpen(false)} size="small" sx={{ color: '#ffffff', '&:hover': { bgcolor: 'rgba(255,255,255,0.15)' } }}>
+            <CloseIcon fontSize="small" />
           </IconButton>
         </DialogTitle>
 
@@ -444,7 +465,7 @@ export default function FacEntre() {
                   onChange={onChange}
                   placeholder="Ex: Facture livraison fournisseur"
                   InputProps={{
-                    startAdornment: <DescriptionIcon sx={{ mr: 1, color: '#94a3b8' }} />,
+                    startAdornment: <DescriptionIcon sx={{ mr: 1, color: isDark ? '#c084fc' : '#94a3b8' }} />,
                   }}
                 />
 
@@ -457,7 +478,7 @@ export default function FacEntre() {
                   onChange={onChange}
                   placeholder="Ex: BON-APPRO-2026-09"
                   InputProps={{
-                    startAdornment: <ReceiptIcon sx={{ mr: 1, color: '#94a3b8' }} />,
+                    startAdornment: <ReceiptIcon sx={{ mr: 1, color: isDark ? '#c084fc' : '#94a3b8' }} />,
                   }}
                 />
 
@@ -470,26 +491,27 @@ export default function FacEntre() {
                   value={formValues.date}
                   onChange={onChange}
                   InputLabelProps={{ shrink: true }}
+                  inputProps={{ style: { colorScheme: isDark ? 'dark' : 'light' } }}
                   InputProps={{
-                    startAdornment: <DateRangeIcon sx={{ mr: 1, color: '#94a3b8' }} />,
+                    startAdornment: <DateRangeIcon sx={{ mr: 1, color: isDark ? '#c084fc' : '#94a3b8' }} />,
                   }}
                 />
 
                 <Box
                   sx={{
                     border: '2px dashed',
-                    borderColor: isDark ? 'rgba(168, 85, 247, 0.4)' : '#e9d5ff',
+                    borderColor: isDark ? 'rgba(168, 85, 247, 0.45)' : '#e9d5ff',
                     borderRadius: '14px',
                     p: 2.5,
                     textAlign: 'center',
-                    backgroundColor: isDark ? 'rgba(168, 85, 247, 0.05)' : '#faf5ff',
+                    backgroundColor: isDark ? 'rgba(168, 85, 247, 0.06)' : '#faf5ff',
                   }}
                 >
                   <CloudUploadIcon sx={{ fontSize: 36, color: '#a855f7', mb: 1 }} />
                   <Typography variant="subtitle2" sx={{ fontWeight: 600, color: isDark ? '#e2e8f0' : '#334155' }}>
                     {image ? image.name : 'Pièce jointe fournisseur (PDF ou image)'}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: '#94a3b8', display: 'block', mb: 1.5 }}>
+                  <Typography variant="caption" sx={{ color: isDark ? '#94a3b8' : '#64748b', display: 'block', mb: 1.5 }}>
                     Optionnel — Facture scannée, bon de commande ou reçu
                   </Typography>
                   <Button
@@ -497,7 +519,7 @@ export default function FacEntre() {
                     component="label"
                     size="small"
                     startIcon={<AttachFileIcon />}
-                    sx={{ textTransform: 'none', borderRadius: '10px', borderColor: '#a855f7', color: '#a855f7' }}
+                    sx={{ textTransform: 'none', borderRadius: '10px', borderColor: '#a855f7', color: isDark ? '#c084fc' : '#a855f7' }}
                   >
                     Parcourir le fichier
                     <input type="file" hidden onChange={handleImageChange} accept=".pdf,image/*" />
@@ -508,7 +530,16 @@ export default function FacEntre() {
                   <Button
                     variant="outlined"
                     onClick={() => setOpen(false)}
-                    sx={{ textTransform: 'none', borderRadius: '12px' }}
+                    sx={{
+                      textTransform: 'none',
+                      borderRadius: '12px',
+                      borderColor: isDark ? 'rgba(255,255,255,0.2)' : undefined,
+                      color: isDark ? '#cbd5e1' : undefined,
+                      '&:hover': {
+                        borderColor: isDark ? 'rgba(255,255,255,0.4)' : undefined,
+                        bgcolor: isDark ? 'rgba(255,255,255,0.05)' : undefined,
+                      },
+                    }}
                   >
                     Annuler
                   </Button>

@@ -210,7 +210,7 @@ export default function CardTableSortie({ row }: any) {
       </TableCell>
 
       {/* Action */}
-      {(unUser.role === 1 || unUser.role === 2) && (
+      {(unUser.role === 1 || unUser.role === 2 || !unUser.role || unUser.role === 0) && (
         <TableCell sx={{ py: 1.5 }}>
           <Link to={`/sortie/modif/${row.uuid}`}>
             <Stack direction="row" spacing={1}>

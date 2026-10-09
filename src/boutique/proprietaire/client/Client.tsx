@@ -39,11 +39,13 @@ import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import toast from 'react-hot-toast';
 
-import { useAllClients, useCreateClient, useFetchUser } from '../../../usePerso/fonction.user';
+import { useAllClients, useCreateClient, useFetchEntreprise, useFetchUser } from '../../../usePerso/fonction.user';
 import { useStoreUuid } from '../../../usePerso/store';
 import { ClienType } from '../../../typescript/UserType';
 import { PageHeader, KpiCard, FilterBar } from '../../../_components/common';
 import { useAppSettings } from '../../../themes/AppSettingsContext';
+import { usePlanAccess } from '../../../hooks/usePlanAccess';
+import FeatureGate from '../../../components/FeatureGate';
 
 export default function Client() {
   const theme = useTheme();
@@ -52,6 +54,8 @@ export default function Client() {
   const navigate = useNavigate();
 
   const uuid = useStoreUuid((state) => state.selectedId);
+  const { unEntreprise } = useFetchEntreprise(uuid);
+  const planAccess = usePlanAccess(unEntreprise?.capabilities);
   const { unUser } = useFetchUser();
   const { getClients = [], isLoading, refetch } = useAllClients(uuid || '');
   const { createClient } = useCreateClient();
@@ -180,6 +184,21 @@ export default function Client() {
       toast.success('Contact enregistré avec succès');
     }, 600);
   };
+
+  if (!planAccess.canManageClients) {
+    return (
+      <Box sx={{ width: '100%', py: 4 }}>
+        <FeatureGate
+          hasAccess={false}
+          requiredPlan="Stock Simple"
+          featureTitle="Gestion des Clients & Fournisseurs"
+          description="Créez et suivez votre carnet d'adresses clients et fournisseurs, coordonnées et historique commercial."
+        >
+          <div />
+        </FeatureGate>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ width: '100%', py: 1 }}>

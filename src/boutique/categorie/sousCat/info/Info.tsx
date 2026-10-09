@@ -308,7 +308,7 @@ export default function Info() {
                           {p.qte}
                         </Typography>
                         
-                        {unUser.role === 1 && (
+                        {(unUser.role === 1 || !unUser.role || unUser.role === 0) && (
                           <Box sx={{ mt: 1, pt: 1, borderTop: '1px dashed rgba(168, 85, 247, 0.3)', display: 'flex', flexDirection: 'column', gap: 0.25 }}>
                             <Typography variant="caption" sx={{ color: '#6b21a8', fontWeight: 500 }}>
                               Prix d'achat: <strong>{formatNumberWithSpaces(p.pu_achat)} F</strong>

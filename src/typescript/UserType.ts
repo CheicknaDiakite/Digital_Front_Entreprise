@@ -25,6 +25,7 @@ export type UserType = {
 } & LoginType
 
 export type UtilisateurType = {
+    id?: number | string;
     avatar?: string;
     entreprise_id?: string;
     email: string;

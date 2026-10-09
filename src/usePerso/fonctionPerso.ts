@@ -35,17 +35,19 @@ export const generateOrderNumber = (): string => {
   return 'FAC-' + Math.floor(Math.random() * 1000000).toString();
 };
 
-// Vérification si la licence est expirée
-export const isLicenceExpired = (expirationDate: string): boolean => {
+// Vérification si la licence est expirée (null/vide = Mode Découverte permanent, jamais expiré)
+export const isLicenceExpired = (expirationDate?: string | null): boolean => {
+  if (!expirationDate) return false;
   const currentDate = new Date();
   const licenceExpirationDate = new Date(expirationDate);
-  return currentDate > licenceExpirationDate;
+  return !isNaN(licenceExpirationDate.getTime()) && currentDate > licenceExpirationDate;
 };
 
-export function getLicenceDuration(dateStr: string) {
-  if (!dateStr) return '';
+export function getLicenceDuration(dateStr?: string | null) {
+  if (!dateStr) return 'Permanente';
   const now = new Date();
   const exp = new Date(dateStr);
+  if (isNaN(exp.getTime())) return '';
   const diffMs = exp.getTime() - now.getTime();
   const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 

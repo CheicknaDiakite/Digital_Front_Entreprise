@@ -33,6 +33,8 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
+import { usePlanAccess } from '../../../hooks/usePlanAccess';
+import FeatureGate from '../../../components/FeatureGate';
 
 export default function EtaVente() {
   const theme = useTheme();
@@ -42,7 +44,8 @@ export default function EtaVente() {
 
   const uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise } = useFetchEntreprise(uuid);
-  const { stockSemaine, isLoading, isError } = useStockSemaine(unEntreprise.uuid || '');
+  const planAccess = usePlanAccess(unEntreprise?.capabilities);
+  const { stockSemaine, isLoading, isError } = useStockSemaine(unEntreprise?.uuid || '');
 
   const [selectedMonthIndex, setSelectedMonthIndex] = useState<number>(0);
 
@@ -115,6 +118,21 @@ export default function EtaVente() {
       .map((d) => ({ name: d.libelle || 'Inconnu', value: d.somme_qte || 0 }))
       .sort((a, b) => b.value - a.value);
   }, [currentMonthData]);
+
+  if (planAccess.isDecouverte) {
+    return (
+      <Box sx={{ maxWidth: '1400px', mx: 'auto', p: { xs: 1.5, sm: 3 } }}>
+        <FeatureGate
+          hasAccess={false}
+          requiredPlan="Stock Simple"
+          featureTitle="Évolution des Ventes & Courbes de Croissance"
+          description="Visualisez les graphiques avancés d'évolution des ventes, les tendances journalières et les tops produits vendus."
+        >
+          <div />
+        </FeatureGate>
+      </Box>
+    );
+  }
 
   if (isLoading) {
     return (

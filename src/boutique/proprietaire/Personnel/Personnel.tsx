@@ -35,6 +35,8 @@ import M_Abonnement from "../../../_components/Card/M_Abonnement";
 import { isLicenceExpired, stringAvatar } from "../../../usePerso/fonctionPerso";
 import { useForm } from "react-hook-form";
 import Chart_3 from "../../../_components/Chart/Chart_3";
+import { usePlanAccess } from "../../../hooks/usePlanAccess";
+import FeatureGate from "../../../components/FeatureGate";
 import { motion, AnimatePresence } from "framer-motion";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -190,6 +192,7 @@ export default function Personnel() {
 
   const uuid = useStoreUuid((state) => state.selectedId);
   const { unEntreprise } = useFetchEntreprise(uuid);
+  const planAccess = usePlanAccess(unEntreprise?.capabilities);
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValueType>();
   const [open, setOpen] = useState(false);
 
@@ -219,6 +222,21 @@ export default function Personnel() {
     createAdmin(data);
     closeopen();
   };
+
+  if (!planAccess.canAddCollaborators) {
+    return (
+      <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 2, sm: 3, md: 4 }, py: 4 }}>
+        <FeatureGate
+          hasAccess={false}
+          requiredPlan="Stock Pro"
+          featureTitle="Gestion d'Équipe & Collaborateurs"
+          description="Ajoutez des administrateurs, superviseurs et caissiers avec des permissions personnalisées pour gérer votre entreprise à plusieurs."
+        >
+          <div />
+        </FeatureGate>
+      </Box>
+    );
+  }
 
   // ── Loading State ────────────────────────────────────────────────────────
   if (isLoading) {

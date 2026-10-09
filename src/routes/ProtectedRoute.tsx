@@ -21,9 +21,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // Vérification du rôle
+  // Si l'utilisateur n'a pas encore de rôle assigné (compte nouvellement créé / en attente),
+  // il bénéficie de l'accès aux opérations de base (rôles 1 et 2 pour son entreprise en Mode Découverte).
+  // Les accès avancés (personnel, etc.) et fonctionnalités bridées sont sécurisés par FeatureGate.
+  const isDecouverteUser = !us.role || us.role === 0;
   const hasAccess = Array.isArray(requiredRole)
-    ? requiredRole.includes(us.role) // Si `requiredRole` est un tableau, vérifier si `us.role` est inclus
-    : us.role === requiredRole;      // Sinon, comparer directement le rôle
+    ? requiredRole.includes(us.role) || (isDecouverteUser && (requiredRole.includes(1) || requiredRole.includes(2)))
+    : us.role === requiredRole || (isDecouverteUser && (requiredRole === 1 || requiredRole === 2));
 
   // Si l'utilisateur n'a pas le bon rôle, rediriger
   if (!hasAccess) {

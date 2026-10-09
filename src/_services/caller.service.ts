@@ -27,6 +27,11 @@ Axios.interceptors.request.use((config) => {
         config.headers = config.headers || {};
         config.headers['Authorization'] = `Bearer ${accessToken}`;
     }
+    const currentEntrepriseId = localStorage.getItem('current_entreprise_uuid') || localStorage.getItem('entreprise_id');
+    if (currentEntrepriseId) {
+        config.headers = config.headers || {};
+        config.headers['X-Entreprise-Id'] = currentEntrepriseId;
+    }
     return config;
 });
 
@@ -64,6 +69,14 @@ Axios.interceptors.response.use(
                 localStorage.removeItem('token');
                 localStorage.removeItem('token_1');
                 return Promise.reject(e);
+            }
+        }
+
+        // Notification globale lors d'une restriction de plan ou quota (HTTP 403)
+        if (error.response?.status === 403) {
+            const data = error.response.data;
+            if (data?.code === 'plan_insuffisant' || data?.code === 'quota_atteint') {
+                window.dispatchEvent(new CustomEvent('plan_restriction_error', { detail: data }));
             }
         }
 

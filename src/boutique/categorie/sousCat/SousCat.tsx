@@ -64,8 +64,12 @@ function ShadowBox({ shadow }: ShadowBoxProps) {
   const theme = useTheme();
   const { showBackground } = useAppSettings();
   const isDark = theme.palette.mode === 'dark' || showBackground;
+  const isDecouverteOwner = !unUser.role || unUser.role === 0 || unEntreprise?.proprietaire_id === unUser.id;
+  const isOwner = unUser.role === 1 || isDecouverteOwner;
+  const isManager = unUser.role === 2;
+  const canManageStock = isOwner || isManager;
 
-  const canViewInfo = (unUser.role === 1 || unUser.role === 2) || (unEntreprise.licence_type !== "Stock Simple");
+  const canViewInfo = canManageStock || (unEntreprise.licence_type !== "Stock Simple");
 
   return (
     <Paper
@@ -92,7 +96,7 @@ function ShadowBox({ shadow }: ShadowBoxProps) {
       }}
     >
       {/* Top Edit Button */}
-      {(unUser.role === 1 || unUser.role === 2) && (
+      {canManageStock && (
         <Box sx={{ position: 'absolute', top: 10, right: 10, zIndex: 2 }}>
           <Tooltip title="Modifier cette sous-catégorie">
             <Link to={`/categorie/sous/modif/${shadow.uuid}`}>
@@ -266,6 +270,10 @@ export default function SousCat() {
   };
 
   const { unUser } = useFetchUser();
+  const isDecouverteOwner = !unUser.role || unUser.role === 0 || unEntreprise?.proprietaire_id === unUser.id;
+  const isOwner = unUser.role === 1 || isDecouverteOwner;
+  const isManager = unUser.role === 2;
+  const canManageStock = isOwner || isManager;
 
   const onSubmit = (data: SousCategorieFormType) => {
     const user_id = unUser?.uuid || '';
@@ -448,7 +456,7 @@ export default function SousCat() {
               />
             </Grid>
 
-            {(unUser.role === 1 || unUser.role === 2) && (
+            {canManageStock && (
               <Grid item xs={12} sm={6} md="auto">
                 <Button
                   variant="contained"

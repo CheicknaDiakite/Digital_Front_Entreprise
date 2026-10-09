@@ -13,10 +13,11 @@ import AddBusinessIcon from '@mui/icons-material/AddBusiness';
 import PeopleOutlineRoundedIcon from '@mui/icons-material/PeopleOutlineRounded';
 import { connect } from '../../../../../_services/account.service';
 import { Link } from 'react-router-dom';
-import { useFetchUser } from '../../../../../usePerso/fonction.user';
-import { Box, Skeleton, useTheme } from '@mui/material';
+import { useFetchEntreprise, useFetchUser } from '../../../../../usePerso/fonction.user';
+import { Box, Chip, Skeleton, useTheme } from '@mui/material';
 import { logout } from '../../../../../usePerso/fonctionPerso';
 import { useStoreUuid } from '../../../../../usePerso/store';
+import { usePlanAccess } from '../../../../../hooks/usePlanAccess';
 import AppSettingsPanel from '../AppSettingsPanel';
 
 
@@ -24,9 +25,11 @@ import AppSettingsPanel from '../AppSettingsPanel';
 
 export default function ProfileTab() {
   const theme = useTheme();
-  const {unUser, isLoading} = useFetchUser()
-
-  const uuid = useStoreUuid((state) => state.selectedId)
+  const {unUser, isLoading} = useFetchUser();
+  const uuid = useStoreUuid((state) => state.selectedId);
+  const { unEntreprise } = useFetchEntreprise(uuid);
+  const planAccess = usePlanAccess(unEntreprise?.capabilities);
+  const isOwner = unUser.role === 1 || !unUser.role || unUser.role === 0;
   
   if (isLoading) {
     // return <div>Chargement...</div>;
@@ -96,7 +99,7 @@ export default function ProfileTab() {
 
         {uuid && (
           <>
-            {unUser.role === 1 && (
+            {isOwner && (
               <ListItemButton component={Link} to="/entreprise/personnel" sx={listItemBtnSx}>
                 <Box sx={iconBoxSx('rgba(6, 182, 212, 0.15)', '#22d3ee')}>
                   <PeopleOutlineRoundedIcon style={{ fontSize: '1.1rem' }} />
@@ -104,11 +107,27 @@ export default function ProfileTab() {
                 <ListItemText
                   primary="Voir les utilisateurs"
                   primaryTypographyProps={{ fontSize: '0.85rem', fontWeight: 600 }}
+                  secondary={!planAccess.canAddCollaborators ? "Formule Stock Pro" : undefined}
+                  secondaryTypographyProps={{ fontSize: '0.7rem', color: '#8b5cf6', fontWeight: 600 }}
                 />
+                {!planAccess.canAddCollaborators && (
+                  <Chip
+                    label="Pro"
+                    size="small"
+                    sx={{
+                      height: 20,
+                      fontSize: '0.62rem',
+                      fontWeight: 800,
+                      bgcolor: 'rgba(139, 92, 246, 0.12)',
+                      color: '#8b5cf6',
+                      border: '1px solid rgba(139, 92, 246, 0.3)',
+                    }}
+                  />
+                )}
               </ListItemButton>
             )}
 
-            {(unUser.role === 1 || unUser.role === 2 || unUser.role === 3) && (
+            {(isOwner || unUser.role === 2 || unUser.role === 3) && (
               <ListItemButton component={Link} to="/entreprise/client" sx={listItemBtnSx}>
                 <Box sx={iconBoxSx('rgba(34, 197, 94, 0.15)', '#4ade80')}>
                   <PeopleOutlineRoundedIcon style={{ fontSize: '1.1rem' }} />
@@ -116,11 +135,27 @@ export default function ProfileTab() {
                 <ListItemText
                   primary="Clients ou fournisseurs"
                   primaryTypographyProps={{ fontSize: '0.85rem', fontWeight: 600 }}
+                  secondary={!planAccess.canManageClients ? "Formule Stock Simple" : undefined}
+                  secondaryTypographyProps={{ fontSize: '0.7rem', color: '#f59e0b', fontWeight: 600 }}
                 />
+                {!planAccess.canManageClients && (
+                  <Chip
+                    label="Simple"
+                    size="small"
+                    sx={{
+                      height: 20,
+                      fontSize: '0.62rem',
+                      fontWeight: 800,
+                      bgcolor: 'rgba(245, 158, 11, 0.12)',
+                      color: '#d97706',
+                      border: '1px solid rgba(245, 158, 11, 0.3)',
+                    }}
+                  />
+                )}
               </ListItemButton>
             )}
 
-            {unUser.role === 1 && (
+            {isOwner && (
               <ListItemButton component={Link} to="/entreprise/detail" sx={listItemBtnSx}>
                 <Box sx={iconBoxSx('rgba(168, 85, 247, 0.15)', '#c084fc')}>
                   <AddBusinessIcon style={{ fontSize: '1.1rem' }} />

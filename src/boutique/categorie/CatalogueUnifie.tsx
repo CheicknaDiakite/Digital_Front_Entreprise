@@ -42,14 +42,19 @@ import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import EditIcon from '@mui/icons-material/BorderColor';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
+import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
+import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import toast from 'react-hot-toast';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import { useAppSettings } from '../../themes/AppSettingsContext';
 import { formatNumberWithSpaces } from '../../usePerso/fonctionPerso';
 import { useStoreUuid } from '../../usePerso/store';
-import { useFetchUser } from '../../usePerso/fonction.user';
+import { useFetchEntreprise, useFetchUser } from '../../usePerso/fonction.user';
 import { useGetAllEntre } from '../../usePerso/fonction.entre';
 import {
   useCategoriesEntreprise,
@@ -61,6 +66,7 @@ import { BASE } from '../../_services/caller.service';
 import defaultProductImg from '../../../public/icon-192x192.png';
 import { PageHeader, KpiCard } from '../../_components/common';
 import { RecupType } from '../../typescript/DataType';
+import { usePlanAccess } from '../../hooks/usePlanAccess';
 
 export default function CatalogueUnifie() {
   const theme = useTheme();
@@ -70,14 +76,22 @@ export default function CatalogueUnifie() {
 
   const entreprise_uuid = useStoreUuid((state) => state.selectedId);
   const { unUser } = useFetchUser();
+  const { unEntreprise } = useFetchEntreprise(entreprise_uuid || '');
+  const planAccess = usePlanAccess(unEntreprise?.capabilities);
+  const canUploadImage = !planAccess.isDecouverte && planAccess.canUploadMedia;
+
+  const isDecouverteOwner = !unUser?.role || unUser?.role === 0 || unEntreprise?.proprietaire_id === unUser?.id;
+  const isOwner = unUser?.role === 1 || isDecouverteOwner;
+  const isManager = unUser?.role === 2;
+  const canManageStock = isOwner || isManager;
 
   // Queries
   const { cateEntreprises = [], isLoading: isCatLoading } = useCategoriesEntreprise(entreprise_uuid || '');
   const { entresEntreprise = [], isLoading: isStockLoading, refetch: refetchStock } = useGetAllEntre(entreprise_uuid || '');
 
   // Mutations
-  const { ajoutCategorie } = useCreateCategorie();
-  const { ajoutSousCate } = useCreateSousCate();
+  const { ajoutCategorieAsync } = useCreateCategorie();
+  const { ajoutSousCateAsync } = useCreateSousCate();
 
   // State
   const [selectedCategorySlug, setSelectedCategorySlug] = useState<string>('all');
@@ -253,7 +267,7 @@ export default function CatalogueUnifie() {
   };
 
   // Submit Category
-  const handleCreateCategory = (e: React.FormEvent) => {
+  const handleCreateCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCatLibelle.trim()) {
       toast.error('Le libellé de la catégorie est obligatoire');
@@ -269,18 +283,20 @@ export default function CatalogueUnifie() {
       formData.append('image', newCatImage);
     }
 
-    ajoutCategorie(formData as any);
-    setTimeout(() => {
+    try {
+      await ajoutCategorieAsync(formData as any);
       setIsSubmittingCat(false);
       setOpenCatModal(false);
       setNewCatLibelle('');
       setNewCatImage(null);
       toast.success('Catégorie créée avec succès');
-    }, 600);
+    } catch {
+      setIsSubmittingCat(false);
+    }
   };
 
   // Submit Product / Sous-Catégorie
-  const handleCreateProduct = (e: React.FormEvent) => {
+  const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newProductLibelle.trim()) {
       toast.error('Le libellé du produit est obligatoire');
@@ -294,21 +310,29 @@ export default function CatalogueUnifie() {
     setIsSubmittingProduct(true);
     const formData = new FormData();
     formData.append('libelle', newProductLibelle.trim());
-    formData.append('categorie_slug', newProductCatSlug);
+
+    // Privilégier le UUID de la catégorie pour le backend
+    const selectedCat = cateEntreprises.find(
+      (c) => c.uuid === newProductCatSlug || c.slug === newProductCatSlug
+    );
+    const catIdentifier = selectedCat?.uuid || selectedCat?.slug || newProductCatSlug;
+    formData.append('categorie_slug', catIdentifier);
     formData.append('user_id', unUser?.uuid || '');
     if (newProductImage) {
       formData.append('image', newProductImage);
     }
 
-    ajoutSousCate(formData as any);
-    setTimeout(() => {
+    try {
+      await ajoutSousCateAsync(formData as any);
       setIsSubmittingProduct(false);
       setOpenProductModal(false);
       setNewProductLibelle('');
       setNewProductImage(null);
       refetchStock();
       toast.success('Produit créé avec succès');
-    }, 600);
+    } catch {
+      setIsSubmittingProduct(false);
+    }
   };
 
   const isLoading = isCatLoading || isStockLoading;
@@ -338,7 +362,7 @@ export default function CatalogueUnifie() {
             >
               Export CSV
             </Button>
-            {(unUser.role === 1 || unUser.role === 2) && (
+            {canManageStock && (
               <>
                 <Button
                   variant="outlined"
@@ -357,7 +381,7 @@ export default function CatalogueUnifie() {
                   startIcon={<AddIcon />}
                   onClick={() => {
                     if (cateEntreprises.length > 0) {
-                      setNewProductCatSlug(cateEntreprises[0].slug || '');
+                      setNewProductCatSlug(cateEntreprises[0].uuid || cateEntreprises[0].slug || '');
                     }
                     setOpenProductModal(true);
                   }}
@@ -455,7 +479,7 @@ export default function CatalogueUnifie() {
                   sx={{ height: 20, fontSize: '0.72rem', fontWeight: 800 }}
                 />
               </Stack>
-              {(unUser.role === 1 || unUser.role === 2) && (
+              {canManageStock && (
                 <IconButton size="small" onClick={() => setOpenCatModal(true)} color="primary">
                   <AddIcon fontSize="small" />
                 </IconButton>
@@ -499,22 +523,25 @@ export default function CatalogueUnifie() {
                 >
                   Toutes les catégories
                 </Typography>
-                <Chip
-                  size="small"
-                  label={entresEntreprise.length}
-                  sx={{
-                    height: 20,
-                    fontSize: '0.7rem',
-                    fontWeight: 700,
-                    bgcolor: selectedCategorySlug === 'all' ? 'primary.main' : undefined,
-                    color: selectedCategorySlug === 'all' ? '#fff' : undefined,
-                  }}
-                />
+                <Tooltip title={`${entresEntreprise.length} article${entresEntreprise.length > 1 ? 's' : ''} au total`}>
+                  <Chip
+                    size="small"
+                    label={`${entresEntreprise.length} art.`}
+                    sx={{
+                      height: 20,
+                      fontSize: '0.7rem',
+                      fontWeight: 700,
+                      bgcolor: selectedCategorySlug === 'all' ? 'primary.main' : undefined,
+                      color: selectedCategorySlug === 'all' ? '#fff' : undefined,
+                    }}
+                  />
+                </Tooltip>
               </Box>
 
               {/* Individual Categories */}
               {cateEntreprises.map((cat) => {
                 const isSelected = selectedCategorySlug === cat.slug;
+                const sousCatCount = Number(cat.sous_categorie_count ?? 0);
                 const catProductsCount = entresEntreprise.filter(
                   (p: any) =>
                     (p.categorie_slug || '').toLowerCase() === (cat.slug || '').toLowerCase() ||
@@ -548,11 +575,11 @@ export default function CatalogueUnifie() {
                       },
                     }}
                   >
-                    <Stack direction="row" spacing={1.2} alignItems="center" sx={{ overflow: 'hidden' }}>
+                    <Stack direction="row" spacing={1.2} alignItems="center" sx={{ overflow: 'hidden', minWidth: 0, flex: 1, mr: 1 }}>
                       <Avatar
                         src={catImgUrl}
                         alt={cat.libelle}
-                        sx={{ width: 28, height: 28, borderRadius: '8px' }}
+                        sx={{ width: 28, height: 28, borderRadius: '8px', flexShrink: 0 }}
                       />
                       <Typography
                         variant="body2"
@@ -567,18 +594,32 @@ export default function CatalogueUnifie() {
                       </Typography>
                     </Stack>
 
-                    <Stack direction="row" spacing={0.4} alignItems="center">
-                      <Chip
-                        size="small"
-                        label={catProductsCount}
-                        sx={{
-                          height: 20,
-                          fontSize: '0.68rem',
-                          fontWeight: 700,
-                          bgcolor: isSelected ? 'primary.main' : undefined,
-                          color: isSelected ? '#fff' : undefined,
-                        }}
-                      />
+                    <Stack direction="row" spacing={0.4} alignItems="center" sx={{ flexShrink: 0 }}>
+                      <Tooltip
+                        title={`${sousCatCount} sous-catégorie${sousCatCount > 1 ? 's' : ''}${
+                          catProductsCount > 0 ? ` • ${catProductsCount} article${catProductsCount > 1 ? 's' : ''}` : ''
+                        }`}
+                      >
+                        <Chip
+                          size="small"
+                          label={`${sousCatCount}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/categorie/sous/${cat.uuid}`);
+                          }}
+                          sx={{
+                            height: 20,
+                            fontSize: '0.68rem',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            bgcolor: isSelected ? 'primary.main' : undefined,
+                            color: isSelected ? '#fff' : undefined,
+                            '&:hover': {
+                              opacity: 0.85,
+                            },
+                          }}
+                        />
+                      </Tooltip>
                       <Tooltip title="Voir les sous-catégories">
                         <IconButton
                           size="small"
@@ -598,7 +639,7 @@ export default function CatalogueUnifie() {
                           <AccountTreeIcon sx={{ fontSize: 15 }} />
                         </IconButton>
                       </Tooltip>
-                      {(unUser.role === 1 || unUser.role === 2) && (
+                      {canManageStock && (
                         <Tooltip title="Modifier la catégorie">
                           <IconButton
                             size="small"
@@ -689,7 +730,7 @@ export default function CatalogueUnifie() {
                   </Stack>
 
                   <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
-                    {(unUser.role === 1 || unUser.role === 2) && (
+                    {canManageStock && (
                       <Button
                         size="small"
                         variant="contained"
@@ -710,7 +751,7 @@ export default function CatalogueUnifie() {
                         + Sous-catégorie
                       </Button>
                     )}
-                    {(unUser.role === 1 || unUser.role === 2) && (
+                    {canManageStock && (
                       <Button
                         size="small"
                         variant="outlined"
@@ -778,7 +819,7 @@ export default function CatalogueUnifie() {
                       <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mb: 1.5 }}>
                         Ajoutez des sous-catégories pour organiser les articles de cette catégorie.
                       </Typography>
-                      {(unUser.role === 1 || unUser.role === 2) && (
+                      {canManageStock && (
                         <Button
                           size="small"
                           variant="outlined"
@@ -835,7 +876,7 @@ export default function CatalogueUnifie() {
                               }}
                             >
                               {/* Edit Button */}
-                              {(unUser.role === 1 || unUser.role === 2) && (
+                              {canManageStock && (
                                 <Box sx={{ position: 'absolute', top: 6, right: 6, zIndex: 2 }}>
                                   <Tooltip title="Modifier">
                                     <IconButton
@@ -912,7 +953,7 @@ export default function CatalogueUnifie() {
                                   {sc.libelle}
                                 </Typography>
 
-                                <Chip
+                                {/* <Chip
                                   size="small"
                                   label={
                                     totalQte > 0
@@ -927,7 +968,7 @@ export default function CatalogueUnifie() {
                                     color: totalQte > 0 ? '#10b981' : 'text.secondary',
                                     mb: 1,
                                   }}
-                                />
+                                /> */}
                               </Box>
 
                               {/* Card Actions Footer */}
@@ -1130,11 +1171,11 @@ export default function CatalogueUnifie() {
                       <TableCell sx={{ fontWeight: 700, fontSize: '0.8rem' }}>Produit</TableCell>
                       <TableCell sx={{ fontWeight: 700, fontSize: '0.8rem' }}>Catégorie</TableCell>
                       <TableCell align="center" sx={{ fontWeight: 700, fontSize: '0.8rem' }}>Stock</TableCell>
-                      {(unUser.role === 1 || unUser.role === 2) && (
+                      {canManageStock && (
                         <TableCell align="right" sx={{ fontWeight: 700, fontSize: '0.8rem' }}>Prix Achat</TableCell>
                       )}
                       <TableCell align="right" sx={{ fontWeight: 700, fontSize: '0.8rem' }}>Prix Vente</TableCell>
-                      {(unUser.role === 1 || unUser.role === 2) && (
+                      {canManageStock && (
                         <TableCell align="center" sx={{ fontWeight: 700, fontSize: '0.8rem' }}>Marge</TableCell>
                       )}
                       <TableCell align="right" sx={{ fontWeight: 700, fontSize: '0.8rem' }}>Valeur Stock</TableCell>
@@ -1213,7 +1254,7 @@ export default function CatalogueUnifie() {
                           </TableCell>
 
                           {/* PA */}
-                          {(unUser.role === 1 || unUser.role === 2) && (
+                          {canManageStock && (
                             <TableCell align="right" sx={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>
                               {formatNumberWithSpaces(pa)} F
                             </TableCell>
@@ -1225,7 +1266,7 @@ export default function CatalogueUnifie() {
                           </TableCell>
 
                           {/* Marge */}
-                          {(unUser.role === 1 || unUser.role === 2) && (
+                          {canManageStock && (
                             <TableCell align="center">
                               <Chip
                                 size="small"
@@ -1249,7 +1290,7 @@ export default function CatalogueUnifie() {
                           {/* Actions */}
                           <TableCell align="center">
                             <Stack direction="row" spacing={0.5} justifyContent="center">
-                              <Tooltip title="Fiche produit détaillée">
+                              {/* <Tooltip title="Fiche produit détaillée">
                                 <IconButton
                                   size="small"
                                   onClick={() => navigate(`/categorie/info/${p.uuid}`)}
@@ -1257,7 +1298,7 @@ export default function CatalogueUnifie() {
                                 >
                                   <VisibilityIcon fontSize="small" />
                                 </IconButton>
-                              </Tooltip>
+                              </Tooltip> */}
                               <Tooltip title="Approvisionner ce produit">
                                 <IconButton
                                   size="small"
@@ -1356,7 +1397,7 @@ export default function CatalogueUnifie() {
                             </Typography>
                           </Box>
 
-                          {(unUser.role === 1 || unUser.role === 2) && (
+                          {canManageStock && (
                             <Box sx={{ textAlign: 'right' }}>
                               <Typography variant="caption" sx={{ color: 'text.secondary' }}>
                                 Marge estimée
@@ -1421,142 +1462,666 @@ export default function CatalogueUnifie() {
       </Grid>
 
       {/* ── Modal Créer Catégorie ── */}
-      <Dialog open={openCatModal} onClose={() => setOpenCatModal(false)} maxWidth="xs" fullWidth>
-        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h6" sx={{ fontWeight: 800 }}>
-            Nouvelle Catégorie
-          </Typography>
-          <IconButton size="small" onClick={() => setOpenCatModal(false)}>
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent sx={{ pt: 1 }}>
-          <Box component="form" onSubmit={handleCreateCategory} sx={{ mt: 1 }}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Nom de la catégorie"
-              value={newCatLibelle}
-              onChange={(e) => setNewCatLibelle(e.target.value)}
-              required
-              sx={{ mb: 2 }}
-            />
-
-            <Button
-              component="label"
-              variant="outlined"
-              fullWidth
-              startIcon={<CloudUploadIcon />}
-              sx={{ mb: 2, borderRadius: '10px', textTransform: 'none' }}
-            >
-              {newCatImage ? newCatImage.name : 'Image de la catégorie (optionnel)'}
-              <input
-                type="file"
-                hidden
-                accept="image/*"
-                onChange={(e) => {
-                  if (e.target.files && e.target.files[0]) {
-                    setNewCatImage(e.target.files[0]);
-                  }
-                }}
-              />
-            </Button>
-
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              disabled={isSubmittingCat}
-              startIcon={isSubmittingCat ? <CircularProgress size={18} color="inherit" /> : <AddIcon />}
+      <Dialog
+        open={openCatModal}
+        onClose={() => {
+          setOpenCatModal(false);
+          setNewCatLibelle('');
+          setNewCatImage(null);
+        }}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: '24px',
+            bgcolor: isDark ? '#152238' : '#ffffff',
+            backgroundImage: 'none',
+            boxShadow: isDark
+              ? '0 25px 60px rgba(0, 0, 0, 0.75), 0 0 35px rgba(99, 102, 241, 0.1)'
+              : '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+            border: isDark ? '1px solid rgba(255, 255, 255, 0.14)' : '1px solid rgba(0, 0, 0, 0.08)',
+            overflow: 'hidden',
+            colorScheme: isDark ? 'dark' : 'light',
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            p: { xs: 2.5, sm: 3 },
+            pb: 2,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            borderBottom: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.06)',
+          }}
+        >
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+            <Box
               sx={{
-                py: 1.2,
-                borderRadius: '12px',
-                fontWeight: 700,
-                textTransform: 'none',
+                width: 48,
+                height: 48,
+                borderRadius: '14px',
                 background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 8px 16px -4px rgba(99, 102, 241, 0.4)',
+                flexShrink: 0,
               }}
             >
-              {isSubmittingCat ? 'Création...' : 'Créer la catégorie'}
-            </Button>
+              <FolderOutlinedIcon sx={{ color: '#fff', fontSize: 26 }} />
+            </Box>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 800, color: 'text.primary', lineHeight: 1.2 }}>
+                Nouvelle Catégorie
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.3 }}>
+                Organisez vos articles par famille ou rayon
+              </Typography>
+            </Box>
+          </Box>
+          <IconButton
+            size="small"
+            onClick={() => {
+              setOpenCatModal(false);
+              setNewCatLibelle('');
+              setNewCatImage(null);
+            }}
+            sx={{
+              color: 'text.secondary',
+              '&:hover': { bgcolor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)' },
+            }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent sx={{ p: { xs: 2.5, sm: 3 }, pt: '20px !important' }}>
+          <Box component="form" onSubmit={handleCreateCategory}>
+            <Box sx={{ mb: 2.5 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.8, color: 'text.primary' }}>
+                Nom de la catégorie <span style={{ color: '#ef4444' }}>*</span>
+              </Typography>
+              <TextField
+                fullWidth
+                size="small"
+                placeholder="Ex : Boissons, Épicerie, Électronique, Vêtements..."
+                value={newCatLibelle}
+                onChange={(e) => setNewCatLibelle(e.target.value)}
+                required
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <CategoryIcon sx={{ color: isDark ? '#818cf8' : 'text.secondary', fontSize: 20 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '12px',
+                    bgcolor: isDark ? 'rgba(255, 255, 255, 0.05)' : '#f8fafc',
+                    '& fieldset': {
+                      borderColor: isDark ? 'rgba(255, 255, 255, 0.18)' : 'rgba(0, 0, 0, 0.12)',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: isDark ? 'rgba(255, 255, 255, 0.38)' : 'primary.main',
+                    },
+                  },
+                }}
+              />
+            </Box>
+
+            {/* Zone d'importation d'image */}
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.8, color: 'text.primary' }}>
+                Illustration de la catégorie
+              </Typography>
+
+              {!canUploadImage ? (
+                // Verrouillé en Mode Découverte : non cliquable
+                <Box
+                  sx={{
+                    p: 2,
+                    borderRadius: '14px',
+                    border: '1.5px dashed',
+                    borderColor: isDark ? 'rgba(245, 158, 11, 0.35)' : 'rgba(245, 158, 11, 0.45)',
+                    bgcolor: isDark ? 'rgba(245, 158, 11, 0.06)' : 'rgba(254, 243, 199, 0.4)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.8,
+                    cursor: 'not-allowed',
+                    userSelect: 'none',
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: '12px',
+                      bgcolor: isDark ? 'rgba(245, 158, 11, 0.15)' : '#fde68a',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <LockOutlinedIcon sx={{ color: '#d97706', fontSize: 22 }} />
+                  </Box>
+                  <Box sx={{ flex: 1 }}>
+                    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 0.3 }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: 'text.primary', fontSize: '0.85rem' }}>
+                        Import d'image restreint
+                      </Typography>
+                      <Chip
+                        icon={<WorkspacePremiumIcon sx={{ fontSize: '12px !important', color: '#fff' }} />}
+                        label="Formule Pro"
+                        size="small"
+                        sx={{
+                          height: 20,
+                          fontSize: '0.65rem',
+                          fontWeight: 800,
+                          bgcolor: '#8b5cf6',
+                          color: '#fff',
+                        }}
+                      />
+                    </Stack>
+                    <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', lineHeight: 1.35 }}>
+                      En <strong>Mode Découverte</strong>, l'ajout d'images est désactivé. La catégorie utilisera l'icône système standard.
+                    </Typography>
+                  </Box>
+                </Box>
+              ) : newCatImage ? (
+                // Image sélectionnée (Mode Pro+)
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2,
+                    p: 1.5,
+                    borderRadius: '14px',
+                    border: '1px solid',
+                    borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)',
+                    bgcolor: isDark ? 'rgba(255, 255, 255, 0.03)' : '#f8fafc',
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src={URL.createObjectURL(newCatImage)}
+                    alt="Aperçu"
+                    sx={{
+                      width: 50,
+                      height: 50,
+                      borderRadius: '10px',
+                      objectFit: 'cover',
+                      border: '1px solid rgba(0,0,0,0.08)',
+                    }}
+                  />
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.primary' }} noWrap>
+                      {newCatImage.name}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                      {(newCatImage.size / 1024).toFixed(0)} Ko
+                    </Typography>
+                  </Box>
+                  <IconButton
+                    size="small"
+                    color="error"
+                    onClick={() => setNewCatImage(null)}
+                    sx={{
+                      bgcolor: 'rgba(239, 68, 68, 0.08)',
+                      '&:hover': { bgcolor: 'rgba(239, 68, 68, 0.15)' },
+                    }}
+                  >
+                    <DeleteOutlineIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              ) : (
+                // Zone de téléchargement active (Mode Pro+)
+                <Box
+                  component="label"
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    p: 2.5,
+                    borderRadius: '14px',
+                    border: '2px dashed',
+                    borderColor: isDark ? 'rgba(99, 102, 241, 0.35)' : 'rgba(99, 102, 241, 0.3)',
+                    bgcolor: isDark ? 'rgba(99, 102, 241, 0.04)' : 'rgba(99, 102, 241, 0.02)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      borderColor: '#6366f1',
+                      bgcolor: isDark ? 'rgba(99, 102, 241, 0.08)' : 'rgba(99, 102, 241, 0.05)',
+                      transform: 'translateY(-1px)',
+                    },
+                  }}
+                >
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/png, image/jpeg, image/webp"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        setNewCatImage(e.target.files[0]);
+                      }
+                    }}
+                  />
+                  <Box
+                    sx={{
+                      width: 42,
+                      height: 42,
+                      borderRadius: '50%',
+                      bgcolor: isDark ? 'rgba(99, 102, 241, 0.15)' : '#e0e7ff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      mb: 1,
+                    }}
+                  >
+                    <CloudUploadOutlinedIcon sx={{ color: '#6366f1', fontSize: 22 }} />
+                  </Box>
+                  <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.primary', mb: 0.2 }}>
+                    Importer une illustration
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                    PNG, JPG ou WEBP (Optionnel, max 5 Mo)
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+
+            {/* Boutons d'action */}
+            <Stack direction="row" spacing={1.5} justifyContent="flex-end">
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  setOpenCatModal(false);
+                  setNewCatLibelle('');
+                  setNewCatImage(null);
+                }}
+                sx={{
+                  borderRadius: '12px',
+                  fontWeight: 700,
+                  textTransform: 'none',
+                  px: 2.5,
+                }}
+              >
+                Annuler
+              </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={isSubmittingCat}
+                startIcon={isSubmittingCat ? <CircularProgress size={18} color="inherit" /> : <AddIcon />}
+                sx={{
+                  borderRadius: '12px',
+                  fontWeight: 700,
+                  textTransform: 'none',
+                  px: 3,
+                  py: 1,
+                  background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                  boxShadow: '0 4px 14px rgba(99, 102, 241, 0.35)',
+                }}
+              >
+                {isSubmittingCat ? 'Création...' : 'Créer la catégorie'}
+              </Button>
+            </Stack>
           </Box>
         </DialogContent>
       </Dialog>
 
       {/* ── Modal Créer Produit ── */}
-      <Dialog open={openProductModal} onClose={() => setOpenProductModal(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h6" sx={{ fontWeight: 800 }}>
-            Nouveau Produit
-          </Typography>
-          <IconButton size="small" onClick={() => setOpenProductModal(false)}>
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent sx={{ pt: 1 }}>
-          <Box component="form" onSubmit={handleCreateProduct} sx={{ mt: 1 }}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Nom du produit"
-              value={newProductLibelle}
-              onChange={(e) => setNewProductLibelle(e.target.value)}
-              required
-              sx={{ mb: 2 }}
-            />
-
-            <TextField
-              fullWidth
-              select
-              size="small"
-              label="Catégorie"
-              value={newProductCatSlug}
-              onChange={(e) => setNewProductCatSlug(e.target.value)}
-              required
-              sx={{ mb: 2 }}
-            >
-              {cateEntreprises.map((c) => (
-                <MenuItem key={c.uuid || c.slug} value={c.slug}>
-                  {c.libelle}
-                </MenuItem>
-              ))}
-            </TextField>
-
-            <Button
-              component="label"
-              variant="outlined"
-              fullWidth
-              startIcon={<CloudUploadIcon />}
-              sx={{ mb: 2.5, borderRadius: '10px', textTransform: 'none' }}
-            >
-              {newProductImage ? newProductImage.name : 'Image du produit (optionnel)'}
-              <input
-                type="file"
-                hidden
-                accept="image/*"
-                onChange={(e) => {
-                  if (e.target.files && e.target.files[0]) {
-                    setNewProductImage(e.target.files[0]);
-                  }
-                }}
-              />
-            </Button>
-
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              disabled={isSubmittingProduct}
-              startIcon={isSubmittingProduct ? <CircularProgress size={18} color="inherit" /> : <AddIcon />}
+      <Dialog
+        open={openProductModal}
+        onClose={() => {
+          setOpenProductModal(false);
+          setNewProductLibelle('');
+          setNewProductImage(null);
+        }}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: '24px',
+            bgcolor: isDark ? '#152238' : '#ffffff',
+            backgroundImage: 'none',
+            boxShadow: isDark
+              ? '0 25px 60px rgba(0, 0, 0, 0.75), 0 0 35px rgba(16, 185, 129, 0.1)'
+              : '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+            border: isDark ? '1px solid rgba(255, 255, 255, 0.14)' : '1px solid rgba(0, 0, 0, 0.08)',
+            overflow: 'hidden',
+            colorScheme: isDark ? 'dark' : 'light',
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            p: { xs: 2.5, sm: 3 },
+            pb: 2,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            borderBottom: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.06)',
+          }}
+        >
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+            <Box
               sx={{
-                py: 1.2,
-                borderRadius: '12px',
-                fontWeight: 700,
-                textTransform: 'none',
-                background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                width: 48,
+                height: 48,
+                borderRadius: '14px',
+                background: 'linear-gradient(135deg, #10b981, #059669)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 8px 16px -4px rgba(16, 185, 129, 0.4)',
+                flexShrink: 0,
               }}
             >
-              {isSubmittingProduct ? 'Création...' : 'Créer le produit'}
-            </Button>
+              <Inventory2OutlinedIcon sx={{ color: '#fff', fontSize: 26 }} />
+            </Box>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 800, color: 'text.primary', lineHeight: 1.2 }}>
+                Nouveau Produit
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.3 }}>
+                Ajoutez une référence d'article dans votre catalogue
+              </Typography>
+            </Box>
+          </Box>
+          <IconButton
+            size="small"
+            onClick={() => {
+              setOpenProductModal(false);
+              setNewProductLibelle('');
+              setNewProductImage(null);
+            }}
+            sx={{
+              color: 'text.secondary',
+              '&:hover': { bgcolor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)' },
+            }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent sx={{ p: { xs: 2.5, sm: 3 }, pt: '20px !important' }}>
+          <Box component="form" onSubmit={handleCreateProduct}>
+            {/* Nom du produit */}
+            <Box sx={{ mb: 2.5 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.8, color: 'text.primary' }}>
+                Libellé du produit <span style={{ color: '#ef4444' }}>*</span>
+              </Typography>
+              <TextField
+                fullWidth
+                size="small"
+                placeholder="Ex : Smartphone Galaxy S24, Coca-Cola 33cl, Paquet de Sucre 1kg..."
+                value={newProductLibelle}
+                onChange={(e) => setNewProductLibelle(e.target.value)}
+                required
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Inventory2Icon sx={{ color: isDark ? '#34d399' : 'text.secondary', fontSize: 20 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '12px',
+                    bgcolor: isDark ? 'rgba(255, 255, 255, 0.05)' : '#f8fafc',
+                    '& fieldset': {
+                      borderColor: isDark ? 'rgba(255, 255, 255, 0.18)' : 'rgba(0, 0, 0, 0.12)',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: isDark ? 'rgba(255, 255, 255, 0.38)' : 'primary.main',
+                    },
+                  },
+                }}
+              />
+            </Box>
+
+            {/* Catégorie parente */}
+            <Box sx={{ mb: 2.5 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.8, color: 'text.primary' }}>
+                Catégorie de rattachement <span style={{ color: '#ef4444' }}>*</span>
+              </Typography>
+              <TextField
+                fullWidth
+                select
+                size="small"
+                value={newProductCatSlug}
+                onChange={(e) => setNewProductCatSlug(e.target.value)}
+                required
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <CategoryIcon sx={{ color: isDark ? '#34d399' : 'text.secondary', fontSize: 20 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '12px',
+                    bgcolor: isDark ? 'rgba(255, 255, 255, 0.05)' : '#f8fafc',
+                    '& fieldset': {
+                      borderColor: isDark ? 'rgba(255, 255, 255, 0.18)' : 'rgba(0, 0, 0, 0.12)',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: isDark ? 'rgba(255, 255, 255, 0.38)' : 'primary.main',
+                    },
+                  },
+                }}
+              >
+                {cateEntreprises.map((c) => (
+                  <MenuItem key={c.uuid || c.slug} value={c.uuid || c.slug}>
+                    {c.libelle}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Box>
+
+            {/* Zone d'importation d'image */}
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.8, color: 'text.primary' }}>
+                Photo du produit
+              </Typography>
+
+              {!canUploadImage ? (
+                // Verrouillé en Mode Découverte : non cliquable
+                <Box
+                  sx={{
+                    p: 2,
+                    borderRadius: '14px',
+                    border: '1.5px dashed',
+                    borderColor: isDark ? 'rgba(245, 158, 11, 0.35)' : 'rgba(245, 158, 11, 0.45)',
+                    bgcolor: isDark ? 'rgba(245, 158, 11, 0.06)' : 'rgba(254, 243, 199, 0.4)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.8,
+                    cursor: 'not-allowed',
+                    userSelect: 'none',
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: '12px',
+                      bgcolor: isDark ? 'rgba(245, 158, 11, 0.15)' : '#fde68a',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <LockOutlinedIcon sx={{ color: '#d97706', fontSize: 22 }} />
+                  </Box>
+                  <Box sx={{ flex: 1 }}>
+                    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 0.3 }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: 'text.primary', fontSize: '0.85rem' }}>
+                        Import d'image restreint
+                      </Typography>
+                      <Chip
+                        icon={<WorkspacePremiumIcon sx={{ fontSize: '12px !important', color: '#fff' }} />}
+                        label="Formule Pro"
+                        size="small"
+                        sx={{
+                          height: 20,
+                          fontSize: '0.65rem',
+                          fontWeight: 800,
+                          bgcolor: '#8b5cf6',
+                          color: '#fff',
+                        }}
+                      />
+                    </Stack>
+                    <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', lineHeight: 1.35 }}>
+                      En <strong>Mode Découverte</strong>, l'ajout d'images est désactivé. Le produit utilisera le visuel système standard.
+                    </Typography>
+                  </Box>
+                </Box>
+              ) : newProductImage ? (
+                // Image sélectionnée (Mode Pro+)
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2,
+                    p: 1.5,
+                    borderRadius: '14px',
+                    border: '1px solid',
+                    borderColor: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)',
+                    bgcolor: isDark ? 'rgba(255, 255, 255, 0.03)' : '#f8fafc',
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src={URL.createObjectURL(newProductImage)}
+                    alt="Aperçu"
+                    sx={{
+                      width: 50,
+                      height: 50,
+                      borderRadius: '10px',
+                      objectFit: 'cover',
+                      border: '1px solid rgba(0,0,0,0.08)',
+                    }}
+                  />
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.primary' }} noWrap>
+                      {newProductImage.name}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                      {(newProductImage.size / 1024).toFixed(0)} Ko
+                    </Typography>
+                  </Box>
+                  <IconButton
+                    size="small"
+                    color="error"
+                    onClick={() => setNewProductImage(null)}
+                    sx={{
+                      bgcolor: 'rgba(239, 68, 68, 0.08)',
+                      '&:hover': { bgcolor: 'rgba(239, 68, 68, 0.15)' },
+                    }}
+                  >
+                    <DeleteOutlineIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              ) : (
+                // Zone de téléchargement active (Mode Pro+)
+                <Box
+                  component="label"
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    p: 2.5,
+                    borderRadius: '14px',
+                    border: '2px dashed',
+                    borderColor: isDark ? 'rgba(16, 185, 129, 0.35)' : 'rgba(16, 185, 129, 0.3)',
+                    bgcolor: isDark ? 'rgba(16, 185, 129, 0.04)' : 'rgba(16, 185, 129, 0.02)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      borderColor: '#10b981',
+                      bgcolor: isDark ? 'rgba(16, 185, 129, 0.08)' : 'rgba(16, 185, 129, 0.05)',
+                      transform: 'translateY(-1px)',
+                    },
+                  }}
+                >
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/png, image/jpeg, image/webp"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        setNewProductImage(e.target.files[0]);
+                      }
+                    }}
+                  />
+                  <Box
+                    sx={{
+                      width: 42,
+                      height: 42,
+                      borderRadius: '50%',
+                      bgcolor: isDark ? 'rgba(16, 185, 129, 0.15)' : '#d1fae5',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      mb: 1,
+                    }}
+                  >
+                    <CloudUploadOutlinedIcon sx={{ color: '#10b981', fontSize: 22 }} />
+                  </Box>
+                  <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.primary', mb: 0.2 }}>
+                    Importer une photo du produit
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                    PNG, JPG ou WEBP (Optionnel, max 5 Mo)
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+
+            {/* Boutons d'action */}
+            <Stack direction="row" spacing={1.5} justifyContent="flex-end">
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  setOpenProductModal(false);
+                  setNewProductLibelle('');
+                  setNewProductImage(null);
+                }}
+                sx={{
+                  borderRadius: '12px',
+                  fontWeight: 700,
+                  textTransform: 'none',
+                  px: 2.5,
+                }}
+              >
+                Annuler
+              </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={isSubmittingProduct}
+                startIcon={isSubmittingProduct ? <CircularProgress size={18} color="inherit" /> : <AddIcon />}
+                sx={{
+                  borderRadius: '12px',
+                  fontWeight: 700,
+                  textTransform: 'none',
+                  px: 3,
+                  py: 1,
+                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)',
+                }}
+              >
+                {isSubmittingProduct ? 'Création...' : 'Créer le produit'}
+              </Button>
+            </Stack>
           </Box>
         </DialogContent>
       </Dialog>

@@ -36,10 +36,8 @@ import {
   Timeline as TimelineIcon,
   PointOfSale as PointOfSaleIcon,
 } from "@mui/icons-material";
-import HistoryEduIcon from '@mui/icons-material/HistoryEdu';
 import DescriptionIcon from '@mui/icons-material/Description';
 import AddBusinessIcon from '@mui/icons-material/AddBusiness';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import SupportAgentRoundedIcon from '@mui/icons-material/SupportAgentRounded';
 import CloseIcon from "@mui/icons-material/Close";
 import HistoryIcon from '@mui/icons-material/History';
@@ -53,18 +51,8 @@ import MyTextField from "../../../../../_components/Input/MyTextField";
 import { AvisType } from "../../../../../typescript/UserType";
 import Example from "../../../../../boutique/Ct";
 import ConditionsUtilisation from "../../../../../pages/authentication/ConditionsUtilisation";
-
-// ── Helpers ────────────────────────────────────────────────────────────────────
-
-/** Returns true if the given ISO date string is at least 6 months in the past. */
-const isOlderThan6Months = (dateStr: string | undefined | null): boolean => {
-  if (!dateStr) return false;
-  const created = new Date(dateStr);
-  if (isNaN(created.getTime())) return false;
-  const sixMonthsLater = new Date(created);
-  sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
-  return new Date() >= sixMonthsLater;
-};
+import { usePlanAccess } from "../../../../../hooks/usePlanAccess";
+import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -76,6 +64,8 @@ interface NavItemProps {
   accentColor?: string;
   isExpanded?: boolean;
   isSubItem?: boolean;
+  badge?: string;
+  badgeColor?: string;
 }
 
 interface FeedbackDialogProps {
@@ -123,6 +113,8 @@ const NavItem: React.FC<NavItemProps> = ({
   accentColor = '#6366f1',
   isExpanded,
   isSubItem = false,
+  badge,
+  badgeColor,
 }) => {
   const theme = useTheme();
   const location = useLocation();
@@ -214,6 +206,27 @@ const NavItem: React.FC<NavItemProps> = ({
       >
         {label}
       </Typography>
+
+      {badge && (
+        <Box
+          sx={{
+            fontSize: '0.62rem',
+            fontWeight: 800,
+            px: 0.8,
+            py: 0.2,
+            borderRadius: '6px',
+            bgcolor: badgeColor ? `${badgeColor}18` : 'rgba(99, 102, 241, 0.12)',
+            color: badgeColor || '#6366f1',
+            border: `1px solid ${badgeColor ? `${badgeColor}38` : 'rgba(99, 102, 241, 0.25)'}`,
+            mr: 0.5,
+            flexShrink: 0,
+            textTransform: 'uppercase',
+            letterSpacing: 0.5,
+          }}
+        >
+          {badge}
+        </Box>
+      )}
 
       {isExpanded !== undefined && (
         isExpanded
@@ -353,8 +366,31 @@ const NavSide: React.FC = () => {
   const uuid = useStoreUuid((state) => state.selectedId);
   const { userEntreprises } = useGetUserEntreprises();
   const { unEntreprise } = useFetchEntreprise(uuid);
+  const planAccess = usePlanAccess(unEntreprise?.capabilities);
   const addId = useStoreUuid((state) => state.addId);
   const { createAvis } = useAddAvis();
+
+  const isDecouverteOwner = !unUser.role || unUser.role === 0 || (Boolean(unEntreprise?.proprietaire_id && unUser?.id) && String(unEntreprise?.proprietaire_id) === String(unUser?.id));
+  const isOwner = unUser.role === 1 || isDecouverteOwner;
+  const isManager = unUser.role === 2;
+  const canManageStock = isOwner || isManager;
+  const canSell = isOwner || isManager || unUser.role === 3;
+
+  React.useEffect(() => {
+    if (uuid) {
+      localStorage.setItem('current_entreprise_uuid', uuid);
+    }
+  }, [uuid]);
+
+  React.useEffect(() => {
+    const handleRestriction = () => {
+      setHelpDialogOpen(true);
+    };
+    window.addEventListener('plan_restriction_error', handleRestriction);
+    return () => {
+      window.removeEventListener('plan_restriction_error', handleRestriction);
+    };
+  }, []);
 
   const [avisValues, setAvisValues] = useState<AvisType>({
     libelle: '',
@@ -447,6 +483,58 @@ const NavSide: React.FC = () => {
             <>
               <NavDivider />
               <SectionLabel label="Général" />
+
+              {/* Badge Formule Active */}
+              <Box
+                onClick={() => setHelpDialogOpen(true)}
+                sx={{
+                  mx: 1.5,
+                  mb: 1,
+                  p: 1.2,
+                  borderRadius: '10px',
+                  bgcolor: planAccess.isDecouverte
+                    ? 'rgba(234, 179, 8, 0.08)'
+                    : planAccess.isPro
+                    ? 'rgba(99, 102, 241, 0.09)'
+                    : planAccess.isPremium
+                    ? 'rgba(168, 85, 247, 0.09)'
+                    : 'rgba(16, 185, 129, 0.08)',
+                  border: `1px solid ${
+                    planAccess.isDecouverte
+                      ? 'rgba(234, 179, 8, 0.28)'
+                      : planAccess.isPro
+                      ? 'rgba(99, 102, 241, 0.28)'
+                      : planAccess.isPremium
+                      ? 'rgba(168, 85, 247, 0.28)'
+                      : 'rgba(16, 185, 129, 0.28)'
+                  }`,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    transform: 'translateY(-1px)',
+                    boxShadow: '0 2px 10px rgba(0,0,0,0.06)',
+                  },
+                }}
+              >
+                <Box>
+                  <Typography sx={{ fontSize: '0.64rem', fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: 0.6 }}>
+                    Formule active
+                  </Typography>
+                  <Typography sx={{ fontSize: '0.8rem', fontWeight: 800, color: planAccess.isDecouverte ? '#ca8a04' : planAccess.isPro ? '#4f46e5' : planAccess.isPremium ? '#9333ea' : '#059669' }}>
+                    {planAccess.planLabel}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, bgcolor: '#6366f115', px: 1, py: 0.4, borderRadius: '6px' }}>
+                  <WorkspacePremiumIcon sx={{ fontSize: 13, color: '#6366f1' }} />
+                  <Typography sx={{ fontSize: '0.68rem', fontWeight: 700, color: '#6366f1' }}>
+                    {planAccess.isDecouverte ? 'Activer' : 'Gérer'}
+                  </Typography>
+                </Box>
+              </Box>
+
               <NavItem
                 icon={<DashboardIcon sx={{ color: iconColor('#818cf8', '#4f46e5') }} />}
                 label="Tableau de bord"
@@ -455,7 +543,7 @@ const NavSide: React.FC = () => {
               />
 
               {/* ── MODULE VENTES & CAISSE ── */}
-              {(unUser.role === 1 || unUser.role === 2 || unUser.role === 3) && (
+              {canSell && (
                 <>
                   <NavDivider />
                   <SectionLabel label="Ventes & Caisse" />
@@ -482,26 +570,28 @@ const NavSide: React.FC = () => {
                         }
                         return null;
                       })()}
-                      {unEntreprise.licence_type !== 'Stock Simple' && (
-                        <NavItem
-                          icon={<ReceiptIcon sx={{ color: iconColor('#fb923c', '#ea580c') }} />}
-                          label="Factures de vente"
-                          to="/entreprise/produit/sortie"
-                          accentColor="#f97316"
-                          isSubItem
-                        />
-                      )}
                       <NavItem
-                        label="Facture Proforma"
-                        to="/entreprise/PreFacture"
-                        accentColor="#f59e0b"
+                        icon={<ReceiptIcon sx={{ color: iconColor('#fb923c', '#ea580c') }} />}
+                        label="Factures de vente"
+                        to="/entreprise/produit/sortie"
+                        accentColor="#f97316"
+                        badge={planAccess.isDecouverte ? "Simple" : undefined}
+                        badgeColor="#f59e0b"
                         isSubItem
                       />
+                      
                       <NavItem
                         icon={<DiscountIcon sx={{ color: iconColor('#fb923c', '#c2410c') }} />}
                         label="Remise Facture"
                         to="/sortie/remise"
                         accentColor="#f97316"
+                        isSubItem
+                      />
+
+                      <NavItem
+                        label="Facture Proforma"
+                        to="/entreprise/PreFacture"
+                        accentColor="#f59e0b"
                         isSubItem
                       />
                     </List>
@@ -510,7 +600,7 @@ const NavSide: React.FC = () => {
               )}
 
               {/* ── MODULE STOCK & CATALOGUE ── */}
-              {(unUser.role === 1 || unUser.role === 2) && (
+              {canManageStock && (
                 <>
                   <NavDivider />
                   <SectionLabel label="Stock & Produits" />
@@ -537,43 +627,45 @@ const NavSide: React.FC = () => {
                         accentColor="#10b981"
                         isSubItem
                       />
-                      {unEntreprise.licence_type !== 'Stock Simple' && (
-                        <NavItem
-                          label="Factures d'achat"
-                          to="/entreprise/produit/entre"
-                          accentColor="#10b981"
-                          isSubItem
-                        />
-                      )}
+                      <NavItem
+                        label="Factures d'achat"
+                        to="/entreprise/produit/entre"
+                        accentColor="#10b981"
+                        badge={planAccess.isDecouverte ? "Simple" : undefined}
+                        badgeColor="#f59e0b"
+                        isSubItem
+                      />
                       <NavItem
                         label="Historique sorties inventaire"
                         to="/entreprise/inventaire/sortie"
                         accentColor="#10b981"
+                        badge={planAccess.isDecouverte ? "Simple" : undefined}
+                        badgeColor="#f59e0b"
                         isSubItem
                       />
-                      {unEntreprise.licence_type !== 'Stock Simple' && (
-                        <>
-                          <NavItem
-                            label="Historique entrées inventaire"
-                            to="/entreprise/inventaire/entrer"
-                            accentColor="#10b981"
-                            isSubItem
-                          />
-                          <NavItem
-                            label="État des produits"
-                            to="/entreprise/inventaire/EtaDesProduits"
-                            accentColor="#10b981"
-                            isSubItem
-                          />
-                        </>
-                      )}
+                      <NavItem
+                        label="Historique entrées inventaire"
+                        to="/entreprise/inventaire/entrer"
+                        accentColor="#10b981"
+                        badge={planAccess.isDecouverte ? "Simple" : undefined}
+                        badgeColor="#f59e0b"
+                        isSubItem
+                      />
+                      <NavItem
+                        label="État des produits"
+                        to="/entreprise/inventaire/EtaDesProduits"
+                        accentColor="#10b981"
+                        badge={planAccess.isDecouverte ? "Simple" : undefined}
+                        badgeColor="#f59e0b"
+                        isSubItem
+                      />
                     </List>
                   </Collapse>
                 </>
               )}
 
               {/* ── MODULE FINANCES & TIERS ── */}
-              {(unUser.role === 1 || unUser.role === 2 || unUser.role === 3) && (
+              {canSell && (
                 <>
                   <NavDivider />
                   <SectionLabel label="Finances & Tiers" />
@@ -586,20 +678,22 @@ const NavSide: React.FC = () => {
                   />
                   <Collapse in={expandedSection === 6} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
-                      {unEntreprise.licence_type !== 'Stock Simple' && (
-                        <NavItem
-                          icon={<MonetizationOnIcon sx={{ color: iconColor('#2dd4bf', '#0d9488') }} />}
-                          label="Dépenses"
-                          to="/entreprise/depense"
-                          accentColor="#14b8a6"
-                          isSubItem
-                        />
-                      )}
+                      <NavItem
+                        icon={<MonetizationOnIcon sx={{ color: iconColor('#2dd4bf', '#0d9488') }} />}
+                        label="Dépenses"
+                        to="/entreprise/depense"
+                        accentColor="#14b8a6"
+                        badge={!planAccess.canManageExpenses ? "Pro" : undefined}
+                        badgeColor="#8b5cf6"
+                        isSubItem
+                      />
                       <NavItem
                         icon={<PeopleIcon sx={{ color: iconColor('#38bdf8', '#0284c7') }} />}
                         label="Clients & Fournisseurs"
                         to="/entreprise/client"
                         accentColor="#0ea5e9"
+                        badge={!planAccess.canManageClients ? "Simple" : undefined}
+                        badgeColor="#f59e0b"
                         isSubItem
                       />
                     </List>
@@ -608,7 +702,7 @@ const NavSide: React.FC = () => {
               )}
 
               {/* ── MODULE RAPPORTS & HISTORIQUES ── */}
-              {(unUser.role === 1 || unUser.role === 2) && (
+              {canManageStock && (
                 <>
                   <NavDivider />
                   <SectionLabel label="Analyses & Historiques" />
@@ -632,19 +726,25 @@ const NavSide: React.FC = () => {
                         label="Historique des suppressions"
                         to="/entreprise/historique/suppression"
                         accentColor="#f59e0b"
+                        badge={planAccess.isDecouverte ? "Simple" : undefined}
+                        badgeColor="#f59e0b"
                         isSubItem
                       />
                       <NavItem
                         label="Évolution des ventes"
                         to="/entreprise/EtaDeVente"
                         accentColor="#f59e0b"
+                        badge={planAccess.isDecouverte ? "Simple" : undefined}
+                        badgeColor="#f59e0b"
                         isSubItem
                       />
-                      {unUser.role === 1 && unEntreprise.licence_type !== 'Stock Simple' && (
+                      {isOwner && (
                         <NavItem
                           label="Ventes par utilisateur"
                           to="/entreprise/inventaire/VenteUsers"
                           accentColor="#f59e0b"
+                          badge={!planAccess.canAddCollaborators ? "Pro" : undefined}
+                          badgeColor="#8b5cf6"
                           isSubItem
                         />
                       )}
@@ -654,7 +754,7 @@ const NavSide: React.FC = () => {
               )}
 
               {/* ── MODULE ADMINISTRATION ── */}
-              {unUser.role === 1 && (
+              {isOwner && (
                 <>
                   <NavDivider />
                   <SectionLabel label="Administration" />
@@ -669,6 +769,8 @@ const NavSide: React.FC = () => {
                     label="Personnel"
                     to="/entreprise/personnel"
                     accentColor="#ec4899"
+                    badge={!planAccess.canAddCollaborators ? "Pro" : undefined}
+                    badgeColor="#8b5cf6"
                   />
                   {unUser.is_superuser && (
                     <NavItem
@@ -692,7 +794,7 @@ const NavSide: React.FC = () => {
             />
           )} */}
 
-          {(unUser.role === 1 && unUser.is_cabinet) && (
+          {(isOwner && unUser.is_cabinet) && (
             <NavItem
               icon={<UserCircleIcon sx={{ color: iconColor('#60a5fa', '#2563eb') }} />}
               label="Mes inscrits"
@@ -722,12 +824,14 @@ const NavSide: React.FC = () => {
             to="/user/avis"
             accentColor="#a855f7"
           />
-          {(unUser.role === 1 || unUser.role === 2) && isOlderThan6Months(unEntreprise.created_at) && (
+          {canManageStock && (
             <NavItem
-              icon={<HelpOutlineIcon sx={{ color: iconColor('#c084fc', '#7e22ce') }} />}
-              label="Abonnement ?"
+              icon={<WorkspacePremiumIcon sx={{ color: iconColor('#c084fc', '#7e22ce') }} />}
+              label="Formules & Abonnement"
               onClick={() => setHelpDialogOpen(true)}
               accentColor="#a855f7"
+              badge={planAccess.isDecouverte ? "Activer" : undefined}
+              badgeColor="#10b981"
             />
           )}
 

@@ -46,6 +46,7 @@ interface LicenceTagProps {
 // ── Sub-components ─────────────────────────────────────────────────────────────
 
 const licenceColors: Record<string, { bg: string; text: string; border: string; glow: string }> = {
+  'Mode Découverte': { bg: 'rgba(99,102,241,0.12)', text: '#a5b4fc', border: 'rgba(99,102,241,0.3)', glow: 'rgba(99,102,241,0.2)' },
   'Stock Simple': { bg: 'rgba(239,68,68,0.12)', text: '#fca5a5', border: 'rgba(239,68,68,0.3)', glow: 'rgba(239,68,68,0.2)' },
   'Stock Pro':    { bg: 'rgba(234,179,8,0.12)', text: '#fde68a', border: 'rgba(234,179,8,0.3)',  glow: 'rgba(234,179,8,0.2)' },
   'Stock Premium':{ bg: 'rgba(34,197,94,0.12)', text: '#86efac', border: 'rgba(34,197,94,0.3)', glow: 'rgba(34,197,94,0.2)' },
@@ -285,9 +286,9 @@ const EnterpriseCard: FC<EnterpriseCardProps> = ({ post, index, onSelect }) => {
             </Typography>
 
             {/* Licence type chip */}
-            {post.libelle && (
+            {(post.licence_type || post.libelle) && (
               <Chip
-                label={post.libelle}
+                label={post.licence_type || post.libelle}
                 size="small"
                 sx={{
                   mb: 1.5,
@@ -491,68 +492,84 @@ const EmptyState: FC<{ onAdd: () => void; role?: number }> = ({ onAdd, role }) =
       <AddBusinessRoundedIcon sx={{ fontSize: 44, color: '#818cf8' }} />
     </Box>
 
-    {role === 1 ? (
-      /* ── Rôle autorisé : afficher le bouton de création ── */
-      <>
-        <Box>
-          <Typography sx={{ fontSize: '1.3rem', fontWeight: 800, mb: 0.5 }}>
-            Aucune entreprise
-          </Typography>
-          <Typography sx={{ fontSize: '0.9rem', maxWidth: 320 }}>
-            Commencez par créer votre première entreprise pour gérer vos stocks.
-          </Typography>
-        </Box>
-        <Button
-          variant="contained"
-          onClick={onAdd}
-          startIcon={<AddBusinessRoundedIcon />}
-          sx={{
-            bgcolor: '#6366f1',
-            px: 4,
-            py: 1.4,
-            borderRadius: '12px',
-            fontWeight: 700,
-            fontSize: '0.92rem',
-            boxShadow: '0 4px 20px rgba(99,102,241,0.45)',
-            transition: 'all 0.3s ease',
-            '&:hover': {
-              bgcolor: '#4f46e5',
-              boxShadow: '0 8px 30px rgba(99,102,241,0.6)',
-              transform: 'translateY(-2px)',
-            },
-          }}
-        >
-          Créer une entreprise
-        </Button>
-      </>
-    ) : (
-      /* ── Pas encore de rôle : message d'attente d'activation ── */
+    <Box>
+      <Typography sx={{ fontSize: '1.35rem', fontWeight: 800, mb: 0.5 }}>
+        {role === 1 ? 'Aucune entreprise' : 'Bienvenue sur Gest Stocks'}
+      </Typography>
+      <Typography sx={{ fontSize: '0.9rem', maxWidth: 380, color: 'text.secondary', mx: 'auto' }}>
+        {role === 1
+          ? 'Commencez par créer votre première entreprise pour gérer vos stocks.'
+          : 'Créez dès maintenant votre entreprise pour commencer à gérer vos stocks en Mode Découverte.'}
+      </Typography>
+    </Box>
+
+    {/* ── Bouton de création : TOUJOURS ACCESSIBLE POUR TOUT NOUVEL UTILISATEUR ── */}
+    <Button
+      variant="contained"
+      onClick={onAdd}
+      startIcon={<AddBusinessRoundedIcon />}
+      sx={{
+        bgcolor: '#6366f1',
+        px: 4,
+        py: 1.4,
+        borderRadius: '12px',
+        fontWeight: 700,
+        fontSize: '0.92rem',
+        boxShadow: '0 4px 20px rgba(99,102,241,0.45)',
+        transition: 'all 0.3s ease',
+        '&:hover': {
+          bgcolor: '#4f46e5',
+          boxShadow: '0 8px 30px rgba(99,102,241,0.6)',
+          transform: 'translateY(-2px)',
+        },
+      }}
+    >
+      Créer une entreprise
+    </Button>
+
+    {/* ── Si le compte est en attente d'activation pour une formule payante ── */}
+    {role !== 1 && (
       <Box
         sx={{
-          background: 'linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(139,92,246,0.08) 100%)',
+          background: 'linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(139,92,246,0.05) 100%)',
           border: '1px solid rgba(99,102,241,0.2)',
           borderRadius: '16px',
-          p: { xs: 3, sm: 4 },
+          p: { xs: 2.5, sm: 3 },
           backdropFilter: 'blur(10px)',
-          maxWidth: 420,
+          maxWidth: 450,
+          mt: 1,
         }}
       >
-        <Typography sx={{ fontSize: '1.3rem', fontWeight: 800, mb: 1.5 }}>
-          Compte en attente
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
+          <Chip
+            label="Mode Découverte actif"
+            size="small"
+            sx={{
+              bgcolor: 'rgba(99,102,241,0.15)',
+              color: '#818cf8',
+              fontWeight: 700,
+              fontSize: '0.72rem',
+              border: '1px solid rgba(99,102,241,0.3)',
+            }}
+          />
+        </Box>
+        <Typography sx={{ fontSize: '1.1rem', fontWeight: 800, mb: 1 }}>
+          Compte en attente d'activation
         </Typography>
         <Typography
           sx={{
             textAlign: 'center',
-            fontSize: { xs: '0.88rem', sm: '0.95rem' },
-            lineHeight: 1.8,
+            fontSize: { xs: '0.84rem', sm: '0.88rem' },
+            lineHeight: 1.6,
+            color: 'text.secondary',
           }}
         >
           Nous vous remercions pour votre inscription sur Gest Stocks.<br />
-          Veuillez-vous patienter avant l'activation de votre compte !<br />
-          Pour plus d'information contacter :
+          Vous pouvez créer votre entreprise pour tester la gestion de base (catégories, entrées et sorties).<br />
+          Pour activer une formule complète (Stock Simple, Pro ou Premium), contactez-nous :
         </Typography>
         <a
-          href="https://wa.me/22391154834"
+          href="https://wa.me/22391154834?text=Bonjour,%20je%20souhaite%20activer%20mon%20compte%20Gest%20Stocks."
           target="_blank"
           rel="noopener noreferrer"
           style={{ textDecoration: 'none' }}
@@ -562,8 +579,8 @@ const EmptyState: FC<{ onAdd: () => void; role?: number }> = ({ onAdd, role }) =
               display: 'inline-flex',
               alignItems: 'center',
               gap: 1,
-              bgcolor: 'rgba(34, 197, 94, 0.07)',
-              border: '1px solid rgba(34, 197, 94, 0.18)',
+              bgcolor: 'rgba(34, 197, 94, 0.08)',
+              border: '1px solid rgba(34, 197, 94, 0.25)',
               borderRadius: '10px',
               px: 2,
               py: 0.8,
@@ -571,15 +588,15 @@ const EmptyState: FC<{ onAdd: () => void; role?: number }> = ({ onAdd, role }) =
               cursor: 'pointer',
               transition: 'all 0.2s ease',
               '&:hover': {
-                bgcolor: 'rgba(34, 197, 94, 0.14)',
-                border: '1px solid rgba(34, 197, 94, 0.35)',
+                bgcolor: 'rgba(34, 197, 94, 0.16)',
+                border: '1px solid rgba(34, 197, 94, 0.45)',
                 transform: 'translateY(-1px)',
               },
             }}
           >
             <WhatsAppIcon sx={{ color: '#22c55e', fontSize: 18 }} />
             <Typography sx={{ color: '#22c55e', fontSize: '0.88rem', fontWeight: 600, letterSpacing: 0.3 }}>
-              +223 91 15 48 34
+              +223 91 15 48 34 (WhatsApp)
             </Typography>
           </Box>
         </a>
@@ -749,7 +766,7 @@ export default function Entreprise() {
     return (
       <>
         <EmptyState onAdd={() => setIsDialogOpen(true)} role={unUser.role} />
-        {unUser.role === 1 && <EntrepriseDialog {...dialogProps} />}
+        <EntrepriseDialog {...dialogProps} />
       </>
     );
   }
@@ -819,26 +836,72 @@ export default function Entreprise() {
       {(unUser.role !== 1 && unUser.role !== 2 && unUser.role !== 3 && unUser.role !== 4) && (
         <Box
           sx={{
-            background: 'linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(139,92,246,0.08) 100%)',
+            background: 'linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(139,92,246,0.05) 100%)',
             border: '1px solid rgba(99,102,241,0.2)',
             borderRadius: '16px',
-            p: { xs: 3, sm: 4 },
-            mb: { xs: 4, sm: 5 },
+            p: { xs: 2.5, sm: 3 },
+            mb: { xs: 3, sm: 4 },
             backdropFilter: 'blur(10px)',
+            display: 'flex',
+            flexDirection: { xs: 'column', md: 'row' },
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 2,
           }}
         >
-          <Typography
-            sx={{
-              textAlign: 'center',
-              // color: '#cbd5e1',
-              fontSize: { xs: '0.88rem', sm: '0.95rem' },
-              lineHeight: 1.8,
-            }}
+          <Box sx={{ textAlign: { xs: 'center', md: 'left' } }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5, justifyContent: { xs: 'center', md: 'flex-start' } }}>
+              <Chip
+                label="Mode Découverte"
+                size="small"
+                sx={{
+                  bgcolor: 'rgba(99,102,241,0.15)',
+                  color: '#818cf8',
+                  fontWeight: 700,
+                  fontSize: '0.72rem',
+                  border: '1px solid rgba(99,102,241,0.3)',
+                }}
+              />
+              <Typography sx={{ fontSize: '0.95rem', fontWeight: 800 }}>
+                Compte en attente d'activation
+              </Typography>
+            </Box>
+            <Typography sx={{ fontSize: '0.85rem', color: 'text.secondary', lineHeight: 1.5 }}>
+              Vous testez les fonctionnalités de base de Gest Stocks. Pour débloquer l'ensemble des modules (Stock Simple, Pro ou Premium), contactez notre équipe :
+            </Typography>
+          </Box>
+          <a
+            href="https://wa.me/22391154834?text=Bonjour,%20je%20souhaite%20activer%20mon%20compte%20Gest%20Stocks."
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ textDecoration: 'none' }}
           >
-            Nous vous remercions pour votre inscription sur Gest Stocks.<br />
-            Veuillez-vous patienter avant l'activation de votre compte !<br />
-            Pour plus d'information contacter (91 15 48 34 // 63 83 51 14)
-          </Typography>
+            <Box
+              sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 1,
+                bgcolor: 'rgba(34, 197, 94, 0.08)',
+                border: '1px solid rgba(34, 197, 94, 0.25)',
+                borderRadius: '10px',
+                px: 2,
+                py: 0.9,
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  bgcolor: 'rgba(34, 197, 94, 0.16)',
+                  border: '1px solid rgba(34, 197, 94, 0.45)',
+                  transform: 'translateY(-1px)',
+                },
+              }}
+            >
+              <WhatsAppIcon sx={{ color: '#22c55e', fontSize: 18 }} />
+              <Typography sx={{ color: '#22c55e', fontSize: '0.86rem', fontWeight: 600 }}>
+                +223 91 15 48 34 (WhatsApp)
+              </Typography>
+            </Box>
+          </a>
         </Box>
       )}
 

@@ -37,14 +37,20 @@ function getColorStyle( color: any, theme: any ) {
 // ==============================|| OVERRIDES - CHIP ||============================== //
 
 export default function Chip(theme: Theme) {
+  const isDark = theme.palette.mode === 'dark';
   const defaultLightChip = getColorStyle({ color: 'secondary' }, theme);
   return {
     MuiChip: {
       styleOverrides: {
         root: {
-          borderRadius: 4,
+          borderRadius: 8,
           '&:active': {
             boxShadow: 'none'
+          },
+          '&.MuiChip-outlined': {
+            borderColor: isDark ? 'rgba(255, 255, 255, 0.25)' : undefined,
+            color: isDark ? '#e2e8f0' : undefined,
+            backgroundColor: isDark ? 'rgba(255, 255, 255, 0.04)' : undefined,
           },
           '&.MuiChip-colorPrimary': getColor({ color: 'primary' }, theme),
           '&.MuiChip-colorSecondary': getColor({ color: 'secondary' }, theme),

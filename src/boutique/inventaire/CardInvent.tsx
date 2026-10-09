@@ -42,6 +42,9 @@ const getStockStatus = (qte: number = 0, qteCritique: number = 0): StockStatus =
 
 export default function CardInvent({ row }: EntreProps) {
   const { unUser } = useFetchUser();
+  const isOwner = unUser.role === 1 || !unUser.role || unUser.role === 0;
+  const isManager = unUser.role === 2;
+  const canManageStock = isOwner || isManager;
   const [open, setOpen] = useState(false);
 
   const functionOpen = () => setOpen(true);
@@ -217,7 +220,7 @@ export default function CardInvent({ row }: EntreProps) {
         </TableCell>
 
         {/* Données administrateur (Prix d'achat et Total) */}
-        {unUser.role === 1 && (
+        {isOwner && (
           <>
             <TableCell align="right">
               <Typography variant="body2" sx={{ color: 'white', fontWeight: 600 }}>
@@ -236,7 +239,7 @@ export default function CardInvent({ row }: EntreProps) {
         )}
 
         {/* Action : Voir les détails */}
-        {(unUser.role === 1 || unUser.role === 2) && (
+        {canManageStock && (
           <TableCell>
             <Link to={`/entre/modif/${row.uuid}`}>
               <Tooltip title="Voir les détails">

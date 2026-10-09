@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { useMemo, useState } from 'react';
 import { useStoreUuid } from '../../../../usePerso/store';
-import { useFetchUser, useStockEntreprise } from '../../../../usePerso/fonction.user';
+import { useFetchEntreprise, useFetchUser, useStockEntreprise } from '../../../../usePerso/fonction.user';
 import { formatNumberWithSpaces } from '../../../../usePerso/fonctionPerso';
 import AnalyticEcommerce from '../../../../components/cards/statistics/AnalyticEcommerce';
 import { format } from 'date-fns';
@@ -24,6 +24,8 @@ import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
 import BarChartOutlinedIcon from '@mui/icons-material/BarChartOutlined';
+import { usePlanAccess } from '../../../../hooks/usePlanAccess';
+import FeatureGate from '../../../../components/FeatureGate';
 
 interface MonthlyDetail {
   somme_qte: number;
@@ -54,6 +56,8 @@ const LoadingSkeleton = () => (
 export default function EntrerInventaire() {
   const theme = useTheme();
   const uuid = useStoreUuid((state) => state.selectedId);
+  const { unEntreprise } = useFetchEntreprise(uuid);
+  const planAccess = usePlanAccess(unEntreprise?.capabilities);
   const { unUser } = useFetchUser();
   const { stockEntreprise, isLoading, isError } = useStockEntreprise(uuid || '');
 
@@ -117,6 +121,21 @@ export default function EntrerInventaire() {
     const avgAchat = Math.round(totalAchat / filteredMonths.length);
     return { totalAchat, totalQte, avgAchat, peakMonth: peak };
   }, [filteredMonths]);
+
+  if (planAccess.isDecouverte) {
+    return (
+      <Box sx={{ maxWidth: '1400px', mx: 'auto', p: { xs: 1.5, sm: 3 } }}>
+        <FeatureGate
+          hasAccess={false}
+          requiredPlan="Stock Simple"
+          featureTitle="Historique des Entrées d'Inventaire"
+          description="Analysez les volumes d'entrées mensuelles, les coûts d'approvisionnement et l'historique complet de vos réassorts."
+        >
+          <div />
+        </FeatureGate>
+      </Box>
+    );
+  }
 
   if (isLoading) return <LoadingSkeleton />;
 

@@ -82,6 +82,10 @@ export default function Sortie() {
   };
 
   const { unEntreprise: entreprise } = useFetchEntreprise(entreprise_uuid)
+  const isDecouverteOwner = !unUser.role || unUser.role === 0 || entreprise?.proprietaire_id === unUser.id;
+  const isOwner = unUser.role === 1 || isDecouverteOwner;
+  const isManager = unUser.role === 2;
+  const canManageStock = isOwner || isManager;
 
   const { sortiesEntreprise, isLoading, isError, refetch } = useGetAllSortie(entreprise_uuid!)
 
@@ -639,7 +643,7 @@ export default function Sortie() {
               />
 
               {/* KPI Cards */}
-              {(unUser.role === 1 || unUser.role === 2) && (
+              {canManageStock && (
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6} md={3}>
                     <KpiCard

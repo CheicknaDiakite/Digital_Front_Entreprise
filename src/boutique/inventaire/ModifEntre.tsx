@@ -376,14 +376,14 @@ export default function ModifEntre() {
                   />
 
                   <TextField
-                    label="Libellé du produit"
+                    label="Libellé du produit (Optionnel)"
                     variant="outlined"
                     name="libelle"
                     value={unEntre.libelle || ''}
                     onChange={onChange}
-                    required
                     fullWidth
                     sx={inputStyle}
+                    helperText="Optionnel - Vous pouvez laisser ce champ vide si l'article n'a pas de variante spécifique."
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
