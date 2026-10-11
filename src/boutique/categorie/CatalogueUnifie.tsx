@@ -116,6 +116,19 @@ export default function CatalogueUnifie() {
   const activeCategoryUuid = activeCategory?.uuid || activeCategory?.slug || '';
   const { getSousCates = [], isLoading: isSousCateLoading } = useAllGetSousCate(activeCategoryUuid);
 
+  // Active Sous-Catégorie object (when filtered by a specific sous-catégorie)
+  const activeSousCat = useMemo(() => {
+    if (selectedSousCatUuid === 'all') return null;
+    return (
+      getSousCates.find(
+        (sc: any) =>
+          sc.uuid === selectedSousCatUuid ||
+          sc.slug === selectedSousCatUuid ||
+          String(sc.id) === String(selectedSousCatUuid)
+      ) || null
+    );
+  }, [selectedSousCatUuid, getSousCates]);
+
   // Dialog States
   const [openCatModal, setOpenCatModal] = useState(false);
   const [newCatLibelle, setNewCatLibelle] = useState('');
@@ -130,23 +143,54 @@ export default function CatalogueUnifie() {
 
   // Group / Filter Products
   const filteredProducts = useMemo(() => {
+    // Collecter les identifiants et libellés des sous-catégories de la catégorie active
+    const activeSubCatUuids = new Set(
+      getSousCates.map((sc: any) => (sc.uuid || '').toLowerCase()).filter(Boolean)
+    );
+    const activeSubCatLibs = new Set(
+      getSousCates.map((sc: any) => (sc.libelle || '').toLowerCase()).filter(Boolean)
+    );
+
     return entresEntreprise.filter((item: RecupType) => {
+      const itemAny = item as any;
+      const itemCatUuid = (itemAny.categorie_uuid || '').toLowerCase();
+      const itemCatSlug = (item.categorie_slug || '').toLowerCase();
+      const itemCatLib = (item.categorie_libelle || '').toLowerCase();
+      const itemParentLib = (itemAny.parent_categorie_libelle || '').toLowerCase();
+      const itemSousCatUuid = (itemAny.sous_categorie_uuid || itemAny.sous_categorie_id || '').toString().toLowerCase();
+      const itemSousCatLib = (itemAny.sous_categorie_libelle || item.categorie_libelle || '').toLowerCase();
+
       // Category filter
       if (selectedCategorySlug !== 'all') {
-        const itemCatSlug = (item.categorie_slug || '').toLowerCase();
-        const itemCatLib = (item.categorie_libelle || '').toLowerCase();
         const target = selectedCategorySlug.toLowerCase();
-        if (itemCatSlug !== target && itemCatLib !== target) {
+        const activeCatUuid = (activeCategory?.uuid || '').toLowerCase();
+        const activeCatLib = (activeCategory?.libelle || '').toLowerCase();
+
+        // Correspondance directe catégorie parente
+        const matchCatUuid = itemCatUuid && activeCatUuid && itemCatUuid === activeCatUuid;
+        const matchCatSlug = itemCatSlug && itemCatSlug === target;
+        const matchParentLib = itemParentLib && activeCatLib && itemParentLib === activeCatLib;
+        const matchDirectLib = itemCatLib && activeCatLib && itemCatLib === activeCatLib;
+
+        // Correspondance par sous-catégories associées à cette catégorie
+        const matchViaSubCatUuid = itemSousCatUuid && activeSubCatUuids.has(itemSousCatUuid);
+        const matchViaSubCatLib = itemCatLib && activeSubCatLibs.has(itemCatLib);
+
+        if (!matchCatUuid && !matchCatSlug && !matchParentLib && !matchDirectLib && !matchViaSubCatUuid && !matchViaSubCatLib) {
           return false;
         }
       }
 
       // Sous-catégorie filter
       if (selectedSousCatUuid !== 'all') {
-        const itemSousCatUuid = (item as any).sous_categorie_uuid || (item as any).sous_categorie_id || '';
-        const itemSousCatLib = (item.libelle || (item as any).sous_categorie_libelle || '').toLowerCase();
         const targetSousCat = selectedSousCatUuid.toLowerCase();
-        if (itemSousCatUuid !== selectedSousCatUuid && itemSousCatLib !== targetSousCat) {
+        const activeSousCatLib = (activeSousCat?.libelle || '').toLowerCase();
+
+        const matchScUuid = itemSousCatUuid && itemSousCatUuid === targetSousCat;
+        const matchScLib = activeSousCatLib && itemSousCatLib === activeSousCatLib;
+        const matchCatLibToSc = activeSousCatLib && itemCatLib === activeSousCatLib;
+
+        if (!matchScUuid && !matchScLib && !matchCatLibToSc) {
           return false;
         }
       }
@@ -170,7 +214,7 @@ export default function CatalogueUnifie() {
 
       return true;
     });
-  }, [entresEntreprise, selectedCategorySlug, selectedSousCatUuid, stockStatusFilter, searchTerm]);
+  }, [entresEntreprise, selectedCategorySlug, selectedSousCatUuid, stockStatusFilter, searchTerm, activeCategory, activeSousCat, getSousCates]);
 
   // Pagination
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
@@ -349,22 +393,31 @@ export default function CatalogueUnifie() {
           { label: 'Catalogue' },
         ]}
         actions={
-          <Stack direction="row" spacing={1.2} flexWrap="wrap">
-            <Button
-              variant="outlined"
-              startIcon={<FileDownloadIcon />}
-              onClick={handleExportCSV}
-              sx={{
-                borderRadius: '12px',
-                fontWeight: 700,
-                textTransform: 'none',
-              }}
-            >
-              Export CSV
-            </Button>
-            {canManageStock && (
-              <>
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            spacing={1}
+            sx={{ width: { xs: '100%', sm: 'auto' } }}
+          >
+            <Stack direction="row" spacing={1} sx={{ width: { xs: '100%', sm: 'auto' } }}>
+              <Button
+                fullWidth
+                variant="outlined"
+                startIcon={<FileDownloadIcon />}
+                onClick={handleExportCSV}
+                sx={{
+                  borderRadius: '12px',
+                  fontWeight: 700,
+                  textTransform: 'none',
+                  flex: { xs: 1, sm: 'none' },
+                  fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                  py: { xs: 0.8, sm: 1 },
+                }}
+              >
+                Export CSV
+              </Button>
+              {canManageStock && (
                 <Button
+                  fullWidth
                   variant="outlined"
                   startIcon={<CategoryIcon />}
                   onClick={() => setOpenCatModal(true)}
@@ -372,69 +425,77 @@ export default function CatalogueUnifie() {
                     borderRadius: '12px',
                     fontWeight: 700,
                     textTransform: 'none',
+                    flex: { xs: 1, sm: 'none' },
+                    fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                    py: { xs: 0.8, sm: 1 },
                   }}
                 >
                   + Catégorie
                 </Button>
-                <Button
-                  variant="contained"
-                  startIcon={<AddIcon />}
-                  onClick={() => {
-                    if (cateEntreprises.length > 0) {
-                      setNewProductCatSlug(cateEntreprises[0].uuid || cateEntreprises[0].slug || '');
-                    }
-                    setOpenProductModal(true);
-                  }}
-                  sx={{
-                    borderRadius: '12px',
-                    fontWeight: 700,
-                    textTransform: 'none',
-                    background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
-                    boxShadow: '0 4px 14px rgba(99,102,241,0.35)',
-                  }}
-                >
-                  + Nouveau Produit
-                </Button>
-              </>
+              )}
+            </Stack>
+            {canManageStock && (
+              <Button
+                fullWidth
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => {
+                  if (cateEntreprises.length > 0) {
+                    setNewProductCatSlug(cateEntreprises[0].uuid || cateEntreprises[0].slug || '');
+                  }
+                  setOpenProductModal(true);
+                }}
+                sx={{
+                  borderRadius: '12px',
+                  fontWeight: 700,
+                  textTransform: 'none',
+                  fontSize: { xs: '0.85rem', sm: '0.875rem' },
+                  py: { xs: 0.8, sm: 1 },
+                  background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                  boxShadow: '0 4px 14px rgba(99,102,241,0.35)',
+                }}
+              >
+                + Nouveau Produit
+              </Button>
             )}
           </Stack>
         }
       />
 
       {/* ── KPI Cards Strip ── */}
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={3}>
+      <Grid container spacing={{ xs: 1.5, sm: 2 }} sx={{ mb: 3 }}>
+        <Grid item xs={6} sm={6} md={3}>
           <KpiCard
-            title="Références en stock"
+            title="Références"
             value={metrics.totalRefs}
-            subtitle={`${cateEntreprises.length} catégories actives`}
+            subtitle={`${cateEntreprises.length} catégories`}
             icon={<Inventory2Icon />}
             accentColor="#6366f1"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} sm={6} md={3}>
           <KpiCard
-            title="Valeur marchande (Vente)"
+            title="Valeur Vente"
             value={`${formatNumberWithSpaces(metrics.totalStockValueVente)} F`}
-            subtitle="Valeur estimée du stock"
+            subtitle="Valeur estimée"
             icon={<Inventory2Icon />}
             accentColor="#10b981"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} sm={6} md={3}>
           <KpiCard
             title="Stock critique"
             value={metrics.lowStockCount}
-            subtitle="Sous le seuil d'alerte"
+            subtitle="Sous le seuil"
             icon={<WarningAmberIcon />}
             accentColor="#f59e0b"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} sm={6} md={3}>
           <KpiCard
-            title="Ruptures de stock"
+            title="Ruptures"
             value={metrics.outOfStockCount}
-            subtitle="Produits indisponibles"
+            subtitle="Indisponibles"
             icon={<ErrorOutlineIcon />}
             accentColor="#ef4444"
           />
@@ -487,7 +548,14 @@ export default function CatalogueUnifie() {
             </Box>
 
             {/* Categories List */}
-            <Stack spacing={0.8}>
+            <Stack
+              spacing={0.8}
+              sx={{
+                maxHeight: { xs: 260, md: 'none' },
+                overflowY: { xs: 'auto', md: 'visible' },
+                pr: { xs: 0.5, md: 0 },
+              }}
+            >
               {/* All Categories Option */}
               <Box
                 onClick={() => {
@@ -542,11 +610,22 @@ export default function CatalogueUnifie() {
               {cateEntreprises.map((cat) => {
                 const isSelected = selectedCategorySlug === cat.slug;
                 const sousCatCount = Number(cat.sous_categorie_count ?? 0);
-                const catProductsCount = entresEntreprise.filter(
-                  (p: any) =>
-                    (p.categorie_slug || '').toLowerCase() === (cat.slug || '').toLowerCase() ||
-                    (p.categorie_libelle || '').toLowerCase() === (cat.libelle || '').toLowerCase()
-                ).length;
+                const catProductsCount = entresEntreprise.filter((p: any) => {
+                  const pCatSlug = (p.categorie_slug || '').toLowerCase();
+                  const pCatUuid = (p.categorie_uuid || '').toLowerCase();
+                  const pParentLib = (p.parent_categorie_libelle || '').toLowerCase();
+                  const pCatLib = (p.categorie_libelle || '').toLowerCase();
+                  const cSlug = (cat.slug || '').toLowerCase();
+                  const cUuid = (cat.uuid || '').toLowerCase();
+                  const cLib = (cat.libelle || '').toLowerCase();
+
+                  return (
+                    (pCatUuid && cUuid && pCatUuid === cUuid) ||
+                    (pCatSlug && cSlug && pCatSlug === cSlug) ||
+                    (pParentLib && cLib && pParentLib === cLib) ||
+                    (pCatLib && cLib && pCatLib === cLib)
+                  );
+                }).length;
                 const catImgUrl = cat.image ? BASE(cat.image) : defaultProductImg;
 
                 return (
@@ -716,7 +795,7 @@ export default function CatalogueUnifie() {
                         {selectedSousCatUuid !== 'all' && (
                           <Chip
                             size="small"
-                            label="Filtre sous-catégorie actif"
+                            label={`Sous-catégorie : ${activeSousCat?.libelle || 'Filtrée'}`}
                             color="secondary"
                             onDelete={() => setSelectedSousCatUuid('all')}
                             sx={{ height: 22, fontSize: '0.72rem', fontWeight: 700 }}
@@ -839,12 +918,20 @@ export default function CatalogueUnifie() {
                       {getSousCates.map((sc: any) => {
                         const scImg = sc.image ? BASE(sc.image) : defaultProductImg;
                         const isScSelected = selectedSousCatUuid === sc.uuid;
-                        const scStockRefs = entresEntreprise.filter(
-                          (p: any) =>
-                            (p.sous_categorie_uuid && p.sous_categorie_uuid === sc.uuid) ||
-                            (p.sous_categorie_id && p.sous_categorie_id === sc.uuid) ||
-                            ((p.libelle || '').toLowerCase() === (sc.libelle || '').toLowerCase())
-                        );
+                        const scStockRefs = entresEntreprise.filter((p: any) => {
+                          const pScUuid = (p.sous_categorie_uuid || '').toLowerCase();
+                          const pScId = String(p.sous_categorie_id || '');
+                          const pScLib = (p.sous_categorie_libelle || p.categorie_libelle || '').toLowerCase();
+                          const targetUuid = (sc.uuid || '').toLowerCase();
+                          const targetId = String(sc.id || '');
+                          const targetLib = (sc.libelle || '').toLowerCase();
+
+                          return (
+                            (pScUuid && targetUuid && pScUuid === targetUuid) ||
+                            (pScId && targetId && pScId === targetId) ||
+                            (pScLib && targetLib && pScLib === targetLib)
+                          );
+                        });
                         const totalQte = scStockRefs.reduce((acc: number, curr: any) => acc + Number(curr.qte || 0), 0);
 
                         return (
@@ -953,11 +1040,11 @@ export default function CatalogueUnifie() {
                                   {sc.libelle}
                                 </Typography>
 
-                                {/* <Chip
+                                <Chip
                                   size="small"
                                   label={
                                     totalQte > 0
-                                      ? `${totalQte} en stock (${scStockRefs.length} lot${scStockRefs.length > 1 ? 's' : ''})`
+                                      ? `${totalQte} en stock (${scStockRefs.length} réf)`
                                       : '0 en stock'
                                   }
                                   sx={{
@@ -968,7 +1055,7 @@ export default function CatalogueUnifie() {
                                     color: totalQte > 0 ? '#10b981' : 'text.secondary',
                                     mb: 1,
                                   }}
-                                /> */}
+                                />
                               </Box>
 
                               {/* Card Actions Footer */}
@@ -1023,7 +1110,11 @@ export default function CatalogueUnifie() {
               <Stack direction="row" spacing={1} alignItems="center">
                 <Inventory2Icon sx={{ color: 'primary.main', fontSize: 20 }} />
                 <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
-                  {activeCategory ? `Lots & Références en stock (${activeCategory.libelle})` : 'Tous les produits en stock'}
+                  {activeSousCat
+                    ? `Lots en stock • ${activeSousCat.libelle}`
+                    : activeCategory
+                    ? `Lots & Références en stock (${activeCategory.libelle})`
+                    : 'Tous les produits en stock'}
                 </Typography>
                 <Chip
                   size="small"
@@ -1147,20 +1238,50 @@ export default function CatalogueUnifie() {
             ) : filteredProducts.length === 0 ? (
               <Box
                 sx={{
-                  py: 8,
+                  py: 6,
+                  px: 2,
                   textAlign: 'center',
                   borderRadius: '16px',
                   border: '1px dashed',
                   borderColor: 'divider',
                 }}
               >
-                <Inventory2Icon sx={{ fontSize: 48, opacity: 0.3, mb: 1 }} />
-                <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                  Aucun produit trouvé
+                <Inventory2Icon sx={{ fontSize: 44, opacity: 0.3, mb: 1 }} />
+                <Typography variant="body1" sx={{ fontWeight: 700, mb: 0.5 }}>
+                  {activeSousCat
+                    ? `Aucun article en stock pour « ${activeSousCat.libelle} »`
+                    : activeCategory
+                    ? `Aucun article en stock pour la catégorie « ${activeCategory.libelle} »`
+                    : 'Aucun produit trouvé'}
                 </Typography>
-                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                  Ajustez vos filtres de recherche ou ajoutez un nouveau produit.
+                <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mb: 2 }}>
+                  {activeSousCat
+                    ? 'Cette sous-catégorie ne contient aucun stock actuellement. Réinitialisez le filtre ou approvisionnez un lot.'
+                    : 'Ajustez vos filtres de recherche ou ajoutez un nouveau produit.'}
                 </Typography>
+                <Stack direction="row" spacing={1.5} justifyContent="center" flexWrap="wrap">
+                  {selectedSousCatUuid !== 'all' && (
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={() => setSelectedSousCatUuid('all')}
+                      sx={{ borderRadius: '8px', textTransform: 'none', fontWeight: 600 }}
+                    >
+                      Voir toute la catégorie « {activeCategory?.libelle} »
+                    </Button>
+                  )}
+                  {canManageStock && (
+                    <Button
+                      size="small"
+                      variant="contained"
+                      startIcon={<AddShoppingCartIcon fontSize="small" />}
+                      onClick={() => navigate('/entre')}
+                      sx={{ borderRadius: '8px', textTransform: 'none', fontWeight: 600 }}
+                    >
+                      Approvisionner du stock
+                    </Button>
+                  )}
+                </Stack>
               </Box>
             ) : viewMode === 'table' ? (
               /* ── TABLE VIEW ── */

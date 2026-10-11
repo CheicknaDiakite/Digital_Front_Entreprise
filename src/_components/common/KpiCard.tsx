@@ -96,7 +96,7 @@ export const KpiCard: React.FC<KpiCardProps> = ({
             color: isDark ? '#f8fafc' : '#0f172a',
             letterSpacing: '-0.02em',
             mb: 0.5,
-            fontSize: { xs: '1.5rem', sm: '1.75rem' },
+            fontSize: { xs: '1.2rem', sm: '1.5rem', md: '1.75rem' },
           }}
         >
           {value}

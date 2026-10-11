@@ -1,6 +1,6 @@
 # GestionStock — guide de repérage du projet
 
-> État observé le 8 octobre 2026. Ce document est la carte de référence du projet : le mettre à jour lorsqu'une fonctionnalité, une route, un modèle, une formule d'abonnement ou une variable d'environnement importante change.
+> État observé le 11 octobre 2026. Ce document est la carte de référence du projet : le mettre à jour lorsqu'une fonctionnalité, une route, un modèle, une formule d'abonnement ou une variable d'environnement importante change.
 
 ## 1. Objectif et périmètre
 
@@ -101,7 +101,9 @@ Les variables utiles sont documentées dans `Back/.env.example`. Vérifier `Back
 | `src/layout/` | structure visuelle : tableau de bord, en-tête, tiroir latéral (`NavSide.tsx`), layout minimal |
 | `src/hooks/usePlanAccess.ts` | **hook central de gestion des capacités** (`isDecouverte`, `canUploadMedia`, `canManageExpenses`, `canAddCollaborators`, etc.) |
 | `src/components/FeatureGate.tsx` | composant barrière visuel bloquant les fonctionnalités hors-plan avec contact d'upgrade |
-| `src/boutique/categorie/CatalogueUnifie.tsx` | **catalogue unifié** (catégories, sous-catégories, articles) avec modales d'ajout modernes et verrouillage d'image Découverte |
+| `src/components/common/KpiCard.tsx` | cartes métriques KPI avec typographie fluide (`fontSize` réactif) et adaptation aux grilles mobiles |
+| `src/boutique/categorie/CatalogueUnifie.tsx` | **catalogue unifié** (catégories, sous-catégories, lots en stock) avec filtrage réactif en cascade, compteurs de stock en temps réel (`scStockRefs`), modales d'ajout et verrouillage d'image Découverte |
+| `src/boutique/sortie/FactureListe.tsx` | historique des factures de vente avec défilement fluide garanti (`overflowX`/`overflowY`, sticky header opaque) |
 | `src/boutique/` | écrans métier : inventaire, sorties/caisse, clients, dépenses, personnel, administration |
 | `src/_services/` | appels API Axios groupés par domaine (`caller.service.ts` injecte le token JWT et `X-Entreprise-Id`) |
 | `src/usePerso/fonction.*.ts` | hooks React Query : requêtes, mutations asynchrones fiabilisées et invalidation de cache |
@@ -199,6 +201,12 @@ Toutes les routes métier nécessitent une session authentifiée, sauf `/auth/*`
 | `entreprise/views.py` et `entreprise/voirs.py` | endpoints API REST |
 | `*/serializers.py` | validation DRF, sérialisation et exposition des `capabilities` |
 
+### Endpoints clés et résolutions optimisées
+
+- **`EntresEntrepriseAPIView` (`entreprise/voirs.py`)** : retourne la liste des lots en stock pour l'entreprise active. Requête optimisée avec `select_related('souscategorie', 'souscategorie__categorie', 'client')` et exposition directe des clés parentes (`categorie_uuid`, `categorie_slug`, `parent_categorie_libelle`, `sous_categorie_uuid`, `sous_categorie_id`, `sous_categorie_slug`, `sous_categorie_libelle`) pour permettre au frontend d'effectuer des filtrages instantanés et fiables sans surcoût réseau.
+- **`InfoSousCatView` (`entreprise/views.py`)** : agrège l'état des sous-catégories et garantit que les articles ayant du stock enregistré (même sans historique de vente préliminaire) remontent correctement avec leurs indicateurs d'inventaire.
+- **`AddSousCategorieAPIView` (`entreprise/views.py`)** : sécurise l'ajout de sous-catégories par vérification des quotas Découverte (50 articles max) et résolution tolérante de la catégorie parente par UUID, slug ou ID numérique.
+
 ### Modèles métier principaux
 
 | Modèle | Rôle et relations essentielles |
@@ -290,6 +298,15 @@ Toutes les routes métier nécessitent une session authentifiée, sauf `/auth/*`
 - **En-tête `X-Entreprise-Id`.** Toujours s'assurer que l'UUID de l'entreprise est renseigné dans `localStorage` afin que l'intercepteur Axios l'injecte dans les en-têtes API.
 - **Cache TanStack Query.** Après toute mutation (ajout d'article, encaissement, modification de catégorie), toujours invalider les clés de cache correspondantes via `queryClient.invalidateQueries`.
 - **Sécurisation des identifiants.** Favoriser l'usage des `uuid` plutôt que des identifiants numériques directs dans les URLs et les paramètres d'API.
+- **Ergonomie mobile et typographie réactive :**
+  - Dans les en-têtes d'écrans (`PageHeader`) et barres d'outils, prévoir un empilement adaptatif (`flexWrap: 'wrap'` ou `flexDirection: { xs: 'column', sm: 'row' }`) avec des libellés de boutons concis sur mobile (ex. `+ Multi-Lignes` au lieu de `+ Approvisionnement Multi-Lignes`).
+  - Pour les grilles de cartes KPI (`KpiCard`), privilégier `xs={6} sm={6} md={3}` pour un affichage 2x2 propre sur smartphone, et employer une typographie fluide (`fontSize: { xs: '1.2rem', sm: '1.5rem', md: '1.75rem' }`) afin d'éviter tout chevauchement ou rognage de chiffres longs.
+  - Dans les listes de sélection latérale (comme la liste des catégories dans `CatalogueUnifie`), borner la hauteur maximale (`maxHeight: { xs: 260, md: 'none' }` avec `overflowY: 'auto'`) pour ne pas repousser le contenu principal hors de la vue sur mobile.
+- **Défilement et robustesse des tableaux (`TableContainer`) :**
+  - Ne **jamais** appliquer `overflow: 'hidden'` sur un `TableContainer` ou sur son conteneur `Paper` parent lorsqu'un tableau comprend de nombreuses colonnes ou nécessite un en-tête fixe.
+  - Toujours autoriser le défilement horizontal (`overflowX: 'auto'` avec `minWidth: 900` ou `920` sur la `Table`) et vertical (`overflowY: 'auto'` avec `maxHeight` calculé, ex. `calc(100vh - 280px)`), avec `stickyHeader` et des cellules d'en-tête dotées d'un `backgroundColor` opaque et d'un `zIndex` adapté.
+- **Filtrage hiérarchique Catalogue / Stock en cascade :**
+  - L'arborescence repose sur Entreprise → Catégorie → Sous-catégorie → Entrée (lot stocké). Les requêtes API sur les entrées doivent toujours joindre la sous-catégorie et la catégorie parente pour permettre le filtrage croisé instantané dans le frontend sans requête réseau supplémentaire. Côté UI, garantir une réinitialisation claire ("Toutes les catégories", "Toutes les sous-catégories") avec des états vides explicites et actionnables.
 
 ## 11. Procédure de vérification avant livraison
 
@@ -305,7 +322,9 @@ Vérifications manuelles :
 1. Connexion et bascule entre entreprises.
 2. Inscription d'un nouveau compte : vérification du Mode Découverte automatique et du blocage d'image dans le catalogue.
 3. Test de création d'article et absence de double toast en cas d'erreur ou succès.
-4. Affichage responsive sur mobile et tablette.
+4. Affichage responsive sur mobile et tablette (en-têtes empilés, KPIs 2x2, listes bornées).
+5. Filtrage fluide dans le catalogue (sélection Catégorie -> Sous-catégories -> Produits/lots en stock).
+6. Défilement horizontal et vertical fonctionnel sur les grands tableaux (ex. factures de vente).
 
 ### Backend
 

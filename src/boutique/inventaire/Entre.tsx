@@ -238,8 +238,13 @@ export default function Entre() {
             { label: 'Approvisionnement' },
           ]}
           actions={
-            <Stack direction="row" spacing={1.5} flexWrap="wrap">
+            <Stack
+              direction={{ xs: 'column', sm: 'row' }}
+              spacing={1}
+              sx={{ width: { xs: '100%', sm: 'auto' } }}
+            >
               <Button
+                fullWidth
                 onClick={functionopen}
                 variant="outlined"
                 color="primary"
@@ -248,11 +253,14 @@ export default function Entre() {
                   borderRadius: '12px',
                   fontWeight: 600,
                   textTransform: 'none',
+                  py: { xs: 0.8, sm: 1 },
+                  fontSize: { xs: '0.82rem', sm: '0.875rem' },
                 }}
               >
                 Entrée rapide
               </Button>
               <Button
+                fullWidth
                 onClick={() => setOpenMulti(true)}
                 variant="contained"
                 startIcon={<PostAddIcon />}
@@ -260,6 +268,8 @@ export default function Entre() {
                   borderRadius: '12px',
                   fontWeight: 700,
                   textTransform: 'none',
+                  py: { xs: 0.8, sm: 1 },
+                  fontSize: { xs: '0.82rem', sm: '0.875rem' },
                   background: 'linear-gradient(135deg, #10b981, #059669)',
                   boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)',
                   '&:hover': {
@@ -267,28 +277,33 @@ export default function Entre() {
                   },
                 }}
               >
-                + Approvisionnement Multi-Lignes
+                <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>
+                  + Multi-Lignes
+                </Box>
+                <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                  + Approvisionnement Multi-Lignes
+                </Box>
               </Button>
             </Stack>
           }
         />
 
         {/* Indicateurs clés (KPI) */}
-        <Grid container spacing={2} sx={{ mb: 3 }}>
-          <Grid item xs={12} sm={4}>
+        <Grid container spacing={{ xs: 1.5, sm: 2 }} sx={{ mb: 3 }}>
+          <Grid item xs={6} sm={4}>
             <KpiCard
               title="Lots réceptionnés"
               value={reversedBoutiques?.length ?? 0}
-              subtitle="Total des entrées sur la période"
+              subtitle="Total des entrées"
               accentColor="#6366f1"
               icon={<InventoryIcon />}
             />
           </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={6} sm={4}>
             <KpiCard
-              title="Quantité totale reçue"
+              title="Quantité reçue"
               value={`${formatNumberWithSpaces(totalQte || 0)}`}
-              subtitle="Unités de marchandises réceptionnées"
+              subtitle="Unités réceptionnées"
               accentColor="#10b981"
               icon={<ShoppingBagIcon />}
             />

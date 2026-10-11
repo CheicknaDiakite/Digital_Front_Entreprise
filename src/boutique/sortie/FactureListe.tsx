@@ -494,20 +494,37 @@ export default function FactureListe() {
             bgcolor: theme.palette.mode === 'dark' ? 'rgba(15, 23, 42, 0.75)' : 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(16px)',
             boxShadow: '0 8px 32px rgba(0,0,0,0.06)',
-            overflow: 'hidden',
+            overflowX: 'auto',
+            overflowY: 'auto',
+            maxHeight: { xs: 'calc(100vh - 230px)', md: 'calc(100vh - 270px)' },
+            '&::-webkit-scrollbar': {
+              width: '8px',
+              height: '8px',
+            },
+            '&::-webkit-scrollbar-track': {
+              background: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)',
+              borderRadius: '8px',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
+              borderRadius: '8px',
+              '&:hover': {
+                background: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)',
+              },
+            },
           }}
         >
-          <Table stickyHeader>
+          <Table stickyHeader sx={{ minWidth: 920 }}>
             <TableHead>
-              <TableRow sx={{ bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)' }}>
-                <TableCell sx={{ fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', py: 2 }}>Référence</TableCell>
-                <TableCell sx={{ fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', py: 2 }}>Client</TableCell>
-                <TableCell align="right" sx={{ fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', py: 2 }}>Total Net</TableCell>
-                <TableCell align="right" sx={{ fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', py: 2 }}>Remise</TableCell>
-                <TableCell align="right" sx={{ fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', py: 2 }}>Montant Payé</TableCell>
-                <TableCell align="right" sx={{ fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', py: 2 }}>Reste / Reliquat</TableCell>
-                <TableCell align="center" sx={{ fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', py: 2 }}>Statut</TableCell>
-                <TableCell align="center" sx={{ fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', py: 2 }}>Actions</TableCell>
+              <TableRow>
+                <TableCell sx={{ fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', py: 2, bgcolor: theme.palette.mode === 'dark' ? '#1e293b' : '#f8fafc' }}>Référence</TableCell>
+                <TableCell sx={{ fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', py: 2, bgcolor: theme.palette.mode === 'dark' ? '#1e293b' : '#f8fafc' }}>Client</TableCell>
+                <TableCell align="right" sx={{ fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', py: 2, bgcolor: theme.palette.mode === 'dark' ? '#1e293b' : '#f8fafc' }}>Total Net</TableCell>
+                <TableCell align="right" sx={{ fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', py: 2, bgcolor: theme.palette.mode === 'dark' ? '#1e293b' : '#f8fafc' }}>Remise</TableCell>
+                <TableCell align="right" sx={{ fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', py: 2, bgcolor: theme.palette.mode === 'dark' ? '#1e293b' : '#f8fafc' }}>Montant Payé</TableCell>
+                <TableCell align="right" sx={{ fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', py: 2, bgcolor: theme.palette.mode === 'dark' ? '#1e293b' : '#f8fafc' }}>Reste / Reliquat</TableCell>
+                <TableCell align="center" sx={{ fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', py: 2, bgcolor: theme.palette.mode === 'dark' ? '#1e293b' : '#f8fafc' }}>Statut</TableCell>
+                <TableCell align="center" sx={{ fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', py: 2, bgcolor: theme.palette.mode === 'dark' ? '#1e293b' : '#f8fafc' }}>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -962,8 +979,8 @@ export default function FactureListe() {
               <ReceiptLong color="primary" fontSize="small" /> Articles vendus
             </Typography>
 
-            <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: '12px', mb: 3 }}>
-              <Table size="small">
+            <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: '12px', mb: 3, overflowX: 'auto', maxHeight: 320 }}>
+              <Table size="small" stickyHeader sx={{ minWidth: 480 }}>
                 <TableHead sx={{ bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)' }}>
                   <TableRow>
                     <TableCell sx={{ fontWeight: 700 }}>Désignation</TableCell>
