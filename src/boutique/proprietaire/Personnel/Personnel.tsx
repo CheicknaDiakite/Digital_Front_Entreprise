@@ -28,7 +28,7 @@ import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
 import { FormValueType } from "../../../typescript/FormType";
 import { TypeSlug } from "../../../typescript/DataType";
-import { useCreateAdminUser, useFetchAllUsers, useFetchEntreprise } from "../../../usePerso/fonction.user";
+import { useCreateAdminUser, useFetchAllUsers, useFetchEntreprise, useFetchUser } from "../../../usePerso/fonction.user";
 import MyTextField from "../../../_components/Input/MyTextField";
 import { useStoreUuid } from "../../../usePerso/store";
 import M_Abonnement from "../../../_components/Card/M_Abonnement";
@@ -205,6 +205,11 @@ export default function Personnel() {
 
   const { getUser, isLoading, isError } = useFetchAllUsers(top);
   const { createAdmin } = useCreateAdminUser();
+  const { unUser } = useFetchUser();
+
+  const staffMembers = getUser.filter((u) => u.id !== unUser?.id);
+  const staffLimit = planAccess.limits?.utilisateurs;
+  const isLimitReached = staffLimit !== null && staffLimit !== undefined && staffMembers.length >= staffLimit;
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = isMobile ? 4 : 6;
@@ -228,7 +233,7 @@ export default function Personnel() {
       <Box sx={{ maxWidth: 1280, mx: "auto", px: { xs: 2, sm: 3, md: 4 }, py: 4 }}>
         <FeatureGate
           hasAccess={false}
-          requiredPlan="Stock Pro"
+          requiredPlan="Stock Simple"
           featureTitle="Gestion d'Équipe & Collaborateurs"
           description="Ajoutez des administrateurs, superviseurs et caissiers avec des permissions personnalisées pour gérer votre entreprise à plusieurs."
         >
@@ -326,37 +331,68 @@ export default function Personnel() {
                 >
                   Gestion du Personnel
                 </Typography>
-                <Typography variant="body2" sx={{mt: 0.25, fontWeight: 500 }}>
-                  {getUser.length} membre{getUser.length !== 1 ? "s" : ""} dans votre équipe
+                <Typography variant="body2" sx={{ mt: 0.5, fontWeight: 500, display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+                  <span>
+                    {staffMembers.length} membre{staffMembers.length > 1 ? "s" : ""} du personnel
+                    {staffLimit !== null && staffLimit !== undefined ? ` (Quota : ${staffMembers.length}/${staffLimit})` : " (Illimité)"}
+                  </span>
+                  {isLimitReached && (
+                    <Chip
+                      label="Quota atteint"
+                      size="small"
+                      sx={{
+                        bgcolor: "rgba(239, 68, 68, 0.1)",
+                        color: "#ef4444",
+                        fontWeight: 700,
+                        fontSize: "0.68rem",
+                        height: 20,
+                        border: "1px solid rgba(239, 68, 68, 0.3)",
+                      }}
+                    />
+                  )}
                 </Typography>
               </Box>
             </Box>
 
-            <Tooltip title="Ajouter un nouveau membre" arrow>
-              <Button
-                onClick={functionopen}
-                variant="contained"
-                startIcon={<PersonAddIcon />}
-                sx={{
-                  borderRadius: "12px",
-                  textTransform: "none",
-                  fontWeight: 700,
-                  px: 3,
-                  py: 1.2,
-                  fontSize: "0.875rem",
-                  background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
-                  boxShadow: "0 4px 14px rgba(99, 102, 241, 0.35)",
-                  "&:hover": {
-                    background: "linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)",
-                    boxShadow: "0 6px 20px rgba(99, 102, 241, 0.45)",
-                    transform: "translateY(-1px)",
-                  },
-                  transition: "all 0.2s ease",
-                  alignSelf: { xs: "flex-start", sm: "center" },
-                }}
-              >
-                Ajouter un membre
-              </Button>
+            <Tooltip
+              title={
+                isLimitReached
+                  ? `Limite atteinte (${staffMembers.length}/${staffLimit} personnels pour la formule ${planAccess.planLabel}). Passez à l'offre supérieure pour ajouter d'autres membres.`
+                  : "Ajouter un nouveau membre"
+              }
+              arrow
+            >
+              <span>
+                <Button
+                  onClick={functionopen}
+                  disabled={isLimitReached}
+                  variant="contained"
+                  startIcon={<PersonAddIcon />}
+                  sx={{
+                    borderRadius: "12px",
+                    textTransform: "none",
+                    fontWeight: 700,
+                    px: 3,
+                    py: 1.2,
+                    fontSize: "0.875rem",
+                    background: isLimitReached
+                      ? "rgba(148, 163, 184, 0.4)"
+                      : "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
+                    boxShadow: isLimitReached ? "none" : "0 4px 14px rgba(99, 102, 241, 0.35)",
+                    "&:hover": {
+                      background: isLimitReached
+                        ? "rgba(148, 163, 184, 0.4)"
+                        : "linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)",
+                      boxShadow: isLimitReached ? "none" : "0 6px 20px rgba(99, 102, 241, 0.45)",
+                      transform: isLimitReached ? "none" : "translateY(-1px)",
+                    },
+                    transition: "all 0.2s ease",
+                    alignSelf: { xs: "flex-start", sm: "center" },
+                  }}
+                >
+                  Ajouter un membre
+                </Button>
+              </span>
             </Tooltip>
           </Box>
         </motion.div>

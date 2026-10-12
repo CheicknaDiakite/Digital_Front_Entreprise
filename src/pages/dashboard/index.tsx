@@ -157,17 +157,34 @@ export default function DashboardDefault() {
     const salesCount = filteredSorties.length;
     const prevSalesCount = prevSorties.length;
 
+    // Quantités totales vendues sur la période filtrée
+    const currentQuantity = filteredSorties.reduce((sum, s) => {
+      const q = Number(s.qte ?? 1);
+      return sum + (isNaN(q) ? 0 : q);
+    }, 0);
+
+    const prevQuantity = prevSorties.reduce((sum, s) => {
+      const q = Number(s.qte ?? 1);
+      return sum + (isNaN(q) ? 0 : q);
+    }, 0);
+
     const calcVar = (curr: number, prev: number) => {
       if (prev <= 0) return curr > 0 ? 100 : 0;
       return Number((((curr - prev) / prev) * 100).toFixed(1));
     };
+
+    const averageBasket = salesCount > 0 ? Math.round(currentRevenue / salesCount) : 0;
+    const averageItemPrice = currentQuantity > 0 ? Math.round(currentRevenue / currentQuantity) : 0;
 
     return {
       revenue: currentRevenue,
       revenueVariation: prevPeriod ? calcVar(currentRevenue, prevRevenue) : undefined,
       salesCount,
       salesCountVariation: prevPeriod ? calcVar(salesCount, prevSalesCount) : undefined,
-      averageBasket: salesCount > 0 ? Math.round(currentRevenue / salesCount) : 0,
+      averageBasket,
+      totalQuantity: currentQuantity,
+      totalQuantityVariation: prevPeriod ? calcVar(currentQuantity, prevQuantity) : undefined,
+      averageItemPrice,
     };
   }, [filteredSorties, prevSorties, prevPeriod]);
 

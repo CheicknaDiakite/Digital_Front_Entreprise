@@ -38,7 +38,7 @@ const DEFAULT_CAPABILITIES: Capabilities = {
   },
   limits: {
     entreprises: 1,
-    utilisateurs: 1,
+    utilisateurs: 0,
     articles: 50,
   },
 };

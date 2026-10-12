@@ -743,8 +743,8 @@ const NavSide: React.FC = () => {
                           label="Ventes par utilisateur"
                           to="/entreprise/inventaire/VenteUsers"
                           accentColor="#f59e0b"
-                          badge={!planAccess.canAddCollaborators ? "Pro" : undefined}
-                          badgeColor="#8b5cf6"
+                          badge={!planAccess.canAddCollaborators ? "Simple" : undefined}
+                          badgeColor="#10b981"
                           isSubItem
                         />
                       )}
@@ -769,8 +769,8 @@ const NavSide: React.FC = () => {
                     label="Personnel"
                     to="/entreprise/personnel"
                     accentColor="#ec4899"
-                    badge={!planAccess.canAddCollaborators ? "Pro" : undefined}
-                    badgeColor="#8b5cf6"
+                    badge={!planAccess.canAddCollaborators ? "Simple" : undefined}
+                    badgeColor="#10b981"
                   />
                   {unUser.is_superuser && (
                     <NavItem

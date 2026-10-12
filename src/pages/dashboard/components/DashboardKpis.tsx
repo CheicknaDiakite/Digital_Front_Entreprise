@@ -9,6 +9,7 @@ import PriceCheckIcon from '@mui/icons-material/PriceCheck';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { KpiCard } from '../../../_components/common';
 import { formatNumberWithSpaces } from '../../../usePerso/fonctionPerso';
 import { useAppSettings } from '../../../themes/AppSettingsContext';
@@ -19,6 +20,16 @@ export interface SalesKpiData {
   salesCount: number;
   salesCountVariation?: number;
   averageBasket: number;
+  // Métriques de volume et prix moyen synchronisées avec la période recherchée
+  totalQuantity: number;
+  totalQuantityVariation?: number;
+  averageItemPrice: number;
+  // Optionnels rétro-compatibles
+  monthRevenue?: number;
+  monthRevenueVariation?: number;
+  monthQuantity?: number;
+  monthAveragePrice?: number;
+  monthAverageBasket?: number;
 }
 
 export interface ProfitabilityKpiData {
@@ -86,7 +97,7 @@ export const DashboardKpis: React.FC<DashboardKpisProps> = ({
         </Typography>
 
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid item xs={12} sm={6} md={3}>
             <KpiCard
               title="Chiffre d’Affaires"
               value={`${formatNumberWithSpaces(sales.revenue)} F`}
@@ -98,7 +109,7 @@ export const DashboardKpis: React.FC<DashboardKpisProps> = ({
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid item xs={12} sm={6} md={3}>
             <KpiCard
               title="Volume de Ventes"
               value={formatNumberWithSpaces(sales.salesCount)}
@@ -110,13 +121,41 @@ export const DashboardKpis: React.FC<DashboardKpisProps> = ({
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid item xs={12} sm={6} md={3}>
             <KpiCard
               title="Panier Moyen"
               value={`${formatNumberWithSpaces(sales.averageBasket)} F`}
               subtitle="Montant moyen par vente"
               icon={<ReceiptIcon />}
               accentColor="#8b5cf6"
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <KpiCard
+              title="Articles Vendus"
+              value={`${formatNumberWithSpaces(sales.totalQuantity ?? 0)}`}
+              subtitle={
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontSize: '0.74rem',
+                    color: isDark ? 'rgba(255, 255, 255, 0.7)' : '#475569',
+                    display: 'block',
+                    mt: 0.2,
+                  }}
+                >
+                  Prix moyen :{' '}
+                  <strong style={{ color: isDark ? '#38bdf8' : '#0284c7' }}>
+                    {formatNumberWithSpaces(sales.averageItemPrice ?? 0)} F
+                  </strong>{' '}
+                  / unité
+                </Typography>
+              }
+              icon={<ShoppingCartIcon />}
+              accentColor="#0284c7"
+              variation={sales.totalQuantityVariation}
+              variationLabel="vs période préc."
             />
           </Grid>
         </Grid>

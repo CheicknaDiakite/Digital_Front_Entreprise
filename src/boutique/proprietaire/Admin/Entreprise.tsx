@@ -14,6 +14,7 @@ import {
   Skeleton,
   Stack,
   Chip,
+  Tooltip,
 } from '@mui/material';
 import BusinessRoundedIcon from '@mui/icons-material/BusinessRounded';
 import AddBusinessRoundedIcon from '@mui/icons-material/AddBusinessRounded';
@@ -710,6 +711,25 @@ export default function Entreprise() {
   const [age, setAge] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  // Déterminer le quota maximal d'entreprises selon le meilleur abonnement actif
+  const maxEntrepriseLimit = (() => {
+    if (!userEntreprises || userEntreprises.length === 0) return 1;
+    let limit: number | null = 1;
+    for (const ent of userEntreprises) {
+      const plan = ent.capabilities?.plan ?? (
+        ent.licence_type === 'Stock Premium' ? 3 :
+        ent.licence_type === 'Stock Pro' ? 2 :
+        ent.licence_type === 'Stock Simple' ? 1 : 0
+      );
+      if (plan === 3) return null; // Premium = illimité
+      if (plan === 2 && (limit !== null && limit < 5)) limit = 5;
+      if (plan === 1 && (limit !== null && limit < 2)) limit = 2;
+    }
+    return limit;
+  })();
+
+  const isEntrepriseLimitReached = maxEntrepriseLimit !== null && (userEntreprises?.length ?? 0) >= maxEntrepriseLimit;
+
   const handleChange = (event: SelectChangeEvent) => {
     setAge(event.target.value as string);
   };
@@ -800,35 +820,64 @@ export default function Entreprise() {
           >
             Mes entreprises
           </Typography>
-          <Typography sx={{ fontSize: '0.88rem', mt: 0.4 }}>
-            {userEntreprises.length} entreprise{userEntreprises.length > 1 ? 's' : ''} enregistrée{userEntreprises.length > 1 ? 's' : ''}
+          <Typography sx={{ fontSize: '0.88rem', mt: 0.4, display: 'flex', alignItems: 'center', gap: 1 }}>
+            <span>
+              {userEntreprises.length} entreprise{userEntreprises.length > 1 ? 's' : ''} enregistrée{userEntreprises.length > 1 ? 's' : ''}
+              {maxEntrepriseLimit !== null ? ` (Quota : ${userEntreprises.length}/${maxEntrepriseLimit})` : ' (Illimité)'}
+            </span>
+            {isEntrepriseLimitReached && (
+              <Chip
+                label="Quota atteint"
+                size="small"
+                sx={{
+                  bgcolor: 'rgba(239, 68, 68, 0.1)',
+                  color: '#ef4444',
+                  fontWeight: 700,
+                  fontSize: '0.68rem',
+                  height: 20,
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                }}
+              />
+            )}
           </Typography>
         </Box>
 
         {unUser.role === 1 && (
-          <Button
-            variant="contained"
-            onClick={() => setIsDialogOpen(true)}
-            startIcon={<AddBusinessRoundedIcon />}
-            sx={{
-              bgcolor: '#6366f1',
-              px: 3,
-              py: 1.3,
-              borderRadius: '12px',
-              fontWeight: 700,
-              fontSize: '0.88rem',
-              letterSpacing: 0.3,
-              boxShadow: '0 4px 20px rgba(99,102,241,0.4)',
-              transition: 'all 0.3s ease',
-              '&:hover': {
-                bgcolor: '#4f46e5',
-                boxShadow: '0 8px 30px rgba(99,102,241,0.6)',
-                transform: 'translateY(-2px)',
-              },
-            }}
+          <Tooltip
+            title={
+              isEntrepriseLimitReached
+                ? `Limite atteinte (${userEntreprises.length}/${maxEntrepriseLimit} entreprises). Activez une formule supérieure sur l'une de vos entreprises pour débloquer plus de créations.`
+                : 'Ajouter une nouvelle entreprise'
+            }
+            arrow
           >
-            Ajouter
-          </Button>
+            <span>
+              <Button
+                variant="contained"
+                disabled={isEntrepriseLimitReached}
+                onClick={() => setIsDialogOpen(true)}
+                startIcon={<AddBusinessRoundedIcon />}
+                sx={{
+                  bgcolor: isEntrepriseLimitReached ? 'rgba(148, 163, 184, 0.4)' : '#6366f1',
+                  px: 3,
+                  py: 1.3,
+                  borderRadius: '12px',
+                  fontWeight: 700,
+                  fontSize: '0.88rem',
+                  letterSpacing: 0.3,
+                  boxShadow: isEntrepriseLimitReached ? 'none' : '0 4px 20px rgba(99,102,241,0.4)',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    bgcolor: isEntrepriseLimitReached ? 'rgba(148, 163, 184, 0.4)' : '#4f46e5',
+                    boxShadow: isEntrepriseLimitReached ? 'none' : '0 8px 30px rgba(99,102,241,0.6)',
+                    transform: isEntrepriseLimitReached ? 'none' : 'translateY(-2px)',
+                  },
+                }}
+              >
+                Ajouter
+              </Button>
+            </span>
+          </Tooltip>
         )}
       </Box>
 
