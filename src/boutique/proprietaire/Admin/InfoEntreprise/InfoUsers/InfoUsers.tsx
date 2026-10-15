@@ -36,7 +36,7 @@ import BadgeRoundedIcon from '@mui/icons-material/BadgeRounded';
 import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { useFetchUser, useGetEntrepriseUsers, useRemoveUserEntreprise } from '../../../../../usePerso/fonction.user';
+import { useActiverCreationEntreprise, useFetchUser, useGetEntrepriseUsers, useRemoveUserEntreprise } from '../../../../../usePerso/fonction.user';
 import { useStoreUuid } from '../../../../../usePerso/store';
 import { useState, useMemo } from 'react';
 import { RecupType } from '../../../../../typescript/DataType';
@@ -45,8 +45,9 @@ export default function InfoUsers() {
   const theme = useTheme();
   const queryClient = useQueryClient();
   const uuid = useStoreUuid((state) => state.selectedId);
-  const { entrepriseUsers = [], isLoading, isError } = useGetEntrepriseUsers(uuid!);
-  const { removeEntreprise } = useRemoveUserEntreprise();
+  const { entrepriseUsers = [], setEntrepriseUsers, isLoading, isError } = useGetEntrepriseUsers(uuid!);
+  const { removeEntreprise, isPending: isRemoving } = useRemoveUserEntreprise();
+  const { activerCreation } = useActiverCreationEntreprise();
 
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [userToDelete, setUserToDelete] = useState<RecupType | null>(null);
@@ -63,14 +64,22 @@ export default function InfoUsers() {
 
   const confirmDelete = () => {
     if (userToDelete && userToDelete.uuid) {
-      removeEntreprise({
-        entreprise_id: uuid!,
-        user_id: userToDelete.uuid,
-        admin_id: user_id,
-      });
-      // Invalidate queries to ensure real-time update
-      queryClient.invalidateQueries({ queryKey: ["entrepriseUsers", uuid] });
-      queryClient.invalidateQueries({ queryKey: ["EntreModif"] });
+      const targetUuid = userToDelete.uuid;
+      removeEntreprise(
+        {
+          entreprise_id: uuid!,
+          user_id: targetUuid,
+          admin_id: user_id,
+        },
+        {
+          onSuccess: () => {
+            // Mise à jour immédiate du state local (sans attendre le refresh)
+            setEntrepriseUsers((prev) => prev.filter((u) => u.uuid !== targetUuid));
+            queryClient.invalidateQueries({ queryKey: ["entrepriseUsers"] });
+            queryClient.invalidateQueries({ queryKey: ["UserGet"] });
+          },
+        }
+      );
     }
     setShowConfirmDelete(false);
     setUserToDelete(null);
@@ -223,6 +232,7 @@ export default function InfoUsers() {
             onClick={confirmDelete}
             color="error"
             variant="contained"
+            disabled={isRemoving}
             sx={{
               borderRadius: '12px',
               textTransform: 'none',
@@ -232,7 +242,7 @@ export default function InfoUsers() {
               '&:hover': { bgcolor: theme.palette.error.dark }
             }}
           >
-            Confirmer la révocation
+            {isRemoving ? "Suppression…" : "Confirmer la révocation"}
           </Button>
         </DialogActions>
       </Dialog>
@@ -488,6 +498,52 @@ export default function InfoUsers() {
                                 borderRadius: '6px'
                               }}
                             />
+                          )}
+
+                          {user.peut_creer_entreprise !== undefined && (
+                            <Tooltip
+                              title={
+                                unUser?.is_superuser
+                                  ? (user.peut_creer_entreprise !== false
+                                      ? "Création d'entreprise autorisée (cliquez pour bloquer)"
+                                      : "Création d'entreprise bloquée (cliquez pour activer)")
+                                  : (user.peut_creer_entreprise !== false
+                                      ? "Peut créer sa propre entreprise"
+                                      : "Création d'entreprise non activée")
+                              }
+                              arrow
+                            >
+                              <Chip
+                                onClick={
+                                  unUser?.is_superuser && user.uuid
+                                    ? () => {
+                                        const nextActif = user.peut_creer_entreprise === false;
+                                        activerCreation(user.uuid!, nextActif);
+                                      }
+                                    : undefined
+                                }
+                                label={user.peut_creer_entreprise !== false ? "Entreprise : Oui" : "Entreprise : Non"}
+                                size="small"
+                                sx={{
+                                  height: 22,
+                                  fontSize: '0.68rem',
+                                  fontWeight: 600,
+                                  bgcolor: user.peut_creer_entreprise !== false
+                                    ? alpha(theme.palette.success.main, 0.1)
+                                    : alpha(theme.palette.warning.main, 0.12),
+                                  color: user.peut_creer_entreprise !== false
+                                    ? theme.palette.success.main
+                                    : theme.palette.warning.main,
+                                  border: `1px solid ${alpha(user.peut_creer_entreprise !== false ? theme.palette.success.main : theme.palette.warning.main, 0.3)}`,
+                                  borderRadius: '6px',
+                                  cursor: unUser?.is_superuser ? 'pointer' : 'default',
+                                  transition: 'all 0.2s ease',
+                                  '&:hover': unUser?.is_superuser ? {
+                                    transform: 'scale(1.05)'
+                                  } : {}
+                                }}
+                              />
+                            </Tooltip>
                           )}
                         </Box>
                       }

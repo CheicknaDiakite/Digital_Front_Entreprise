@@ -18,6 +18,7 @@ export interface Capabilities {
     entreprises: number | null;
     utilisateurs: number | null;
     articles: number | null;
+    ventes: number | null;
   };
 }
 
@@ -40,6 +41,7 @@ const DEFAULT_CAPABILITIES: Capabilities = {
     entreprises: 1,
     utilisateurs: 0,
     articles: 50,
+    ventes: 50,
   },
 };
 

@@ -83,6 +83,15 @@ const userUpdatePassword = (post: any) => Axios.post('utilisateur/update-passwor
 
 const userLogout = () => Axios.get('utilisateur/deconnxion');
 
+const activerCreationEntreprise = (uuid: string, actif: boolean) =>
+    Axios.post(`utilisateur/user/${uuid}/activer-creation-entreprise`, { actif });
+
+const rechercherUser = (identifiant: string, entreprise_id?: string) =>
+    Axios.post('utilisateur/admin/rechercher', { identifiant, entreprise_id });
+
+const rattacherPersonnel = (data: { entreprise_id: string; user_uuid: string; role: number }) =>
+    Axios.post('utilisateur/admin/rattacher', data);
+
 export const userService = {
     userRegister, userLogin, userGet, userUpdate, userDelete,
     userAll, userLogout, userUnGet, userAdminRegister, allUsers,
@@ -90,7 +99,8 @@ export const userService = {
     allClients, userClient, userUnClient, clientUpdate, clientDelete,
     userCabinetRegister, unUser, userRestrictionDetail, userRestriction,
     googleLogin, avisUpdateStatus, getConditionsActuelles, acceptConditions,
-    getConditionsHistorique
+    getConditionsHistorique, activerCreationEntreprise,
+    rechercherUser, rattacherPersonnel
 };
 
 /* ── Service Gestion de Compte ── */

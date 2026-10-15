@@ -11,6 +11,7 @@ import { AvisType, ClienType, UnUserType, UserType, UtilisateurType } from "../t
 import { entrepriseService } from "../_services/entreprise.service";
 import { EntrepriseType, HistoriqueType } from "../typescript/Account";
 import { FormClienType } from "../typescript/ClienType";
+import { useStoreUuid } from "./store";
 
 // Avis
 
@@ -384,8 +385,11 @@ export function useLoginUser() {
               // toast.error(res.data.message);
             }
           } else {
-            accountService.saveToken(res.data.refresh!, res.data.access)
-            navigate('/')
+            accountService.saveToken(res.data.refresh!, res.data.access);
+            localStorage.removeItem('entreprise-uuid');
+            localStorage.removeItem('current_entreprise_uuid');
+            useStoreUuid.getState().clearId();
+            navigate('/');
             toast.success("Connexion réussie");
           }
           return res.data;
@@ -403,6 +407,9 @@ export function useLoginUser() {
         toast.error(res.data.message);
       } else {
         accountService.saveToken(res.data.refresh!, res.data.access);
+        localStorage.removeItem('entreprise-uuid');
+        localStorage.removeItem('current_entreprise_uuid');
+        useStoreUuid.getState().clearId();
         navigate('/');
         toast.success("Connexion Google réussie");
       }
@@ -463,30 +470,60 @@ export function useUpdatePassword() {
 }
 
 export function useCreateAdminUser() {
-
   const useQ = useQueryClient();
 
   const ajoutAdmin = useMutation({
-    mutationFn: (post: FormValueType) => {
-      return userService.userAdminRegister(post)
-        .then((res) => {
-          if (res.data.etat === false) {
-            if (res.data.message !== "requette invalide") {
-              // toast.error(res.data.message);
-            }
-          } else {
-            useQ.invalidateQueries({ queryKey: ["UserGet"] });
-            // toast.success("Inscription réussie");
-          }
-        })
+    mutationFn: async (post: FormValueType) => {
+      const res = await userService.userAdminRegister(post);
+      if (res.data.etat === false) {
+        toast.error(res.data.message || "Erreur lors de l'inscription");
+        throw new Error(res.data.message);
+      }
+      useQ.invalidateQueries({ queryKey: ["UserGet"] });
+      toast.success(res.data.message || "Personnel ajouté avec succès");
+      return res.data;
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || error?.message || "Erreur lors de la création du personnel";
+      toast.error(msg);
     },
   });
 
-  const createAdmin = (post: FormValueType) => {
-    ajoutAdmin.mutate(post);
+  const createAdmin = (post: FormValueType, options?: { onSuccess?: () => void; onError?: (err: any) => void }) => {
+    ajoutAdmin.mutate(post, options);
   };
 
-  return { createAdmin }
+  return { createAdmin, isPending: ajoutAdmin.isPending };
+}
+
+export function useRattacherPersonnel() {
+  const useQ = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: async (data: { entreprise_id: string; user_uuid: string; role: number }) => {
+      const res = await userService.rattacherPersonnel(data);
+      if (res.data.etat === false) {
+        toast.error(res.data.message || "Erreur lors du rattachement");
+        throw new Error(res.data.message);
+      }
+      useQ.invalidateQueries({ queryKey: ["UserGet"] });
+      toast.success(res.data.message || "Collaborateur rattaché avec succès");
+      return res.data;
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || error?.message || "Erreur lors du rattachement du personnel";
+      toast.error(msg);
+    },
+  });
+
+  const rattacher = (
+    data: { entreprise_id: string; user_uuid: string; role: number },
+    options?: { onSuccess?: () => void; onError?: (err: any) => void }
+  ) => {
+    mutation.mutate(data, options);
+  };
+
+  return { rattacher, isPending: mutation.isPending };
 }
 
 export function useCreateCabinetUser() {
@@ -984,15 +1021,20 @@ export function useUpdateEntreprise() {
         .updateEntreprise(data)
         .then((res) => {
           if (res.data.etat === true) {
-            toast.success("Modification reuissi");
+            toast.success(res.data.message || "Modification réussie");
             useQ.invalidateQueries({ queryKey: ["EntreModif"] });
-            // navigate("/admin/formation/index")
-            // navigate(-1);
+            useQ.invalidateQueries({ queryKey: ["User"] });
+            useQ.invalidateQueries({ queryKey: ["UserEntreprises"] });
+            useQ.invalidateQueries({ queryKey: ["user_entreprises"] });
+            useQ.invalidateQueries({ queryKey: ["utilisateur-entreprises"] });
           } else {
-            toast.error(res.data.message);
+            toast.error(res.data.message || "Erreur lors de la modification");
           }
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          console.log(err);
+          foncError(err);
+        });
     },
     onError: (error) => {
       foncError(error);
@@ -1003,38 +1045,41 @@ export function useUpdateEntreprise() {
     modif.mutate(chap);
   };
 
-  return { updateEntreprise }
+  return { updateEntreprise, isLoading: modif.isPending }
 }
 
 export function useRemoveUserEntreprise() {
-
   const useQ = useQueryClient();
 
   const modif = useMutation({
-    mutationFn: (data: DataType) => {
-      return entrepriseService
-        .removeUserEntreprise(data)
-        .then((res) => {
-          if (res.data.etat === true) {
-            toast.success("Modification reuissi");
-            useQ.invalidateQueries({ queryKey: ["EntreModif"] });
-
-          } else {
-            toast.error(res.data.message);
-          }
-        })
-        .catch((err) => console.log(err));
+    mutationFn: async (data: DataType) => {
+      const res = await entrepriseService.removeUserEntreprise(data);
+      if (res.data?.etat === false) {
+        throw new Error(res.data.message || "Erreur lors du retrait de l'utilisateur");
+      }
+      return res.data;
     },
-    onError: (error) => {
-      foncError(error);
+    onSuccess: (data) => {
+      toast.success(data?.message || "Utilisateur retiré avec succès");
+      useQ.invalidateQueries({ queryKey: ["entrepriseUsers"] });
+      useQ.invalidateQueries({ queryKey: ["UserGet"] });
+      useQ.invalidateQueries({ queryKey: ["UserEntreprises"] });
+      useQ.invalidateQueries({ queryKey: ["EntreModif"] });
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || error?.message || "Erreur lors du retrait de l'utilisateur";
+      toast.error(msg);
     },
   });
 
-  const removeEntreprise = (chap: DataType) => {
-    modif.mutate(chap);
+  const removeEntreprise = (
+    chap: DataType,
+    options?: { onSuccess?: (data?: any) => void; onError?: (err: any) => void }
+  ) => {
+    modif.mutate(chap, options);
   };
 
-  return { removeEntreprise }
+  return { removeEntreprise, isPending: modif.isPending };
 }
 
 export function useDeleteEntreprise() {
@@ -1096,6 +1141,8 @@ export function useGetEntrepriseUsers(slug: string) {
 // Pour tous les Entreprises d'un utilisateur 
 export function useGetUserEntreprises() {
   const [userEntreprises, setUserEntreprises] = useState<TypeEntreprise[]>([]);
+  const selectedId = useStoreUuid((state) => state.selectedId);
+  const addId = useStoreUuid((state) => state.addId);
 
   const { data: us, isLoading, isError } = useQuery({
     queryKey: ["UserEntreprises"],
@@ -1111,11 +1158,57 @@ export function useGetUserEntreprises() {
   });
 
   useEffect(() => {
-    if (us) {
+    if (us && Array.isArray(us)) {
       setUserEntreprises(us);
+      if (selectedId) {
+        const exists = us.some((e: any) => String(e.uuid) === String(selectedId));
+        if (!exists) {
+          const fallback = us.length > 0 ? us[0].uuid : null;
+          addId(fallback);
+          if (fallback) {
+            localStorage.setItem('current_entreprise_uuid', fallback);
+          } else {
+            localStorage.removeItem('current_entreprise_uuid');
+          }
+        }
+      } else if (us.length > 0) {
+        addId(us[0].uuid);
+        localStorage.setItem('current_entreprise_uuid', us[0].uuid);
+      }
     }
-  }, [us]);
+  }, [us, selectedId, addId]);
 
   return { userEntreprises, setUserEntreprises, isLoading, isError };
+}
+
+// Pour activer / désactiver le droit de créer une entreprise (réservé super user)
+export function useActiverCreationEntreprise() {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: ({ uuid, actif }: { uuid: string; actif: boolean }) =>
+      userService.activerCreationEntreprise(uuid, actif),
+    onSuccess: (res) => {
+      if (res.data?.etat) {
+        toast.success(res.data?.message || "Statut mis à jour");
+        queryClient.invalidateQueries({ queryKey: ["UserGetAll"] });
+        queryClient.invalidateQueries({ queryKey: ["User"] });
+        queryClient.invalidateQueries({ queryKey: ["AllUsers"] });
+        queryClient.invalidateQueries({ queryKey: ["entrepriseUsers"] });
+      } else {
+        toast.error(res.data?.message || "Erreur lors de la mise à jour");
+      }
+    },
+    onError: (err: any) => {
+      const msg = err?.response?.data?.message || "Erreur de connexion";
+      toast.error(msg);
+    },
+  });
+
+  const activerCreation = (uuid: string, actif: boolean) => {
+    mutation.mutate({ uuid, actif });
+  };
+
+  return { activerCreation, isPending: mutation.isPending };
 }
 

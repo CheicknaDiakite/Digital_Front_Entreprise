@@ -16,6 +16,7 @@ import {
   Chip,
   Switch,
   Divider,
+  useMediaQuery,
 } from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
@@ -29,7 +30,7 @@ import CategoryIcon from '@mui/icons-material/Category';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { useDeleteSortie, useFetchSortie, useUpdateSortie } from '../../usePerso/fonction.entre';
-import { useFetchUser } from '../../usePerso/fonction.user';
+import { useFetchEntreprise, useFetchUser } from '../../usePerso/fonction.user';
 import { useStoreUuid } from '../../usePerso/store';
 import { formatNumberWithSpaces } from '../../usePerso/fonctionPerso';
 import { useTheme } from '@mui/material/styles';
@@ -45,6 +46,12 @@ export default function ModifSortie() {
   const isDark = theme.palette.mode === 'dark' || showBackground;
 
   const { unUser } = useFetchUser();
+  const { unEntreprise: entreprise } = useFetchEntreprise(entreprise_id);
+  const isDecouverteOwner = !unUser?.role || unUser.role === 0 || (entreprise && entreprise.proprietaire_id === unUser?.id);
+  const isOwner = unUser?.role === 1 || isDecouverteOwner;
+  const isManager = unUser?.role === 2;
+  const canManage = isOwner || isManager;
+
   const { unSortie, setUnSortie, isLoading } = useFetchSortie(uuid!);
   const { updateSortie } = useUpdateSortie();
   const { deleteSortie } = useDeleteSortie();
@@ -94,7 +101,7 @@ export default function ModifSortie() {
   const totalAmount = pu * qte;
 
   const cardStyle = {
-    p: { xs: 2.5, sm: 3 },
+    p: { xs: 2, sm: 2.5, md: 3 },
     borderRadius: '18px',
     border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(226,232,240,0.8)',
     background: isDark
@@ -144,7 +151,7 @@ export default function ModifSortie() {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', py: { xs: 2.5, sm: 4 }, px: { xs: 2, sm: 3, md: 5 } }}>
+    <Box sx={{ minHeight: '100vh', py: { xs: 2, sm: 3, md: 4 }, px: { xs: 1.5, sm: 3, md: 4 } }}>
       <Box sx={{ maxWidth: 1000, mx: 'auto' }}>
         {/* En-tête de page moderne */}
         <PageHeader
@@ -155,34 +162,36 @@ export default function ModifSortie() {
             { label: 'Ventes & Sorties', to: '/ventes/caisse' },
             { label: 'Modification vente' },
           ]}
-          actions={
-            <Stack direction="row" spacing={1.5}>
-              <Button
-                variant="outlined"
-                startIcon={<ArrowBackIcon />}
-                onClick={() => navigate(-1)}
+          badge={
+            isDecouverteOwner ? (
+              <Chip
+                label="Mode Découverte"
+                size="small"
                 sx={{
-                  borderRadius: '12px',
-                  textTransform: 'none',
-                  fontWeight: 600,
-                  borderColor: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)',
-                  color: isDark ? '#f1f5f9' : '#334155',
-                  '&:hover': {
-                    borderColor: '#6366f1',
-                    background: 'rgba(99,102,241,0.06)',
-                  },
+                  fontWeight: 700,
+                  borderRadius: '8px',
+                  bgcolor: 'rgba(99, 102, 241, 0.12)',
+                  color: '#6366f1',
+                  border: '1px solid rgba(99, 102, 241, 0.25)',
                 }}
-              >
-                Retour
-              </Button>
+              />
+            ) : undefined
+          }
+          actions={
+            <Stack
+              direction={{ xs: 'column', sm: 'row' }}
+              spacing={1}
+              sx={{ width: { xs: '100%', sm: 'auto' } }}
+            >
 
-              {(unUser?.role === 1 || unUser?.role === 2) && (
+              {canManage && (
                 <Button
                   variant="outlined"
                   color="warning"
                   startIcon={<CancelOutlinedIcon />}
                   onClick={() => setShowCancelConfirm(true)}
                   sx={{
+                    width: { xs: '100%', sm: 'auto' },
                     borderRadius: '12px',
                     textTransform: 'none',
                     fontWeight: 600,
@@ -197,13 +206,14 @@ export default function ModifSortie() {
                 </Button>
               )}
 
-              {unUser?.role === 1 && (
+              {isOwner && (
                 <Button
                   variant="outlined"
                   color="error"
                   startIcon={<DeleteOutlineIcon />}
                   onClick={() => setShowConfirm(true)}
                   sx={{
+                    width: { xs: '100%', sm: 'auto' },
                     borderRadius: '12px',
                     textTransform: 'none',
                     fontWeight: 600,
@@ -226,21 +236,22 @@ export default function ModifSortie() {
           elevation={0}
           sx={{
             ...cardStyle,
-            mt: 3,
-            mb: 3,
+            mt: { xs: 2, sm: 2.5 },
+            mb: { xs: 2, sm: 2.5 },
             p: { xs: 2, sm: 2.5 },
             display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center',
+            flexDirection: { xs: 'column', md: 'row' },
+            alignItems: { xs: 'stretch', md: 'center' },
             justifyContent: 'space-between',
-            gap: 2,
+            gap: { xs: 2, sm: 2.5 },
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
             <Box
               sx={{
-                width: 52,
-                height: 52,
+                width: { xs: 44, sm: 52 },
+                height: { xs: 44, sm: 52 },
+                minWidth: { xs: 44, sm: 52 },
                 borderRadius: '14px',
                 background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                 display: 'flex',
@@ -250,33 +261,44 @@ export default function ModifSortie() {
                 boxShadow: '0 8px 18px rgba(16,185,129,0.35)',
               }}
             >
-              <ReceiptIcon sx={{ fontSize: 28 }} />
+              <ReceiptIcon sx={{ fontSize: { xs: 22, sm: 28 } }} />
             </Box>
-            <Box>
-              <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1.2 }}>
+            <Box sx={{ minWidth: 0, flex: 1 }}>
+              <Typography variant="h6" sx={{ fontWeight: 800, fontSize: { xs: '1rem', sm: '1.2rem' }, lineHeight: 1.2, wordBreak: 'break-word' }}>
                 {unSortie.categorie_libelle || unSortie.libelle || 'Ligne de vente'}
               </Typography>
-              <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.3 }}>
+              <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
                 Réf : <strong>{unSortie.ref || unSortie.uuid?.slice(0, 8) || 'N/A'}</strong>
                 {unSortie.mode_paiement && ` • Règlement : ${unSortie.mode_paiement}`}
               </Typography>
             </Box>
           </Box>
 
-          <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap">
-            <Chip
-              icon={<ShoppingBagIcon sx={{ fontSize: 16 }} />}
-              label={`${qte} ${unSortie.unite || 'unité(s)'}`}
-              color="primary"
-              variant="outlined"
-              sx={{ fontWeight: 700, borderRadius: '8px' }}
-            />
-            <Chip
-              icon={<LocalAtmIcon sx={{ fontSize: 16 }} />}
-              label={`${formatNumberWithSpaces(pu)} F / unité`}
-              color="default"
-              sx={{ fontWeight: 700, borderRadius: '8px' }}
-            />
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              alignItems: { xs: 'stretch', sm: 'center' },
+              gap: 1.5,
+              width: { xs: '100%', md: 'auto' },
+            }}
+          >
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+              <Chip
+                icon={<ShoppingBagIcon sx={{ fontSize: 16 }} />}
+                label={`${qte} ${unSortie.unite || 'unité(s)'}`}
+                color="primary"
+                variant="outlined"
+                sx={{ fontWeight: 700, borderRadius: '8px', flex: { xs: 1, sm: 'none' } }}
+              />
+              <Chip
+                icon={<LocalAtmIcon sx={{ fontSize: 16 }} />}
+                label={`${formatNumberWithSpaces(pu)} F / unité`}
+                color="default"
+                sx={{ fontWeight: 700, borderRadius: '8px', flex: { xs: 1, sm: 'none' } }}
+              />
+            </Box>
+
             <Box
               sx={{
                 px: 2,
@@ -284,6 +306,10 @@ export default function ModifSortie() {
                 borderRadius: '10px',
                 background: isDark ? 'rgba(16,185,129,0.1)' : '#ecfdf5',
                 border: '1px solid rgba(16,185,129,0.25)',
+                display: 'flex',
+                flexDirection: { xs: 'row', sm: 'column' },
+                justifyContent: { xs: 'space-between', sm: 'center' },
+                alignItems: { xs: 'center', sm: 'flex-start' },
               }}
             >
               <Typography variant="caption" sx={{ color: '#10b981', fontWeight: 600, display: 'block' }}>
@@ -293,12 +319,12 @@ export default function ModifSortie() {
                 {formatNumberWithSpaces(totalAmount)} F
               </Typography>
             </Box>
-          </Stack>
+          </Box>
         </Paper>
 
         {/* ── Formulaire de Modification ── */}
         <form onSubmit={onSubmit}>
-          <Grid container spacing={3}>
+          <Grid container spacing={{ xs: 2, sm: 2.5, md: 3 }}>
             {/* ── 1. Paramètres de la vente ── */}
             <Grid item xs={12} md={6}>
               <Paper elevation={0} sx={cardStyle}>
@@ -450,18 +476,18 @@ export default function ModifSortie() {
             elevation={0}
             sx={{
               ...cardStyle,
-              mt: 3,
+              mt: { xs: 2, sm: 3 },
               p: { xs: 2, sm: 2.5 },
               display: 'flex',
               flexDirection: { xs: 'column-reverse', sm: 'row' },
               justifyContent: 'space-between',
               alignItems: 'center',
-              gap: 2,
+              gap: 1.5,
             }}
           >
             <Button
               variant="outlined"
-              onClick={() => navigate(-1)}
+              onClick={() => navigate('/ventes/caisse')}
               sx={{
                 width: { xs: '100%', sm: 'auto' },
                 borderRadius: '12px',

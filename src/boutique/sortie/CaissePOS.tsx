@@ -67,6 +67,9 @@ interface CaissePOSProps {
   onSubmitSale: (salesData: SortieType[]) => Promise<any>;
   onSwitchToHistory?: () => void;
   onNavigateToInvoice?: (details: any) => void;
+  salesCount?: number;
+  salesLimit?: number | null;
+  isSalesLimitReached?: boolean;
 }
 
 export default function CaissePOS({
@@ -78,6 +81,9 @@ export default function CaissePOS({
   onSubmitSale,
   onSwitchToHistory,
   onNavigateToInvoice,
+  salesCount = 0,
+  salesLimit = null,
+  isSalesLimitReached = false,
 }: CaissePOSProps) {
   const theme = useTheme();
   const { showBackground } = useAppSettings();
@@ -184,6 +190,10 @@ export default function CaissePOS({
 
   // Add product to cart
   const addToCart = (product: RecupType) => {
+    if (isSalesLimitReached) {
+      toast.error(`Limite de ${salesLimit || 50} ventes atteinte en Mode Découverte. Veuillez passer à Stock Simple.`);
+      return;
+    }
     const stockAvailable = Number(product.qte || 0);
     if (stockAvailable <= 0) {
       toast.error(`Rupture de stock pour "${product.libelle || product.categorie_libelle}"`);
@@ -288,6 +298,10 @@ export default function CaissePOS({
 
   // Submit Sale
   const handleValidateSale = async () => {
+    if (isSalesLimitReached) {
+      toast.error(`Limite de ${salesLimit || 50} ventes atteinte en Mode Découverte. Veuillez passer à Stock Simple.`);
+      return;
+    }
     if (cart.length === 0) {
       toast.error('Le ticket est vide');
       return;
@@ -1182,12 +1196,50 @@ export default function CaissePOS({
               </Box>
             )}
 
+            {/* Sales quota warning banner if reached */}
+            {isSalesLimitReached && (
+              <Box
+                sx={{
+                  p: 1.5,
+                  mb: 1.5,
+                  borderRadius: '12px',
+                  bgcolor: 'rgba(239, 68, 68, 0.12)',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                }}
+              >
+                <Typography variant="body2" sx={{ fontWeight: 800, color: '#ef4444', mb: 0.5 }}>
+                  Quota de {salesLimit || 50} ventes atteint
+                </Typography>
+                <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mb: 1 }}>
+                  Le plafond de ventes autorisées en Mode Découverte ({salesCount}/{salesLimit || 50}) est atteint. Activez Stock Simple pour continuer à encaisser sans limite.
+                </Typography>
+                <Button
+                  fullWidth
+                  size="small"
+                  variant="contained"
+                  href="https://wa.me/22391154834?text=Bonjour,%20je%20souhaite%20activer%20la%20formule%20Stock%20Simple%20pour%20débloquer%20les%20ventes%20illimitées."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{
+                    borderRadius: '8px',
+                    textTransform: 'none',
+                    fontWeight: 700,
+                    fontSize: '0.8rem',
+                    bgcolor: '#ef4444',
+                    '&:hover': { bgcolor: '#dc2626' },
+                  }}
+                >
+                  Passer à Stock Simple (Ventes illimitées)
+                </Button>
+              </Box>
+            )}
+
             {/* Validation Action Button */}
             <Button
               fullWidth
               size="large"
               variant="contained"
-              disabled={cart.length === 0 || isSubmitting}
+              disabled={cart.length === 0 || isSubmitting || isSalesLimitReached}
               onClick={handleValidateSale}
               startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : <CheckCircleOutlineIcon />}
               sx={{
@@ -1196,17 +1248,23 @@ export default function CaissePOS({
                 fontWeight: 800,
                 fontSize: '1rem',
                 textTransform: 'none',
-                background: 'linear-gradient(135deg, #10b981, #059669)',
-                boxShadow: '0 8px 24px rgba(16,185,129,0.35)',
+                background: isSalesLimitReached
+                  ? 'rgba(148, 163, 184, 0.3)'
+                  : 'linear-gradient(135deg, #10b981, #059669)',
+                boxShadow: isSalesLimitReached ? 'none' : '0 8px 24px rgba(16,185,129,0.35)',
                 '&:hover': {
-                  background: 'linear-gradient(135deg, #059669, #047857)',
-                  transform: 'translateY(-2px)',
+                  background: isSalesLimitReached
+                    ? 'rgba(148, 163, 184, 0.3)'
+                    : 'linear-gradient(135deg, #059669, #047857)',
+                  transform: isSalesLimitReached ? 'none' : 'translateY(-2px)',
                 },
                 transition: 'all 0.2s ease',
               }}
             >
               {isSubmitting
                 ? 'Enregistrement...'
+                : isSalesLimitReached
+                ? `Limite de ${salesLimit || 50} ventes atteinte`
                 : `Valider la vente (${formatNumberWithSpaces(netTotal)} F)`}
             </Button>
           </Paper>

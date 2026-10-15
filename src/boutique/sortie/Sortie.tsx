@@ -1,4 +1,4 @@
-import { Box, Button, Pagination, Paper, Skeleton, Typography, Dialog, DialogContent, IconButton, Divider, Grid, Stack } from "@mui/material";
+import { Box, Button, Pagination, Paper, Skeleton, Typography, Dialog, DialogContent, IconButton, Divider, Grid, Stack, Chip } from "@mui/material";
 import { ChangeEvent, FormEvent, SyntheticEvent, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { RecupType, SortieType } from "../../typescript/DataType";
@@ -23,6 +23,7 @@ import { SingleValue } from 'react-select';
 import { format } from "date-fns";
 import CaissePOS from "./CaissePOS";
 import { PageHeader, KpiCard, FilterBar } from "../../_components/common";
+import { usePlanAccess } from "../../hooks/usePlanAccess";
 import './mobile-sortie.css';
 
 
@@ -87,7 +88,13 @@ export default function Sortie() {
   const isManager = unUser.role === 2;
   const canManageStock = isOwner || isManager;
 
+  const planAccess = usePlanAccess(entreprise?.capabilities);
+  const isDecouverte = planAccess.isDecouverte;
+  const salesLimit = planAccess.limits?.ventes ?? (isDecouverte ? 50 : null);
+
   const { sortiesEntreprise, isLoading, isError, refetch } = useGetAllSortie(entreprise_uuid!)
+  const salesCount = (sortiesEntreprise || []).length;
+  const isSalesLimitReached = Boolean(isDecouverte && salesLimit !== null && salesCount >= salesLimit);
 
   const { ajoutSortie } = useCreateSortie()
   const setSorties = useStoreCart(state => state.setSorties)
@@ -351,6 +358,11 @@ export default function Sortie() {
   const handleFinalSubmit = async () => {
     if (basket.length === 0) return;
 
+    if (isSalesLimitReached) {
+      toast.error(`Limite de ${salesLimit || 50} ventes atteinte en Mode Découverte. Veuillez passer à Stock Simple.`);
+      return;
+    }
+
     // Snapshot des IDs existants avant enregistrement
     const idsBefore = new Set(
       sortiesEntreprise.map((s: any) => s.id).filter(Boolean)
@@ -492,6 +504,67 @@ export default function Sortie() {
   if (sortiesEntreprise) {
     return (
       <div>
+        {/* Bannière d'alerte ou indicateur Quota Ventes Découverte */}
+        {isDecouverte && salesLimit !== null && (
+          <Box
+            sx={{
+              mb: 2,
+              p: 1.5,
+              borderRadius: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 2,
+              flexWrap: 'wrap',
+              background: isSalesLimitReached
+                ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(220, 38, 38, 0.06))'
+                : 'linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(79, 70, 229, 0.04))',
+              border: '1px solid',
+              borderColor: isSalesLimitReached ? 'rgba(239, 68, 68, 0.3)' : 'rgba(99, 102, 241, 0.2)',
+            }}
+          >
+            <Stack direction="row" spacing={1.5} alignItems="center">
+              <Chip
+                label={`${salesCount} / ${salesLimit} ventes`}
+                size="small"
+                color={isSalesLimitReached ? 'error' : 'primary'}
+                sx={{ fontWeight: 800, borderRadius: '8px' }}
+              />
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                {isSalesLimitReached ? (
+                  <span style={{ color: '#ef4444' }}>
+                    Quota de {salesLimit} ventes atteint en Mode Découverte. L'encaissement et la validation des ventes sont bloqués.
+                  </span>
+                ) : (
+                  <span>
+                    Mode Découverte : Il vous reste <strong>{Math.max(0, salesLimit - salesCount)}</strong> vente(s) d'essai gratuite(s).
+                  </span>
+                )}
+              </Typography>
+            </Stack>
+
+            <Button
+              variant="contained"
+              size="small"
+              href="https://wa.me/22391154834?text=Bonjour,%20je%20souhaite%20activer%20la%20formule%20Stock%20Simple%20pour%20débloquer%20les%20ventes%20illimitées."
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{
+                borderRadius: '10px',
+                textTransform: 'none',
+                fontWeight: 700,
+                fontSize: '0.8rem',
+                background: isSalesLimitReached
+                  ? 'linear-gradient(135deg, #ef4444, #dc2626)'
+                  : 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                boxShadow: 'none',
+              }}
+            >
+              Débloquer les ventes illimitées
+            </Button>
+          </Box>
+        )}
+
         {/* Navigation Tabs Pill Bar */}
         <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center', mb: 2, flexWrap: 'wrap' }}>
           <Button
@@ -561,6 +634,9 @@ export default function Sortie() {
             clients={clientsList}
             currentUser={unUser}
             entreprise={entreprise}
+            salesCount={salesCount}
+            salesLimit={salesLimit}
+            isSalesLimitReached={isSalesLimitReached}
             onSaleCompleted={(details) => {
               setLastSaleDetails({
                 clientName: details.clientName,

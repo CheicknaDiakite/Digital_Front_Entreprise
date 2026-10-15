@@ -162,6 +162,7 @@ export type TypeEntreprise = {
     created_at?: string;
     capabilities?: any;
     proprietaire_id?: number | string;
+    code?: string;
 }
 
 type StockMonth = {
@@ -272,6 +273,7 @@ export type RecupType = {
     first_name?: string,
     email?: string,
     role?: string | number,
+    peut_creer_entreprise?: boolean,
     notes?: string,
     is_prix?: boolean,
     is_remise?: boolean,

@@ -45,4 +45,5 @@ export type FormValueType = {
   user_id?: string;
   first_name: string;
   last_name: string;
+  role?: number | string;
 } & FormType

@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -50,12 +50,23 @@ export default function Notification() {
   const uuid = useStoreUuid((state) => state.selectedId);
   const queryClient = useQueryClient();
 
-  const { data: notificationData } = useQuery({
+  const { data: notificationData, error } = useQuery({
     queryKey: ['notifications', uuid],
     queryFn: () => notificationService.getNotifications(uuid!).then((response) => response.data),
     enabled: Boolean(uuid),
     refetchInterval: 60_000,
+    retry: (failureCount, err: any) => {
+      if (err?.response?.status === 404) return false;
+      return failureCount < 2;
+    },
   });
+
+  useEffect(() => {
+    if ((error as any)?.response?.status === 404) {
+      useStoreUuid.getState().clearId();
+      localStorage.removeItem('current_entreprise_uuid');
+    }
+  }, [error]);
 
   const rawNotifications = notificationData?.donnee || [];
   const displayCount = notificationData?.non_lues || 0;

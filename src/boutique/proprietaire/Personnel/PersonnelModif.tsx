@@ -229,7 +229,7 @@ export function PersonnelModif() {
                 Retour
               </Button>
 
-              {loggedInUser?.uuid !== unUser?.uuid && (loggedInUser?.role === 1 || loggedInUser?.role === 2) && (
+              {/* {loggedInUser?.uuid !== unUser?.uuid && (loggedInUser?.role === 1 || loggedInUser?.role === 2) && (
                 <Button
                   variant="outlined"
                   color="error"
@@ -248,7 +248,7 @@ export function PersonnelModif() {
                 >
                   Supprimer
                 </Button>
-              )}
+              )} */}
             </Stack>
           }
         />

@@ -41,7 +41,6 @@ import countryList from 'react-select-country-list';
 import ConditionsUtilisation from '../ConditionsUtilisation';
 
 interface RegisterFormData {
-  username: string;
   first_name: string;
   last_name: string;
   email: string;

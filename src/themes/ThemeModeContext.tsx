@@ -26,6 +26,11 @@ export function ThemeModeProvider({ children }: { children: ReactNode }) {
     window.localStorage.setItem('app-theme-mode', mode);
     document.documentElement.dataset.theme = mode;
     document.documentElement.style.colorScheme = mode;
+    if (mode === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
   }, [mode]);
 
   const toggleTheme = () => {

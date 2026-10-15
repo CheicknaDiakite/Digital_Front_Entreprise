@@ -28,8 +28,10 @@ import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PersonIcon from '@mui/icons-material/Person';
+import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
+import BlockIcon from '@mui/icons-material/Block';
 import { FormValueType } from '../../../typescript/FormType';
-import { useAllUsers, useCreateAdminUser } from '../../../usePerso/fonction.user';
+import { useActiverCreationEntreprise, useAllUsers, useCreateAdminUser } from '../../../usePerso/fonction.user';
 import { accountService } from '../../../_services/account.service';
 import MyTextField from '../../../_components/Input/MyTextField';
 
@@ -43,6 +45,7 @@ interface UserData {
   numero: string;
   is_cabinet: boolean;
   role: number;
+  peut_creer_entreprise?: boolean;
 }
 
 /* ── Loading skeleton ─────────────────────────────────────── */
@@ -86,7 +89,11 @@ const ErrorState: FC = () => {
 };
 
 /* ── User Row Card ────────────────────────────────────────── */
-const UserCard: FC<{ user: UserData; index: number }> = ({ user, index }) => {
+const UserCard: FC<{
+  user: UserData;
+  index: number;
+  onToggleCreation: (uuid: string, actif: boolean) => void;
+}> = ({ user, index, onToggleCreation }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === 'dark';
   const initials = `${user.first_name.charAt(0)}${user.last_name.charAt(0)}`.toUpperCase();
@@ -196,6 +203,47 @@ const UserCard: FC<{ user: UserData; index: number }> = ({ user, index }) => {
             fontSize: 11,
           }}
         />
+
+        <Tooltip
+          title={
+            user.peut_creer_entreprise !== false
+              ? "Création d'entreprise autorisée (cliquez pour bloquer)"
+              : "Création d'entreprise bloquée (cliquez pour activer)"
+          }
+          arrow
+        >
+          <Chip
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onToggleCreation(user.uuid, user.peut_creer_entreprise === false);
+            }}
+            icon={
+              user.peut_creer_entreprise !== false ? (
+                <BusinessCenterIcon sx={{ fontSize: '14px !important', color: '#10b981 !important' }} />
+              ) : (
+                <BlockIcon sx={{ fontSize: '14px !important', color: '#f59e0b !important' }} />
+              )
+            }
+            label={user.peut_creer_entreprise !== false ? 'Entreprise : Oui' : 'Entreprise : Non'}
+            size="small"
+            clickable
+            sx={{
+              borderRadius: '8px',
+              background: user.peut_creer_entreprise !== false ? alpha('#10b981', 0.10) : alpha('#f59e0b', 0.10),
+              color: user.peut_creer_entreprise !== false ? '#10b981' : '#f59e0b',
+              border: `1px solid ${alpha(user.peut_creer_entreprise !== false ? '#10b981' : '#f59e0b', 0.25)}`,
+              fontWeight: 600,
+              fontSize: 11,
+              cursor: 'pointer',
+              transition: 'all .18s',
+              '&:hover': {
+                transform: 'scale(1.05)',
+                background: user.peut_creer_entreprise !== false ? alpha('#10b981', 0.20) : alpha('#f59e0b', 0.20),
+              },
+            }}
+          />
+        </Tooltip>
       </Box>
 
       {/* Action */}
@@ -376,6 +424,7 @@ export default function Users() {
   const token = accountService.getToken();
   const { getUsers, isLoading, isError } = useAllUsers();
   const { createAdmin } = useCreateAdminUser();
+  const { activerCreation } = useActiverCreationEntreprise();
 
   const itemsPerPage = 10;
   const sortedUsers = getUsers?.slice().sort((a: UserData, b: UserData) => b.id - a.id) || [];
@@ -595,7 +644,12 @@ export default function Users() {
           ) : (
             <Stack spacing={1.5}>
               {currentUsers.map((user: UserData, i: number) => (
-                <UserCard key={user.uuid} user={user} index={i} />
+                <UserCard
+                  key={user.uuid}
+                  user={user}
+                  index={i}
+                  onToggleCreation={activerCreation}
+                />
               ))}
             </Stack>
           )}

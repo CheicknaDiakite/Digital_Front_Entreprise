@@ -31,7 +31,7 @@ interface LoginFormData {
   password: string;
 }
 
-const INVALID_LOGIN_MESSAGE = "Identifiant ou nom d'utilisateur ou mot de passe incorrect.";
+const INVALID_LOGIN_MESSAGE = "Email, identifiant ou mot de passe incorrect.";
 
 const AuthLogin: FC = () => {
   const { login } = useLoginUser();
@@ -197,8 +197,8 @@ const AuthLogin: FC = () => {
               )}
 
               <TextField
-                label="Identifiant ou numéro de téléphone"
-                placeholder="Entrez votre identifiant"
+                label="Email, téléphone ou identifiant"
+                placeholder="exemple@email.com, 0102030405 ou identifiant"
                 error={!!errors.username}
                 helperText={errors.username?.message}
                 {...register('username', { required: 'Ce champ est requis' })}

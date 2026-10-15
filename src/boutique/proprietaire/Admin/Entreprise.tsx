@@ -1,4 +1,5 @@
 import { ChangeEvent, FC, FormEvent, ReactNode, SyntheticEvent, useState } from 'react';
+import toast from 'react-hot-toast';
 import CloseIcon from "@mui/icons-material/Close";
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
@@ -84,17 +85,25 @@ interface EnterpriseCardProps {
   post: any;
   index: number;
   onSelect: () => void;
+  userRole?: number | null;
 }
 
-const EnterpriseCard: FC<EnterpriseCardProps> = ({ post, index, onSelect }) => {
+const EnterpriseCard: FC<EnterpriseCardProps> = ({ post, index, onSelect, userRole }) => {
   const navigate = useNavigate();
   const url = post.image ? BASE(post.image) : backgroundImage;
   const expired = isLicenceExpired(post.licence_date_expiration);
   const [hovered, setHovered] = useState(false);
   const [selecting, setSelecting] = useState(false);
 
+  const hasRole = userRole === 1 || userRole === 2 || userRole === 3;
+
   const handleClick = (e: React.MouseEvent) => {
     if (expired || selecting) { e.preventDefault(); return; }
+    if (userRole !== undefined && userRole !== null && !hasRole) {
+      e.preventDefault();
+      toast.error("Votre compte n'a pas encore de rôle configuré pour cette entreprise. Veuillez contacter votre administrateur.");
+      return;
+    }
     e.preventDefault();
     setSelecting(true);
     onSelect();
@@ -236,31 +245,59 @@ const EnterpriseCard: FC<EnterpriseCardProps> = ({ post, index, onSelect }) => {
             </Box>
           )}
 
-          {/* ── Active badge ── */}
-          {!expired && post.licence_active && (
-            <Box
-              sx={{
-                position: 'absolute',
-                top: 10,
-                right: 10,
-                zIndex: 10,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 0.4,
-                bgcolor: 'rgba(34,197,94,0.15)',
-                border: '1px solid rgba(34,197,94,0.35)',
-                // color: '#86efac',
-                fontSize: '0.66rem',
-                fontWeight: 700,
-                px: 1.1,
-                py: 0.35,
-                borderRadius: '8px',
-                letterSpacing: 0.4,
-              }}
-            >
-              <VerifiedRoundedIcon sx={{ fontSize: 11 }} />
-              Actif
-            </Box>
+          {/* ── Active / Role status badge ── */}
+          {!expired && (
+            hasRole ? (
+              post.licence_active && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: 10,
+                    right: 10,
+                    zIndex: 10,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 0.4,
+                    bgcolor: 'rgba(34,197,94,0.15)',
+                    border: '1px solid rgba(34,197,94,0.35)',
+                    color: '#86efac',
+                    fontSize: '0.66rem',
+                    fontWeight: 700,
+                    px: 1.1,
+                    py: 0.35,
+                    borderRadius: '8px',
+                    letterSpacing: 0.4,
+                  }}
+                >
+                  <VerifiedRoundedIcon sx={{ fontSize: 11 }} />
+                  Actif
+                </Box>
+              )
+            ) : (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 10,
+                  right: 10,
+                  zIndex: 10,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.4,
+                  bgcolor: 'rgba(245,158,11,0.15)',
+                  border: '1px solid rgba(245,158,11,0.35)',
+                  color: '#fbbf24',
+                  fontSize: '0.66rem',
+                  fontWeight: 700,
+                  px: 1.1,
+                  py: 0.35,
+                  borderRadius: '8px',
+                  letterSpacing: 0.4,
+                }}
+              >
+                <ErrorOutlineRoundedIcon sx={{ fontSize: 11 }} />
+                Rôle en attente
+              </Box>
+            )
           )}
 
           {/* ── Card body ── */}
@@ -459,7 +496,7 @@ const ErrorState = () => {
 
 // ── Empty state ────────────────────────────────────────────────────────────────
 
-const EmptyState: FC<{ onAdd: () => void; role?: number }> = ({ onAdd, role }) => (
+const EmptyState: FC<{ onAdd: () => void; role?: number; peutCreerEntreprise?: boolean }> = ({ onAdd, role, peutCreerEntreprise = true }) => (
   <Box
     sx={{
       minHeight: '60vh',
@@ -498,35 +535,71 @@ const EmptyState: FC<{ onAdd: () => void; role?: number }> = ({ onAdd, role }) =
         {role === 1 ? 'Aucune entreprise' : 'Bienvenue sur Gest Stocks'}
       </Typography>
       <Typography sx={{ fontSize: '0.9rem', maxWidth: 380, color: 'text.secondary', mx: 'auto' }}>
-        {role === 1
-          ? 'Commencez par créer votre première entreprise pour gérer vos stocks.'
-          : 'Créez dès maintenant votre entreprise pour commencer à gérer vos stocks en Mode Découverte.'}
+        {peutCreerEntreprise
+          ? (role === 1
+              ? 'Commencez par créer votre première entreprise pour gérer vos stocks.'
+              : 'Créez dès maintenant votre entreprise pour commencer à gérer vos stocks en Mode Découverte.')
+          : "Votre compte doit être activé par l'administrateur pour créer votre propre entreprise."}
       </Typography>
     </Box>
 
-    {/* ── Bouton de création : TOUJOURS ACCESSIBLE POUR TOUT NOUVEL UTILISATEUR ── */}
-    <Button
-      variant="contained"
-      onClick={onAdd}
-      startIcon={<AddBusinessRoundedIcon />}
-      sx={{
-        bgcolor: '#6366f1',
-        px: 4,
-        py: 1.4,
-        borderRadius: '12px',
-        fontWeight: 700,
-        fontSize: '0.92rem',
-        boxShadow: '0 4px 20px rgba(99,102,241,0.45)',
-        transition: 'all 0.3s ease',
-        '&:hover': {
-          bgcolor: '#4f46e5',
-          boxShadow: '0 8px 30px rgba(99,102,241,0.6)',
-          transform: 'translateY(-2px)',
-        },
-      }}
-    >
-      Créer une entreprise
-    </Button>
+    {!peutCreerEntreprise ? (
+      <Box
+        sx={{
+          background: 'linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(245,158,11,0.08) 100%)',
+          border: '1px solid rgba(239,68,68,0.25)',
+          borderRadius: '16px',
+          p: { xs: 2.5, sm: 3 },
+          backdropFilter: 'blur(10px)',
+          maxWidth: 480,
+          mt: 1,
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
+          <Chip
+            label="Activation requise"
+            size="small"
+            sx={{
+              bgcolor: 'rgba(239,68,68,0.15)',
+              color: '#ef4444',
+              fontWeight: 700,
+              fontSize: '0.72rem',
+              border: '1px solid rgba(239,68,68,0.3)',
+            }}
+          />
+        </Box>
+        <Typography sx={{ fontSize: '1.05rem', fontWeight: 800, mb: 1, color: '#f87171' }}>
+          Compte en attente d'activation
+        </Typography>
+        <Typography sx={{ textAlign: 'center', fontSize: '0.88rem', lineHeight: 1.6, color: 'text.secondary' }}>
+          Votre compte a été invité par une entreprise. Pour créer votre propre entreprise indépendante, votre compte doit être activé par le super administrateur.
+        </Typography>
+      </Box>
+    ) : (
+      /* ── Bouton de création : accessible pour tout utilisateur autorisé ── */
+      <Button
+        variant="contained"
+        onClick={onAdd}
+        startIcon={<AddBusinessRoundedIcon />}
+        sx={{
+          bgcolor: '#6366f1',
+          px: 4,
+          py: 1.4,
+          borderRadius: '12px',
+          fontWeight: 700,
+          fontSize: '0.92rem',
+          boxShadow: '0 4px 20px rgba(99,102,241,0.45)',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            bgcolor: '#4f46e5',
+            boxShadow: '0 8px 30px rgba(99,102,241,0.6)',
+            transform: 'translateY(-2px)',
+          },
+        }}
+      >
+        Créer une entreprise
+      </Button>
+    )}
 
     {/* ── Si le compte est en attente d'activation pour une formule payante ── */}
     {role !== 1 && (
@@ -760,6 +833,10 @@ export default function Entreprise() {
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (unUser.peut_creer_entreprise === false) {
+      toast.error("Votre compte doit être activé par l'administrateur pour créer une entreprise.");
+      return;
+    }
     formValues['user_id'] = connect;
     formValues['libelle'] = age;
     ajoutEntreprise(formValues);
@@ -785,7 +862,11 @@ export default function Entreprise() {
   if (!userEntreprises || userEntreprises.length === 0) {
     return (
       <>
-        <EmptyState onAdd={() => setIsDialogOpen(true)} role={unUser.role} />
+        <EmptyState
+          onAdd={() => setIsDialogOpen(true)}
+          role={unUser.role}
+          peutCreerEntreprise={unUser.peut_creer_entreprise !== false}
+        />
         <EntrepriseDialog {...dialogProps} />
       </>
     );
@@ -811,21 +892,21 @@ export default function Entreprise() {
             sx={{
               fontSize: { xs: '1.5rem', sm: '1.8rem' },
               fontWeight: 800,
-              // background: 'linear-gradient(135deg, #e0e7ff, #a78bfa)',
               backgroundClip: 'text',
               WebkitBackgroundClip: 'text',
-              // color: 'transparent',
               lineHeight: 1.2,
             }}
           >
-            Mes entreprises
+            {unUser.peut_creer_entreprise === false ? 'Espaces de travail' : 'Mes entreprises'}
           </Typography>
           <Typography sx={{ fontSize: '0.88rem', mt: 0.4, display: 'flex', alignItems: 'center', gap: 1 }}>
             <span>
-              {userEntreprises.length} entreprise{userEntreprises.length > 1 ? 's' : ''} enregistrée{userEntreprises.length > 1 ? 's' : ''}
-              {maxEntrepriseLimit !== null ? ` (Quota : ${userEntreprises.length}/${maxEntrepriseLimit})` : ' (Illimité)'}
+              {userEntreprises.length} entreprise{userEntreprises.length > 1 ? 's' : ''} {unUser.peut_creer_entreprise === false ? 'accessible' : 'enregistrée'}{userEntreprises.length > 1 ? 's' : ''}
+              {unUser.peut_creer_entreprise !== false && (
+                maxEntrepriseLimit !== null ? ` (Quota : ${userEntreprises.length}/${maxEntrepriseLimit})` : ' (Illimité)'
+              )}
             </span>
-            {isEntrepriseLimitReached && (
+            {unUser.peut_creer_entreprise !== false && isEntrepriseLimitReached && (
               <Chip
                 label="Quota atteint"
                 size="small"
@@ -842,7 +923,8 @@ export default function Entreprise() {
           </Typography>
         </Box>
 
-        {unUser.role === 1 && (
+        {/* Bouton d'ajout uniquement pour les propriétaires autorisés */}
+        {unUser.peut_creer_entreprise !== false && unUser.role === 1 && (
           <Tooltip
             title={
               isEntrepriseLimitReached
@@ -881,8 +963,8 @@ export default function Entreprise() {
         )}
       </Box>
 
-      {/* ── Pending activation message ── */}
-      {(unUser.role !== 1 && unUser.role !== 2 && unUser.role !== 3 && unUser.role !== 4) && (
+      {/* ── Pending activation message : UNIQUEMENT pour les créateurs en attente de licence (JAMAIS pour les invités) ── */}
+      {unUser.peut_creer_entreprise !== false && (unUser.role !== 1 && unUser.role !== 2 && unUser.role !== 3 && unUser.role !== 4) && (
         <Box
           sx={{
             background: 'linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(139,92,246,0.05) 100%)',
@@ -972,6 +1054,7 @@ export default function Entreprise() {
             key={post.uuid || index}
             post={post}
             index={index}
+            userRole={unUser.role}
             onSelect={() => addId(post.uuid)}
           />
         ))}

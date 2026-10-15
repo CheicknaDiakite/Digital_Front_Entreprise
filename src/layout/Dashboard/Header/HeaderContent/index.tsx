@@ -4,11 +4,13 @@ import Box from '@mui/material/Box';
 import Notification from './Notification';
 import Profile from './Profile';
 import { useStoreUuid } from '../../../../usePerso/store';
+import { useGetUserEntreprises } from '../../../../usePerso/fonction.user';
 
 // ==============================|| HEADER - CONTENT ||============================== //
 
 export default function HeaderContent() {
   const uuid = useStoreUuid((state) => state.selectedId);
+  useGetUserEntreprises();
 
   return (
     <Box 

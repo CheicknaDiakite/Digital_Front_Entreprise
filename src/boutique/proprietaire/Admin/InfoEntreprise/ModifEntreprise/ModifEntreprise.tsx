@@ -121,8 +121,14 @@ export default function ModifEntreprise() {
 
   const onSubmitAbon = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (unEntreprise) {
-      updateEntreprise({ ...unEntreprise, user_id, licence_code: activationCode });
+    if (unEntreprise && activationCode.trim()) {
+      const cleanCode = activationCode.trim().toUpperCase();
+      updateEntreprise({
+        ...unEntreprise,
+        user_id,
+        code: cleanCode,
+        licence_code: cleanCode,
+      });
       setOpenSubscriptionDialog(false);
       setActivationCode('');
     }

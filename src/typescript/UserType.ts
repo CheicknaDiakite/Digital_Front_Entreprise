@@ -43,6 +43,7 @@ export type UtilisateurType = {
     is_sortie?: boolean;
     is_cabinet?: boolean;
     typeRole?: number;
+    peut_creer_entreprise?: boolean;
     conditions_a_accepter?: boolean;
     conditions_version?: string | null;
     repassword?: string,

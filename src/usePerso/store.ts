@@ -18,7 +18,8 @@ export const useAccountStore = create(
 
 interface StoreUuidState {
     selectedId: string | null;
-    addId: (id: string) => void;
+    addId: (id: string | null) => void;
+    clearId: () => void;
 }
 
 export const useStoreUuid = create(
@@ -26,6 +27,7 @@ export const useStoreUuid = create(
         (set) => ({
             selectedId: null,
             addId: (id) => set({ selectedId: id }),
+            clearId: () => set({ selectedId: null }),
         }),
         {
             name: "entreprise-uuid",

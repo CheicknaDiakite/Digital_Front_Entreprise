@@ -12,13 +12,20 @@ import {
   Chip,
   Tooltip,
   Divider,
+  Tabs,
+  Tab,
+  CircularProgress,
+  Alert,
+  InputAdornment,
   useTheme,
   useMediaQuery,
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import PersonSearchIcon from "@mui/icons-material/PersonSearch";
+import SearchIcon from "@mui/icons-material/Search";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import PhoneIcon from "@mui/icons-material/Phone";
 import EmailIcon from "@mui/icons-material/Email";
@@ -28,7 +35,14 @@ import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
 import { FormValueType } from "../../../typescript/FormType";
 import { TypeSlug } from "../../../typescript/DataType";
-import { useCreateAdminUser, useFetchAllUsers, useFetchEntreprise, useFetchUser } from "../../../usePerso/fonction.user";
+import {
+  useCreateAdminUser,
+  useRattacherPersonnel,
+  useFetchAllUsers,
+  useFetchEntreprise,
+  useFetchUser,
+} from "../../../usePerso/fonction.user";
+import { userService } from "../../../_services/account.service";
 import MyTextField from "../../../_components/Input/MyTextField";
 import { useStoreUuid } from "../../../usePerso/store";
 import M_Abonnement from "../../../_components/Card/M_Abonnement";
@@ -38,6 +52,7 @@ import Chart_3 from "../../../_components/Chart/Chart_3";
 import { usePlanAccess } from "../../../hooks/usePlanAccess";
 import FeatureGate from "../../../components/FeatureGate";
 import { motion, AnimatePresence } from "framer-motion";
+import toast from "react-hot-toast";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -196,15 +211,34 @@ export default function Personnel() {
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValueType>();
   const [open, setOpen] = useState(false);
 
+  // ── Search & Rattacher State ─────────────────────────────────────────────
+  const [tabValue, setTabValue] = useState<number>(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchResult, setSearchResult] = useState<any>(null);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [selectedRole, setSelectedRole] = useState<number>(3);
+  const [newAccountRole, setNewAccountRole] = useState<number>(3);
+
   const functionopen = () => setOpen(true);
-  const closeopen = () => { reset(); setOpen(false); };
+  const closeopen = () => {
+    reset();
+    setOpen(false);
+    setSearchQuery("");
+    setSearchResult(null);
+    setSearchError(null);
+    setSelectedRole(3);
+    setNewAccountRole(3);
+    setTabValue(0);
+  };
 
   const top: TypeSlug | null = uuid
     ? { entreprise_id: uuid }
     : null;
 
   const { getUser, isLoading, isError } = useFetchAllUsers(top);
-  const { createAdmin } = useCreateAdminUser();
+  const { createAdmin, isPending } = useCreateAdminUser();
+  const { rattacher, isPending: isRattaching } = useRattacherPersonnel();
   const { unUser } = useFetchUser();
 
   const staffMembers = getUser.filter((u) => u.id !== unUser?.id);
@@ -222,10 +256,65 @@ export default function Personnel() {
 
   const handlePageChange = (_: ChangeEvent<unknown>, page: number) => setCurrentPage(page);
 
+  const handleSearchUser = async (e?: FormEvent) => {
+    if (e) e.preventDefault();
+    const query = searchQuery.trim();
+    if (!query) {
+      toast.error("Veuillez saisir un identifiant, email ou numéro de téléphone");
+      return;
+    }
+    setIsSearching(true);
+    setSearchError(null);
+    setSearchResult(null);
+    try {
+      const res = await userService.rechercherUser(query, uuid || undefined);
+      if (res.data?.etat && res.data?.donnee) {
+        setSearchResult(res.data.donnee);
+      } else {
+        setSearchError(res.data?.message || "Aucun utilisateur trouvé avec cet identifiant.");
+      }
+    } catch (err: any) {
+      setSearchError(err?.response?.data?.message || "Aucun utilisateur trouvé avec cet identifiant.");
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleRattacher = () => {
+    if (!uuid) {
+      toast.error("Veuillez d'abord sélectionner une entreprise");
+      return;
+    }
+    if (!searchResult?.uuid) {
+      toast.error("Aucun utilisateur sélectionné");
+      return;
+    }
+    rattacher(
+      {
+        entreprise_id: uuid,
+        user_uuid: searchResult.uuid,
+        role: selectedRole,
+      },
+      {
+        onSuccess: () => {
+          closeopen();
+        },
+      }
+    );
+  };
+
   const onSubmit = (data: FormValueType) => {
-    data.entreprise_id = uuid!;
-    createAdmin(data);
-    closeopen();
+    if (!uuid) {
+      toast.error("Veuillez d'abord sélectionner une entreprise");
+      return;
+    }
+    data.entreprise_id = uuid;
+    data.role = newAccountRole;
+    createAdmin(data, {
+      onSuccess: () => {
+        closeopen();
+      },
+    });
   };
 
   if (!planAccess.canAddCollaborators) {
@@ -476,7 +565,7 @@ export default function Personnel() {
           open={open}
           onClose={closeopen}
           fullWidth
-          maxWidth="xs"
+          maxWidth="sm"
           TransitionProps={{ timeout: 250 }}
           PaperProps={{
             elevation: 0,
@@ -489,7 +578,6 @@ export default function Personnel() {
         >
           {/* Dialog Header */}
           <DialogTitle
-            className={`bg-gradient-to-r from-blue-500 to-green-600 hover:from-blue-600 hover:to-green-700`}
             sx={{
               p: 0,
               background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
@@ -513,14 +601,14 @@ export default function Personnel() {
                     display: "flex",
                   }}
                 >
-                  <BadgeIcon sx={{ color: "#ffffff", fontSize: 20 }} />
+                  <BadgeIcon sx={{ color: "#ffffff", fontSize: 22 }} />
                 </Box>
                 <Box>
                   <Typography variant="subtitle1" sx={{ color: "#ffffff", fontWeight: 700, lineHeight: 1.2 }}>
-                    Nouveau membre
+                    Ajouter un collaborateur
                   </Typography>
                   <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.75)" }}>
-                    Remplissez les informations ci-dessous
+                    Rattachez un compte existant ou créez un nouvel accès
                   </Typography>
                 </Box>
               </Box>
@@ -541,122 +629,436 @@ export default function Personnel() {
           </DialogTitle>
 
           {/* Dialog Body */}
-          {isLicenceExpired(unEntreprise.licence_date_expiration) ? (
+          {isLicenceExpired(unEntreprise?.licence_date_expiration) ? (
             <M_Abonnement />
           ) : (
-            <DialogContent sx={{ p: 3 }}>
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
-                  <MyTextField
-                    label="Prénom"
-                    {...register("last_name", { required: "Ce champ est obligatoire" })}
-                    error={!!errors.last_name}
-                    helperText={errors.last_name?.message}
-                    fullWidth
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: "12px",
-                        "&.Mui-focused fieldset": { borderColor: "#6366f1", borderWidth: 2 },
-                      },
-                    }}
+            <DialogContent sx={{ p: { xs: 2.5, sm: 3.5 } }}>
+              {/* Tab Selector */}
+              <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
+                <Tabs
+                  value={tabValue}
+                  onChange={(_, val) => setTabValue(val)}
+                  variant="fullWidth"
+                  sx={{
+                    "& .MuiTab-root": {
+                      textTransform: "none",
+                      fontWeight: 700,
+                      fontSize: "0.875rem",
+                      minHeight: 46,
+                    },
+                    "& .Mui-selected": {
+                      color: "#4f46e5",
+                    },
+                    "& .MuiTabs-indicator": {
+                      backgroundColor: "#4f46e5",
+                      height: 3,
+                      borderRadius: "3px",
+                    },
+                  }}
+                >
+                  <Tab
+                    icon={<PersonSearchIcon sx={{ fontSize: 18 }} />}
+                    iconPosition="start"
+                    label="Compte existant"
                   />
-                  <MyTextField
-                    label="Nom"
-                    {...register("first_name", { required: "Ce champ est obligatoire" })}
-                    error={!!errors.first_name}
-                    helperText={errors.first_name?.message}
-                    fullWidth
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: "12px",
-                        "&.Mui-focused fieldset": { borderColor: "#6366f1", borderWidth: 2 },
-                      },
-                    }}
+                  <Tab
+                    icon={<PersonAddIcon sx={{ fontSize: 18 }} />}
+                    iconPosition="start"
+                    label="Nouveau compte"
                   />
-                  <MyTextField
-                    label="Téléphone"
-                    {...register("numero", { required: "Ce champ est obligatoire" })}
-                    error={!!errors.numero}
-                    helperText={errors.numero?.message}
-                    inputProps={{ pattern: "^[+]?\\d*$", maxLength: 15 }}
-                    fullWidth
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: "12px",
-                        "&.Mui-focused fieldset": { borderColor: "#6366f1", borderWidth: 2 },
-                      },
-                    }}
-                  />
-                  <MyTextField
-                    label="Email"
-                    type="email"
-                    {...register("email_user", { required: "Ce champ est obligatoire" })}
-                    error={!!errors.email_user}
-                    helperText={errors.email_user?.message}
-                    fullWidth
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: "12px",
-                        "&.Mui-focused fieldset": { borderColor: "#6366f1", borderWidth: 2 },
-                      },
-                    }}
-                  />
-                  <MyTextField
-                    label="Mot de passe"
-                    type="password"
-                    {...register("password", { required: "Ce champ est obligatoire" })}
-                    error={!!errors.password}
-                    helperText={errors.password?.message}
-                    fullWidth
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: "12px",
-                        "&.Mui-focused fieldset": { borderColor: "#6366f1", borderWidth: 2 },
-                      },
-                    }}
-                  />
+                </Tabs>
+              </Box>
 
-                  {/* Actions */}
-                  <Box sx={{ display: "flex", gap: 1.5, pt: 1 }}>
-                    <Button
-                      onClick={closeopen}
-                      variant="outlined"
-                      fullWidth
-                      sx={{
-                        borderRadius: "12px",
-                        textTransform: "none",
-                        fontWeight: 700,
-                        py: 1.25,
-                        borderColor: "#e2e8f0",
-                        "&:hover": { bgcolor: "#f8fafc", borderColor: "#cbd5e1" },
+              {/* ── TAB 0 : Compte existant ──────────────────────────────────── */}
+              {tabValue === 0 && (
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+                  <Typography variant="body2" sx={{ color: "#64748b", fontSize: "0.85rem", lineHeight: 1.5 }}>
+                    Si la personne s'est déjà inscrite sur <b>Gest Stocks</b>, recherchez-la par son <b>email</b>, son <b>téléphone</b> ou son <b>nom d'utilisateur</b> pour l'ajouter à votre entreprise.
+                  </Typography>
+
+                  <Box component="form" onSubmit={handleSearchUser} sx={{ display: "flex", gap: 1 }}>
+                    <MyTextField
+                      placeholder="Email, téléphone ou nom d'utilisateur (ex. mo0001tr)"
+                      value={searchQuery}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                        setSearchQuery(e.target.value);
+                        if (searchError) setSearchError(null);
                       }}
-                    >
-                      Annuler
-                    </Button>
+                      fullWidth
+                      size="small"
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <SearchIcon sx={{ color: "#94a3b8", fontSize: 20 }} />
+                          </InputAdornment>
+                        ),
+                      }}
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: "12px",
+                          "&.Mui-focused fieldset": { borderColor: "#6366f1", borderWidth: 2 },
+                        },
+                      }}
+                    />
                     <Button
                       type="submit"
                       variant="contained"
-                      fullWidth
+                      disabled={isSearching || !searchQuery.trim()}
                       sx={{
                         borderRadius: "12px",
                         textTransform: "none",
                         fontWeight: 700,
-                        py: 1.25,
+                        px: 2.5,
+                        minWidth: 110,
                         background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
-                        boxShadow: "0 4px 14px rgba(99,102,241,0.35)",
-                        "&:hover": {
-                          background: "linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)",
-                          boxShadow: "0 6px 18px rgba(99,102,241,0.45)",
-                          transform: "translateY(-1px)",
-                        },
-                        transition: "all 0.2s ease",
+                        boxShadow: "0 4px 12px rgba(99,102,241,0.25)",
                       }}
                     >
-                      Ajouter
+                      {isSearching ? <CircularProgress size={18} sx={{ color: "#ffffff" }} /> : "Rechercher"}
                     </Button>
                   </Box>
+
+                  {searchError && (
+                    <Alert severity="error" sx={{ borderRadius: "12px" }}>
+                      {searchError}
+                    </Alert>
+                  )}
+
+                  {searchResult && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+                      <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+                        {/* Carte utilisateur trouvé */}
+                        <Box
+                          sx={{
+                            p: 2.5,
+                            borderRadius: "16px",
+                            border: "1px solid #e2e8f0",
+                            bgcolor: "#f8fafc",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 2,
+                          }}
+                        >
+                          <Avatar
+                            {...stringAvatar(`${searchResult.last_name || ""} ${searchResult.first_name || ""}`)}
+                            src={searchResult.avatar}
+                            sx={{ width: 52, height: 52, fontWeight: 700 }}
+                          />
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+                              <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#0f172a", lineHeight: 1.2 }}>
+                                {searchResult.first_name} {searchResult.last_name}
+                              </Typography>
+                              <Chip
+                                label={`@${searchResult.username}`}
+                                size="small"
+                                sx={{ bgcolor: "#e0e7ff", color: "#4338ca", fontWeight: 700, fontSize: "0.72rem", height: 22 }}
+                              />
+                            </Box>
+                            <Box sx={{ display: "flex", gap: 2, mt: 0.75, flexWrap: "wrap", color: "#64748b", fontSize: "0.8rem" }}>
+                              {searchResult.email && <span>📧 {searchResult.email}</span>}
+                              {searchResult.numero && <span>📱 {searchResult.numero}</span>}
+                            </Box>
+                          </Box>
+                        </Box>
+
+                        {/* Avertissements d'appartenance */}
+                        {searchResult.deja_membre ? (
+                          <Alert severity="warning" sx={{ borderRadius: "12px" }}>
+                            Cet utilisateur fait déjà partie du personnel de cette entreprise.
+                          </Alert>
+                        ) : searchResult.est_proprietaire || searchResult.est_soi_meme ? (
+                          <Alert severity="info" sx={{ borderRadius: "12px" }}>
+                            Ce compte est le propriétaire de cette entreprise.
+                          </Alert>
+                        ) : (
+                          <>
+                            {/* Sélecteur de rôle */}
+                            <Box>
+                              <Typography variant="caption" sx={{ fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.05em", display: "block", mb: 1 }}>
+                                Rôle attribué dans votre entreprise :
+                              </Typography>
+                              <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 1.5 }}>
+                                {/* Rôle Gérant (2) */}
+                                <Box
+                                  onClick={() => setSelectedRole(2)}
+                                  sx={{
+                                    p: 2,
+                                    borderRadius: "14px",
+                                    cursor: "pointer",
+                                    border: selectedRole === 2 ? "2px solid #6366f1" : "1px solid #e2e8f0",
+                                    bgcolor: selectedRole === 2 ? "rgba(99, 102, 241, 0.06)" : "#ffffff",
+                                    transition: "all 0.2s ease",
+                                    boxShadow: selectedRole === 2 ? "0 4px 12px rgba(99,102,241,0.15)" : "none",
+                                    "&:hover": { borderColor: "#6366f1" },
+                                  }}
+                                >
+                                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+                                    <SupervisorAccountIcon sx={{ color: "#6366f1", fontSize: 20 }} />
+                                    <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#1e293b" }}>
+                                      Gérant / Superviseur
+                                    </Typography>
+                                  </Box>
+                                  <Typography variant="caption" sx={{ color: "#64748b", display: "block", lineHeight: 1.3 }}>
+                                    Gestion du catalogue, stock, inventaires et factures
+                                  </Typography>
+                                </Box>
+
+                                {/* Rôle Caissier (3) */}
+                                <Box
+                                  onClick={() => setSelectedRole(3)}
+                                  sx={{
+                                    p: 2,
+                                    borderRadius: "14px",
+                                    cursor: "pointer",
+                                    border: selectedRole === 3 ? "2px solid #059669" : "1px solid #e2e8f0",
+                                    bgcolor: selectedRole === 3 ? "rgba(5, 150, 105, 0.06)" : "#ffffff",
+                                    transition: "all 0.2s ease",
+                                    boxShadow: selectedRole === 3 ? "0 4px 12px rgba(5,150,105,0.15)" : "none",
+                                    "&:hover": { borderColor: "#059669" },
+                                  }}
+                                >
+                                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+                                    <PointOfSaleIcon sx={{ color: "#059669", fontSize: 20 }} />
+                                    <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#1e293b" }}>
+                                      Caissier(e) / Vendeur
+                                    </Typography>
+                                  </Box>
+                                  <Typography variant="caption" sx={{ color: "#64748b", display: "block", lineHeight: 1.3 }}>
+                                    Caisse (POS), encaissements et sorties de stock
+                                  </Typography>
+                                </Box>
+                              </Box>
+                            </Box>
+
+                            {/* Actions de validation */}
+                            <Box sx={{ display: "flex", gap: 1.5, pt: 1 }}>
+                              <Button
+                                onClick={closeopen}
+                                variant="outlined"
+                                fullWidth
+                                sx={{
+                                  borderRadius: "12px",
+                                  textTransform: "none",
+                                  fontWeight: 700,
+                                  py: 1.25,
+                                  borderColor: "#e2e8f0",
+                                  "&:hover": { bgcolor: "#f8fafc", borderColor: "#cbd5e1" },
+                                }}
+                              >
+                                Annuler
+                              </Button>
+                              <Button
+                                onClick={handleRattacher}
+                                variant="contained"
+                                disabled={isRattaching || isLimitReached}
+                                fullWidth
+                                sx={{
+                                  borderRadius: "12px",
+                                  textTransform: "none",
+                                  fontWeight: 700,
+                                  py: 1.25,
+                                  background: isRattaching
+                                    ? "rgba(148, 163, 184, 0.4)"
+                                    : "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
+                                  boxShadow: isRattaching ? "none" : "0 4px 14px rgba(99,102,241,0.35)",
+                                  "&:hover": {
+                                    background: isRattaching
+                                      ? "rgba(148, 163, 184, 0.4)"
+                                      : "linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)",
+                                  },
+                                }}
+                              >
+                                {isRattaching ? "Rattachement en cours..." : "Rattacher à l'entreprise"}
+                              </Button>
+                            </Box>
+                          </>
+                        )}
+                      </Box>
+                    </motion.div>
+                  )}
                 </Box>
-              </form>
+              )}
+
+              {/* ── TAB 1 : Nouveau compte ──────────────────────────────────── */}
+              {tabValue === 1 && (
+                <form onSubmit={handleSubmit(onSubmit)}>
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                    <Typography variant="body2" sx={{ color: "#64748b", fontSize: "0.85rem" }}>
+                      Créez un nouvel accès pour un membre qui n'a pas encore de compte sur la plateforme.
+                    </Typography>
+
+                    <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 1.5 }}>
+                      <MyTextField
+                        label="Prénom"
+                        {...register("last_name", { required: "Ce champ est obligatoire" })}
+                        error={!!errors.last_name}
+                        helperText={errors.last_name?.message}
+                        fullWidth
+                        sx={{
+                          "& .MuiOutlinedInput-root": {
+                            borderRadius: "12px",
+                            "&.Mui-focused fieldset": { borderColor: "#6366f1", borderWidth: 2 },
+                          },
+                        }}
+                      />
+                      <MyTextField
+                        label="Nom"
+                        {...register("first_name", { required: "Ce champ est obligatoire" })}
+                        error={!!errors.first_name}
+                        helperText={errors.first_name?.message}
+                        fullWidth
+                        sx={{
+                          "& .MuiOutlinedInput-root": {
+                            borderRadius: "12px",
+                            "&.Mui-focused fieldset": { borderColor: "#6366f1", borderWidth: 2 },
+                          },
+                        }}
+                      />
+                    </Box>
+
+                    <MyTextField
+                      label="Téléphone"
+                      {...register("numero", { required: "Ce champ est obligatoire" })}
+                      error={!!errors.numero}
+                      helperText={errors.numero?.message}
+                      inputProps={{ pattern: "^[+]?\\d*$", maxLength: 15 }}
+                      fullWidth
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: "12px",
+                          "&.Mui-focused fieldset": { borderColor: "#6366f1", borderWidth: 2 },
+                        },
+                      }}
+                    />
+                    <MyTextField
+                      label="Email"
+                      type="email"
+                      {...register("email_user", { required: "Ce champ est obligatoire" })}
+                      error={!!errors.email_user}
+                      helperText={errors.email_user?.message}
+                      fullWidth
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: "12px",
+                          "&.Mui-focused fieldset": { borderColor: "#6366f1", borderWidth: 2 },
+                        },
+                      }}
+                    />
+                    <MyTextField
+                      label="Mot de passe initial"
+                      type="password"
+                      {...register("password", { required: "Ce champ est obligatoire" })}
+                      error={!!errors.password}
+                      helperText={errors.password?.message}
+                      fullWidth
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: "12px",
+                          "&.Mui-focused fieldset": { borderColor: "#6366f1", borderWidth: 2 },
+                        },
+                      }}
+                    />
+
+                    {/* Choix du rôle */}
+                    <Box sx={{ mt: 0.5 }}>
+                      <Typography variant="caption" sx={{ fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.05em", display: "block", mb: 1 }}>
+                        Rôle dans votre entreprise :
+                      </Typography>
+                      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 1.5 }}>
+                        <Box
+                          onClick={() => setNewAccountRole(2)}
+                          sx={{
+                            p: 1.5,
+                            borderRadius: "14px",
+                            cursor: "pointer",
+                            border: newAccountRole === 2 ? "2px solid #6366f1" : "1px solid #e2e8f0",
+                            bgcolor: newAccountRole === 2 ? "rgba(99, 102, 241, 0.06)" : "#ffffff",
+                            transition: "all 0.2s ease",
+                            "&:hover": { borderColor: "#6366f1" },
+                          }}
+                        >
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+                            <SupervisorAccountIcon sx={{ color: "#6366f1", fontSize: 20 }} />
+                            <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#1e293b" }}>
+                              Gérant / Superviseur
+                            </Typography>
+                          </Box>
+                          <Typography variant="caption" sx={{ color: "#64748b", display: "block", lineHeight: 1.3 }}>
+                            Gestion stock & factures
+                          </Typography>
+                        </Box>
+
+                        <Box
+                          onClick={() => setNewAccountRole(3)}
+                          sx={{
+                            p: 1.5,
+                            borderRadius: "14px",
+                            cursor: "pointer",
+                            border: newAccountRole === 3 ? "2px solid #059669" : "1px solid #e2e8f0",
+                            bgcolor: newAccountRole === 3 ? "rgba(5, 150, 105, 0.06)" : "#ffffff",
+                            transition: "all 0.2s ease",
+                            "&:hover": { borderColor: "#059669" },
+                          }}
+                        >
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+                            <PointOfSaleIcon sx={{ color: "#059669", fontSize: 20 }} />
+                            <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#1e293b" }}>
+                              Caissier(e) / Vendeur
+                            </Typography>
+                          </Box>
+                          <Typography variant="caption" sx={{ color: "#64748b", display: "block", lineHeight: 1.3 }}>
+                            Ventes comptoir (POS)
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Box>
+
+                    {/* Actions */}
+                    <Box sx={{ display: "flex", gap: 1.5, pt: 1.5 }}>
+                      <Button
+                        onClick={closeopen}
+                        variant="outlined"
+                        fullWidth
+                        sx={{
+                          borderRadius: "12px",
+                          textTransform: "none",
+                          fontWeight: 700,
+                          py: 1.25,
+                          borderColor: "#e2e8f0",
+                          "&:hover": { bgcolor: "#f8fafc", borderColor: "#cbd5e1" },
+                        }}
+                      >
+                        Annuler
+                      </Button>
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        disabled={isPending || isLimitReached}
+                        fullWidth
+                        sx={{
+                          borderRadius: "12px",
+                          textTransform: "none",
+                          fontWeight: 700,
+                          py: 1.25,
+                          background: isPending
+                            ? "rgba(148, 163, 184, 0.4)"
+                            : "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
+                          boxShadow: isPending ? "none" : "0 4px 14px rgba(99,102,241,0.35)",
+                          "&:hover": {
+                            background: isPending
+                              ? "rgba(148, 163, 184, 0.4)"
+                              : "linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)",
+                          },
+                          transition: "all 0.2s ease",
+                        }}
+                      >
+                        {isPending ? "Création en cours..." : "Créer le collaborateur"}
+                      </Button>
+                    </Box>
+                  </Box>
+                </form>
+              )}
             </DialogContent>
           )}
         </Dialog>

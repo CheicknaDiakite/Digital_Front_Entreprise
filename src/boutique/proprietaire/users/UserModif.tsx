@@ -28,6 +28,7 @@ import PhoneOutlinedIcon from "@mui/icons-material/PhoneOutlined";
 import InputAdornment from "@mui/material/InputAdornment";
 import { useParams } from "react-router-dom";
 import {
+  useActiverCreationEntreprise,
   useDeleteUser,
   useFetchUnUser,
   useFetchUser,
@@ -93,6 +94,7 @@ export const UserModif: FC = () => {
   unUser["user_id"] = user_id;
   const { updateUser } = useUpdateUser();
   const { deleteUser } = useDeleteUser();
+  const { activerCreation, isPending: isActiverPending } = useActiverCreationEntreprise();
 
   const [is_cab, setCab] = useState(false);
 
@@ -358,6 +360,95 @@ export const UserModif: FC = () => {
                               <Box sx={{
                                 width: 16, height: 16, borderRadius: "50%",
                                 bgcolor: theme.palette.error.main,
+                                transition: "transform .25s",
+                              }} />
+                            </Box>
+                          }
+                          checkedIcon={
+                            <Box
+                              sx={{
+                                width: 44, height: 24, borderRadius: 12,
+                                bgcolor: alpha(theme.palette.success.main, 0.18),
+                                border: `2px solid ${alpha(theme.palette.success.main, 0.4)}`,
+                                display: "flex", alignItems: "center", justifyContent: "flex-end", px: 0.4,
+                                transition: "all .25s",
+                              }}
+                            >
+                              <Box sx={{
+                                width: 16, height: 16, borderRadius: "50%",
+                                bgcolor: theme.palette.success.main,
+                                transition: "transform .25s",
+                              }} />
+                            </Box>
+                          }
+                          sx={{ p: 0.5 }}
+                        />
+                      </Tooltip>
+                    </Box>
+
+                    {/* ── Toggle Création d'entreprise ── */}
+                    <Box
+                      sx={{
+                        px: 2,
+                        py: 1.5,
+                        borderRadius: 2,
+                        border: `1px solid ${
+                          unUser.peut_creer_entreprise !== false
+                            ? alpha(theme.palette.success.main, 0.4)
+                            : alpha(theme.palette.warning.main, 0.4)
+                        }`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        bgcolor: unUser.peut_creer_entreprise !== false
+                          ? alpha(theme.palette.success.main, isDark ? 0.08 : 0.04)
+                          : alpha(theme.palette.warning.main, isDark ? 0.08 : 0.04),
+                        transition: "all .25s ease",
+                      }}
+                    >
+                      <Box>
+                        <Typography variant="body2" fontWeight={600}>
+                          Création d'entreprise
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          color={unUser.peut_creer_entreprise !== false ? "success.main" : "warning.main"}
+                          fontWeight={600}
+                        >
+                          {unUser.peut_creer_entreprise !== false
+                            ? "✓ Autorisé — peut créer ses propres entreprises"
+                            : "✗ En attente — compte invité ne pouvant pas créer d'entreprise"}
+                        </Typography>
+                      </Box>
+                      <Tooltip
+                        title={
+                          unUser.peut_creer_entreprise !== false
+                            ? "Bloquer la création d'entreprise"
+                            : "Autoriser la création d'entreprise"
+                        }
+                        arrow
+                      >
+                        <Checkbox
+                          checked={unUser.peut_creer_entreprise !== false}
+                          disabled={isActiverPending}
+                          onChange={(e) => {
+                            const newActif = e.target.checked;
+                            setUnUser({ ...unUser, peut_creer_entreprise: newActif });
+                            activerCreation(unUser.uuid, newActif);
+                          }}
+                          icon={
+                            <Box
+                              sx={{
+                                width: 44, height: 24, borderRadius: 12,
+                                bgcolor: alpha(theme.palette.warning.main, 0.18),
+                                border: `2px solid ${alpha(theme.palette.warning.main, 0.4)}`,
+                                display: "flex", alignItems: "center", px: 0.4,
+                                transition: "all .25s",
+                              }}
+                            >
+                              <Box sx={{
+                                width: 16, height: 16, borderRadius: "50%",
+                                bgcolor: theme.palette.warning.main,
                                 transition: "transform .25s",
                               }} />
                             </Box>
