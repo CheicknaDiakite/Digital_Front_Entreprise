@@ -66,6 +66,7 @@ export interface ApproLineItem {
 }
 
 const UNITES_DISPONIBLES = [
+  'unité',
   'pièce',
   'carton',
   'paquet',
@@ -76,6 +77,7 @@ const UNITES_DISPONIBLES = [
   'litre',
   'mètres',
   'lot',
+  'unite',
 ];
 
 const createEmptyLine = (index: number): ApproLineItem => ({
@@ -84,7 +86,7 @@ const createEmptyLine = (index: number): ApproLineItem => ({
   produit_nom: '',
   libelle: '',
   barcode_value: '',
-  unite: 'pièce',
+  unite: 'unité',
   qte: 1,
   pu_achat: '',
   pu: '',
@@ -569,7 +571,10 @@ export const ApprovisionnementModal: React.FC<ApprovisionnementModalProps> = ({
                             freeSolo
                             options={UNITES_DISPONIBLES}
                             value={line.unite}
-                            onChange={(_e, val) => updateLine(line.id, 'unite', val || 'pièce')}
+                            onChange={(_e, val) => updateLine(line.id, 'unite', val || 'unité')}
+                            onInputChange={(_e, val) => {
+                              if (val) updateLine(line.id, 'unite', val);
+                            }}
                             renderInput={(params) => <TextField {...params} size="small" label="Unité" />}
                           />
                         </Grid>

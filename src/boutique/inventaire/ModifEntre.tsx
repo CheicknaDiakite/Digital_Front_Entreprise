@@ -49,6 +49,8 @@ import { useAppSettings } from '../../themes/AppSettingsContext';
 import { PageHeader } from '../../_components/common';
 
 const UNITE_CHOICES = [
+  { label: 'Unité(s)', value: 'unité' },
+  { label: 'Unite', value: 'unite' },
   { label: 'Pièce(s)', value: 'pièce' },
   { label: 'Kilos (kg)', value: 'kilos' },
   { label: 'Litre (L)', value: 'litre' },
@@ -58,6 +60,7 @@ const UNITE_CHOICES = [
   { label: 'Boîte(s)', value: 'boîte' },
   { label: 'Bouteille(s)', value: 'bouteille' },
   { label: 'Sac(s)', value: 'sac' },
+  { label: 'Lot(s)', value: 'lot' },
 ];
 
 export default function ModifEntre() {
@@ -93,9 +96,10 @@ export default function ModifEntre() {
   }, [unEntre]);
 
   const handleAutoCompleteChange = (_event: any, newValue: any) => {
+    const val = typeof newValue === 'string' ? newValue : (newValue?.value || newValue?.label || 'unité');
     setUnEntre({
       ...unEntre,
-      unite: newValue ? newValue.value : 'kilos',
+      unite: val,
     });
   };
 
@@ -394,10 +398,25 @@ export default function ModifEntre() {
                   />
 
                   <Autocomplete
+                    freeSolo
                     options={UNITE_CHOICES}
-                    getOptionLabel={(option) => option.label}
-                    value={UNITE_CHOICES.find((opt) => opt.value === (unEntre.unite || 'kilos')) || UNITE_CHOICES[0]}
+                    getOptionLabel={(option) => (typeof option === 'string' ? option : option.label)}
+                    value={
+                      UNITE_CHOICES.find(
+                        (opt) =>
+                          opt.value.toLowerCase() === (unEntre.unite || 'unité').toLowerCase() ||
+                          opt.label.toLowerCase() === (unEntre.unite || 'unité').toLowerCase()
+                      ) || { label: unEntre.unite || 'unité', value: unEntre.unite || 'unité' }
+                    }
                     onChange={handleAutoCompleteChange}
+                    onInputChange={(_event, newInputValue, reason) => {
+                      if (reason === 'input') {
+                        setUnEntre((prev: any) => ({
+                          ...prev,
+                          unite: newInputValue,
+                        }));
+                      }
+                    }}
                     renderInput={(params) => (
                       <TextField
                         {...params}

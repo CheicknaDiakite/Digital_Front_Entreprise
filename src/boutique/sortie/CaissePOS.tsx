@@ -72,6 +72,138 @@ interface CaissePOSProps {
   isSalesLimitReached?: boolean;
 }
 
+interface QuantityInputProps {
+  item: CartItem;
+  onUpdate: (newQty: number) => void;
+  isDark: boolean;
+}
+
+function QuantityInput({ item, onUpdate, isDark }: QuantityInputProps) {
+  const [localVal, setLocalVal] = useState<string>(String(item.qte));
+
+  useEffect(() => {
+    setLocalVal(String(item.qte));
+  }, [item.qte]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setLocalVal(val);
+    if (val !== '') {
+      const parsed = parseInt(val, 10);
+      if (!isNaN(parsed) && parsed > 0) {
+        if (parsed > item.max_stock) {
+          toast.error(`Stock maximal : ${item.max_stock} ${item.unite}`);
+          onUpdate(item.max_stock);
+          setLocalVal(String(item.max_stock));
+        } else {
+          onUpdate(parsed);
+        }
+      }
+    }
+  };
+
+  const handleBlur = () => {
+    const parsed = parseInt(localVal, 10);
+    if (isNaN(parsed) || parsed < 1) {
+      setLocalVal('1');
+      onUpdate(1);
+    } else if (parsed > item.max_stock) {
+      setLocalVal(String(item.max_stock));
+      onUpdate(item.max_stock);
+    } else {
+      setLocalVal(String(parsed));
+      onUpdate(parsed);
+    }
+  };
+
+  return (
+    <input
+      type="number"
+      min={1}
+      max={item.max_stock}
+      value={localVal}
+      onChange={handleChange}
+      onBlur={handleBlur}
+      onFocus={(e) => e.target.select()}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.currentTarget.blur();
+        }
+      }}
+      style={{
+        width: '46px',
+        height: '28px',
+        textAlign: 'center',
+        fontWeight: 700,
+        fontSize: '0.88rem',
+        borderRadius: '6px',
+        border: `1px solid ${isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.18)'}`,
+        background: isDark ? 'rgba(255,255,255,0.06)' : '#fff',
+        color: isDark ? '#fff' : '#0f172a',
+        outline: 'none',
+        padding: '0 2px',
+      }}
+    />
+  );
+}
+
+interface PriceInputProps {
+  item: CartItem;
+  onUpdate: (newPrice: number) => void;
+  title?: string;
+}
+
+function PriceInput({ item, onUpdate, title }: PriceInputProps) {
+  const [localVal, setLocalVal] = useState<string>(String(item.pu));
+
+  useEffect(() => {
+    setLocalVal(String(item.pu));
+  }, [item.pu]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setLocalVal(val);
+    if (val !== '') {
+      const parsed = parseFloat(val);
+      if (!isNaN(parsed) && parsed >= 0) {
+        onUpdate(parsed);
+      }
+    }
+  };
+
+  const handleBlur = () => {
+    const parsed = parseFloat(localVal);
+    if (isNaN(parsed) || parsed < 0) {
+      setLocalVal('0');
+      onUpdate(0);
+    } else {
+      setLocalVal(String(parsed));
+      onUpdate(parsed);
+    }
+  };
+
+  return (
+    <TextField
+      size="small"
+      value={localVal}
+      onChange={handleChange}
+      onBlur={handleBlur}
+      onFocus={(e) => e.target.select()}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          (e.target as HTMLElement).blur();
+        }
+      }}
+      type="number"
+      title={title}
+      sx={{
+        width: 80,
+        '& .MuiOutlinedInput-input': { p: '4px 6px', fontSize: '0.8rem', textAlign: 'right', fontWeight: 600 },
+      }}
+    />
+  );
+}
+
 export default function CaissePOS({
   products,
   clients,
@@ -234,9 +366,11 @@ export default function CaissePOS({
   };
 
   // Stepper functions
-  const updateQuantity = (entreId: string, newQty: number) => {
+  const updateQuantity = (entreId: string, newQty: number, removeIfZero = false) => {
     if (newQty <= 0) {
-      removeFromCart(entreId);
+      if (removeIfZero) {
+        removeFromCart(entreId);
+      }
       return;
     }
 
@@ -915,34 +1049,34 @@ export default function CaissePOS({
                       </Box>
 
                       {/* Line controls: Qty stepper + Unit price + Line total */}
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
                         {/* Stepper */}
                         <Stack direction="row" spacing={0.5} alignItems="center">
                           <IconButton
                             size="small"
-                            onClick={() => updateQuantity(item.entre_id, item.qte - 1)}
+                            onClick={() => {
+                              if (item.qte > 1) {
+                                updateQuantity(item.entre_id, item.qte - 1);
+                              }
+                            }}
+                            disabled={item.qte <= 1}
                             sx={{
                               width: 26,
                               height: 26,
                               bgcolor: isDark ? 'rgba(255,255,255,0.08)' : '#e2e8f0',
+                              opacity: item.qte <= 1 ? 0.35 : 1,
                             }}
+                            title={item.qte <= 1 ? "Quantité minimale (1). Pour retirer, cliquez sur la corbeille." : "Diminuer"}
                           >
                             <RemoveIcon sx={{ fontSize: 14 }} />
                           </IconButton>
-                          <input
-                            type="number"
-                            value={item.qte}
-                            onChange={(e) => updateQuantity(item.entre_id, parseInt(e.target.value) || 0)}
-                            style={{
-                              width: '42px',
-                              textAlign: 'center',
-                              fontWeight: 700,
-                              fontSize: '0.88rem',
-                              border: 'none',
-                              background: 'transparent',
-                              color: isDark ? '#fff' : '#000',
-                            }}
+
+                          <QuantityInput
+                            item={item}
+                            onUpdate={(newQty) => updateQuantity(item.entre_id, newQty)}
+                            isDark={isDark}
                           />
+
                           <IconButton
                             size="small"
                             onClick={() => updateQuantity(item.entre_id, item.qte + 1)}
@@ -952,6 +1086,7 @@ export default function CaissePOS({
                               height: 26,
                               bgcolor: isDark ? 'rgba(255,255,255,0.08)' : '#e2e8f0',
                             }}
+                            title="Augmenter"
                           >
                             <AddIcon sx={{ fontSize: 14 }} />
                           </IconButton>
@@ -960,16 +1095,10 @@ export default function CaissePOS({
                         {/* Unit Price (Editable only if admin authorized manual price (!item.is_prix) or currentUser is Admin) */}
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           {(!item.is_prix || currentUser?.role === 1) ? (
-                            <TextField
-                              size="small"
-                              value={item.pu}
-                              onChange={(e) => updatePrice(item.entre_id, parseFloat(e.target.value) || 0)}
-                              type="number"
+                            <PriceInput
+                              item={item}
+                              onUpdate={(newPrice) => updatePrice(item.entre_id, newPrice)}
                               title={!item.is_prix ? "Prix de vente libre autorisé" : "Modification administrateur"}
-                              sx={{
-                                width: 80,
-                                '& .MuiOutlinedInput-input': { p: '4px 6px', fontSize: '0.8rem', textAlign: 'right', fontWeight: 600 },
-                              }}
                             />
                           ) : (
                             <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>

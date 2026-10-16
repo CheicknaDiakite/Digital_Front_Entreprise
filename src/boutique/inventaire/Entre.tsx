@@ -127,7 +127,7 @@ export default function Entre() {
     cumuler_quantite: false,
     user_id: '',
     date: '',
-    unite: 'kilos',
+    unite: 'unité',
     barcode_value: '',
   });
 
@@ -181,7 +181,7 @@ export default function Entre() {
           pu: 0,
           pu_achat: 0,
           qte: 0,
-          unite: 'pièce',
+          unite: 'unité',
           barcode_value: '',
         });
         closeopen();

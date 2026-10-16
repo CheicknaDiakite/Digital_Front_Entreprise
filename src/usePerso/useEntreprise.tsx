@@ -182,16 +182,22 @@ export function AjoutEntreForm({
 
         <Autocomplete
           id="unite"
-          options={['pièce', 'carton', 'paquet', 'sac', 'boîte', 'bouteille', 'kilos', 'litre', 'mètres', 'lot']}
-          value={formValues.unite || 'pièce'}
+          freeSolo
+          options={['unité', 'pièce', 'carton', 'paquet', 'sac', 'boîte', 'bouteille', 'kilos', 'litre', 'mètres', 'lot', 'unite']}
+          value={formValues.unite || 'unité'}
           onChange={(_event, value) => {
-            onChange({ target: { name: 'unite', value: value || 'pièce' } } as any);
+            onChange({ target: { name: 'unite', value: value || 'unité' } } as any);
+          }}
+          onInputChange={(_event, newInputValue) => {
+            if (newInputValue) {
+              onChange({ target: { name: 'unite', value: newInputValue } } as any);
+            }
           }}
           renderInput={(params) => (
             <TextField
               {...params}
               label="Unité de mesure"
-              placeholder="ex: pièce, carton..."
+              placeholder="ex: unité, pièce, carton..."
               sx={{
                 "& .MuiFormLabel-asterisk": { color: "error.main" },
               }}
