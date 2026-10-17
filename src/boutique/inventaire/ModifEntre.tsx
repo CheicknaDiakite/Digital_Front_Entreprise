@@ -50,7 +50,6 @@ import { PageHeader } from '../../_components/common';
 
 const UNITE_CHOICES = [
   { label: 'Unité(s)', value: 'unité' },
-  { label: 'Unite', value: 'unite' },
   { label: 'Pièce(s)', value: 'pièce' },
   { label: 'Kilos (kg)', value: 'kilos' },
   { label: 'Litre (L)', value: 'litre' },
@@ -96,7 +95,8 @@ export default function ModifEntre() {
   }, [unEntre]);
 
   const handleAutoCompleteChange = (_event: any, newValue: any) => {
-    const val = typeof newValue === 'string' ? newValue : (newValue?.value || newValue?.label || 'unité');
+    let val = typeof newValue === 'string' ? newValue : (newValue?.value || newValue?.label || 'unité');
+    if (val.trim().toLowerCase() === 'unite') val = 'unité';
     setUnEntre({
       ...unEntre,
       unite: val,
@@ -405,15 +405,17 @@ export default function ModifEntre() {
                       UNITE_CHOICES.find(
                         (opt) =>
                           opt.value.toLowerCase() === (unEntre.unite || 'unité').toLowerCase() ||
-                          opt.label.toLowerCase() === (unEntre.unite || 'unité').toLowerCase()
+                          opt.label.toLowerCase() === (unEntre.unite || 'unité').toLowerCase() ||
+                          ((unEntre.unite || '').trim().toLowerCase() === 'unite' && opt.value === 'unité')
                       ) || { label: unEntre.unite || 'unité', value: unEntre.unite || 'unité' }
                     }
                     onChange={handleAutoCompleteChange}
                     onInputChange={(_event, newInputValue, reason) => {
                       if (reason === 'input') {
+                        const val = newInputValue.trim().toLowerCase() === 'unite' ? 'unité' : newInputValue;
                         setUnEntre((prev: any) => ({
                           ...prev,
-                          unite: newInputValue,
+                          unite: val,
                         }));
                       }
                     }}

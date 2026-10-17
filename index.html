@@ -69,7 +69,80 @@
 </head>
 
 <body>
-  <div id="root"></div>
+  <!-- ✅ Racine de l'application avec écran d'attente et filet de sécurité anti-page blanche -->
+  <div id="root">
+    <div id="app-boot-splash" style="min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle at 50% 30%, #1e1b4b 0%, #07111f 70%, #030712 100%); color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 1.5rem; text-align: center;">
+      <!-- État 1 : Chargement normal -->
+      <div id="boot-loader-state" style="display: flex; flex-direction: column; align-items: center; gap: 1.25rem;">
+        <div style="width: 72px; height: 72px; border-radius: 18px; background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3); display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(99,102,241,0.2);">
+          <img src="/icon-96x96.png" alt="Gest Stocks" style="width: 46px; height: 46px; object-fit: contain;">
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 18px; height: 18px; border: 2.5px solid rgba(99,102,241,0.3); border-top-color: #818cf8; border-radius: 50%; animation: bootSpin 0.8s linear infinite;"></div>
+          <span style="font-size: 0.95rem; font-weight: 600; color: #cbd5e1; letter-spacing: 0.3px;">Chargement de Gest Stocks...</span>
+        </div>
+      </div>
+
+      <!-- État 2 : Secours affiché si le JavaScript ne démarre pas (Erreur de build, coupure réseau ou timeout) -->
+      <div id="boot-fallback-state" style="display: none; max-width: 480px; width: 100%; background: rgba(15,23,42,0.85); border: 1px solid rgba(255,255,255,0.12); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 20px; padding: 2.25rem 1.75rem; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+        <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🛠️</div>
+        <h2 style="font-size: 1.35rem; font-weight: 700; color: #ffffff; margin-bottom: 0.6rem;">Mise à jour en cours</h2>
+        <p style="font-size: 0.875rem; color: #94a3b8; line-height: 1.55; margin-bottom: 1.5rem;">
+          Une mise à jour ou une maintenance est en cours sur votre espace Gest Stocks. Cliquez sur le bouton ci-dessous pour actualiser la page.
+        </p>
+        <div style="display: flex; flex-direction: column; gap: 0.65rem;">
+          <button onclick="window.location.reload(true);" style="background: linear-gradient(135deg, #4f46e5, #6366f1); color: #fff; border: none; padding: 0.75rem 1.25rem; border-radius: 10px; font-weight: 600; font-size: 0.9rem; cursor: pointer; box-shadow: 0 4px 12px rgba(99,102,241,0.35);">
+            ↻ Actualiser la page
+          </button>
+          <button onclick="if(confirm('Cela va réinitialiser le cache local et recharger la page. Continuer ?')) { localStorage.clear(); sessionStorage.clear(); if('caches' in window){caches.keys().then(function(names){return Promise.all(names.map(function(n){return caches.delete(n);}));}).finally(function(){window.location.reload(true);});} else { window.location.reload(true); } }" style="background: rgba(255,255,255,0.06); color: #94a3b8; border: 1px solid rgba(255,255,255,0.12); padding: 0.65rem 1.25rem; border-radius: 10px; font-weight: 500; font-size: 0.825rem; cursor: pointer;">
+            Vider le cache et forcer la mise à jour
+          </button>
+        </div>
+        <div style="margin-top: 1.25rem; font-size: 0.78rem; color: #64748b;">
+          Assistance technique : <a href="https://wa.me/22391154834" target="_blank" rel="noopener noreferrer" style="color: #4ade80; text-decoration: none; font-weight: 600;">+223 91 15 48 34</a>
+        </div>
+      </div>
+    </div>
+    <style>
+      @keyframes bootSpin { to { transform: rotate(360deg); } }
+    </style>
+  </div>
+
+  <script>
+    (function() {
+      var fallbackShown = false;
+      function showFallback(reason) {
+        if (fallbackShown) return;
+        var splash = document.getElementById('app-boot-splash');
+        if (!splash) return; // React a déjà monté et effacé le splash
+        var loader = document.getElementById('boot-loader-state');
+        var fallback = document.getElementById('boot-fallback-state');
+        if (loader) loader.style.display = 'none';
+        if (fallback) fallback.style.display = 'block';
+        fallbackShown = true;
+        if (reason) console.warn('[GestStocks Boot Guard]', reason);
+      }
+
+      // 1. Détecte les erreurs bloquantes au démarrage JS
+      window.addEventListener('error', function(e) {
+        showFallback(e.message || 'Script error');
+      });
+      window.addEventListener('unhandledrejection', function(e) {
+        showFallback(e.reason || 'Unhandled rejection');
+      });
+
+      // 2. Gestion automatique des chunks obsolètes lors des déploiements Vite
+      window.addEventListener('vite:preloadError', function(event) {
+        console.warn('[GestStocks] Nouveau déploiement détecté, rechargement...');
+        window.location.reload();
+      });
+
+      // 3. Timeout de secours : si après 6s React n'a toujours pas monté
+      setTimeout(function() {
+        showFallback('Timeout de démarrage');
+      }, 6000);
+    })();
+  </script>
   <script type="module" src="/src/main.tsx"></script>
 </body>
 

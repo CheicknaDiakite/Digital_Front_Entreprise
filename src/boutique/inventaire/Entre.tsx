@@ -42,6 +42,7 @@ import ApprovisionnementModal from './ApprovisionnementModal';
 import './mobile-entre.css';
 import { useTheme } from "@mui/material/styles";
 import { useAppSettings } from "../../themes/AppSettingsContext";
+import toast from 'react-hot-toast';
 
 export default function Entre() {
   const theme = useTheme();
@@ -161,6 +162,23 @@ export default function Entre() {
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // ── Contrôle strict des 3 champs obligatoires ──
+    if (!formValues.categorie_slug || String(formValues.categorie_slug).trim() === '') {
+      toast.error("Veuillez sélectionner un nom de produit dans la liste déroulante.", { id: 'entre-val-prod' });
+      return;
+    }
+    const qteNum = Number(formValues.qte);
+    if (isNaN(qteNum) || qteNum <= 0) {
+      toast.error("Veuillez renseigner une quantité reçue strictement supérieure à 0.", { id: 'entre-val-qte' });
+      return;
+    }
+    const puNum = Number(formValues.pu);
+    if (isNaN(puNum) || puNum <= 0) {
+      toast.error("Veuillez renseigner un prix de vente au client strictement supérieur à 0.", { id: 'entre-val-pu' });
+      return;
+    }
+
     formValues["cumuler_quantite"] = ajout_terminer;
     formValues["is_sortie"] = is_sortie;
     formValues["is_prix"] = is_prix;
@@ -168,6 +186,7 @@ export default function Entre() {
 
     ajoutEntre(formValues, {
       onSuccess: () => {
+        toast.success("Entrée en stock enregistrée avec succès !");
         setTerminer(false);
         setSortie(true);
         setPrix(true);
@@ -185,6 +204,9 @@ export default function Entre() {
           barcode_value: '',
         });
         closeopen();
+      },
+      onError: (err: any) => {
+        toast.error(err?.message || "Erreur lors de l'enregistrement de l'entrée en stock.");
       },
     });
   };

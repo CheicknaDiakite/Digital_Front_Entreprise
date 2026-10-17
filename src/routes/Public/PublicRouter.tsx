@@ -1,52 +1,56 @@
+import { lazy } from 'react'
 import { Route, Routes, Navigate } from 'react-router-dom'
+import Loadable from '../../components/Loadable'
 import Dashboard from '../../layout/Dashboard'
-import DashboardDefault from '../../pages/dashboard'
-import Sortie from '../../boutique/sortie/Sortie'
-import Entre from '../../boutique/inventaire/Entre'
-import ComponentShadow from '../../pages/component-overview/shadows'
-import CatalogueUnifie from '../../boutique/categorie/CatalogueUnifie'
-import ModifCate from '../../boutique/categorie/ModifCate'
-import ModifSousCate from '../../boutique/categorie/sousCat/ModifSousCate'
-import ModifEntre from '../../boutique/inventaire/ModifEntre'
-import ModifSortie from '../../boutique/sortie/ModifSortie'
-import Info from '../../boutique/categorie/sousCat/info/Info'
-import Client from '../../boutique/proprietaire/client/Client'
-import ClientInfo from '../../boutique/proprietaire/client/ClientInfo'
-import Admin from '../../boutique/proprietaire/Admin/Admin'
-import SousCat from '../../boutique/categorie/sousCat/SousCat'
-import Facture from '../../boutique/factureCard/PreFacture/Facture'
 import ProtectedRoute from '../ProtectedRoute'
-import FacEntre from '../../boutique/proprietaire/Produit/Entre/FacEntre'
-import FacSortie from '../../boutique/proprietaire/Produit/Sortie/FacSortie'
-import ModifProduitEntre from '../../boutique/proprietaire/Produit/Entre/ModifProduitEntre'
-import ModifProduitSortie from '../../boutique/proprietaire/Produit/Sortie/ModifProduitSortie'
-import Users from '../../boutique/proprietaire/users/Users'
-import { UserModif } from '../../boutique/proprietaire/users/UserModif'
-import Depense from '../../boutique/proprietaire/Produit/Depense'
-import DepenseModif from '../../boutique/proprietaire/Produit/DepenseModif'
-import HistoriqueSupp from '../../boutique/proprietaire/historique/HistoriqueSupp'
-import Entreprise from '../../boutique/proprietaire/Admin/Entreprise'
-import EntrepriseDetail from '../../boutique/proprietaire/Admin/EntrepriseDetail'
-import Personnel from '../../boutique/proprietaire/Personnel/Personnel'
-import { PersonnelModif } from '../../boutique/proprietaire/Personnel/PersonnelModif'
-import PersonnelInfo from '../../boutique/proprietaire/Personnel/PersonnelInfo'
-import SortieInventaire from '../../boutique/proprietaire/historique/inventaire/SortieInventaire'
-import EntrerInventaire from '../../boutique/proprietaire/historique/inventaire/EntrerInventaire'
-import EtaVente from '../../boutique/categorie/eta/EtaVente'
-import Avis from '../../boutique/proprietaire/users/Avis'
-import EtaProduits from '../../boutique/categorie/eta/EtaProduits'
-import VenteUsers from '../../boutique/categorie/eta/VenteUsers'
-import MesInscrit from '../../boutique/proprietaire/users/MesInscrit'
 import backgroundImage from '../../../public/assets/img/img.jpg'
 import { Box, CircularProgress } from '@mui/material'
 import { useStoreUuid } from '../../usePerso/store'
 import { useFetchEntreprise } from '../../usePerso/fonction.user'
 import { BASE } from '../../_services/caller.service'
-import FactureDetail from '../../boutique/sortie/FactureDetail'
-import Historique from '../../boutique/proprietaire/historique/Historique'
-import NotFound from '../../pages/extra-pages/not-found'
 import { useAppSettings } from '../../themes/AppSettingsContext';
 import { notClick } from '../../usePerso/fonctionPerso'
+
+// Lazy loaded page components
+const DashboardDefault = Loadable(lazy(() => import('../../pages/dashboard')))
+const Sortie = Loadable(lazy(() => import('../../boutique/sortie/Sortie')))
+const Entre = Loadable(lazy(() => import('../../boutique/inventaire/Entre')))
+const ComponentShadow = Loadable(lazy(() => import('../../pages/component-overview/shadows')))
+const CatalogueUnifie = Loadable(lazy(() => import('../../boutique/categorie/CatalogueUnifie')))
+const ModifCate = Loadable(lazy(() => import('../../boutique/categorie/ModifCate')))
+const ModifSousCate = Loadable(lazy(() => import('../../boutique/categorie/sousCat/ModifSousCate')))
+const ModifEntre = Loadable(lazy(() => import('../../boutique/inventaire/ModifEntre')))
+const ModifSortie = Loadable(lazy(() => import('../../boutique/sortie/ModifSortie')))
+const Info = Loadable(lazy(() => import('../../boutique/categorie/sousCat/info/Info')))
+const Client = Loadable(lazy(() => import('../../boutique/proprietaire/client/Client')))
+const ClientInfo = Loadable(lazy(() => import('../../boutique/proprietaire/client/ClientInfo')))
+const Admin = Loadable(lazy(() => import('../../boutique/proprietaire/Admin/Admin')))
+const SousCat = Loadable(lazy(() => import('../../boutique/categorie/sousCat/SousCat')))
+const Facture = Loadable(lazy(() => import('../../boutique/factureCard/PreFacture/Facture')))
+const FacEntre = Loadable(lazy(() => import('../../boutique/proprietaire/Produit/Entre/FacEntre')))
+const FacSortie = Loadable(lazy(() => import('../../boutique/proprietaire/Produit/Sortie/FacSortie')))
+const ModifProduitEntre = Loadable(lazy(() => import('../../boutique/proprietaire/Produit/Entre/ModifProduitEntre')))
+const ModifProduitSortie = Loadable(lazy(() => import('../../boutique/proprietaire/Produit/Sortie/ModifProduitSortie')))
+const Users = Loadable(lazy(() => import('../../boutique/proprietaire/users/Users')))
+const UserModif = Loadable(lazy(() => import('../../boutique/proprietaire/users/UserModif').then(m => ({ default: m.UserModif }))))
+const Depense = Loadable(lazy(() => import('../../boutique/proprietaire/Produit/Depense')))
+const DepenseModif = Loadable(lazy(() => import('../../boutique/proprietaire/Produit/DepenseModif')))
+const HistoriqueSupp = Loadable(lazy(() => import('../../boutique/proprietaire/historique/HistoriqueSupp')))
+const Entreprise = Loadable(lazy(() => import('../../boutique/proprietaire/Admin/Entreprise')))
+const EntrepriseDetail = Loadable(lazy(() => import('../../boutique/proprietaire/Admin/EntrepriseDetail')))
+const Personnel = Loadable(lazy(() => import('../../boutique/proprietaire/Personnel/Personnel')))
+const PersonnelModif = Loadable(lazy(() => import('../../boutique/proprietaire/Personnel/PersonnelModif').then(m => ({ default: m.PersonnelModif }))))
+const PersonnelInfo = Loadable(lazy(() => import('../../boutique/proprietaire/Personnel/PersonnelInfo')))
+const SortieInventaire = Loadable(lazy(() => import('../../boutique/proprietaire/historique/inventaire/SortieInventaire')))
+const EntrerInventaire = Loadable(lazy(() => import('../../boutique/proprietaire/historique/inventaire/EntrerInventaire')))
+const EtaVente = Loadable(lazy(() => import('../../boutique/categorie/eta/EtaVente')))
+const Avis = Loadable(lazy(() => import('../../boutique/proprietaire/users/Avis')))
+const EtaProduits = Loadable(lazy(() => import('../../boutique/categorie/eta/EtaProduits')))
+const VenteUsers = Loadable(lazy(() => import('../../boutique/categorie/eta/VenteUsers')))
+const MesInscrit = Loadable(lazy(() => import('../../boutique/proprietaire/users/MesInscrit')))
+const FactureDetail = Loadable(lazy(() => import('../../boutique/sortie/FactureDetail')))
+const Historique = Loadable(lazy(() => import('../../boutique/proprietaire/historique/Historique')))
+const NotFound = Loadable(lazy(() => import('../../pages/extra-pages/not-found')))
 
 export default function PublicRouter() {
   notClick()

@@ -20,6 +20,7 @@ import {
   Tooltip,
   Chip,
   CircularProgress,
+  MenuItem,
   useTheme,
   useMediaQuery,
 } from '@mui/material';
@@ -33,8 +34,14 @@ import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import BarcodeScanner from '../../_components/Input/BarcodeScanner';
-import { useFetchAllSousCate } from '../../usePerso/fonction.categorie';
-import { useAllClients } from '../../usePerso/fonction.user';
+import {
+  useFetchAllSousCate,
+  useCategoriesEntreprise,
+  useCreateSousCate,
+  useCreateCategorie,
+} from '../../usePerso/fonction.categorie';
+import { useAllClients, useFetchUser } from '../../usePerso/fonction.user';
+import { useQueryClient } from '@tanstack/react-query';
 import { useStoreUuid } from '../../usePerso/store';
 import { useCreateEntre } from '../../usePerso/fonction.entre';
 import { formatNumberWithSpaces } from '../../usePerso/fonctionPerso';
@@ -77,7 +84,6 @@ const UNITES_DISPONIBLES = [
   'litre',
   'mètres',
   'lot',
-  'unite',
 ];
 
 const createEmptyLine = (index: number): ApproLineItem => ({
@@ -125,6 +131,93 @@ export const ApprovisionnementModal: React.FC<ApprovisionnementModalProps> = ({
 
   // État du scanner de code-barres modal
   const [scannerLineId, setScannerLineId] = useState<string | null>(null);
+
+  // ── État pour l'ajout rapide de nouveau produit (+) ──
+  const { unUser } = useFetchUser();
+  const { cateEntreprises } = useCategoriesEntreprise(uuid!);
+  const { ajoutSousCateAsync } = useCreateSousCate();
+  const { ajoutCategorieAsync } = useCreateCategorie();
+  const queryClient = useQueryClient();
+
+  const [openNewProductModal, setOpenNewProductModal] = useState(false);
+  const [targetLineIdForNewProduct, setTargetLineIdForNewProduct] = useState<string | null>(null);
+  const [newProductLibelle, setNewProductLibelle] = useState('');
+  const [selectedCatSlug, setSelectedCatSlug] = useState('');
+  const [newCatName, setNewCatName] = useState('Général');
+  const [isCreatingProduct, setIsCreatingProduct] = useState(false);
+  const [justCreatedProduct, setJustCreatedProduct] = useState<{ uuid: string; libelle: string } | null>(null);
+
+  const allProductOptions = React.useMemo(() => {
+    const list = [...(souscategories || [])];
+    if (justCreatedProduct && !list.some((item: any) => item.uuid === justCreatedProduct.uuid)) {
+      list.unshift(justCreatedProduct as any);
+    }
+    return list;
+  }, [souscategories, justCreatedProduct]);
+
+  const handleQuickCreateProduct = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const cleanLibelle = newProductLibelle.trim();
+    if (!cleanLibelle) {
+      toast.error("Veuillez saisir le nom du produit.");
+      return;
+    }
+
+    setIsCreatingProduct(true);
+    try {
+      let targetCatSlug = selectedCatSlug;
+
+      if (!targetCatSlug) {
+        if (cateEntreprises && cateEntreprises.length > 0) {
+          targetCatSlug = cateEntreprises[0].uuid || cateEntreprises[0].slug || String(cateEntreprises[0].id);
+        } else {
+          const catRes = await ajoutCategorieAsync({
+            libelle: newCatName.trim() || 'Général',
+            entreprise_id: uuid!,
+            user_id: unUser?.uuid || '',
+          });
+          targetCatSlug = catRes?.uuid || catRes?.slug || catRes?.id || 'general';
+          await queryClient.invalidateQueries({ queryKey: ["enRecup"] });
+        }
+      }
+
+      const formData = new FormData();
+      formData.append('libelle', cleanLibelle);
+      formData.append('categorie_slug', targetCatSlug);
+      formData.append('user_id', unUser?.uuid || '');
+
+      const res = await ajoutSousCateAsync(formData as any);
+      const newUuid = res?.uuid || res?.id || (res?.donnee && (res.donnee.uuid || res.donnee.id));
+
+      const createdItem = {
+        uuid: String(newUuid),
+        libelle: cleanLibelle,
+      };
+
+      setJustCreatedProduct(createdItem);
+
+      // Si une ligne spécifique était la cible du (+), on lui assigne directement ce produit
+      if (targetLineIdForNewProduct) {
+        updateLine(targetLineIdForNewProduct, 'categorie_slug', createdItem.uuid);
+        updateLine(targetLineIdForNewProduct, 'produit_nom', createdItem.libelle);
+      }
+
+      await queryClient.invalidateQueries({ queryKey: ["SouCategorie"] });
+
+      toast.success(`Produit « ${cleanLibelle} » créé avec succès !`, {
+        icon: '✨',
+        duration: 4000,
+      });
+
+      setNewProductLibelle('');
+      setOpenNewProductModal(false);
+      setTargetLineIdForNewProduct(null);
+    } catch (err: any) {
+      toast.error(err?.message || "Erreur lors de la création du produit.");
+    } finally {
+      setIsCreatingProduct(false);
+    }
+  };
 
   // Mettre à jour une ligne
   const updateLine = (id: string, field: keyof ApproLineItem, value: any) => {
@@ -378,35 +471,70 @@ export const ApprovisionnementModal: React.FC<ApprovisionnementModalProps> = ({
 
             {/* ── Section Tableau des Lignes de Produits ── */}
             <Box sx={{ mb: 3 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
-                <Typography
-                  variant="caption"
-                  sx={{
-                    fontWeight: 800,
-                    color: '#6366f1',
-                    textTransform: 'uppercase',
-                    letterSpacing: 0.8,
-                  }}
-                >
-                  2. Produits Réceptionnés ({lines.length} ligne{lines.length > 1 ? 's' : ''})
-                </Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 1, mb: 1.5 }}>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      fontWeight: 800,
+                      color: '#6366f1',
+                      textTransform: 'uppercase',
+                      letterSpacing: 0.8,
+                    }}
+                  >
+                    2. Produits Réceptionnés ({lines.length} ligne{lines.length > 1 ? 's' : ''})
+                  </Typography>
+                  <Chip
+                    size="small"
+                    label="3 requis : Produit, Qté, Prix Vente"
+                    sx={{
+                      fontWeight: 700,
+                      fontSize: '0.7rem',
+                      bgcolor: 'rgba(239, 68, 68, 0.1)',
+                      color: '#ef4444',
+                      border: '1px solid rgba(239, 68, 68, 0.25)',
+                      borderRadius: '6px',
+                    }}
+                  />
+                </Stack>
 
-                <Button
-                  size="small"
-                  variant="outlined"
-                  startIcon={<AddIcon />}
-                  onClick={handleAddLine}
-                  sx={{
-                    borderRadius: '10px',
-                    textTransform: 'none',
-                    fontWeight: 700,
-                    borderColor: 'rgba(99, 102, 241, 0.4)',
-                    color: '#6366f1',
-                    '&:hover': { borderColor: '#6366f1', bgcolor: 'rgba(99, 102, 241, 0.08)' },
-                  }}
-                >
-                  + Ajouter un produit
-                </Button>
+                <Stack direction="row" spacing={1}>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<AddIcon />}
+                    onClick={handleAddLine}
+                    sx={{
+                      borderRadius: '10px',
+                      textTransform: 'none',
+                      fontWeight: 700,
+                      borderColor: 'rgba(99, 102, 241, 0.4)',
+                      color: '#6366f1',
+                      '&:hover': { borderColor: '#6366f1', bgcolor: 'rgba(99, 102, 241, 0.08)' },
+                    }}
+                  >
+                    + Ligne
+                  </Button>
+                  <Button
+                    size="small"
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    onClick={() => {
+                      setTargetLineIdForNewProduct(null);
+                      setOpenNewProductModal(true);
+                    }}
+                    sx={{
+                      borderRadius: '10px',
+                      textTransform: 'none',
+                      fontWeight: 700,
+                      background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                      boxShadow: '0 2px 8px rgba(99, 102, 241, 0.3)',
+                      color: '#ffffff',
+                    }}
+                  >
+                    + Nouveau Produit
+                  </Button>
+                </Stack>
               </Box>
 
               <Stack spacing={2}>
@@ -490,39 +618,66 @@ export const ApprovisionnementModal: React.FC<ApprovisionnementModalProps> = ({
                       <Grid container spacing={1.5} alignItems="center">
                         {/* Produit */}
                         <Grid item xs={12} sm={4} md={3}>
-                          <Autocomplete
-                            options={souscategories || []}
-                            getOptionLabel={(option) => (typeof option === 'string' ? option : option.libelle || '')}
-                            onChange={(_event, value) => {
-                              if (typeof value === 'object' && value) {
-                                updateLine(line.id, 'categorie_slug', value.uuid || '');
-                                updateLine(line.id, 'produit_nom', value.libelle || '');
-                              } else {
-                                updateLine(line.id, 'categorie_slug', '');
-                                updateLine(line.id, 'produit_nom', '');
-                              }
-                            }}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                required
-                                size="small"
-                                label="Produit"
-                                placeholder="Choisir un produit"
-                                InputProps={{
-                                  ...params.InputProps,
-                                  startAdornment: (
-                                    <>
-                                      <InputAdornment position="start">
-                                        <ShoppingBagIcon sx={{ color: '#6366f1', fontSize: 18 }} />
-                                      </InputAdornment>
-                                      {params.InputProps.startAdornment}
-                                    </>
-                                  ),
+                          <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+                            <Box sx={{ flex: 1, minWidth: 0 }}>
+                              <Autocomplete
+                                options={allProductOptions}
+                                value={
+                                  allProductOptions.find((sc: any) => sc.uuid === line.categorie_slug) || null
+                                }
+                                getOptionLabel={(option) => (typeof option === 'string' ? option : option.libelle || '')}
+                                onChange={(_event, value) => {
+                                  if (typeof value === 'object' && value) {
+                                    updateLine(line.id, 'categorie_slug', value.uuid || '');
+                                    updateLine(line.id, 'produit_nom', value.libelle || '');
+                                  } else {
+                                    updateLine(line.id, 'categorie_slug', '');
+                                    updateLine(line.id, 'produit_nom', '');
+                                  }
                                 }}
+                                renderInput={(params) => (
+                                  <TextField
+                                    {...params}
+                                    required
+                                    size="small"
+                                    label="Produit * (Requis)"
+                                    placeholder="Choisir un produit"
+                                    InputProps={{
+                                      ...params.InputProps,
+                                      startAdornment: (
+                                        <>
+                                          <InputAdornment position="start">
+                                            <ShoppingBagIcon sx={{ color: line.categorie_slug ? '#10b981' : '#6366f1', fontSize: 18 }} />
+                                          </InputAdornment>
+                                          {params.InputProps.startAdornment}
+                                        </>
+                                      ),
+                                    }}
+                                  />
+                                )}
                               />
-                            )}
-                          />
+                            </Box>
+                            <Tooltip title="Créer un nouveau produit (+)">
+                              <IconButton
+                                size="small"
+                                onClick={() => {
+                                  setTargetLineIdForNewProduct(line.id);
+                                  setOpenNewProductModal(true);
+                                }}
+                                sx={{
+                                  bgcolor: 'rgba(99, 102, 241, 0.1)',
+                                  color: '#6366f1',
+                                  width: 36,
+                                  height: 36,
+                                  borderRadius: '8px',
+                                  flexShrink: 0,
+                                  '&:hover': { bgcolor: '#6366f1', color: '#fff' },
+                                }}
+                              >
+                                <AddIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          </Box>
                         </Grid>
 
                         {/* Code-barres / Scanner */}
@@ -558,10 +713,11 @@ export const ApprovisionnementModal: React.FC<ApprovisionnementModalProps> = ({
                             type="number"
                             size="small"
                             fullWidth
-                            label="Quantité"
+                            label="Qté * (Requise)"
                             value={line.qte}
                             onChange={(e) => updateLine(line.id, 'qte', e.target.value === '' ? '' : Number(e.target.value))}
                             inputProps={{ min: '0.01', step: 'any' }}
+                            error={line.qte === '' || Number(line.qte) <= 0}
                           />
                         </Grid>
 
@@ -571,9 +727,15 @@ export const ApprovisionnementModal: React.FC<ApprovisionnementModalProps> = ({
                             freeSolo
                             options={UNITES_DISPONIBLES}
                             value={line.unite}
-                            onChange={(_e, val) => updateLine(line.id, 'unite', val || 'unité')}
-                            onInputChange={(_e, val) => {
-                              if (val) updateLine(line.id, 'unite', val);
+                            onChange={(_e, val) => {
+                              const normalized = val?.trim().toLowerCase() === 'unite' ? 'unité' : (val || 'unité');
+                              updateLine(line.id, 'unite', normalized);
+                            }}
+                            onInputChange={(_e, val, reason) => {
+                              if (reason === 'input' && val) {
+                                const normalized = val.trim().toLowerCase() === 'unite' ? 'unité' : val;
+                                updateLine(line.id, 'unite', normalized);
+                              }
                             }}
                             renderInput={(params) => <TextField {...params} size="small" label="Unité" />}
                           />
@@ -604,10 +766,11 @@ export const ApprovisionnementModal: React.FC<ApprovisionnementModalProps> = ({
                             type="number"
                             size="small"
                             fullWidth
-                            label="Prix Vente (PV)"
+                            label="Prix Vente * (Requis)"
                             value={line.pu}
                             onChange={(e) => updateLine(line.id, 'pu', e.target.value === '' ? '' : Number(e.target.value))}
                             inputProps={{ min: '0', step: 'any' }}
+                            error={line.pu === '' || Number(line.pu) <= 0}
                             helperText={
                               qteNum > 0 && pvNum > 0
                                 ? `Total: ${formatNumberWithSpaces(qteNum * pvNum)} F`
@@ -828,6 +991,125 @@ export const ApprovisionnementModal: React.FC<ApprovisionnementModalProps> = ({
               }
             }}
           />
+        </DialogContent>
+      </Dialog>
+
+      {/* ── MODALE CRÉATION RAPIDE DE PRODUIT (+) ── */}
+      <Dialog
+        open={openNewProductModal}
+        onClose={() => !isCreatingProduct && setOpenNewProductModal(false)}
+        fullWidth
+        maxWidth="xs"
+        PaperProps={{
+          sx: {
+            borderRadius: '20px',
+            overflow: 'hidden',
+            boxShadow: '0 25px 60px rgba(0,0,0,0.4)',
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+            color: '#ffffff',
+            py: 1.8,
+            px: 2.5,
+          }}
+        >
+          <Stack direction="row" spacing={1.2} alignItems="center">
+            <ShoppingBagIcon sx={{ fontSize: 22 }} />
+            <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#ffffff' }}>
+              Nouveau Produit Rapide
+            </Typography>
+          </Stack>
+          <IconButton
+            size="small"
+            onClick={() => setOpenNewProductModal(false)}
+            disabled={isCreatingProduct}
+            sx={{ color: '#ffffff', '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' } }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent sx={{ p: 2.5, mt: 1 }}>
+          <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2, fontSize: '0.84rem' }}>
+            Créez un nouveau produit sans quitter cet approvisionnement. Il sera immédiatement sélectionné.
+          </Typography>
+
+          <Stack spacing={2.2}>
+            <TextField
+              autoFocus
+              required
+              label="Désignation / Nom du produit *"
+              placeholder="Ex: Savon Liquide 500ml, Huile Dinor 1L..."
+              value={newProductLibelle}
+              onChange={(e) => setNewProductLibelle(e.target.value)}
+              fullWidth
+              size="small"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleQuickCreateProduct();
+                }
+              }}
+            />
+
+            {cateEntreprises && cateEntreprises.length > 0 ? (
+              <TextField
+                select
+                label="Catégorie parente *"
+                value={selectedCatSlug || (cateEntreprises[0]?.uuid || '')}
+                onChange={(e) => setSelectedCatSlug(e.target.value)}
+                fullWidth
+                size="small"
+                helperText="Catégorie dans laquelle ranger ce produit"
+              >
+                {cateEntreprises.map((cat: any) => (
+                  <MenuItem key={cat.uuid || cat.id} value={cat.uuid || cat.slug || String(cat.id)}>
+                    {cat.libelle}
+                  </MenuItem>
+                ))}
+              </TextField>
+            ) : (
+              <TextField
+                label="Catégorie initiale *"
+                value={newCatName}
+                onChange={(e) => setNewCatName(e.target.value)}
+                placeholder="Ex: Général, Alimentation..."
+                fullWidth
+                size="small"
+                helperText="Une catégorie sera automatiquement créée pour ce produit"
+              />
+            )}
+
+            <Button
+              type="button"
+              variant="contained"
+              fullWidth
+              disabled={isCreatingProduct || !newProductLibelle.trim()}
+              onClick={handleQuickCreateProduct}
+              startIcon={isCreatingProduct ? <CircularProgress size={18} color="inherit" /> : <AddIcon />}
+              sx={{
+                mt: 1,
+                py: 1.3,
+                borderRadius: '12px',
+                fontWeight: 800,
+                textTransform: 'none',
+                fontSize: '0.92rem',
+                background: 'linear-gradient(135deg, #10b981, #059669)',
+                boxShadow: '0 4px 14px rgba(16,185,129,0.35)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #059669, #047857)',
+                },
+              }}
+            >
+              {isCreatingProduct ? "Création en cours..." : "Créer et Sélectionner"}
+            </Button>
+          </Stack>
         </DialogContent>
       </Dialog>
     </>

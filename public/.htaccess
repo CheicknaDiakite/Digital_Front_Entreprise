@@ -1,0 +1,32 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # -------------------------------------------------------------
+  # 1. MODE MAINTENANCE SERVEUR
+  # Pour activer la maintenance sur le serveur :
+  # Créer un fichier nommé 'maintenance.enable' dans le dossier racine du site.
+  # Pour désactiver : supprimer ou renommer ce fichier.
+  # -------------------------------------------------------------
+  RewriteCond %{DOCUMENT_ROOT}/maintenance.enable -f
+  RewriteCond %{REQUEST_URI} !^/maintenance\.html$
+  RewriteCond %{REQUEST_URI} !\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|webmanifest|json)$ [NC]
+  RewriteRule ^.*$ /maintenance.html [R=503,L]
+
+  # -------------------------------------------------------------
+  # 2. ROUTAGE SPA (Single Page Application)
+  # Redirige toutes les requêtes vers index.html pour que React Router prenne le relais
+  # -------------------------------------------------------------
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME} !-l
+  RewriteRule . /index.html [L]
+</IfModule>
+
+# En-tête HTTP 503 Retry-After recommandé pour le référencement Google
+<IfModule mod_headers.c>
+  <Files "maintenance.html">
+    Header set Retry-After "300"
+  </Files>
+</IfModule>

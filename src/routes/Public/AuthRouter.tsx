@@ -1,11 +1,14 @@
+import { lazy } from 'react'
 import { Route, Routes } from 'react-router-dom'
+import Loadable from '../../components/Loadable'
 import MinimalLayout from '../../layout/MinimalLayout'
-import AuthLogin from '../../pages/authentication/login'
-import AuthRegister from '../../pages/authentication/register'
-import Mdp from '../../pages/authentication/Mdp'
-import MdpUpdate from '../../pages/authentication/MdpUpdate'
-import ConditionsUtilisation from '../../pages/authentication/ConditionsUtilisation'
 import { notClick } from '../../usePerso/fonctionPerso'
+
+const AuthLogin = Loadable(lazy(() => import('../../pages/authentication/login')))
+const AuthRegister = Loadable(lazy(() => import('../../pages/authentication/register')))
+const Mdp = Loadable(lazy(() => import('../../pages/authentication/Mdp')))
+const MdpUpdate = Loadable(lazy(() => import('../../pages/authentication/MdpUpdate')))
+const ConditionsUtilisation = Loadable(lazy(() => import('../../pages/authentication/ConditionsUtilisation')))
 
 export default function AuthRouter() {
   notClick()

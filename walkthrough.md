@@ -1,6 +1,6 @@
 # GestionStock — guide de repérage du projet
 
-> État observé le 14 octobre 2026. Ce document est la carte de référence du projet : le mettre à jour lorsqu'une fonctionnalité, une route, un modèle, une formule d'abonnement ou une variable d'environnement importante change.
+> État observé le 17 octobre 2026. Ce document est la carte de référence du projet : le mettre à jour lorsqu'une fonctionnalité, une route, un modèle, une formule d'abonnement ou une variable d'environnement importante change.
 
 ## 1. Objectif et périmètre
 
@@ -8,9 +8,9 @@
 
 Le modèle intègre un système d'abonnements hiérarchisé :
 - **Mode Découverte (0)** : gratuit, activé automatiquement dès l'inscription (1 entreprise, 0 collaborateur supplémentaire / propriétaire seul, 50 articles max, 50 ventes max, sans téléversement d'images).
-- **Stock Simple (1)** : 40 000 F/an (jusqu'à 2 entreprises, 1 collaborateur, articles illimités, gestion client et facturation, statistiques de vente basiques).
-- **Stock Pro (2)** : 75 000 F/an (jusqu'à 5 entreprises, jusqu'à 5 collaborateurs, articles illimités, imports d'images personnalisées, dépenses et pertes, rapports détaillés et support prioritaire).
-- **Stock Premium (3)** : sur devis (entreprises, collaborateurs et articles illimités, personnalisations avancées et support dédié).
+- **Stock Simple (1)** : 40 000 F/an (jusqu'à 2 entreprises, 1 collaborateur, articles illimités, ventes illimitées, gestion client et facturation, statistiques de vente basiques).
+- **Stock Pro (2)** : 75 000 F/an (jusqu'à 5 entreprises, jusqu'à 5 collaborateurs, articles illimités, ventes illimitées, imports d'images personnalisées, dépenses et pertes, rapports détaillés et support prioritaire).
+- **Stock Premium (3)** : sur devis (entreprises, collaborateurs, articles et ventes illimités, personnalisations avancées et support dédié).
 
 Le projet est composé de deux dépôts Git indépendants :
 
@@ -30,7 +30,7 @@ Utilisateur
 Front (React) ── Axios + JWT + X-Entreprise-Id ──► Back /api (Django REST) ──► Base de données (MySQL / SQLite)
    │                                                         │
    │                                                         └──► médias : images, QR codes, factures
-   ├── React Query : données serveur / cache
+   ├── React Query : données serveur / cache persistant (5 min)
    ├── Zustand + localStorage : session, compte et entreprise active
    └── usePlanAccess + FeatureGate : contrôle d'accès selon les capabilities du plan
 ```
@@ -64,7 +64,7 @@ npm run dev
 | Commande | Effet |
 | --- | --- |
 | `npm run dev` | lance Vite en développement |
-| `npm run build` | produit le bundle web de production dans `dist/` |
+| `npm run build` | produit le bundle web de production dans `dist/` avec découpage dynamique (*code splitting*) |
 | `npm run electron:dev` | construit puis ouvre l'application Electron |
 | `npm run electron:build` | génère l'installateur Windows Electron |
 
@@ -93,16 +93,21 @@ Les variables utiles sont documentées dans `Back/.env.example`. Vérifier `Back
 
 | Zone | Responsabilité |
 | --- | --- |
-| `src/main.tsx` | point d'entrée ; providers React Query, Google OAuth, toast et PWA |
+| `src/main.tsx` | point d'entrée ; providers React Query configuré avec cache optimal (`staleTime: 5 min`, `gcTime: 15 min`, `refetchOnWindowFocus: false`), Google OAuth, toast et PWA |
 | `src/App.tsx` | providers de thème et routeur applicatif |
 | `src/routes/AppRouter.tsx` | séparation entre routes protégées et routes d'authentification |
-| `src/routes/Public/PublicRouter.tsx` | **source de vérité des routes métier** (avec alias modernes `/stock/*`, `/ventes/*`, `/finances/*`, `/admin/*`) |
+| `src/routes/Public/PublicRouter.tsx` | **source de vérité des routes métier** chargées à la demande avec `Loadable(lazy())` (alias `/stock/*`, `/ventes/*`, `/finances/*`, `/admin/*`) |
+| `src/routes/Public/AuthRouter.tsx` | routes d'authentification chargées à la demande (`lazy`) |
 | `src/routes/ProtectedRoute.tsx` | garde de rôle utilisateur (avec compatibilité pour les comptes en Mode Découverte) |
 | `src/layout/` | structure visuelle : tableau de bord, en-tête, tiroir latéral (`NavSide.tsx`), layout minimal |
 | `src/hooks/usePlanAccess.ts` | **hook central de gestion des capacités** (`isDecouverte`, `canUploadMedia`, `canManageExpenses`, `canAddCollaborators`, quotas `limits`, etc.) |
 | `src/components/FeatureGate.tsx` | composant barrière visuel bloquant les fonctionnalités hors-plan avec contact d'upgrade |
 | `src/components/common/KpiCard.tsx` | cartes métriques KPI avec typographie fluide (`fontSize` réactif) et adaptation aux grilles mobiles |
 | `src/boutique/categorie/CatalogueUnifie.tsx` | **catalogue unifié** (catégories, sous-catégories, lots en stock) avec filtrage réactif en cascade, compteurs de stock en temps réel (`scStockRefs`), modales d'ajout et verrouillage d'image Découverte |
+| `src/boutique/inventaire/Entre.tsx` | gestion des entrées en stock (KPIs financiers, filtres par date et libellé, entrée rapide et approvisionnement multi-lignes avec unité `'unité'` par défaut) |
+| `src/boutique/inventaire/ApprovisionnementModal.tsx` | modale de réapprovisionnement multi-lignes avec saisie rapide, calcul automatique des marges et sélecteur d'unité flexible (`freeSolo`) |
+| `src/boutique/inventaire/ModifEntre.tsx` | modification de produit/lot en stock avec gestion des seuils critiques, code-barres et unité de mesure |
+| `src/boutique/sortie/Sortie.tsx` | terminal de vente POS tactile et recherche au scan avec gestion fluide des quantités, blocage Découverte à 50 ventes et raccourci d'encaissement |
 | `src/boutique/sortie/FactureListe.tsx` | historique des factures de vente avec défilement fluide garanti (`overflowX`/`overflowY`, sticky header opaque) |
 | `src/boutique/proprietaire/Admin/InfoEntreprise/ModifEntreprise/ModifEntreprise.tsx` | configuration de l'entreprise, affichage de l'état de licence et dialogue de prolongation par code d'activation |
 | `src/boutique/proprietaire/Personnel/Personnel.tsx` | gestion d'équipe avec barrière `FeatureGate` (`Stock Simple` requis), mutations asynchrones fiabilisées (toasts actifs, `isPending`), attribution par défaut du rôle Vendeur et rattachement des invités avec `peut_creer_entreprise = False` |
@@ -112,11 +117,37 @@ Les variables utiles sont documentées dans `Back/.env.example`. Vérifier `Back
 | `src/pages/authentication/auth-forms/AuthRegister.tsx` | parcours d'inscription publique sans saisie manuelle d'identifiant (génération automatique de `username` côté serveur) |
 | `src/boutique/` | écrans métier : inventaire, sorties/caisse, clients, dépenses, personnel, administration |
 | `src/_services/` | appels API Axios groupés par domaine (`caller.service.ts` injecte le token JWT et `X-Entreprise-Id`) |
-| `src/usePerso/fonction.*.ts` | hooks React Query : requêtes, mutations asynchrones fiabilisées, notifications toast et invalidation ciblée des caches (ex. `useRemoveUserEntreprise` invalidant `entrepriseUsers`, `UserGet`, `UserEntreprises`, `EntreModif`) |
+| `src/usePerso/fonction.*.ts` | hooks React Query : requêtes, mutations asynchrones fiabilisées, notifications toast et invalidation ciblée des caches |
 | `src/usePerso/store.ts` | état Zustand persistant de la session, de l'utilisateur et de l'entreprise sélectionnée |
 | `src/typescript/` | contrats TypeScript (`UserType.ts`, `DataType.ts`, `FormType.ts` incluant le champ optionnel `role`, etc.) |
 | `src/layout/Dashboard/Header/HeaderContent/Notification.tsx` | centre d'alertes compact pour ruptures de stock, avis et licences avec rafraîchissement périodique (60s) et purge d'ID orphelin sur 404 |
 | `src/boutique/Ct.tsx` | modale / page de sélection et présentation des formules d'abonnement avec redirection WhatsApp |
+| `src/components/ErrorBoundary.tsx` | intercepteur d'erreur React global avec écran de secours et options de rafraîchissement |
+| `vite.config.ts` | configuration de compilation Vite : compression (gzip/brotli), plugin PWA et compilation esnext optimisée |
+| `public/.htaccess` | règles Apache/cPanel : bascule maintenance automatique (`maintenance.enable`) et routage SPA |
+| `public/maintenance.html` | page autonome de maintenance et mise à jour (branding Gest Stocks, actualisation auto, contact WhatsApp) |
+| `public/maintenance.enable.example` | fichier guide pour activer instantanément le mode maintenance en production |
+
+### Architecture de performance & Fiabilisation Frontend (Audit du 17 octobre 2026)
+
+L'application utilise une stratégie de découpage dynamique avancée doublée d'un **système anti-page blanche à 3 niveaux** :
+1. **Code Splitting par Route :** Toutes les routes de `PublicRouter.tsx` et `AuthRouter.tsx` sont enrobées dans `Loadable(lazy(() => import(...)))`.
+2. **Découpage naturel des modules lourds :**
+   - Le point d'entrée principal est allégé et stable (~310 Ko gzip).
+   - Les librairies volumineuses sont automatiquement isolées en fragments différés chargés uniquement à la demande par Vite/Rollup (`PdfFile`, `BarChart`, `BarcodeScanner`).
+   - **Absence de `manualChunks` arbitraire :** Les découpages forcés séparant `react` et `@mui` ont été éliminés pour prévenir tout risque de dépendance circulaire entre modules ES.
+3. **Cache Mémoire React Query :** `staleTime` fixé à 5 minutes pour éviter tout clignotement ou rechargement intempestif au changement d'onglet ou de page.
+4. **Dispositif Anti-Page Blanche & Mode Maintenance à 3 Niveaux :**
+   - **Niveau 1 (Démarrage JS / index.html) :** Écran d'attente stylé dans `<div id="root">` couplé à un Boot Guard en JavaScript natif. En cas de blocage réseau, de crash de bundle ou d'erreur JS non gérée au démarrage, l'écran bascule immédiatement sur un encart propre de mise à jour avec bouton d'actualisation et purge de cache.
+   - **Niveau 2 (Exécution React / ErrorBoundary) :** `<ErrorBoundary>` dans `main.tsx` capturant les anomalies inattendues de composants, et détection de `vite:preloadError` rechargeant automatiquement les chunks lors des nouveaux déploiements.
+   - **Niveau 3 (Maintenance Serveur / Apache) :** Présence de `public/maintenance.html` et déclencheur dans `.htaccess`. Créer un fichier `maintenance.enable` sur le serveur redirige instantanément 100% des requêtes vers la page de maintenance avec le code HTTP 503.
+
+### Gestion standardisée des Unités de mesure
+
+Pour éviter toute ambiguïté ou doublon dans les formulaires et les menus déroulants :
+- **Libellé unique standard :** `'unité'` (ou `'Unité(s)'`).
+- **Tolérance de saisie :** Si un utilisateur tape `unite` (sans accent) ou une unité personnalisée, elle est automatiquement acceptée et normalisée en `'unité'`.
+- **Composants alignés :** `AjoutEntreForm` ([useEntreprise.tsx](file:///c:/Users/DELL/Documents/Projet/GestionStock/Front/src/usePerso/useEntreprise.tsx)), [ApprovisionnementModal.tsx](file:///c:/Users/DELL/Documents/Projet/GestionStock/Front/src/boutique/inventaire/ApprovisionnementModal.tsx), [ModifEntre.tsx](file:///c:/Users/DELL/Documents/Projet/GestionStock/Front/src/boutique/inventaire/ModifEntre.tsx), et le modèle backend `UNITE_CHOICES` ([models.py](file:///c:/Users/DELL/Documents/Projet/GestionStock/Back/entreprise/models.py)).
 
 ### Convention pour une nouvelle fonctionnalité
 
@@ -125,7 +156,7 @@ Les variables utiles sont documentées dans `Back/.env.example`. Vérifier `Back
 3. Créer ou ajuster le hook React Query dans `src/usePerso/fonction.*.ts` ; invalider les requêtes affectées après mutation.
 4. Si la fonctionnalité dépend de la formule d'abonnement, utiliser le hook `usePlanAccess` et le composant `FeatureGate`.
 5. Créer l'écran dans `src/boutique/` (ou `src/pages/`).
-6. Enregistrer la route dans `src/routes/Public/PublicRouter.tsx` et mettre à jour la navigation dans `NavSide.tsx`.
+6. Enregistrer la route dans `src/routes/Public/PublicRouter.tsx` avec `Loadable(lazy(() => import(...)))` pour préserver les performances de chargement.
 7. Protéger l'accès avec `ProtectedRoute` et synchroniser les permissions côté backend (DRF).
 
 ### Authentification, session et en-tête d'entreprise
@@ -214,14 +245,16 @@ Toutes les routes métier nécessitent une session authentifiée, sauf `/auth/*`
 | `entreprise/permissions.py` | **permissions DRF par formule de licence** (`HasFeature`, `CanUploadMediaPermission`, etc.) |
 | `entreprise/quotas.py` | **contrôle des quotas** (`verifier_quota`, `MediaGuardMixin`) |
 | `entreprise/utils.py` | extraction de l'entreprise via en-tête `X-Entreprise-Id` |
-| `entreprise/models.py` | modèle de données métier avec intégrité référentielle et protection d'audit (`on_delete=models.SET_NULL`, libellés textuels immuables) |
-| `entreprise/views.py` et `entreprise/voirs.py` | endpoints API REST (dont `set_entreprise`, et `remove_user_from_entreprise` qui détache le lien ManyToMany sans supprimer le compte ni l'historique) |
+| `entreprise/models.py` | modèle de données métier avec intégrité référentielle, index B-Tree (`db_index=True`) et protection d'audit (`on_delete=models.SET_NULL`, libellés textuels immuables) |
+| `entreprise/views.py` et `entreprise/voirs.py` | endpoints API REST haute performance avec `select_related()` systématique et agrégations SQL optimisées |
 | `entreprise/serializers.py` | sérialiseurs d'entreprise (`EntrepriseSerializer` appliquant le quota d'entreprises selon le meilleur plan et bloquant les invités non activés avec `peut_creer_entreprise`, `EntrepriseDetailSerializer` exposant les `capabilities`) |
 | `utilisateur/test_registration.py` | tests unitaires de l'auto-inscription, de la création de personnel, du blocage d'entreprise pour invités et de l'activation super user |
 
 ### Endpoints clés et résolutions optimisées
 
+- **`SortiesEntrepriseAPIView` (`entreprise/voirs.py`)** : retourne la liste des ventes de l'entreprise active. Requête hautement optimisée avec `.select_related('entrer__souscategorie', 'client')` et calcul unique de la somme globale en amont via `aggregate(Sum('qte'))`. L'accès aux relations étrangères se fait en **2 requêtes SQL au total** (au lieu de 2 000+ requêtes générées auparavant par le problème N+1).
 - **`EntresEntrepriseAPIView` (`entreprise/voirs.py`)** : retourne la liste des lots en stock pour l'entreprise active. Requête optimisée avec `select_related('souscategorie', 'souscategorie__categorie', 'client')` et exposition directe des clés parentes (`categorie_uuid`, `categorie_slug`, `parent_categorie_libelle`, `sous_categorie_uuid`, `sous_categorie_id`, `sous_categorie_slug`, `sous_categorie_libelle`) pour permettre au frontend d'effectuer des filtrages instantanés et fiables sans surcoût réseau.
+- **`SommeQtePuSortieView` (`entreprise/voirs.py`)** : calcule les indicateurs clés et le chiffre d'affaires mensuel. Exécute directement les sommes en base de données (`Sum(F('pu') * F('qte'))` et `Sum(F('pu_achat') * F('qte'))`) sans charger les collections en mémoire vive Python.
 - **`InfoSousCatView` (`entreprise/views.py`)** : agrège l'état des sous-catégories et garantit que les articles ayant du stock enregistré (même sans historique de vente préliminaire) remontent correctement avec leurs indicateurs d'inventaire.
 - **`AddSousCategorieAPIView` (`entreprise/views.py`)** : sécurise l'ajout de sous-catégories par vérification des quotas Découverte (50 articles max) et résolution tolérante de la catégorie parente par UUID, slug ou ID numérique.
 - **`set_entreprise` (`entreprise/views.py`)** : assure la mise à jour des paramètres de l'entreprise et active une licence lorsqu'un champ `code` ou `licence_code` est transmis (nettoyage casse/espaces, contrôle de validité et vérification qu'aucune autre entreprise n'utilise ce code, accessible au propriétaire, membres, admins et éditeurs avec rafraîchissement automatique du cache frontend).
@@ -229,6 +262,13 @@ Toutes les routes métier nécessitent une session authentifiée, sauf `/auth/*`
 - **`ActiverCreationEntrepriseView` (`utilisateur/views.py`)** : endpoint sécurisé réservé au superadministrateur (`POST /api/utilisateur/<uuid>/activer-creation-entreprise`) permettant de basculer le drapeau `peut_creer_entreprise`.
 - **`RechercherUtilisateurView` (`utilisateur/views.py`)** : endpoint sécurisé (`POST /api/utilisateur/admin/rechercher`) permettant à un propriétaire de retrouver un compte utilisateur existant par email, téléphone ou nom d'utilisateur avec calcul dynamique des statuts (`deja_membre`, `est_proprietaire`, `est_soi_meme`).
 - **`RattacherPersonnelView` (`utilisateur/views.py`)** : endpoint sécurisé (`POST /api/utilisateur/admin/rattacher`) permettant de rattacher un utilisateur existant comme Gérant (rôle 2) ou Caissier (rôle 3) dans son entreprise, sous contrôle strict des quotas de la licence hôte et notification par e-mail en arrière-plan.
+
+### Indexation Base de Données (Migration 0025)
+
+Les tables volumineuses et fréquemment sollicitées intègrent désormais des index B-Tree (`db_index=True`) :
+- `Entrer` : `created_at`, `date`, `is_sortie` (en complément de la contrainte unique sur `barcode_value`).
+- `Sortie` : `created_at`, `is_remise`.
+- `Depense` : `created_at`.
 
 ### Traçabilité et conservation des données lors du retrait d'un collaborateur
 
@@ -248,10 +288,10 @@ Lorsqu'un employé ou collaborateur est retiré d'une entreprise via l'interface
 | `LicenceHistorique` | traçabilité des modifications de licence (ancien/nouveau plan, expiration, modificateur, référence de paiement, date) |
 | `Categorie` | catégorie parente rattachée à une entreprise |
 | `SousCategorie` | sous-catégorie ou article type avec génération automatique de slug unique |
-| `Entrer` | lot ou produit en stock : sous-catégorie, quantité, prix d'achat/vente, seuil critique, code-barres |
-| `Sortie` | mouvement de vente ou sortie lié à une entrée, calcul des marges |
+| `Entrer` | lot ou produit en stock : sous-catégorie, quantité, prix d'achat/vente, seuil critique, code-barres, index BDD sur dates et statuts |
+| `Sortie` | mouvement de vente ou sortie lié à une entrée, calcul des marges, index BDD sur `created_at` et `is_remise` |
 | `Client` | fiche tiers (client ou fournisseur) rattachée à l'entreprise |
-| `Depense` | dépense d'exploitation avec montant et justificatif éventuel |
+| `Depense` | dépense d'exploitation avec montant et justificatif éventuel, index BDD sur `created_at` |
 | `Facture`, `FactEntre`, `FactSortie` | facturation d'achat et de vente avec gestion des remises et acomptes |
 | `PaiementEntreprise` | historique des transactions et règlements d'abonnement |
 | `Notification` | alertes persistantes (rupture de stock, expiration de licence, réponses aux avis) |
@@ -327,7 +367,7 @@ Le plan de sécurité des comptes invités applique la séparation suivante :
 
 - À la création d'une entrée de stock, `Entrer.barcode_value` prend le code saisi ou reprend automatiquement la référence `ref`.
 - Le backend génère une image QR PNG dans `Entrer.barcode` lors de la persistance.
-- L'endpoint de scan `GET /api/entreprise/entre/scan/<code>` recherche par `barcode_value` ou `ref`.
+- L'endpoint de scan `GET /api/entreprise/entre/scan/<code>` recherche par `barcode_value` ou `ref` (recherche accélérée par index unique).
 - `BarcodeScanner.tsx` assure la lecture via la caméra de l'appareil. Les douchettes USB fonctionnent directement par saisie clavier.
 - Les formulaires de sortie et de caisse préremplissent automatiquement l'article scanné.
 
@@ -358,9 +398,17 @@ Le parcours d'abonnement et de renouvellement suit le protocole suivant :
 ## 10. Points d'attention pour les évolutions futures
 
 - **Double routage historique.** `AppRouter.tsx` s'appuie sur `PublicRouter`/`AuthRouter`. Les fichiers `MainRoutes.tsx` et `LoginRoutes.tsx` correspondent à un ancien découpage non monté. Toutes les nouvelles routes métier doivent être ajoutées dans `PublicRouter.tsx`.
+- **Code Splitting et Lazy Loading systématique :** Toutes les nouvelles pages ajoutées à `PublicRouter.tsx` ou `AuthRouter.tsx` doivent être enrobées avec `Loadable(lazy(() => import(...)))`. Ne jamais importer statiquement des écrans complets dans ces routeurs afin de préserver la taille minimale du bundle initial.
+- **Interdiction du surdécoupage artificiel (`manualChunks`) :** Ne **jamais** forcer la séparation de `react` / `react-dom` d'avec `@mui` et `@emotion` via `manualChunks`. Cette pratique crée des dépendances circulaires entre modules ES provoquant des crashs d'initialisation en production (`ReferenceError: Cannot access 'ma' before initialization` menant à une page blanche). Se reposer sur le découpage automatique induit par `React.lazy()`.
+- **Intégrité de la PWA (`workbox-window`) :** Ne jamais marquer `workbox-window` en `external` dans `vite.config.ts`, car les navigateurs web ne peuvent pas résoudre d'import nu en production (`TypeError: Failed to resolve module specifier`).
+- **Redirection SPA en production (`.htaccess`) :** Toujours maintenir `public/.htaccess` afin que le serveur de production (Apache, cPanel, LiteSpeed) redirige toutes les URLs (`/auth/login`, `/stock/*`, `/ventes/*`) vers `/index.html` pour éviter les erreurs 404 au rechargement ou accès direct.
+- **Éviter impérativement le problème N+1 et les boucles de calcul lourd en BDD :** Lors de l'écriture ou de l'ajustement d'un endpoint DRF retournant des listes (`sorties`, `entrers`, `factures`), toujours inclure `.select_related()` ou `.prefetch_related()` pour les clés étrangères. Ne **jamais** appeler de propriétés effectuant des requêtes globales (comme `sortie.somme_total`) à l'intérieur d'une boucle `for`.
+- **Déléguer les totaux et calculs financiers au moteur SQL :** Utiliser `aggregate(Sum(F('col1') * F('col2')))` plutôt que de charger des listes entières en mémoire vive Python via `sum(item.prix for item in items)`.
+- **Indexation BDD systématique :** Dès qu'un champ est fréquemment utilisé pour filtrer (`is_sortie`, `is_remise`), ordonner (`created_at`, `date`), regrouper (`TruncMonth`) ou scanner (`barcode_value`), lui assigner explicitement `db_index=True` dans `models.py`.
+- **Normalisation des unités de mesure :** Toujours employer la valeur standardisée `'unité'` (ou `'Unité(s)'`) pour les articles unitaires. Les formulaires doivent intégrer la normalisation automatique pour accepter indifféremment `'unite'` sans accent sans créer d'options dupliquées dans les menus déroulants.
 - **Règles de permissions double niveau.** Tout blocage visuel par `FeatureGate` ou `usePlanAccess` dans le frontend doit impérativement avoir son équivalent DRF côté Django (`permissions.py`, `quotas.py`, `views.py`).
 - **En-tête `X-Entreprise-Id`.** Toujours s'assurer que l'UUID de l'entreprise est renseigné dans `localStorage` afin que l'intercepteur Axios l'injecte dans les en-têtes API.
-- **Cache TanStack Query.** Après toute mutation (ajout d'article, encaissement, modification de catégorie, prolongation d'abonnement), toujours invalider les clés de cache correspondantes via `queryClient.invalidateQueries`.
+- **Cache TanStack Query.** Après toute mutation (ajout d'article, encaissement, modification de catégorie, prolongation d'abonnement), toujours invalider les clés de cache correspondantes via `queryClient.invalidateQueries`. Le `staleTime` global est paramétré à 5 minutes pour garantir une réactivité immédiate entre les écrans.
 - **Synchronisation locale immédiate lors des retraits/suppressions :** En complément de l'invalidation TanStack Query (`queryClient.invalidateQueries`), toujours coupler les mutations de suppression avec une mise à jour d'état local réactive (`set...((prev) => prev.filter(...))`). Cela garantit une réactivité visuelle instantanée et élimine le besoin d'actualiser manuellement la page.
 - **Préservation immuable des historiques d'audit :** Ne jamais employer de clause `CASCADE` sur les modèles liés à la traçabilité des opérations (`HistoriqueEntrer`, `HistoriqueSortie`, `Sortie`, `Facture`). Toujours privilégier `on_delete=models.SET_NULL` et consigner un libellé textuel figeant l'auteur au moment de l'action (`libelle=f"Produit sorti par {first_name} {last_name}"`), assurant une traçabilité permanente pour l'entreprise même après le retrait d'un employé.
 - **Sécurisation des identifiants.** Favoriser l'usage des `uuid` plutôt que des identifiants numériques directs dans les URLs et les paramètres d'API.
@@ -373,6 +421,16 @@ Le parcours d'abonnement et de renouvellement suit le protocole suivant :
   - Toujours autoriser le défilement horizontal (`overflowX: 'auto'` avec `minWidth: 900` ou `920` sur la `Table`) et vertical (`overflowY: 'auto'` avec `maxHeight` calculé, ex. `calc(100vh - 280px)`), avec `stickyHeader` et des cellules d'en-tête dotées d'un `backgroundColor` opaque et d'un `zIndex` adapté.
 - **Filtrage hiérarchique Catalogue / Stock en cascade :**
   - L'arborescence repose sur Entreprise → Catégorie → Sous-catégorie → Entrée (lot stocké). Les requêtes API sur les entrées doivent toujours joindre la sous-catégorie et la catégorie parente pour permettre le filtrage croisé instantané dans le frontend sans requête réseau supplémentaire. Côté UI, garantir une réinitialisation claire ("Toutes les catégories", "Toutes les sous-catégories") avec des états vides explicites et actionnables.
+- **Enregistrement des Entrées en Stock (Validation & Ergonomie des Champs Obligatoires) :**
+  - Tout approvisionnement ou entrée en stock exige impérativement **3 informations clés** :
+    1. **Le Nom du produit** (`categorie_slug` / sélection obligatoire dans le catalogue de sous-catégories).
+    2. **La Quantité reçue** (`qte > 0` / strictement supérieure à zéro).
+    3. **Le Prix de vente au client** (`pu > 0` / tarif de mise en vente en caisse).
+  - Dans le formulaire rapide ([useEntreprise.tsx](file:///c:/Users/DELL/Documents/Projet/GestionStock/Front/src/usePerso/useEntreprise.tsx)), l'utilisateur bénéficie d'une bannière interactive en temps réel avec un indicateur `X/3 Champs obligatoires`, une barre de progression fluide et 3 puces d'état (vert si validé, ambre/rouge si manquant).
+  - L'`Autocomplete` de sélection de produit est strictement contrôlé (suppression de `freeSolo` pour empêcher les saisies libres hors catalogue, liaison `value` exacte et `isOptionEqualToValue`).
+  - Des messages d'aide contextuels dynamiques (`helperText`), des astérisques rouges et des icônes réactives renseignent immédiatement l'opérateur.
+  - Le bouton d'enregistrement s'adapte en temps réel (dégradé vert avec coche dès que les 3 conditions sont remplies, ou bouton d'alerte indiquant le nombre de champs requis manquants avec toast d'avertissement bloquant à la soumission).
+  - Une sécurité équivalente est appliquée sur le multi-lignes ([ApprovisionnementModal.tsx](file:///c:/Users/DELL/Documents/Projet/GestionStock/Front/src/boutique/inventaire/ApprovisionnementModal.tsx)) et sur les entrées fournisseurs par fiche client ([ClientEntrer.tsx](file:///c:/Users/DELL/Documents/Projet/GestionStock/Front/src/boutique/proprietaire/client/Entrer/ClientEntrer.tsx)).
 
 ## 11. Procédure de vérification avant livraison
 
@@ -396,6 +454,8 @@ Vérifications manuelles :
 9. Défilement horizontal et vertical fonctionnel sur les grands tableaux (ex. factures de vente).
 10. Retrait d'un collaborateur dans `InfoUsers.tsx` : disparition immédiate de la ligne sans rechargement de page.
 11. Carte d'entreprise sans rôle dans `Entreprise.tsx` : affichage du badge « Rôle en attente » et toast informatif au clic.
+12. Contrôle de performance du bundle : vérifier que les fragments volumineux (`PdfFile`, `BarChart`, `BarcodeScanner`, `Sortie`) demeurent isolés et différés sans dépendances circulaires, et que `dist/.htaccess` est bien généré.
+13. Navigation fluide sans rechargements permanents d'API grâce au cache TanStack Query (5 min).
 
 ### Backend
 
@@ -418,3 +478,4 @@ Vérifications manuelles :
 8. Contrôle des réponses HTTP 403 avec code d'erreur structuré (`plan_insuffisant`, `quota_atteint`).
 9. Retrait d'un collaborateur (`POST /api/entreprise/user/remove`) : vérification du détachement Many-to-Many et maintien intégral des historiques (`HistoriqueSortie`, `HistoriqueEntrer`, factures).
 10. Contrôle du quota de ventes Découverte : vérification du blocage à 50 sorties max (`POST /api/entreprise/sortie/add`) et déblocage lors du passage au plan supérieur.
+11. Contrôle des performances SQL sur `GET /api/entreprise/sortie/get_sorties_entreprise/<uuid>` : vérifier l'absence de requêtes N+1 et le calcul instantané de la somme globale en une requête unique.

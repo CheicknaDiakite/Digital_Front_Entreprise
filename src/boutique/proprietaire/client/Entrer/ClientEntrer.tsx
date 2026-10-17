@@ -33,6 +33,7 @@ import { formatNumberWithSpaces, isLicenceExpired } from '../../../../usePerso/f
 import { AjoutEntreForm, useFormValues } from '../../../../usePerso/useEntreprise';
 import M_Abonnement from '../../../../_components/Card/M_Abonnement';
 import { useAppSettings } from '../../../../themes/AppSettingsContext';
+import toast from 'react-hot-toast';
 
 export default function ClientEntrer(uuid: UuType) {
   const theme = useTheme();
@@ -142,29 +143,52 @@ export default function ClientEntrer(uuid: UuType) {
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // ── Contrôle strict des 3 champs obligatoires ──
+    if (!formValues.categorie_slug || String(formValues.categorie_slug).trim() === '') {
+      toast.error("Veuillez sélectionner un nom de produit dans la liste déroulante.", { id: 'client-val-prod' });
+      return;
+    }
+    const qteNum = Number(formValues.qte);
+    if (isNaN(qteNum) || qteNum <= 0) {
+      toast.error("Veuillez renseigner une quantité reçue strictement supérieure à 0.", { id: 'client-val-qte' });
+      return;
+    }
+    const puNum = Number(formValues.pu);
+    if (isNaN(puNum) || puNum <= 0) {
+      toast.error("Veuillez renseigner un prix de vente au client strictement supérieur à 0.", { id: 'client-val-pu' });
+      return;
+    }
+
     formValues["cumuler_quantite"] = ajout_terminer;
     formValues["is_sortie"] = is_sortie;
     formValues["is_prix"] = is_prix;
     formValues["user_id"] = unUser.uuid || '';
     formValues["client_id"] = uuid.uuid;
     
-    ajoutEntre(formValues);
-    
-    setTerminer(false);
-    setSortie(true);
-    setPrix(true);
-    setFormValues({
-      libelle: '',
-      cumuler_quantite: false,
-      is_sortie: true,
-      is_prix: true,
-      user_id: '',
-      date: '',
-      pu: 0,
-      pu_achat: 0,
-      qte: 0,
+    ajoutEntre(formValues, {
+      onSuccess: () => {
+        toast.success("Entrée enregistrée avec succès !");
+        setTerminer(false);
+        setSortie(true);
+        setPrix(true);
+        setFormValues({
+          libelle: '',
+          cumuler_quantite: false,
+          is_sortie: true,
+          is_prix: true,
+          user_id: '',
+          date: '',
+          pu: 0,
+          pu_achat: 0,
+          qte: 0,
+        });
+        closeopen();
+      },
+      onError: (err: any) => {
+        toast.error(err?.message || "Erreur lors de l'enregistrement de l'entrée.");
+      },
     });
-    closeopen();
   };
 
 
